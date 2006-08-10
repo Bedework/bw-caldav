@@ -1,0 +1,183 @@
+<?xml version="1.0"?>
+
+<!-- This is the main build file for the caldav classes and servers.
+
+     Authors: Mike Douglass   douglm@rpi.edu
+-->
+
+<project name="caldav" default="build-all">
+  <!-- These may already be set from calling dir -->
+  <dirname property="org.bedework.project.caldav" file="${ant.file}"/>
+  <dirname property="project.home" file="${ant.file}"/>
+
+  <property name="org.bedework.project.calendar"
+            location="${project.home}/../calendar3"/>
+
+  <property file="${project.home}/build.properties" />
+
+  <property name="project.version" value="${edu.rpi.cmt.caldav.version}"/>
+
+  <property name="dist.home" location="${project.home}/dist"/>
+  <property name="lib.dir" location="${project.home}/lib"/>
+
+  <property name="build.dir" location="${project.home}/build"/>
+  <property name="buildjar" location="${build.dir}/buildjar.xml"/>
+
+  <!-- =================================================================
+       init:  all the property defs are in bldfiles/globalDdefs.xml
+       ================================================================= -->
+
+  <target name="init">
+    <property name="org.bedework.caldav.boeingexchange.base"
+              location="${project.home}/boeingexchange" />
+    <property name="org.bedework.caldav.bwcaldav.base"
+              location="${project.home}/bwcaldav" />
+    <property name="org.bedework.caldav.domino.base"
+              location="${project.home}/domino" />
+    <property name="org.bedework.caldav.google.base" location="${project.home}/google" />
+    <property name="org.bedework.caldav.server.base" location="${project.home}/server" />
+
+    <mkdir dir="${dist.home}" />
+
+    <property name="test.data.dir"
+              location="${dist.home}/test-data" />
+
+    <property name="edu.rpi.cmt.empty.dir"
+              location="${dist.home}/empty-dir" />
+    <mkdir dir="${edu.rpi.cmt.empty.dir}" />
+
+    <fileset id="empty.fileset" dir="${edu.rpi.cmt.empty.dir}"
+             excludes="*" />
+    <!-- default to empty -->
+    <fileset id="base.resource.files" refid="empty.fileset" />
+
+    <property name="boeingexchange.jar"
+              location="${dist.home}/${edu.rpi.cmt.caldav.boeingexchange.jar}-${project.version}.jar" />
+
+    <property name="bwcaldav.jar"
+              location="${dist.home}/${edu.rpi.cmt.caldav.bwcaldav.jar}-${project.version}.jar" />
+
+    <property name="domino.jar"
+              location="${dist.home}/${edu.rpi.cmt.caldav.domino.jar}-${project.version}.jar" />
+
+    <property name="google.jar"
+              location="${dist.home}/${edu.rpi.cmt.caldav.google.jar}-${project.version}.jar" />
+
+    <property name="server.jar"
+              location="${dist.home}/${edu.rpi.cmt.caldav.server.jar}-${project.version}.jar" />
+
+    <!-- ==================== Compilation Classpath ==================== -->
+
+    <path id="compile.classpath">
+      <fileset dir="${lib.dir}">
+         <include name="**/*.jar"/>
+      </fileset>
+      <fileset dir="${dist.home}">
+         <include name="*.jar"/>
+      </fileset>
+      <fileset dir="${org.bedework.project.calendar}/dist">
+         <include name="*.jar"/>
+      </fileset>
+    </path>
+  </target>
+
+  <!-- =================================================================
+       Clean all generated files
+       ================================================================= -->
+  <target name="clean">
+    <delete dir="${dist.home}" />
+  </target>
+
+  <!-- =================================================================
+       Clean up after a build.
+       ================================================================= -->
+  <target name="cleanup">
+    <delete dir="${edu.rpi.cmt.empty.dir}" />
+  </target>
+
+  <!-- ========================== Base build Targets ===================
+       Here we have one target building the classes and interfaces that make
+       up the access control suite.
+       ================================================================= -->
+
+  <target name="clean-build" depends="clean,build"
+          description="Clean and compile webdav classes"/>
+
+  <target name="clean-build-all" depends="clean,build-all"
+          description="Clean and compile webdav classes"/>
+
+  <target name="build" depends="init,build-source,cleanup"
+          description="Compile webdav classes"/>
+
+  <target name="build-all" depends="init,build-source,javadoc,cleanup"
+          description="Compile webdav classes"/>
+
+  <!-- ===================== bld.all Target ===============================
+     This target builds jar files ready for the deploy target.
+     =================================================================== -->
+
+  <target name="build-source" depends="bld.server,
+                                       bld.bwcaldav,
+                                       bld.boeingexchange,
+                                       bld.domino,
+                                       bld.google" />
+
+<!-- ==================== Javadoc Target ===============================
+     The "javadoc" target creates Javadoc API documentation for the Java
+     classes included in your application.  Normally, this is only required
+     when preparing a distribution release, but is available as a separate
+     target in case the developer wants to create Javadocs independently.
+     =================================================================== -->
+
+  <target name="javadoc" depends="init"
+          description="Create Javadoc API documentation">
+
+    <mkdir dir="${dist.home}/docs/api"/>
+    <javadoc sourcepath="${org.bedework.caldav.boeingexchange.base}/src:
+                         ${org.bedework.caldav.bwcaldav.base}/src:
+                         ${org.bedework.caldav.domino.base}/src:
+                         ${org.bedework.caldav.google.base}/src:
+                         ${org.bedework.caldav.server.base}/src:"
+           classpathref="compile.classpath"
+                destdir="${dist.home}/docs/api"
+           packagenames="org.bedework.*,
+                         edu.rpi.*"
+                 access="public"
+                 author="true"
+                version="true"
+          breakiterator="yes"
+            windowtitle="${product.name} ${product.version} API Documentation">
+      <doctitle><![CDATA[${product.name} ${product.version}<br/>API Documentation]]></doctitle>
+      <header><![CDATA[${product.name} ${product.version}<br/>API Documentation]]></header>
+    </javadoc>
+  </target>
+
+  <!-- ===================== internal build targets ====================
+       ================================================================= -->
+
+  <target name="bld.boeingexchange" if="org.bedework.build.caldav.bexchange" >
+      <ant antfile="${org.bedework.caldav.boeingexchange.base}/build.xml" inheritrefs="true"
+           target="build" />
+  </target>
+
+  <target name="bld.bwcaldav" >
+      <ant antfile="${org.bedework.caldav.bwcaldav.base}/build.xml"
+           inheritrefs="true"
+           target="build" />
+  </target>
+
+  <target name="bld.domino" if="org.bedework.build.caldav.domino" >
+      <ant antfile="${org.bedework.caldav.domino.base}/build.xml" inheritrefs="true"
+           target="build" />
+  </target>
+
+  <target name="bld.google" if="org.bedework.build.caldav.google" >
+      <ant antfile="${org.bedework.caldav.google.base}/build.xml" inheritrefs="true"
+           target="build" />
+  </target>
+
+  <target name="bld.server">
+      <ant antfile="${org.bedework.caldav.server.base}/build.xml" inheritrefs="true"
+           target="build" />
+  </target>
+</project>

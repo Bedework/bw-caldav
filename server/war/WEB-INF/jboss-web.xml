@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jboss-web>
+  <!-- Virtual host -->
+
+  <security-domain>java:/jaas/@SECURITY-DOMAIN@</security-domain>
+  <resource-ref>
+    <res-ref-name>jdbc/calDB</res-ref-name>
+    <res-type>javax.sql.DataSource</res-type>
+    <jndi-name>java:/CalendarDS</jndi-name>
+  </resource-ref>
+</jboss-web>
