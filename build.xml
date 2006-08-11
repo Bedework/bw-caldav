@@ -10,12 +10,10 @@
   <dirname property="org.bedework.project.caldav" file="${ant.file}"/>
   <dirname property="project.home" file="${ant.file}"/>
 
-  <property name="org.bedework.project.calendar"
-            location="${project.home}/../calendar3"/>
-
   <property file="${project.home}/build.properties" />
 
-  <property name="project.version" value="${edu.rpi.cmt.caldav.version}"/>
+  <property name="project.name" value="${org.bedework.package.name}"/>
+  <property name="project.version" value="${org.bedework.version}"/>
 
   <property name="dist.home" location="${project.home}/dist"/>
   <property name="lib.dir" location="${project.home}/lib"/>
@@ -75,9 +73,6 @@
       <fileset dir="${dist.home}">
          <include name="*.jar"/>
       </fileset>
-      <fileset dir="${org.bedework.project.calendar}/dist">
-         <include name="*.jar"/>
-      </fileset>
     </path>
   </target>
 
@@ -109,7 +104,7 @@
   <target name="build" depends="init,build-source,cleanup"
           description="Compile webdav classes"/>
 
-  <target name="build-all" depends="init,build-source,javadoc,cleanup"
+  <target name="build-all" depends="init,build-source,cleanup"
           description="Compile webdav classes"/>
 
   <!-- ===================== bld.all Target ===============================
@@ -146,9 +141,9 @@
                  author="true"
                 version="true"
           breakiterator="yes"
-            windowtitle="${product.name} ${product.version} API Documentation">
-      <doctitle><![CDATA[${product.name} ${product.version}<br/>API Documentation]]></doctitle>
-      <header><![CDATA[${product.name} ${product.version}<br/>API Documentation]]></header>
+            windowtitle="${project.name} ${project.version} API Documentation">
+      <doctitle><![CDATA[${project.name} ${project.version}<br/>API Documentation]]></doctitle>
+      <header><![CDATA[${project.name} ${project.version}<br/>API Documentation]]></header>
     </javadoc>
   </target>
 
