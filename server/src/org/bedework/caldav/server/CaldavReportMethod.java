@@ -61,9 +61,8 @@ import org.bedework.calfacade.CalFacadeDefs;
 import org.bedework.davdefs.CaldavTags;
 import org.bedework.davdefs.WebdavTags;
 
-import edu.rpi.cct.webdav.servlet.common.Headers;
-import edu.rpi.cct.webdav.servlet.common.MethodBase;
 import edu.rpi.cct.webdav.servlet.common.PropFindMethod;
+import edu.rpi.cct.webdav.servlet.common.ReportMethod;
 import edu.rpi.cct.webdav.servlet.common.WebdavMethods;
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
@@ -89,7 +88,7 @@ import javax.servlet.http.HttpServletResponse;
  *
  *   @author Mike Douglass   douglm@rpi.edu
  */
-public class ReportMethod extends MethodBase {
+public class CaldavReportMethod extends ReportMethod {
   /* The parsed results go here. We see:
    *  1. Free-busy request
    *  2. Query - optional props + filter
@@ -108,7 +107,6 @@ public class ReportMethod extends MethodBase {
   private final static int reportTypeQuery = 0;
   private final static int reportTypeMultiGet = 1;
   private final static int reportTypeFreeBusy = 2;
-  private final static int reportTypeExpandProperty = 3;
 
   private int reportType;
 
@@ -117,37 +115,60 @@ public class ReportMethod extends MethodBase {
   public void init() {
   }
 
-  public void doMethod(HttpServletRequest req,
-                       HttpServletResponse resp) throws WebdavException {
-    if (debug) {
-      trace("ReportMethod: doMethod");
+  /* We process the parsed document and produce a response
+   *
+   * @param doc
+   * @throws WebdavException
+   */
+  protected void process(Document doc,
+                         int depth,
+                         HttpServletRequest req,
+                         HttpServletResponse resp) throws WebdavException {
+    reportType = getCaldavReportType(doc);
+
+    if (reportType < 0) {
+      super.process(doc, depth, req, resp);
     }
 
-    Document doc = parseContent(req, resp);
-
-    if (doc == null) {
-      return;
-    }
-
-    int st = processDoc(doc);
-
-    if (st != HttpServletResponse.SC_OK) {
-      resp.setStatus(st);
-      throw new WebdavException(st);
-    }
-
-    int depth = Headers.depth(req);
-
-    if (debug) {
-      trace("ReportMethod: depth=" + depth);
-    }
+    processDoc(doc);
 
     if (reportType == reportTypeFreeBusy) {
       processFbResp(req, resp);
     } else {
-      startEmit(resp);
-
       processResp(req, resp, depth);
+    }
+  }
+
+  /** See if we recognize this report type and return an index.
+   *
+   * @param doc
+   * @return index or <0 for unknown.
+   * @throws WebdavException
+   */
+  protected int getCaldavReportType(Document doc) throws WebdavException {
+    try {
+      Element root = doc.getDocumentElement();
+
+      if (CaldavTags.calendarQuery.nodeMatches(root)) {
+        return reportTypeQuery;
+      }
+
+      if (CaldavTags.calendarMultiget.nodeMatches(root)) {
+        return reportTypeMultiGet;
+      }
+
+      if (CaldavTags.freeBusyQuery.nodeMatches(root)) {
+        return reportTypeFreeBusy;
+      }
+
+      return -1;
+    } catch (Throwable t) {
+      System.err.println(t.getMessage());
+      if (debug) {
+        t.printStackTrace();
+      }
+
+      throw new WebdavException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -159,10 +180,9 @@ public class ReportMethod extends MethodBase {
    * objects to process.
    *
    * @param doc
-   * @return int status
    * @throws WebdavException
    */
-  private int processDoc(Document doc) throws WebdavException {
+  private void processDoc(Document doc) throws WebdavException {
     try {
       WebdavNsIntf intf = getNsIntf();
 
@@ -175,20 +195,7 @@ public class ReportMethod extends MethodBase {
             WebdavMethods.propFind);
 
       if (pm == null) {
-        return HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-      }
-
-      if (nodeMatches(root, CaldavTags.calendarQuery)) {
-        reportType = reportTypeQuery;
-      } else if (nodeMatches(root, CaldavTags.calendarMultiget)) {
-        reportType = reportTypeMultiGet;
-      } else if (nodeMatches(root, CaldavTags.freeBusyQuery)) {
-        reportType = reportTypeFreeBusy;
-        freeBusy = new FreeBusyQuery(intf, debug);
-      } else if (nodeMatches(root, WebdavTags.expandProperty)) {
-        reportType = reportTypeExpandProperty;
-      } else {
-        throw new WebdavBadRequest();
+        throw new WebdavException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
       }
 
       Element[] children = getChildren(root);
@@ -208,7 +215,6 @@ public class ReportMethod extends MethodBase {
 
         if (reportType == reportTypeFreeBusy) {
           freeBusy.parse(curnode);
-        } else if (reportType == reportTypeExpandProperty) {
         } else {
           /* Two possibilities:
                <!ELEMENT calendar-multiget ((DAV:allprop |
@@ -244,10 +250,10 @@ public class ReportMethod extends MethodBase {
             int st = filter.parse(curnode);
 
             if (st != HttpServletResponse.SC_OK) {
-              return st;
+              throw new WebdavException(st);
             }
           } else if ((reportType == reportTypeMultiGet) &&
-                     nodeMatches(curnode, WebdavTags.href)) {
+              WebdavTags.href.nodeMatches(curnode)) {
             String href = XmlUtil.getElementContent(curnode);
 
             if ((href == null) || (href.length() == 0)) {
@@ -311,8 +317,6 @@ public class ReportMethod extends MethodBase {
         } else {
         }
       }
-
-      return HttpServletResponse.SC_OK;
     } catch (WebdavException wde) {
       throw wde;
     } catch (Throwable t) {
@@ -334,6 +338,8 @@ public class ReportMethod extends MethodBase {
   public void processResp(HttpServletRequest req,
                           HttpServletResponse resp,
                           int depth) throws WebdavException {
+    startEmit(resp);
+
     resp.setStatus(WebdavStatusCode.SC_MULTI_STATUS);
     resp.setContentType("text/xml; charset=UTF-8");
 
@@ -383,7 +389,6 @@ public class ReportMethod extends MethodBase {
           }
         }
       }
-    } else if (reportType == reportTypeExpandProperty) {
     }
 
     if (status != HttpServletResponse.SC_OK) {
@@ -514,7 +519,6 @@ public class ReportMethod extends MethodBase {
                      WebdavStatusCode.getMessage(status));
 
       closeTag(WebdavTags.propstat);
-    } else if (reportType == reportTypeExpandProperty) {
     } else {
       pm.doNodeProperties(node, preq);
     }

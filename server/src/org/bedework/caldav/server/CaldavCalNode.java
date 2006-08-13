@@ -68,6 +68,7 @@ import edu.rpi.sss.util.xml.XmlUtil;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.component.VFreeBusy;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.w3c.dom.Element;
@@ -80,6 +81,21 @@ public class CaldavCalNode extends CaldavBwNode {
   private Calendar ical;
 
   private String vfreeBusyString;
+
+  private final static Collection propertyNames = new ArrayList();
+
+  static {
+    propertyNames.add(CaldavTags.calendarDescription);
+    propertyNames.add(CaldavTags.calendarTimezone);
+    propertyNames.add(CaldavTags.maxAttendeesPerInstance);
+    propertyNames.add(CaldavTags.maxDateTime);
+    propertyNames.add(CaldavTags.maxInstances);
+    propertyNames.add(CaldavTags.maxResourceSize);
+    propertyNames.add(CaldavTags.minDateTime);
+    propertyNames.add(CaldavTags.supportedCalendarComponentSet);
+
+    propertyNames.add(WebdavTags.collection);
+  }
 
   /** Place holder for status
    *
@@ -218,6 +234,24 @@ public class CaldavCalNode extends CaldavBwNode {
     }
 
     return cal.getCurrentAccess();
+  }
+
+  /* ====================================================================
+   *                   Property methods
+   * ==================================================================== */
+
+  /** Return a set of QName defining properties this node supports.
+   *
+   * @return
+   * @throws WebdavIntfException
+   */
+  public Collection getPropertyNames()throws WebdavIntfException {
+    Collection res = new ArrayList();
+
+    res.addAll(super.getPropertyNames());
+    res.addAll(propertyNames);
+
+    return res;
   }
 
   /* ====================================================================

@@ -59,6 +59,7 @@ import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.svc.EventInfo;
 
 import org.bedework.davdefs.CaldavTags;
+import org.bedework.davdefs.WebdavTags;
 import org.bedework.icalendar.ComponentWrapper;
 import org.w3c.dom.Element;
 
@@ -97,6 +98,27 @@ public class CaldavComponentNode extends CaldavBwNode {
   private String veventString;
 
   private ComponentWrapper comp;
+
+  private final static Collection propertyNames = new ArrayList();
+
+  static {
+    propertyNames.add(CaldavTags.calendarData);
+
+    propertyNames.add(ICalTags.dtend);
+    propertyNames.add(ICalTags.dtstart);
+    propertyNames.add(ICalTags.due);
+    propertyNames.add(ICalTags.duration);
+    propertyNames.add(ICalTags.hasAlarm);
+    propertyNames.add(ICalTags.hasAttachment);
+    propertyNames.add(ICalTags.hasRecurrence);
+    propertyNames.add(ICalTags.sequence);
+    propertyNames.add(ICalTags.summary);
+    propertyNames.add(ICalTags.status);
+    propertyNames.add(ICalTags.transp);
+    propertyNames.add(ICalTags.uid);
+
+    propertyNames.add(WebdavTags.collection);
+  }
 
   /** Constructor
    *
@@ -222,6 +244,20 @@ public class CaldavComponentNode extends CaldavBwNode {
     } catch (Throwable t) {
       throw new WebdavIntfException(t);
     }
+  }
+
+  /** Return a set o QName defining properties this node supports.
+   *
+   * @return
+   * @throws WebdavIntfException
+   */
+  public Collection getPropertyNames()throws WebdavIntfException {
+    Collection res = new ArrayList();
+
+    res.addAll(super.getPropertyNames());
+    res.addAll(propertyNames);
+
+    return res;
   }
 
   /** Add an event to our collection.

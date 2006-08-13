@@ -57,15 +57,19 @@ import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwDateTime;
 import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.BwFreeBusy;
+import org.bedework.calfacade.base.BwShareableDbentity;
 import org.bedework.calfacade.timezones.CalTimezones;
 
+import edu.rpi.cct.webdav.servlet.shared.PrincipalPropertySearch;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavIntfException;
+import edu.rpi.cmt.access.Acl.CurrentAccess;
 
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.TimeZone;
 
 import java.io.Reader;
+import java.io.Serializable;
 import java.util.Collection;
 
 import javax.servlet.http.HttpServletRequest;
@@ -76,6 +80,18 @@ import javax.servlet.http.HttpServletRequest;
  * @author Mike Douglass douglm at rpi.edu
  */
 public interface SysIntf {
+  /** Prefix which defines a principal URIs
+   */
+  public static final String principalPrefix = "/principals";
+
+  /** Prefix which defines a user principal URI
+   */
+  public static final String userPrincipalPrefix = principalPrefix + "/users";
+
+  /** Prefix which defines a group principal URI
+   */
+  public static final String groupPrincipalPrefix = principalPrefix + "/groups";
+
   /** Called before any other method is called to allow initialisation to
    * take place at the first or subsequent requests
    *
@@ -89,6 +105,109 @@ public interface SysIntf {
                    String envPrefix,
                    String account,
                    boolean debug) throws WebdavIntfException;
+
+  /** Given a calendar address return the associated calendar account.
+   * For example, we might have a calendar address<br/>
+   *   auser@ahost.org
+   * <br/>with the associated account of <br/>
+   * auser.<br/>
+   *
+   * <p>Whereever we need a user account use the converted value. Call
+   * userToCaladdr for the inverse.
+   *
+   * @param caladdr      calendar address
+   * @return account or null if not caladdr for this system
+   * @throws WebdavIntfException  for errors
+   */
+  public String caladdrToUser(String caladdr) throws WebdavIntfException;
+
+  /**
+   * @author Mike Douglass
+   */
+  public static class CalUserInfo implements Serializable {
+    /** account as returned by caladdrToUer
+     */
+    public String account;
+
+    /** Path to user home
+     */
+    public String userHomePath;
+
+    /** Path to default calendar
+     */
+    public String defaultCalendarPath;
+
+    /** Path to inbox. null for no scheduling permitted (or supported)
+     */
+    public String inboxPath;
+
+    /** Path to outbox. null for no scheduling permitted (or supported)
+     */
+    public String outboxPath;
+
+    /**
+     * @param account
+     * @param userHomePath
+     * @param defaultCalendarPath
+     * @param inboxPath
+     * @param outboxPath
+     */
+    public CalUserInfo(String account, String userHomePath,
+                       String defaultCalendarPath, String inboxPath,
+                       String outboxPath) {
+      this.account = account;
+      this.userHomePath = userHomePath;
+      this.defaultCalendarPath = defaultCalendarPath;
+      this.inboxPath = inboxPath;
+      this.outboxPath = outboxPath;
+    }
+  }
+
+  /** Given a calendar address return the associated calendar user information
+   * needed for caldav interactions.
+   *
+   * @param caladdr      calendar address
+   * @return CalUserInfo or null if not caladdr for this system
+   * @throws WebdavIntfException  for errors
+   */
+  public CalUserInfo getCalUserInfo(String caladdr) throws WebdavIntfException;
+
+  /** Given a uri returns a Collection of uris that allow search operations on
+   * principals for that resource.
+   *
+   * @param resourceUri
+   * @return Collection of String
+   * @throws WebdavIntfException
+   */
+  public Collection getPrincipalCollectionSet(String resourceUri)
+         throws WebdavIntfException;
+
+  /** Given a PrincipalPropertySearch returns a Collection of matching principals.
+   *
+   * @param resourceUri
+   * @param pps
+   * @return Collection of PrincipalPropertySearch
+   * @throws WebdavIntfException
+   */
+  public Collection getPrincipals(String resourceUri,
+                                  PrincipalPropertySearch pps)
+          throws WebdavIntfException;
+
+  /** Is account a valid user?
+   *
+   * @param account
+   * @return boolean true for a valid user
+   * @throws WebdavIntfException  for errors
+   */
+  public boolean validUser(String account) throws WebdavIntfException;
+
+  /** Is account a valid group?
+   *
+   * @param account
+   * @return boolean true for a valid group
+   * @throws WebdavIntfException  for errors
+   */
+  public boolean validGroup(String account) throws WebdavIntfException;
 
   /** Add an event.
   *
@@ -171,6 +290,20 @@ public interface SysIntf {
                                 String account,
                                 BwDateTime start,
                                 BwDateTime end) throws WebdavException;
+
+  /** Check the access for the given entity. Returns the current access
+   * or null or optionally throws a no access exception.
+   *
+   * @param ent
+   * @param desiredAccess
+   * @param returnResult
+   * @return CurrentAccess
+   * @throws WebdavException if returnResult false and no access
+   */
+  public CurrentAccess checkAccess(BwShareableDbentity ent,
+                                   int desiredAccess,
+                                   boolean returnResult)
+          throws WebdavException;
 
   /**
    * @param cal

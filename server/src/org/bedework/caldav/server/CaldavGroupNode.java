@@ -54,72 +54,53 @@
 
 package org.bedework.caldav.server;
 
-import edu.rpi.cct.webdav.servlet.common.WebdavServlet;
-import edu.rpi.cct.webdav.servlet.shared.WebdavException;
-import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
+import edu.rpi.cct.webdav.servlet.shared.WebdavIntfException;
+import edu.rpi.cmt.access.Acl.CurrentAccess;
 
-import java.util.HashMap;
-import java.util.Properties;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.ServletConfig;
+import java.util.Collection;
 
-/** This class extends the webdav servlet class, implementing the abstract
- * methods and overriding others to extend/modify the behaviour.
+import org.w3c.dom.Element;
+
+/** Class to represent a user in caldav. Should only be created in
+   response to an incoming url which references principals.
  *
- * @author Mike Douglass   douglm@rpi.edu
+ *   @author Mike Douglass   douglm@rpi.edu
  */
-public class CaldavBWServlet extends WebdavServlet {
-//  private ServletConfig config;
-
-  /** Global resources for the servlet - not to be modified.
+public class CaldavGroupNode extends CaldavBwNode {
+  /**
+   * @param cdURI
+   * @param sysi
+   * @param debug
    */
-  protected Properties props;
+  public CaldavGroupNode(CaldavURI cdURI, SysIntf sysi, boolean debug) {
+    super(cdURI, sysi, debug);
+    groupPrincipal = true;
+    name = cdURI.getEntityName();
+  }
 
-  //  private static final String intfName = "edu.rpi.cct.uwcal.webdav.intfname";
+  public boolean removeProperty(Element val) throws WebdavIntfException {
+    warn("Unimplemented - removeProperty");
+    return false;
+  }
 
-  private String id = null;
+  public boolean setProperty(Element val) throws WebdavIntfException {
+    warn("Unimplemented - setProperty");
+    return false;
+  }
+
+  public Collection getChildren() throws WebdavIntfException {
+    return null;
+  }
+
   /* ====================================================================
-   *                     Abstract servlet methods
+   *                   Abstract methods
    * ==================================================================== */
 
-  public String getId() {
-    if (id != null) {
-      return id;
-    }
-
-    if (props == null) {
-      return getClass().getName();
-    }
-
-    id = props.getProperty("edu.rpi.cct.uwcal.appname");
-    if (id == null) {
-      id = getClass().getName();
-    }
-
-    return id;
+  public CurrentAccess getCurrentAccess() throws WebdavIntfException {
+    return null;
   }
 
-  public void addMethods(WebdavNsIntf nsIntf) throws WebdavException{
-    HashMap methods = nsIntf.getMethods();
-
-    super.addMethods(nsIntf);
-
-    // Replace methods
-    methods.put("MKCALENDAR", new MkcalendarMethod());
-    methods.put("OPTIONS", new CalDavOptionsMethod());
-    methods.put("PROPFIND", new CaldavPropFindMethod());
-    methods.put("REPORT", new CaldavReportMethod());
-  }
-
-  public WebdavNsIntf getNsIntf(HttpServletRequest req,
-                                ServletConfig config,
-                                Properties props)
-      throws WebdavException {
-    //    this.config = config;
-    this.props = props;
-
-    CaldavBWIntf wi = new CaldavBWIntf();
-
-    return wi;
-  }
+  /* ====================================================================
+   *                   Private methods
+   * ==================================================================== */
 }

@@ -73,8 +73,22 @@ public class CaldavURI {
 
   String entityName;
 
+  boolean userUri; // entityname is user
+
+  boolean groupUri;// entityname is group
+
   CaldavURI(BwCalendar cal, String entityName) {
     init(cal, entityName);
+  }
+
+  CaldavURI(String entityName, boolean isUser) {
+    cal = null;
+    this.entityName = entityName;
+    if (isUser) {
+      userUri = true;
+    } else {
+      groupUri = true;
+    }
   }
 
   private void init(BwCalendar cal, String entityName) {
@@ -114,6 +128,14 @@ public class CaldavURI {
    * @return String
    */
   public String getPath() {
+    if (userUri) {
+      return SysIntf.userPrincipalPrefix;
+    }
+
+    if (groupUri) {
+      return SysIntf.groupPrincipalPrefix;
+    }
+
     return cal.getPath();
   }
 
@@ -135,15 +157,24 @@ public class CaldavURI {
   }
 
   /**
-   * @param cal
-   * @param entityName
-   * @return true if pars represent same URI
+   * @return true if this represents a user
    */
-  public boolean sameURI(BwCalendar cal, String entityName) {
-    if (!getPath().equals(cal.getPath())) {
-      return false;
-    }
+  public boolean isUser() {
+    return userUri;
+  }
 
+  /**
+   * @return true if this represents a group
+   */
+  public boolean isGroup() {
+    return groupUri;
+  }
+
+  /**
+   * @param entityName
+   * @return true if has same name
+   */
+  public boolean sameName(String entityName) {
     if ((entityName == null) && (getEntityName() == null)) {
       return true;
     }
@@ -164,6 +195,58 @@ public class CaldavURI {
     sb.append("}");
 
     return sb.toString();
+  }
+
+  public int hashCode() {
+    int hc = entityName.hashCode();
+
+    if (userUri) {
+      return hc * 1;
+    }
+
+    if (groupUri) {
+      return hc * 2;
+    }
+
+    return hc * 3 + cal.getPath().hashCode();
+  }
+
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+
+    if (!(o instanceof CaldavURI)) {
+      return false;
+    }
+
+    CaldavURI that = (CaldavURI)o;
+
+    if (that.userUri != userUri) {
+      return false;
+    }
+
+    if (that.groupUri != groupUri) {
+      return false;
+    }
+
+    if (cal == null) {
+      if (that.cal != null) {
+        return false;
+      }
+
+      return true;
+    }
+
+    if (that.cal == null) {
+      return false;
+    }
+
+    if (!cal.equals(that.cal)) {
+      return false;
+    }
+
+    return sameName(that.entityName);
   }
 }
 

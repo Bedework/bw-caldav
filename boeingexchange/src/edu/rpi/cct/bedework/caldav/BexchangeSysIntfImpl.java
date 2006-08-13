@@ -59,8 +59,8 @@ import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwDateTime;
 import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.BwFreeBusy;
-import org.bedework.calfacade.BwFreeBusyComponent;
 import org.bedework.calfacade.BwUser;
+import org.bedework.calfacade.base.BwShareableDbentity;
 import org.bedework.calfacade.timezones.CalTimezones;
 import org.bedework.calfacade.timezones.ResourceTimezones;
 import org.bedework.http.client.dav.DavClient;
@@ -68,22 +68,16 @@ import org.bedework.http.client.dav.DavReq;
 import org.bedework.http.client.dav.DavResp;
 import org.bedework.icalendar.IcalTranslator;
 
+import edu.rpi.cct.webdav.servlet.shared.PrincipalPropertySearch;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavIntfException;
-import edu.rpi.sss.util.xml.XmlUtil;
+import edu.rpi.cmt.access.Acl.CurrentAccess;
 
 import net.fortuna.ical4j.model.Calendar;
-import net.fortuna.ical4j.model.DateTime;
-import net.fortuna.ical4j.model.Period;
 import net.fortuna.ical4j.model.TimeZone;
 
 import org.apache.commons.httpclient.NoHttpResponseException;
 import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -95,12 +89,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.SimpleTimeZone;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 /** Domino implementation of SysIntf. This interacts with a servlet on Domino
  * which presents requested calendar information.
@@ -212,6 +203,35 @@ public class BexchangeSysIntfImpl implements SysIntf {
       throw new WebdavIntfException(t);
     }
   }
+
+  public String caladdrToUser(String caladdr) throws WebdavIntfException {
+    return caladdr;
+  }
+
+  public CalUserInfo getCalUserInfo(String caladdr) throws WebdavIntfException {
+    return new CalUserInfo(caladdrToUser(caladdr),
+                           null, null, null, null);
+  }
+
+  public Collection getPrincipalCollectionSet(String resourceUri)
+          throws WebdavIntfException {
+    throw new WebdavIntfException("unimplemented");
+  }
+
+  public Collection getPrincipals(String resourceUri,
+                           PrincipalPropertySearch pps)
+          throws WebdavIntfException {
+    throw new WebdavIntfException("unimplemented");
+  }
+
+  public boolean validUser(String account) throws WebdavIntfException {
+    throw new WebdavIntfException("unimplemented");
+  }
+
+  public boolean validGroup(String account) throws WebdavIntfException {
+    throw new WebdavIntfException("unimplemented");
+  }
+
 
   public void addEvent(BwCalendar cal,
                        BwEvent event,
@@ -328,6 +348,13 @@ public class BexchangeSysIntfImpl implements SysIntf {
     }
   }
 
+  public CurrentAccess checkAccess(BwShareableDbentity ent,
+                                   int desiredAccess,
+                                   boolean returnResult)
+          throws WebdavException {
+    throw new WebdavIntfException("unimplemented");
+  }
+
   public void updateAccess(BwCalendar cal,
                            Collection aces) throws WebdavIntfException {
     throw new WebdavIntfException("unimplemented");
@@ -411,10 +438,10 @@ public class BexchangeSysIntfImpl implements SysIntf {
    *                         Private methods
    * ==================================================================== */
 
-  private static final char exchangeFBFree = '0';
-  private static final char exchangeFBBusy = '1';
-  private static final char exchangeFBBusyTentative = '2';
-  private static final char exchangeFBOutOfOffice = '3';
+//  private static final char exchangeFBFree = '0';
+//  private static final char exchangeFBBusy = '1';
+//  private static final char exchangeFBBusyTentative = '2';
+//  private static final char exchangeFBOutOfOffice = '3';
 
   /* The String is a number of digits representing the given time period
    * from start to end in cellsize minute increments.
@@ -422,7 +449,7 @@ public class BexchangeSysIntfImpl implements SysIntf {
    * <p>0 means free, 1 means busy, 2 means tentative, and 3 means out-of-office
    *
    * We return a BwFreeBusy object representing the information
-   */
+   * /
   private BwFreeBusy makeFb(BwDateTime start,
                             BwDateTime end,
                             String val,
@@ -460,7 +487,7 @@ public class BexchangeSysIntfImpl implements SysIntf {
 
           if (startDt != null) {
             if (lastDigit != exchangeFBFree) {
-              /* Just finished a non-free period */
+              /* Just finished a non-free period * /
               BwFreeBusyComponent fbcomp = new BwFreeBusyComponent();
 
               fb.addTime(fbcomp);
@@ -494,7 +521,7 @@ public class BexchangeSysIntfImpl implements SysIntf {
 
       throw new WebdavException(t);
     }
-  }
+  }*/
 
   /* <?xml version='1.0' encoding='utf-8'?>
 <D:multistatus xmlns:D='DAV:' xmlns:C='urn:ietf:params:xml:ns:caldav'>
@@ -519,7 +546,7 @@ END:VCALENDAR
 </C:calendar-data>
 </D:response>
 </D:multistatus>
-   */
+
   private String makeVfb(Reader rdr) throws WebdavException{
     try {
       DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -593,6 +620,7 @@ END:VCALENDAR
       throw new WebdavException(t);
     }
   }
+  */
 
   private String makeDate(BwDateTime dt) throws WebdavIntfException {
     try {

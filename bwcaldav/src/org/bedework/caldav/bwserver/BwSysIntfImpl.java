@@ -58,10 +58,12 @@ import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwDateTime;
 import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.BwFreeBusy;
+import org.bedework.calfacade.BwSystem;
 import org.bedework.calfacade.BwUser;
 import org.bedework.calfacade.CalFacadeAccessException;
 import org.bedework.calfacade.CalFacadeDefs;
 import org.bedework.calfacade.CalFacadeException;
+import org.bedework.calfacade.base.BwShareableDbentity;
 import org.bedework.calfacade.svc.BwSubscription;
 import org.bedework.calfacade.timezones.CalTimezones;
 import org.bedework.calsvci.CalSvcFactoryDefault;
@@ -70,8 +72,10 @@ import org.bedework.calsvci.CalSvcIPars;
 import org.bedework.icalendar.IcalMalformedException;
 import org.bedework.icalendar.IcalTranslator;
 
+import edu.rpi.cct.webdav.servlet.shared.PrincipalPropertySearch;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavIntfException;
+import edu.rpi.cmt.access.Acl.CurrentAccess;
 
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.TimeZone;
@@ -94,6 +98,8 @@ public class BwSysIntfImpl implements SysIntf {
 
   private String account;
 
+  private String hostPortContext;
+
   /* These two set after a call to getSvci()
    */
   private IcalTranslator trans;
@@ -107,9 +113,108 @@ public class BwSysIntfImpl implements SysIntf {
       this.envPrefix = envPrefix;
       this.account = account;
       this.debug = debug;
+
+      StringBuffer sb = new StringBuffer();
+
+      sb.append("http://");
+      sb.append(req.getLocalName());
+
+      int port = req.getLocalPort();
+      if (port != 80) {
+        sb.append(":");
+        sb.append(port);
+      }
+
+      sb.append(req.getContextPath());
+      sb.append("/");
+
+      hostPortContext = sb.toString();
     } catch (Throwable t) {
       throw new WebdavIntfException(t);
     }
+  }
+
+  public String caladdrToUser(String caladdr) throws WebdavIntfException {
+    try {
+      String sysid = getSvci().getSysid();
+
+      String addrPart = sysid.substring(sysid.indexOf("@"));
+
+      if (!caladdr.endsWith(addrPart)) {
+        return caladdr;
+      }
+
+      String acc = caladdr.substring(0, caladdr.length() - addrPart.length());
+
+      // XXX We need a way to validate this against a user directory
+      // Yet another pluggable class
+
+      return acc;
+    } catch (CalFacadeException cfe) {
+      throw new WebdavIntfException(cfe);
+    } catch (Throwable t) {
+      throw new WebdavIntfException(t);
+    }
+  }
+
+  public CalUserInfo getCalUserInfo(String caladdr) throws WebdavIntfException {
+    try {
+      String account = caladdrToUser(caladdr);
+      BwSystem sys = getSvci().getSyspars();
+      String userHomePath = sys.getUserCalendarRoot() + "/" + account;
+      String defaultCalendarPath = userHomePath + sys.getUserDefaultCalendar();
+      String inboxPath = userHomePath + sys.getUserInbox();
+      String outboxPath = userHomePath + sys.getUserOutbox();
+
+      return new CalUserInfo(account,
+                             userHomePath,
+                             defaultCalendarPath,
+                             inboxPath,
+                             outboxPath);
+    } catch (CalFacadeException cfe) {
+      throw new WebdavIntfException(cfe);
+    } catch (Throwable t) {
+      throw new WebdavIntfException(t);
+    }
+  }
+
+  public Collection getPrincipalCollectionSet(String resourceUri)
+          throws WebdavIntfException {
+    try {
+      StringBuffer sb = new StringBuffer();
+
+      BwSystem sys = getSvci().getSyspars();
+      String userRootPath = sys.getUserCalendarRoot();
+
+      sb.append(hostPortContext);
+      sb.append("/");
+      sb.append(userRootPath);
+      sb.append("/");
+
+      ArrayList al = new ArrayList();
+
+      al.add(sb.toString());
+
+      return al;
+    } catch (Throwable t) {
+      throw new WebdavIntfException(t);
+    }
+  }
+
+  public Collection getPrincipals(String resourceUri,
+                           PrincipalPropertySearch pps)
+          throws WebdavIntfException {
+    throw new WebdavIntfException("unimplemented");
+  }
+
+  public boolean validUser(String account) throws WebdavIntfException {
+    // XXX do this
+    return true;
+  }
+
+  public boolean validGroup(String account) throws WebdavIntfException {
+    // XXX do this
+    return true;
   }
 
   public void addEvent(BwCalendar cal,
@@ -236,6 +341,17 @@ public class BwSysIntfImpl implements SysIntf {
       throw wde;
     } catch (Throwable t) {
       throw new WebdavIntfException(t);
+    }
+  }
+
+  public CurrentAccess checkAccess(BwShareableDbentity ent,
+                                   int desiredAccess,
+                                   boolean returnResult)
+          throws WebdavException {
+    try {
+      return getSvci().checkAccess(ent, desiredAccess, returnResult);
+    } catch (CalFacadeException cfe) {
+      throw new WebdavException(cfe);
     }
   }
 

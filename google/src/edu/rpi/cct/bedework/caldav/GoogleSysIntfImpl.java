@@ -60,11 +60,14 @@ import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.BwFreeBusy;
 import org.bedework.calfacade.BwFreeBusyComponent;
 import org.bedework.calfacade.BwUser;
+import org.bedework.calfacade.base.BwShareableDbentity;
 import org.bedework.calfacade.timezones.CalTimezones;
 import org.bedework.calfacade.timezones.ResourceTimezones;
 
+import edu.rpi.cct.webdav.servlet.shared.PrincipalPropertySearch;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavIntfException;
+import edu.rpi.cmt.access.Acl.CurrentAccess;
 
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Period;
@@ -115,6 +118,34 @@ public class GoogleSysIntfImpl implements SysIntf {
     } catch (Throwable t) {
       throw new WebdavIntfException(t);
     }
+  }
+
+  public String caladdrToUser(String caladdr) throws WebdavIntfException {
+    return caladdr;
+  }
+
+  public CalUserInfo getCalUserInfo(String caladdr) throws WebdavIntfException {
+    return new CalUserInfo(caladdrToUser(caladdr),
+                           null, null, null, null);
+  }
+
+  public Collection getPrincipalCollectionSet(String resourceUri)
+          throws WebdavIntfException {
+    throw new WebdavIntfException("unimplemented");
+  }
+
+  public Collection getPrincipals(String resourceUri,
+                           PrincipalPropertySearch pps)
+          throws WebdavIntfException {
+    throw new WebdavIntfException("unimplemented");
+  }
+
+  public boolean validUser(String account) throws WebdavIntfException {
+    throw new WebdavIntfException("unimplemented");
+  }
+
+  public boolean validGroup(String account) throws WebdavIntfException {
+    throw new WebdavIntfException("unimplemented");
   }
 
   public void addEvent(BwCalendar cal,
@@ -273,6 +304,13 @@ public class GoogleSysIntfImpl implements SysIntf {
     } catch (Throwable t) {
       throw new WebdavIntfException(t);
     }
+  }
+
+  public CurrentAccess checkAccess(BwShareableDbentity ent,
+                                   int desiredAccess,
+                                   boolean returnResult)
+          throws WebdavException {
+    throw new WebdavIntfException("unimplemented");
   }
 
   public void updateAccess(BwCalendar cal,

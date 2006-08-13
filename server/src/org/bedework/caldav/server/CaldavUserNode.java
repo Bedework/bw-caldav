@@ -77,17 +77,8 @@ public class CaldavUserNode extends CaldavBwNode {
    */
   public CaldavUserNode(CaldavURI cdURI, SysIntf sysi, boolean debug) {
     super(cdURI, sysi, debug);
-/*
-    this.name = cdURI.getUserName();
-    collection = true;
-    allowsGet = false;
-
-    if (!uri.endsWith("/")) {
-      uri += "/";
-    }
-
-    contentLang = "en";
-    contentLen = 0;*/
+    groupPrincipal = true;
+    name = cdURI.getEntityName();
   }
 
   public boolean removeProperty(Element val) throws WebdavIntfException {
@@ -101,31 +92,6 @@ public class CaldavUserNode extends CaldavBwNode {
   }
 
   public Collection getChildren() throws WebdavIntfException {
-/*    try {
-      Collection cals = svci.getCalendars();
-      Vector v = new Vector();
-
-      /* Add the default calendar name first.
-       * /
-      v.addElement(cdURI.getDefaultCalendarName());
-
-      if (cals == null) {
-        return v;
-      }
-
-      Iterator it = cals.iterator();
-
-      while (it.hasNext()) {
-        CalendarVO cal = (CalendarVO)it.next();
-
-        v.addElement(cal.getName());
-      }
-
-      return v;
-    } catch (Throwable t) {
-      throw new WebdavIntfException(t);
-    }
-    */
     return null;
   }
 
