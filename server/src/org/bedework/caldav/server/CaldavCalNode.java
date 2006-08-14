@@ -56,13 +56,16 @@ package org.bedework.caldav.server;
 
 import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwFreeBusy;
+import org.bedework.davdefs.CaldavDefs;
 import org.bedework.davdefs.CaldavTags;
 import org.bedework.davdefs.WebdavTags;
 import org.bedework.icalendar.IcalTranslator;
 import org.bedework.icalendar.VFreeUtil;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavIntfException;
+import edu.rpi.cct.webdav.servlet.shared.WebdavProperty;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
+import edu.rpi.sss.util.xml.QName;
 import edu.rpi.sss.util.xml.XmlUtil;
 
 import net.fortuna.ical4j.model.Calendar;
@@ -239,6 +242,35 @@ public class CaldavCalNode extends CaldavBwNode {
   /* ====================================================================
    *                   Property methods
    * ==================================================================== */
+
+  /** Get the value for the given property.
+   *
+   * @param pr   WebdavProperty defining property
+   * @return PropVal   value
+   * @throws WebdavIntfException
+   */
+  public PropVal generatePropertyValue(WebdavProperty pr) throws WebdavIntfException {
+    PropVal pv = new PropVal();
+    QName tag = pr.getTag();
+    String ns = tag.getNamespaceURI();
+
+    BwCalendar cal = getCDURI().getCal();
+
+    /* Deal with webdav properties */
+    if ((!ns.equals(CaldavDefs.caldavNamespace) &&
+        !ns.equals(CaldavDefs.icalNamespace))) {
+      // Not ours
+      return super.generatePropertyValue(pr);
+    }
+
+    if (tag.equals(CaldavTags.calendarDescription)) {
+      pv.val = cal.getDescription();
+      return pv;
+    }
+
+    pv.notFound = true;
+    return pv;
+  }
 
   /** Return a set of QName defining properties this node supports.
    *

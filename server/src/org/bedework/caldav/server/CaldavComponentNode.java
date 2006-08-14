@@ -55,9 +55,11 @@
 package org.bedework.caldav.server;
 
 import org.bedework.caldav.server.calquery.CalendarData;
+import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.svc.EventInfo;
 
+import org.bedework.davdefs.CaldavDefs;
 import org.bedework.davdefs.CaldavTags;
 import org.bedework.davdefs.WebdavTags;
 import org.bedework.icalendar.ComponentWrapper;
@@ -184,6 +186,98 @@ public class CaldavComponentNode extends CaldavBwNode {
   /* ====================================================================
    *                   Property methods
    * ==================================================================== */
+
+  /** Get the value for the given property.
+   *
+   * @param pr   WebdavProperty defining property
+   * @return PropVal   value
+   * @throws WebdavIntfException
+   */
+  public PropVal generatePropertyValue(WebdavProperty pr) throws WebdavIntfException {
+    PropVal pv = new PropVal();
+    QName tag = pr.getTag();
+    String ns = tag.getNamespaceURI();
+
+    BwCalendar cal = getCDURI().getCal();
+
+    /* Deal with webdav properties */
+    if ((!ns.equals(CaldavDefs.caldavNamespace) &&
+        !ns.equals(CaldavDefs.icalNamespace))) {
+      // Not ours
+      return super.generatePropertyValue(pr);
+    }
+
+    BwEvent ev = checkEv(pv);
+    if (ev == null) {
+      return pv;
+    }
+
+    if (tag.equals(ICalTags.summary)) {
+      pv.val = ev.getSummary();
+      return pv;
+    }
+
+    if (tag.equals(ICalTags.dtstart)) {
+      pv.val = ev.getDtstart().toString();
+      return pv;
+    }
+
+    if (tag.equals(ICalTags.dtend)) {
+      pv.val = ev.getDtend().toString();
+      return pv;
+    }
+
+    if (tag.equals(ICalTags.duration)) {
+      pv.val = ev.getDuration();
+      return pv;
+    }
+
+    if (tag.equals(ICalTags.transp)) {
+      pv.val = ev.getTransparency();
+      return pv;
+    }
+
+    /* TODO
+    if (tag.equals(ICalTags.due)) {
+      pv.val = ev.
+      return pv;
+    }
+    */
+
+    if (tag.equals(ICalTags.status)) {
+      pv.val = ev.getStatus();
+      return pv;
+    }
+
+    if (tag.equals(ICalTags.uid)) {
+      pv.val = ev.getGuid();
+      return pv;
+    }
+
+    if (tag.equals(ICalTags.sequence)) {
+      pv.val = String.valueOf(ev.getSequence());
+      return pv;
+    }
+
+    /*
+    if (tag.equals(ICalTags.hasRecurrence)) {
+      pv.val = ev
+      return pv;
+    }
+
+    if (tag.equals(ICalTags.hasAlarm)) {
+      pv.val = ev
+      return pv;
+    }
+
+    if (tag.equals(ICalTags.hasAttachment)) {
+      pv.val = ev
+      return pv;
+    }*/
+
+    pv.notFound = true;
+    return pv;
+  }
 
   public void init(boolean content) throws WebdavIntfException {
     if (!content) {
@@ -394,6 +488,27 @@ public class CaldavComponentNode extends CaldavBwNode {
   /* ====================================================================
    *                   Private methods
    * ==================================================================== */
+
+  private BwEvent getEvent() throws WebdavIntfException {
+    EventInfo ei = getEventInfo();
+
+    if (ei == null) {
+      return null;
+    }
+
+    return ei.getEvent();
+  }
+
+  private BwEvent checkEv(PropVal pv) throws WebdavIntfException {
+    BwEvent ev = getEvent();
+
+    if (ev == null) {
+      pv.notFound = true;
+      return null;
+    }
+
+    return ev;
+  }
 
   private void addProp(Collection c, QName tag, Object val) {
     if (val != null) {

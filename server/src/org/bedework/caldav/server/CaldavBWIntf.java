@@ -75,6 +75,7 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavIntfException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
 import edu.rpi.cct.webdav.servlet.shared.WebdavProperty;
+import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode.PropVal;
 import edu.rpi.cmt.access.Ace;
 import edu.rpi.cmt.access.Acl;
 import edu.rpi.cmt.access.Privileges;
@@ -917,98 +918,68 @@ public class CaldavBWIntf extends WebdavNsIntf {
    *                Property value methods
    * ==================================================================== */
 
+  /** Override this to create namespace specific property objects.
+   *
+   * @param propnode
+   * @return WebdavProperty
+   * @throws WebdavException
+   */
+  public WebdavProperty makeProp(Element propnode) throws WebdavException {
+    if (!CaldavTags.calendarData.nodeMatches(propnode)) {
+      return super.makeProp(propnode);
+    }
+
+    /* Handle the calendar-data element */
+
+    CalendarData caldata = new CalendarData(new QName(propnode.getNamespaceURI(),
+                                                      propnode.getLocalName()),
+                                                      debug);
+    caldata.parse(propnode);
+
+    return caldata;
+  }
+
   /** Generate a response for a single webdav property. This should be overrriden
    * to handle other namespaces.
    *
    * @param node
    * @param pr
+   * @return int status
    * @throws WebdavIntfException
    */
-  public void generatePropValue(WebdavNsNode node,
-                                WebdavProperty pr) throws WebdavIntfException {
+  public int generatePropValue(WebdavNsNode node,
+                               WebdavProperty pr) throws WebdavIntfException {
     QName tag = pr.getTag();
     String ns = tag.getNamespaceURI();
-    boolean isCalendar = node instanceof CaldavCalNode;
-    CaldavCalNode calNode = null;
-    BwCalendar cal = null;
-
-    if (isCalendar) {
-      calNode = (CaldavCalNode)node;
-      cal = calNode.getCDURI().getCal();
-    }
+    int status = HttpServletResponse.SC_OK;
 
     try {
       /* Deal with webdav properties */
       if ((!ns.equals(CaldavDefs.caldavNamespace) &&
           !ns.equals(CaldavDefs.icalNamespace))) {
         // Not ours
-        super.generatePropValue(node, pr);
-        return;
+        return super.generatePropValue(node, pr);
       }
 
-      // XXX Change this to have node class generate???
-      if (tag.equals(ICalTags.summary)) {
-        openPropstat();
-        xml.property(tag, pr.getPval());
-        closePropstat();
-      } else if (tag.equals(ICalTags.dtstart)) {
-        openPropstat();
-        xml.property(tag, pr.getPval());
-        closePropstat();
-      } else if (tag.equals(ICalTags.dtend)) {
-        openPropstat();
-        xml.property(tag, pr.getPval());
-        closePropstat();
-      } else if (tag.equals(ICalTags.duration)) {
-        openPropstat();
-        xml.property(tag, pr.getPval());
-        closePropstat();
-      } else if (tag.equals(ICalTags.transp)) {
-        openPropstat();
-        xml.property(tag, pr.getPval());
-        closePropstat();
-      } else if (tag.equals(ICalTags.due)) {
-        openPropstat();
-        xml.property(tag, pr.getPval());
-        closePropstat();
-      } else if (tag.equals(ICalTags.status)) {
-        openPropstat();
-        xml.property(tag, pr.getPval());
-        closePropstat();
-      } else if (tag.equals(ICalTags.uid)) {
-        openPropstat();
-        xml.property(tag, pr.getPval());
-        closePropstat();
-      } else if (tag.equals(ICalTags.sequence)) {
-        openPropstat();
-        xml.property(tag, pr.getPval());
-        closePropstat();
-      } else if (tag.equals(ICalTags.hasRecurrence)) {
-        openPropstat();
-        xml.property(tag, pr.getPval());
-        closePropstat();
-      } else if (tag.equals(ICalTags.hasAlarm)) {
-        openPropstat();
-        xml.property(tag, pr.getPval());
-        closePropstat();
-      } else if (tag.equals(ICalTags.hasAttachment)) {
-        openPropstat();
-        xml.property(tag, pr.getPval());
-        closePropstat();
-      } else if (tag.equals(CaldavTags.calendarData)) {
+      if (tag.equals(CaldavTags.calendarData)) {
         // pr should be a CalendarData object
         if (!(pr instanceof CalendarData)) {
           // XXX software error
+          if (debug) {
+            warn("!(pr instanceof CalendarData)");
+          }
         } else {
           CalendarData caldata = (CalendarData)pr;
           String content = null;
-          openPropstat();
-          int status = HttpServletResponse.SC_OK;
+
+          if (debug) {
+            trace("do CalendarData for " + node.getUri());
+          }
 
           try {
             content = caldata.process(node);
           } catch (WebdavException wde) {
-            status = wde.getStatusCode();;
+            status = wde.getStatusCode();
             if (debug && (status != HttpServletResponse.SC_NOT_FOUND)) {
               error(wde);
             }
@@ -1022,21 +993,17 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
             xml.property(CaldavTags.calendarData, content);
           }
-          closePropstat(status);
         }
-      } else if (tag.equals(CaldavTags.calendarDescription)) {
-        if ((cal != null) && (cal.getDescription() != null)) {
-          // XXX lang
-          openPropstat();
-          xml.property(tag, cal.getDescription());
-          closePropstat();
-        }
-      } else if (tag.equals(CaldavTags.calendarTimezone)) {
-        openPropstat();
+        return status;
+      }
+
+      if (tag.equals(CaldavTags.calendarTimezone)) {
         TimeZone tz = sysi.getDefaultTimeZone();
         xml.property(tag, sysi.toStringTzCalendar(tz.getID()));
-        closePropstat();
-      } else if (tag.equals(CaldavTags.supportedCalendarComponentSet)) {
+        return status;
+      }
+
+      if (tag.equals(CaldavTags.supportedCalendarComponentSet)) {
         /* e.g.
          *          <C:supported-calendar-component-set
          *                 xmlns:C="urn:ietf:params:xml:ns:caldav">
@@ -1044,44 +1011,63 @@ public class CaldavBWIntf extends WebdavNsIntf {
          *            <C:comp name="VTODO"/>
          *         </C:supported-calendar-component-set>
          */
-        openPropstat();
         xml.openTag(tag);
         xml.startTag(CaldavTags.comp);
         xml.atribute("name", "VEVENT");
         xml.closeTag(tag);
-        closePropstat();
-      } else if (tag.equals(CaldavTags.supportedCalendarData)) {
+        return status;
+      }
+
+      if (tag.equals(CaldavTags.supportedCalendarData)) {
         /* e.g.
          * <C:supported-calendar-data
          *              xmlns:C="urn:ietf:params:xml:ns:caldav">
          *   <C:calendar-data content-type="text/calendar" version="2.0"/>
          * </C:supported-calendar-data>
          */
-        openPropstat();
         xml.openTag(tag);
         xml.startTag(CaldavTags.calendarData);
         xml.atribute("content-type", "text/calendar");
         xml.atribute("version", "2.0");
         xml.closeTag(tag);
-        closePropstat();
-      } else if (tag.equals(CaldavTags.maxAttendeesPerInstance)) {
-      } else if (tag.equals(CaldavTags.maxDateTime)) {
-      } else if (tag.equals(CaldavTags.maxInstances)) {
-      } else if (tag.equals(CaldavTags.maxResourceSize)) {
+        return status;
+      }
+
+      if (tag.equals(CaldavTags.maxAttendeesPerInstance)) {
+        return HttpServletResponse.SC_NOT_FOUND;
+      }
+
+      if (tag.equals(CaldavTags.maxDateTime)) {
+        return HttpServletResponse.SC_NOT_FOUND;
+      }
+
+      if (tag.equals(CaldavTags.maxInstances)) {
+        return HttpServletResponse.SC_NOT_FOUND;
+      }
+
+      if (tag.equals(CaldavTags.maxResourceSize)) {
         /* e.g.
          * <C:max-resource-size
          *    xmlns:C="urn:ietf:params:xml:ns:caldav">102400</C:max-resource-size>
          */
-        openPropstat();
         xml.property(tag, String.valueOf(sysi.getMaxUserEntitySize()));
-        closePropstat();
-      } else if (tag.equals(CaldavTags.minDateTime)) {
-      } else {
-        // Not known
-        openPropstat();
-        xml.emptyTag(tag);
-        closePropstat(HttpServletResponse.SC_NOT_FOUND);
+        return status;
       }
+
+      if (tag.equals(CaldavTags.minDateTime)) {
+        return HttpServletResponse.SC_NOT_FOUND;
+      }
+
+      PropVal pv = node.generatePropertyValue(pr);
+
+      if (!pv.notFound) {
+        xml.property(tag, pv.val);
+        return status;
+      }
+
+      // Not known
+      xml.emptyTag(tag);
+      return HttpServletResponse.SC_NOT_FOUND;
     } catch (WebdavIntfException wie) {
       throw wie;
     } catch (Throwable t) {
