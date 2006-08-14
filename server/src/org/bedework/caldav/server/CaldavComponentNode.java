@@ -218,12 +218,12 @@ public class CaldavComponentNode extends CaldavBwNode {
     }
 
     if (tag.equals(ICalTags.dtstart)) {
-      pv.val = ev.getDtstart().toString();
+      pv.val = ev.getDtstart().getDate();
       return pv;
     }
 
     if (tag.equals(ICalTags.dtend)) {
-      pv.val = ev.getDtend().toString();
+      pv.val = ev.getDtend().getDate();
       return pv;
     }
 
