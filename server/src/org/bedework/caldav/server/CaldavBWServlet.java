@@ -106,7 +106,7 @@ public class CaldavBWServlet extends WebdavServlet {
 
     // Replace methods
     methods.put("MKCALENDAR", new MkcalendarMethod());
-    methods.put("OPTIONS", new CalDavOptionsMethod());
+    //methods.put("OPTIONS", new CalDavOptionsMethod());
     methods.put("POST", new PostMethod());
     methods.put("REPORT", new CaldavReportMethod());
   }

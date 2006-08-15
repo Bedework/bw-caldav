@@ -341,7 +341,7 @@ public class CaldavReportMethod extends ReportMethod {
     startEmit(resp);
 
     resp.setStatus(WebdavStatusCode.SC_MULTI_STATUS);
-    resp.setContentType("text/xml; charset=UTF-8");
+    resp.setContentType("text/xml");
 
     String resourceUri = getResourceUri(req);
 

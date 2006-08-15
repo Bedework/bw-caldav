@@ -195,6 +195,14 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
   }
 
+  /** Return DAV header
+   *
+   * @retrun  String
+   */
+  public String getDavHeader() {
+    return "1, access-control, calendar-access";
+  }
+
   public void close() throws WebdavIntfException {
     sysi.close();
   }
