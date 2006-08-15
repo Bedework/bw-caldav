@@ -231,6 +231,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
   }
 
   public void addNamespace() throws WebdavIntfException {
+    super.addNamespace();
+
     try {
       xml.addNs(CaldavDefs.caldavNamespace);
       xml.addNs(CaldavDefs.icalNamespace);
