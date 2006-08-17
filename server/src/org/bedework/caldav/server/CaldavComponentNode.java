@@ -55,7 +55,6 @@
 package org.bedework.caldav.server;
 
 import org.bedework.caldav.server.calquery.CalendarData;
-import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.svc.EventInfo;
 
@@ -197,8 +196,6 @@ public class CaldavComponentNode extends CaldavBwNode {
     PropVal pv = new PropVal();
     QName tag = pr.getTag();
     String ns = tag.getNamespaceURI();
-
-    BwCalendar cal = getCDURI().getCal();
 
     /* Deal with webdav properties */
     if ((!ns.equals(CaldavDefs.caldavNamespace) &&

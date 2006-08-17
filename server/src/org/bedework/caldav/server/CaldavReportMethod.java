@@ -355,25 +355,7 @@ public class CaldavReportMethod extends ReportMethod {
     Collection nodes = null;
 
     if (reportType == reportTypeQuery) {
-      try {
-        int retrieveRecur;
-
-        if (caldata == null) {
-          retrieveRecur = CalFacadeDefs.retrieveRecurMaster;
-        } else if (caldata.getErs() != null) {
-          /* expand XXX use range */
-          retrieveRecur = CalFacadeDefs.retrieveRecurExpanded;
-        } else if (caldata.getLrs() != null) {
-          /* expand XXX use range */
-          retrieveRecur = CalFacadeDefs.retrieveRecurOverrides;
-        } else {
-          retrieveRecur = CalFacadeDefs.retrieveRecurMaster;
-        }
-
-        nodes = intf.query(node, retrieveRecur, filter);
-      } catch (WebdavException wde) {
-        status = wde.getStatusCode();
-      }
+      nodes = doNodeAndChildren(node, 0, depth);
     } else if (reportType == reportTypeMultiGet) {
       nodes = new ArrayList();
 
@@ -410,6 +392,71 @@ public class CaldavReportMethod extends ReportMethod {
     closeTag(WebdavTags.multistatus);
 
     flush();
+  }
+
+  private Collection getNodes(WebdavNsNode node) throws WebdavException {
+    try {
+      if (debug) {
+        trace("getNodes: " + node.getUri());
+      }
+
+      CaldavBWIntf intf = (CaldavBWIntf)getNsIntf();
+
+      int retrieveRecur;
+
+      if (caldata == null) {
+        retrieveRecur = CalFacadeDefs.retrieveRecurMaster;
+      } else if (caldata.getErs() != null) {
+        /* expand XXX use range */
+        retrieveRecur = CalFacadeDefs.retrieveRecurExpanded;
+      } else if (caldata.getLrs() != null) {
+        /* expand XXX use range */
+        retrieveRecur = CalFacadeDefs.retrieveRecurOverrides;
+      } else {
+        retrieveRecur = CalFacadeDefs.retrieveRecurMaster;
+      }
+
+      return intf.query(node, retrieveRecur, filter);
+    } catch (WebdavException wde) {
+      throw new WebdavException(wde.getStatusCode());
+    }
+  }
+
+  private Collection doNodeAndChildren(WebdavNsNode node,
+                                       int curDepth,
+                                       int maxDepth) throws WebdavException {
+    if (!(node instanceof CaldavCalNode)) {
+      throw new WebdavBadRequest();
+    }
+
+    if (debug) {
+      trace("doNodeAndChildren: curDepth=" + curDepth +
+            " maxDepth=" + maxDepth + " uri=" + node.getUri());
+    }
+
+    CaldavCalNode calnode = (CaldavCalNode)node;
+
+    if (calnode.isCalendarCollection()) {
+      return getNodes(node);
+    }
+
+    Collection nodes = new ArrayList();
+
+    curDepth++;
+
+    if (curDepth >= maxDepth) {
+      return nodes;
+    }
+
+    Iterator children = getNsIntf().getChildren(node);
+
+    while (children.hasNext()) {
+      WebdavNsNode child = (WebdavNsNode)children.next();
+
+      nodes.addAll(doNodeAndChildren(child, curDepth, maxDepth));
+    }
+
+    return nodes;
   }
 
   /** Handle free/busy response

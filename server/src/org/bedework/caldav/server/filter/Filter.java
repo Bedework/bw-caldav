@@ -317,11 +317,11 @@ public class Filter {
 
     if (debug) {
       if (eventq.trange == null) {
-        trace("No time-range specified");
+        trace("No time-range specified for uri " + wdnode.getUri());
       } else {
-        trace("time-range specified with start=" +
-              eventq.trange.getStart() + " end=" +
-              eventq.trange.getEnd());
+        trace("time-range specified for uri " + wdnode.getUri() +
+              " with start=" + eventq.trange.getStart() +
+              " end=" + eventq.trange.getEnd());
       }
     }
 

@@ -91,10 +91,17 @@ public abstract class CaldavBwNode extends WebdavNsNode {
    * ==================================================================== */
 
   /**
+   * @return boolean if this is a calendar (as against an entity)
+   */
+  public boolean isCollection() {
+    return cdURI.isCalendar();
+  }
+
+  /**
    * @return boolean if this is a calendar
    */
-  public boolean isCalendar() {
-    return cdURI.isCalendar();
+  public boolean isCalendarCollection() {
+    return (cdURI.isCalendar() && cdURI.getCal().getCalendarCollection());
   }
 
   /**

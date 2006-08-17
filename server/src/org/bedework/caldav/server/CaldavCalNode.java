@@ -296,7 +296,7 @@ public class CaldavCalNode extends CaldavBwNode {
     sb.append("CaldavCalNode{cduri=");
     sb.append(getCDURI());
     sb.append(", isCalendar()=");
-    sb.append(isCalendar());
+    sb.append(isCollection());
     sb.append("}");
 
     return sb.toString();

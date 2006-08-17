@@ -830,7 +830,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
     CaldavBwNode node = (CaldavBwNode)getNode(info.what);
 
     try {
-      if (node.isCalendar()) {
+      if (node.isCollection()) {
         sysi.updateAccess(node.getCDURI().getCal(), info.aces);
       } else {
         sysi.updateAccess(((CaldavComponentNode)node).getEventInfo().getEvent(),
@@ -1001,7 +1001,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
             /* Output the (transformed) node.
              */
 
-            xml.property(CaldavTags.calendarData, content);
+            xml.cdataProperty(CaldavTags.calendarData, content);
           }
         }
         return status;
@@ -1094,7 +1094,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
                bwnode);
     }
 
-    if (bwnode.isCalendar()) {
+    if (bwnode.isCollection()) {
       try {
         BwCalendar cal = bwnode.getCDURI().getCal();
 
