@@ -106,6 +106,13 @@ public interface SysIntf {
                    String account,
                    boolean debug) throws WebdavIntfException;
 
+  /** Do we allow browsing of directories?
+   *
+   * @return boolean true if browsing disallowed
+   * @throws WebdavIntfException  for errors
+   */
+  public boolean getDirectoryBrowsingDisallowed() throws WebdavIntfException;
+
   /** Given a calendar address return the associated calendar account.
    * For example, we might have a calendar address<br/>
    *   auser@ahost.org

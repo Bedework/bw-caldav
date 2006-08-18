@@ -120,6 +120,10 @@ public class GoogleSysIntfImpl implements SysIntf {
     }
   }
 
+  public boolean getDirectoryBrowsingDisallowed() throws WebdavIntfException {
+    return false;
+  }
+
   public String caladdrToUser(String caladdr) throws WebdavIntfException {
     return caladdr;
   }

@@ -277,6 +277,8 @@ public class CaldavComponentNode extends CaldavBwNode {
   }
 
   public void init(boolean content) throws WebdavIntfException {
+    name = cdURI.getEntityName();
+
     if (!content) {
       return;
     }
@@ -329,7 +331,7 @@ public class CaldavComponentNode extends CaldavBwNode {
         creDate = event.getCreated();
         lastmodDate = event.getLastmod();
       }
-      name = cdURI.getEntityName();
+//      name = cdURI.getEntityName();
     } catch (WebdavIntfException wie) {
       throw wie;
     } catch (Throwable t) {
@@ -413,7 +415,7 @@ public class CaldavComponentNode extends CaldavBwNode {
       throw new WebdavIntfException("getProperties, comp == null");
     }
 
-    addProp(al, ICalTags.summary, name);
+    addProp(al, ICalTags.summary, comp.getSummary());
     addProp(al, ICalTags.dtstart, comp.getDtstart());
     addProp(al, ICalTags.dtend, comp.getDtend());
     addProp(al, ICalTags.duration, comp.getDuration());

@@ -203,6 +203,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
     return "1, access-control, calendar-access";
   }
 
+  public boolean getDirectoryBrowsingDisallowed() throws WebdavIntfException {
+    return sysi.getDirectoryBrowsingDisallowed();
+  }
+
   public void close() throws WebdavIntfException {
     sysi.close();
   }

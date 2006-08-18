@@ -134,6 +134,14 @@ public class BwSysIntfImpl implements SysIntf {
     }
   }
 
+  public boolean getDirectoryBrowsingDisallowed() throws WebdavIntfException {
+    try {
+      return getSvci().getSyspars().getDirectoryBrowsingDisallowed();
+    } catch (Throwable t) {
+      throw new WebdavIntfException(t);
+    }
+  }
+
   public String caladdrToUser(String caladdr) throws WebdavIntfException {
     try {
       String sysid = getSvci().getSysid();
