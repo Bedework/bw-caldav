@@ -173,11 +173,11 @@ public interface SysIntf {
   /** Given a calendar address return the associated calendar user information
    * needed for caldav interactions.
    *
-   * @param caladdr      calendar address
+   * @param account     as returned by caladdrToUser
    * @return CalUserInfo or null if not caladdr for this system
    * @throws WebdavIntfException  for errors
    */
-  public CalUserInfo getCalUserInfo(String caladdr) throws WebdavIntfException;
+  public CalUserInfo getCalUserInfo(String account) throws WebdavIntfException;
 
   /** Given a uri returns a Collection of uris that allow search operations on
    * principals for that resource.
@@ -192,8 +192,8 @@ public interface SysIntf {
   /** Given a PrincipalPropertySearch returns a Collection of matching principals.
    *
    * @param resourceUri
-   * @param pps
-   * @return Collection of PrincipalPropertySearch
+   * @param pps Collection of PrincipalPropertySearch
+   * @return Collection of WebdavNsNode principals
    * @throws WebdavIntfException
    */
   public Collection getPrincipals(String resourceUri,

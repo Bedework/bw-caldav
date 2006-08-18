@@ -53,6 +53,7 @@
 */
 package org.bedework.caldav.bwserver;
 
+import org.apache.log4j.Logger;
 import org.bedework.caldav.server.SysIntf;
 import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwDateTime;
@@ -69,12 +70,14 @@ import org.bedework.calfacade.timezones.CalTimezones;
 import org.bedework.calsvci.CalSvcFactoryDefault;
 import org.bedework.calsvci.CalSvcI;
 import org.bedework.calsvci.CalSvcIPars;
+import org.bedework.davdefs.CaldavTags;
 import org.bedework.icalendar.IcalMalformedException;
 import org.bedework.icalendar.IcalTranslator;
 
 import edu.rpi.cct.webdav.servlet.shared.PrincipalPropertySearch;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavIntfException;
+import edu.rpi.cct.webdav.servlet.shared.WebdavProperty;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
 
 import net.fortuna.ical4j.model.Calendar;
@@ -83,6 +86,7 @@ import net.fortuna.ical4j.model.TimeZone;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -93,12 +97,16 @@ import javax.servlet.http.HttpServletRequest;
 public class BwSysIntfImpl implements SysIntf {
   private boolean debug;
 
+  protected transient Logger log;
+
   /* Prefix for our properties */
   private String envPrefix;
 
   private String account;
 
   private String hostPortContext;
+
+  private String principalCollectionSetUri;
 
   /* These two set after a call to getSvci()
    */
@@ -129,6 +137,11 @@ public class BwSysIntfImpl implements SysIntf {
       sb.append("/");
 
       hostPortContext = sb.toString();
+
+      BwSystem sys = getSvci().getSyspars();
+      String userRootPath = sys.getUserCalendarRoot();
+
+      principalCollectionSetUri = "/" + userRootPath + "/";
     } catch (Throwable t) {
       throw new WebdavIntfException(t);
     }
@@ -191,13 +204,8 @@ public class BwSysIntfImpl implements SysIntf {
     try {
       StringBuffer sb = new StringBuffer();
 
-      BwSystem sys = getSvci().getSyspars();
-      String userRootPath = sys.getUserCalendarRoot();
-
       sb.append(hostPortContext);
-      sb.append("/");
-      sb.append(userRootPath);
-      sb.append("/");
+      sb.append(principalCollectionSetUri);
 
       ArrayList al = new ArrayList();
 
@@ -210,9 +218,59 @@ public class BwSysIntfImpl implements SysIntf {
   }
 
   public Collection getPrincipals(String resourceUri,
-                           PrincipalPropertySearch pps)
+                                  PrincipalPropertySearch pps)
           throws WebdavIntfException {
-    throw new WebdavIntfException("unimplemented");
+    if (pps.applyToPrincipalCollectionSet) {
+      throw new WebdavIntfException("unimplemented");
+    }
+
+    if (!resourceUri.endsWith("/")) {
+      resourceUri += "/";
+    }
+
+    ArrayList principals = new ArrayList();
+
+    if (!resourceUri.equals(principalCollectionSetUri)) {
+      return principals;
+    }
+
+    /* If we don't support any of the properties in the searches we don't match
+     */
+    String caladdr = null;
+
+    Iterator it = pps.propertySearches.iterator();
+    while (it.hasNext()) {
+      PrincipalPropertySearch.PropertySearch ps =
+        (PrincipalPropertySearch.PropertySearch)it.next();
+
+      Iterator pit = ps.props.iterator();
+      while (pit.hasNext()) {
+        WebdavProperty prop = (WebdavProperty)pit.next();
+
+        if (!CaldavTags.calendarUserAddressSet.equals(prop.getTag())) {
+          return principals;
+        }
+      }
+
+      String mval = ps.match.getNodeValue();
+
+      if (debug) {
+        debugMsg("Try to match " + mval);
+      }
+
+      if ((caladdr != null) && (!caladdr.equals(mval))) {
+        return principals;
+      }
+
+      caladdr = mval;
+    }
+
+    /* For the moment only support the above
+     */
+    CalUserInfo cui = getCalUserInfo(caladdr);
+
+    // XXX This needs to do a search of a system user directory - probably ldap
+    return principals;
   }
 
   public boolean validUser(String account) throws WebdavIntfException {
@@ -566,5 +624,37 @@ public class BwSysIntfImpl implements SysIntf {
       svci = null;
       throw new WebdavIntfException(t);
     }
+  }
+
+  /* ====================================================================
+   *                        Protected methods
+   * ==================================================================== */
+
+  protected Logger getLogger() {
+    if (log == null) {
+      log = Logger.getLogger(this.getClass());
+    }
+
+    return log;
+  }
+
+  protected void trace(String msg) {
+    getLogger().debug(msg);
+  }
+
+  protected void debugMsg(String msg) {
+    getLogger().debug(msg);
+  }
+
+  protected void warn(String msg) {
+    getLogger().warn(msg);
+  }
+
+  protected void error(Throwable t) {
+    getLogger().error(this, t);
+  }
+
+  protected void logIt(String msg) {
+    getLogger().info(msg);
   }
 }

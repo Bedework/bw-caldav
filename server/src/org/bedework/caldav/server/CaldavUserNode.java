@@ -55,11 +55,16 @@
 package org.bedework.caldav.server;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavIntfException;
+import edu.rpi.cct.webdav.servlet.shared.WebdavProperty;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
+import edu.rpi.sss.util.xml.QName;
 
-import java.util.Collection;
-
+import org.bedework.davdefs.CaldavDefs;
+import org.bedework.davdefs.CaldavTags;
 import org.w3c.dom.Element;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 /** Class to represent a user in caldav.
 
@@ -70,15 +75,31 @@ response to an incoming url which references principals.
  *   @author Mike Douglass   douglm@rpi.edu
  */
 public class CaldavUserNode extends CaldavBwNode {
+  private SysIntf.CalUserInfo ui;
+
+  private final static Collection propertyNames = new ArrayList();
+
+  static {
+    propertyNames.add(CaldavTags.calendarHomeURL);
+    propertyNames.add(CaldavTags.scheduleInboxURL);
+    propertyNames.add(CaldavTags.scheduleOutboxURL);
+  }
+
   /**
    * @param cdURI
    * @param sysi
    * @param debug
    */
-  public CaldavUserNode(CaldavURI cdURI, SysIntf sysi, boolean debug) {
+  public CaldavUserNode(CaldavURI cdURI, SysIntf sysi,
+                        SysIntf.CalUserInfo ui, boolean debug) throws WebdavIntfException {
     super(cdURI, sysi, debug);
-    groupPrincipal = true;
+    this.ui = ui;
     name = cdURI.getEntityName();
+
+    if (ui == null) {
+      ui = sysi.getCalUserInfo(name);
+    }
+    userPrincipal = true;
   }
 
   public boolean removeProperty(Element val) throws WebdavIntfException {
@@ -101,6 +122,60 @@ public class CaldavUserNode extends CaldavBwNode {
 
   public CurrentAccess getCurrentAccess() throws WebdavIntfException {
     return null;
+  }
+
+  /* ====================================================================
+   *                   Property methods
+   * ==================================================================== */
+
+  /** Get the value for the given property.
+   *
+   * @param pr   WebdavProperty defining property
+   * @return PropVal   value
+   * @throws WebdavIntfException
+   */
+  public PropVal generatePropertyValue(WebdavProperty pr) throws WebdavIntfException {
+    PropVal pv = new PropVal();
+    QName tag = pr.getTag();
+    String ns = tag.getNamespaceURI();
+
+    /* Deal with webdav properties */
+    if (!ns.equals(CaldavDefs.caldavNamespace)) {
+      // Not ours
+      return super.generatePropertyValue(pr);
+    }
+
+    if (tag.equals(CaldavTags.calendarHomeURL)) {
+      pv.val = ui.userHomePath;
+      return pv;
+    }
+
+    if (tag.equals(CaldavTags.scheduleInboxURL)) {
+      pv.val = ui.inboxPath;
+      return pv;
+    }
+
+    if (tag.equals(CaldavTags.scheduleOutboxURL)) {
+      pv.val = ui.outboxPath;
+      return pv;
+    }
+
+    pv.notFound = true;
+    return pv;
+  }
+
+  /** Return a set of QName defining properties this node supports.
+   *
+   * @return
+   * @throws WebdavIntfException
+   */
+  public Collection getPropertyNames()throws WebdavIntfException {
+    Collection res = new ArrayList();
+
+    res.addAll(super.getPropertyNames());
+    res.addAll(propertyNames);
+
+    return res;
   }
 
   /* ====================================================================

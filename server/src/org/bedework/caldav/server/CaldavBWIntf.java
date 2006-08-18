@@ -276,7 +276,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       WebdavNsNode nd = null;
 
       if (wi.isUser()) {
-        nd = new CaldavUserNode(wi, sysi, debug);
+        nd = new CaldavUserNode(wi, sysi, null, debug);
       } else if (wi.isGroup()) {
         nd = new CaldavGroupNode(wi, sysi, debug);
       } else if (wi.isCalendar()) {
@@ -715,7 +715,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
   public Collection getPrincipals(String resourceUri,
                                   PrincipalPropertySearch pps)
           throws WebdavIntfException {
-    return null;
+    return sysi.getPrincipals(resourceUri, pps);
   }
 
   public String makeUserHref(String id) throws WebdavIntfException {

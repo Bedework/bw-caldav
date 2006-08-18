@@ -96,7 +96,6 @@ public class CaldavReportMethod extends ReportMethod {
    */
 
   private FreeBusyQuery freeBusy;
-  private PropFindMethod.PropRequest preq;
   //private CalendarData caldata;
   private Filter filter;
   private ArrayList hrefs;
@@ -187,16 +186,6 @@ public class CaldavReportMethod extends ReportMethod {
       WebdavNsIntf intf = getNsIntf();
 
       Element root = doc.getDocumentElement();
-
-      /* Get hold of the PROPFIND method instance - we need it to process
-         possible prop requests.
-       */
-      PropFindMethod pm = (PropFindMethod)intf.findMethod(
-            WebdavMethods.propFind);
-
-      if (pm == null) {
-        throw new WebdavException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-      }
 
       Element[] children = getChildren(root);
 
@@ -379,13 +368,13 @@ public class CaldavReportMethod extends ReportMethod {
       }
       // Entire request failed.
       node.setStatus(status);
-      doNode(node);
+      doNodeProperties(node);
     } else if (nodes != null) {
       Iterator it = nodes.iterator();
       while (it.hasNext()) {
         WebdavNsNode curnode = (WebdavNsNode)it.next();
 
-        doNode(curnode);
+        doNodeProperties(curnode);
       }
     }
 
@@ -548,31 +537,6 @@ public class CaldavReportMethod extends ReportMethod {
         out.close();
       } catch (Throwable t) {}
     }
-  }
-
-  /* Apply a node to a parsed request - or the other way - whatever.
-   */
-  private void doNode(WebdavNsNode node) throws WebdavException {
-    PropFindMethod pm = (PropFindMethod)getNsIntf().findMethod(
-            WebdavMethods.propFind);
-    int status = node.getStatus();
-
-    openTag(WebdavTags.response);
-
-    if (status != HttpServletResponse.SC_OK) {
-      openTag(WebdavTags.propstat);
-
-      property(WebdavTags.status, "HTTP/1.1 " + status + " " +
-                     WebdavStatusCode.getMessage(status));
-
-      closeTag(WebdavTags.propstat);
-    } else {
-      pm.doNodeProperties(node, preq);
-    }
-
-    closeTag(WebdavTags.response);
-
-    flush();
   }
 }
 
