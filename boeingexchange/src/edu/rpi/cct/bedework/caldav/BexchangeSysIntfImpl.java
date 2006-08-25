@@ -60,6 +60,8 @@ import org.bedework.calfacade.BwDateTime;
 import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.BwFreeBusy;
 import org.bedework.calfacade.BwUser;
+import org.bedework.calfacade.CalFacadeAccessException;
+import org.bedework.calfacade.CalFacadeException;
 import org.bedework.calfacade.base.BwShareableDbentity;
 import org.bedework.calfacade.timezones.CalTimezones;
 import org.bedework.calfacade.timezones.ResourceTimezones;
@@ -67,7 +69,9 @@ import org.bedework.http.client.dav.DavClient;
 import org.bedework.http.client.dav.DavReq;
 import org.bedework.http.client.dav.DavResp;
 import org.bedework.icalendar.IcalTranslator;
+import org.bedework.icalendar.Icalendar;
 
+import edu.rpi.cct.webdav.servlet.common.WebdavUtils;
 import edu.rpi.cct.webdav.servlet.shared.PrincipalPropertySearch;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavIntfException;
@@ -190,6 +194,8 @@ public class BexchangeSysIntfImpl implements SysIntf {
 
   private IcalTranslator trans;
 
+  private String urlPrefix;
+
   public void init(HttpServletRequest req,
                    String envPrefix,
                    String account,
@@ -199,9 +205,14 @@ public class BexchangeSysIntfImpl implements SysIntf {
 
       trans = new IcalTranslator(new SAICalCallback(getTimezones(), null),
                                  debug);
+      urlPrefix = WebdavUtils.getUrlPrefix(req);
     } catch (Throwable t) {
       throw new WebdavIntfException(t);
     }
+  }
+
+  public String getUrlPrefix() {
+    return urlPrefix;
   }
 
   public boolean getDirectoryBrowsingDisallowed() throws WebdavIntfException {
@@ -236,6 +247,13 @@ public class BexchangeSysIntfImpl implements SysIntf {
     throw new WebdavIntfException("unimplemented");
   }
 
+  /* ====================================================================
+   *                   Scheduling
+   * ==================================================================== */
+
+  public void scheduleRequest(BwEvent event) throws WebdavIntfException {
+    throw new WebdavIntfException("unimplemented");
+  }
 
   public void addEvent(BwCalendar cal,
                        BwEvent event,
@@ -328,8 +346,8 @@ public class BexchangeSysIntfImpl implements SysIntf {
 
       Collection fbs = getTrans().getFreeBusy(new StringReader(vfb));
       */
-      Collection fbs = trans.fromIcal(null, new InputStreamReader(resp.getContentStream()));
-      Iterator fbit = fbs.iterator();
+      Icalendar ic = trans.fromIcal(null, new InputStreamReader(resp.getContentStream()));
+      Iterator fbit = ic.iterator();
       while (fbit.hasNext()) {
         Object o = fbit.next();
 
@@ -402,7 +420,7 @@ public class BexchangeSysIntfImpl implements SysIntf {
     throw new WebdavIntfException("unimplemented");
   }
 
-  public Collection fromIcal(BwCalendar cal, Reader rdr) throws WebdavIntfException {
+  public Icalendar fromIcal(BwCalendar cal, Reader rdr) throws WebdavIntfException {
     throw new WebdavIntfException("unimplemented");
   }
 

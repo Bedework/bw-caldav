@@ -65,9 +65,11 @@ import org.bedework.icalendar.ComponentWrapper;
 import org.w3c.dom.Element;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavIntfException;
+import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cct.webdav.servlet.shared.WebdavProperty;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
 import edu.rpi.sss.util.xml.QName;
+import edu.rpi.sss.util.xml.XmlEmit;
 
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
@@ -103,22 +105,22 @@ public class CaldavComponentNode extends CaldavBwNode {
   private final static Collection propertyNames = new ArrayList();
 
   static {
-    propertyNames.add(CaldavTags.calendarData);
+    addPropEntry(CaldavTags.calendarData);
 
-    propertyNames.add(ICalTags.dtend);
-    propertyNames.add(ICalTags.dtstart);
-    propertyNames.add(ICalTags.due);
-    propertyNames.add(ICalTags.duration);
-    propertyNames.add(ICalTags.hasAlarm);
-    propertyNames.add(ICalTags.hasAttachment);
-    propertyNames.add(ICalTags.hasRecurrence);
-    propertyNames.add(ICalTags.sequence);
-    propertyNames.add(ICalTags.summary);
-    propertyNames.add(ICalTags.status);
-    propertyNames.add(ICalTags.transp);
-    propertyNames.add(ICalTags.uid);
+    addPropEntry(ICalTags.dtend);
+    addPropEntry(ICalTags.dtstart);
+    addPropEntry(ICalTags.due);
+    addPropEntry(ICalTags.duration);
+    addPropEntry(ICalTags.hasAlarm);
+    addPropEntry(ICalTags.hasAttachment);
+    addPropEntry(ICalTags.hasRecurrence);
+    addPropEntry(ICalTags.sequence);
+    addPropEntry(ICalTags.summary);
+    addPropEntry(ICalTags.status);
+    addPropEntry(ICalTags.transp);
+    addPropEntry(ICalTags.uid);
 
-    propertyNames.add(WebdavTags.collection);
+    addPropEntry(WebdavTags.collection);
   }
 
   /** Constructor
@@ -186,94 +188,103 @@ public class CaldavComponentNode extends CaldavBwNode {
    *                   Property methods
    * ==================================================================== */
 
-  /** Get the value for the given property.
-   *
-   * @param pr   WebdavProperty defining property
-   * @return PropVal   value
-   * @throws WebdavIntfException
-   */
-  public PropVal generatePropertyValue(WebdavProperty pr) throws WebdavIntfException {
+  /** Emit the property indicated by the tag.
+  *
+  * @param tag  QName defining property
+  * @param intf WebdavNsIntf
+  * @return boolean   true if emitted
+  * @throws WebdavIntfException
+  */
+ public boolean generatePropertyValue(QName tag,
+                                      WebdavNsIntf intf) throws WebdavIntfException {
     PropVal pv = new PropVal();
-    QName tag = pr.getTag();
+    XmlEmit xml = intf.getXmlEmit();
+
     String ns = tag.getNamespaceURI();
 
     /* Deal with webdav properties */
     if ((!ns.equals(CaldavDefs.caldavNamespace) &&
         !ns.equals(CaldavDefs.icalNamespace))) {
       // Not ours
-      return super.generatePropertyValue(pr);
+      return super.generatePropertyValue(tag, intf);
     }
 
-    BwEvent ev = checkEv(pv);
-    if (ev == null) {
-      return pv;
+    try {
+      BwEvent ev = checkEv(pv);
+      if (ev == null) {
+        return false;
+      }
+
+      if (tag.equals(ICalTags.summary)) {
+        xml.property(tag, ev.getSummary());
+        return true;
+      }
+
+      if (tag.equals(ICalTags.dtstart)) {
+        xml.property(tag, ev.getDtstart().getDate());
+        return true;
+      }
+
+      if (tag.equals(ICalTags.dtend)) {
+        xml.property(tag, ev.getDtend().getDate());
+        return true;
+      }
+
+      if (tag.equals(ICalTags.duration)) {
+        xml.property(tag, ev.getDuration());
+        return true;
+      }
+
+      if (tag.equals(ICalTags.transp)) {
+        xml.property(tag, ev.getTransparency());
+        return true;
+      }
+
+      /* TODO
+       if (tag.equals(ICalTags.due)) {
+       pv.val = ev.
+       return pv;
+       }
+       */
+
+      if (tag.equals(ICalTags.status)) {
+        xml.property(tag, ev.getStatus());
+        return true;
+      }
+
+      if (tag.equals(ICalTags.uid)) {
+        xml.property(tag, ev.getGuid());
+        return true;
+      }
+
+      if (tag.equals(ICalTags.sequence)) {
+        xml.property(tag, String.valueOf(ev.getSequence()));
+
+        return true;
+      }
+
+      /*
+       if (tag.equals(ICalTags.hasRecurrence)) {
+       pv.val = ev
+       return pv;
+       }
+
+       if (tag.equals(ICalTags.hasAlarm)) {
+       pv.val = ev
+       return pv;
+       }
+
+       if (tag.equals(ICalTags.hasAttachment)) {
+       pv.val = ev
+       return pv;
+       }*/
+
+      return false;
+    } catch (WebdavIntfException wde) {
+      throw wde;
+    } catch (Throwable t) {
+      throw new WebdavIntfException(t);
     }
-
-    if (tag.equals(ICalTags.summary)) {
-      pv.val = ev.getSummary();
-      return pv;
-    }
-
-    if (tag.equals(ICalTags.dtstart)) {
-      pv.val = ev.getDtstart().getDate();
-      return pv;
-    }
-
-    if (tag.equals(ICalTags.dtend)) {
-      pv.val = ev.getDtend().getDate();
-      return pv;
-    }
-
-    if (tag.equals(ICalTags.duration)) {
-      pv.val = ev.getDuration();
-      return pv;
-    }
-
-    if (tag.equals(ICalTags.transp)) {
-      pv.val = ev.getTransparency();
-      return pv;
-    }
-
-    /* TODO
-    if (tag.equals(ICalTags.due)) {
-      pv.val = ev.
-      return pv;
-    }
-    */
-
-    if (tag.equals(ICalTags.status)) {
-      pv.val = ev.getStatus();
-      return pv;
-    }
-
-    if (tag.equals(ICalTags.uid)) {
-      pv.val = ev.getGuid();
-      return pv;
-    }
-
-    if (tag.equals(ICalTags.sequence)) {
-      pv.val = String.valueOf(ev.getSequence());
-      return pv;
-    }
-
-    /*
-    if (tag.equals(ICalTags.hasRecurrence)) {
-      pv.val = ev
-      return pv;
-    }
-
-    if (tag.equals(ICalTags.hasAlarm)) {
-      pv.val = ev
-      return pv;
-    }
-
-    if (tag.equals(ICalTags.hasAttachment)) {
-      pv.val = ev
-      return pv;
-    }*/
-
-    pv.notFound = true;
-    return pv;
   }
 
   public void init(boolean content) throws WebdavIntfException {

@@ -121,6 +121,9 @@ public class CaldavURI {
    * @return String
    */
   public String getOwner() {
+    if (userUri || groupUri){
+      return entityName;
+    }
     return cal.getOwner().getAccount();
   }
 

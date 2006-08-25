@@ -55,9 +55,10 @@
 package org.bedework.caldav.server;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavIntfException;
-import edu.rpi.cct.webdav.servlet.shared.WebdavProperty;
+import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
 import edu.rpi.sss.util.xml.QName;
+import edu.rpi.sss.util.xml.XmlEmit;
 
 import org.bedework.davdefs.CaldavDefs;
 import org.bedework.davdefs.CaldavTags;
@@ -67,10 +68,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /** Class to represent a user in caldav.
-
-Needs reimplementing to represent a principal. Should only be created in
-response to an incoming url which references principals.
-
+ *
  *
  *   @author Mike Douglass   douglm@rpi.edu
  */
@@ -80,9 +78,10 @@ public class CaldavUserNode extends CaldavBwNode {
   private final static Collection propertyNames = new ArrayList();
 
   static {
-    propertyNames.add(CaldavTags.calendarHomeURL);
-    propertyNames.add(CaldavTags.scheduleInboxURL);
-    propertyNames.add(CaldavTags.scheduleOutboxURL);
+    addPropEntry(CaldavTags.calendarHomeSet, false);
+    addPropEntry(CaldavTags.calendarHomeURL);
+    addPropEntry(CaldavTags.scheduleInboxURL);
+    addPropEntry(CaldavTags.scheduleOutboxURL);
   }
 
   /**
@@ -97,7 +96,7 @@ public class CaldavUserNode extends CaldavBwNode {
     name = cdURI.getEntityName();
 
     if (ui == null) {
-      ui = sysi.getCalUserInfo(name);
+      this.ui = sysi.getCalUserInfo(name);
     }
     userPrincipal = true;
   }
@@ -128,40 +127,54 @@ public class CaldavUserNode extends CaldavBwNode {
    *                   Property methods
    * ==================================================================== */
 
-  /** Get the value for the given property.
+  /** Emit the property indicated by the tag.
    *
-   * @param pr   WebdavProperty defining property
-   * @return PropVal   value
+   * @param tag  QName defining property
+   * @param intf WebdavNsIntf
+   * @return boolean   true if emitted
    * @throws WebdavIntfException
    */
-  public PropVal generatePropertyValue(WebdavProperty pr) throws WebdavIntfException {
-    PropVal pv = new PropVal();
-    QName tag = pr.getTag();
+  public boolean generatePropertyValue(QName tag,
+                                       WebdavNsIntf intf) throws WebdavIntfException {
     String ns = tag.getNamespaceURI();
+    XmlEmit xml = intf.getXmlEmit();
 
     /* Deal with webdav properties */
     if (!ns.equals(CaldavDefs.caldavNamespace)) {
       // Not ours
-      return super.generatePropertyValue(pr);
+      return super.generatePropertyValue(tag, intf);
     }
 
-    if (tag.equals(CaldavTags.calendarHomeURL)) {
-      pv.val = ui.userHomePath;
-      return pv;
-    }
+    try {
+      if (tag.equals(CaldavTags.calendarHomeSet)) {
+        xml.openTag(tag);
+        generateHref(xml, ui.userHomePath);
+        xml.closeTag(tag);
 
-    if (tag.equals(CaldavTags.scheduleInboxURL)) {
-      pv.val = ui.inboxPath;
-      return pv;
-    }
+        return true;
+      }
 
-    if (tag.equals(CaldavTags.scheduleOutboxURL)) {
-      pv.val = ui.outboxPath;
-      return pv;
-    }
+      if (tag.equals(CaldavTags.calendarHomeURL)) {
+        xml.property(tag, ui.userHomePath);
 
-    pv.notFound = true;
-    return pv;
+        return true;
+      }
+
+      if (tag.equals(CaldavTags.scheduleInboxURL)) {
+        xml.property(tag, ui.inboxPath);
+        return true;
+      }
+
+      if (tag.equals(CaldavTags.scheduleOutboxURL)) {
+        xml.property(tag, ui.outboxPath);
+        return true;
+      }
+
+      // Not known
+      return false;
+    } catch (Throwable t) {
+      throw new WebdavIntfException(t);
+    }
   }
 
   /** Return a set of QName defining properties this node supports.

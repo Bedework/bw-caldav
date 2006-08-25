@@ -63,9 +63,10 @@ import org.bedework.icalendar.IcalTranslator;
 import org.bedework.icalendar.VFreeUtil;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavIntfException;
-import edu.rpi.cct.webdav.servlet.shared.WebdavProperty;
+import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
 import edu.rpi.sss.util.xml.QName;
+import edu.rpi.sss.util.xml.XmlEmit;
 import edu.rpi.sss.util.xml.XmlUtil;
 
 import net.fortuna.ical4j.model.Calendar;
@@ -88,16 +89,17 @@ public class CaldavCalNode extends CaldavBwNode {
   private final static Collection propertyNames = new ArrayList();
 
   static {
-    propertyNames.add(CaldavTags.calendarDescription);
-    propertyNames.add(CaldavTags.calendarTimezone);
-    propertyNames.add(CaldavTags.maxAttendeesPerInstance);
-    propertyNames.add(CaldavTags.maxDateTime);
-    propertyNames.add(CaldavTags.maxInstances);
-    propertyNames.add(CaldavTags.maxResourceSize);
-    propertyNames.add(CaldavTags.minDateTime);
-    propertyNames.add(CaldavTags.supportedCalendarComponentSet);
+    addPropEntry(CaldavTags.calendarDescription, false);
+    addPropEntry(CaldavTags.calendarTimezone, false);
+    addPropEntry(CaldavTags.maxAttendeesPerInstance);
+    addPropEntry(CaldavTags.maxDateTime);
+    addPropEntry(CaldavTags.maxInstances);
+    addPropEntry(CaldavTags.maxResourceSize);
+    addPropEntry(CaldavTags.minDateTime);
+    addPropEntry(CaldavTags.supportedCalendarComponentSet, false);
+    addPropEntry(CaldavTags.supportedCalendarData, false);
 
-    propertyNames.add(WebdavTags.collection);
+    addPropEntry(WebdavTags.collection);
   }
 
   /** Place holder for status
@@ -245,31 +247,97 @@ public class CaldavCalNode extends CaldavBwNode {
 
   /** Get the value for the given property.
    *
-   * @param pr   WebdavProperty defining property
-   * @return PropVal   value
+  /** Get the value for the given property.
+   *
+   * @param tag  QName defining property
+   * @param intf WebdavNsIntf
+   * @return boolean   true if emitted
    * @throws WebdavIntfException
    */
-  public PropVal generatePropertyValue(WebdavProperty pr) throws WebdavIntfException {
-    PropVal pv = new PropVal();
-    QName tag = pr.getTag();
+  public boolean generatePropertyValue(QName tag,
+                                       WebdavNsIntf intf) throws WebdavIntfException {
     String ns = tag.getNamespaceURI();
+    XmlEmit xml = intf.getXmlEmit();
 
     BwCalendar cal = getCDURI().getCal();
 
-    /* Deal with webdav properties */
-    if ((!ns.equals(CaldavDefs.caldavNamespace) &&
-        !ns.equals(CaldavDefs.icalNamespace))) {
-      // Not ours
-      return super.generatePropertyValue(pr);
-    }
+    try {
+      if (tag.equals(WebdavTags.resourcetype)) {
+        // dav 13.9
+        xml.openTag(WebdavTags.resourcetype);
+        xml.emptyTag(WebdavTags.collection);
+        if (debug) {
+          debugMsg("generatePropResourcetype for " + cal);
+        }
 
-    if (tag.equals(CaldavTags.calendarDescription)) {
-      pv.val = cal.getDescription();
-      return pv;
-    }
+        int calType = cal.getCalType();
+        boolean isCollection = cal.getCalendarCollection();
 
-    pv.notFound = true;
-    return pv;
+        if (calType == BwCalendar.calTypeInbox) {
+          xml.emptyTag(CaldavTags.scheduleInbox);
+        } else if (calType == BwCalendar.calTypeOutbox) {
+          xml.emptyTag(CaldavTags.scheduleOutbox);
+        } else if (isCollection) {
+          xml.emptyTag(CaldavTags.calendar);
+        }
+        xml.closeTag(WebdavTags.resourcetype);
+
+        return true;
+      }
+
+      /* Deal with webdav properties */
+      if ((!ns.equals(CaldavDefs.caldavNamespace) &&
+          !ns.equals(CaldavDefs.icalNamespace))) {
+        // Not ours
+        return super.generatePropertyValue(tag, intf);
+      }
+
+      if (tag.equals(CaldavTags.calendarDescription)) {
+        xml.property(tag, cal.getDescription());
+
+        return true;
+      }
+
+      if (tag.equals(CaldavTags.supportedCalendarComponentSet)) {
+        /* e.g.
+         *          <C:supported-calendar-component-set
+         *                 xmlns:C="urn:ietf:params:xml:ns:caldav">
+         *            <C:comp name="VEVENT"/>
+         *            <C:comp name="VTODO"/>
+         *         </C:supported-calendar-component-set>
+         */
+        if (!cal.getCalendarCollection()) {
+          return false;
+        }
+
+        xml.openTag(tag);
+        xml.startTag(CaldavTags.comp);
+        xml.atribute("name", "VEVENT");
+        xml.closeTag(tag);
+        return true;
+      }
+
+      if (tag.equals(CaldavTags.supportedCalendarData)) {
+        /* e.g.
+         * <C:supported-calendar-data
+         *              xmlns:C="urn:ietf:params:xml:ns:caldav">
+         *   <C:calendar-data content-type="text/calendar" version="2.0"/>
+         * </C:supported-calendar-data>
+         */
+        xml.openTag(tag);
+        xml.startTag(CaldavTags.calendarData);
+        xml.atribute("content-type", "text/calendar");
+        xml.atribute("version", "2.0");
+        xml.closeTag(tag);
+        return true;
+      }
+
+      return false;
+    } catch (WebdavIntfException wde) {
+      throw wde;
+    } catch (Throwable t) {
+      throw new WebdavIntfException(t);
+    }
   }
 
   /** Return a set of QName defining properties this node supports.

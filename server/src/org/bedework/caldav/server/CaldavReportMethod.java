@@ -63,7 +63,6 @@ import org.bedework.davdefs.WebdavTags;
 
 import edu.rpi.cct.webdav.servlet.common.PropFindMethod;
 import edu.rpi.cct.webdav.servlet.common.ReportMethod;
-import edu.rpi.cct.webdav.servlet.common.WebdavMethods;
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
@@ -127,6 +126,7 @@ public class CaldavReportMethod extends ReportMethod {
 
     if (reportType < 0) {
       super.process(doc, depth, req, resp);
+      return;
     }
 
     processDoc(doc);
@@ -344,7 +344,7 @@ public class CaldavReportMethod extends ReportMethod {
     Collection nodes = null;
 
     if (reportType == reportTypeQuery) {
-      nodes = doNodeAndChildren(node, 0, depth);
+      nodes = doNodeAndChildren(node, 0, defaultDepth(depth, 0));
     } else if (reportType == reportTypeMultiGet) {
       nodes = new ArrayList();
 

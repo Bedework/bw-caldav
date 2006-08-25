@@ -59,6 +59,7 @@ import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.BwFreeBusy;
 import org.bedework.calfacade.base.BwShareableDbentity;
 import org.bedework.calfacade.timezones.CalTimezones;
+import org.bedework.icalendar.Icalendar;
 
 import edu.rpi.cct.webdav.servlet.shared.PrincipalPropertySearch;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
@@ -105,6 +106,11 @@ public interface SysIntf {
                    String envPrefix,
                    String account,
                    boolean debug) throws WebdavIntfException;
+
+  /**
+   * @return String url prefix derived from request.
+   */
+  public String getUrlPrefix();
 
   /** Do we allow browsing of directories?
    *
@@ -215,6 +221,28 @@ public interface SysIntf {
    * @throws WebdavIntfException  for errors
    */
   public boolean validGroup(String account) throws WebdavIntfException;
+
+  /* ====================================================================
+   *                   Scheduling
+   * ==================================================================== */
+
+  /** Request to schedule a meeting. The event object must have the organizer
+   * and attendees and possibly recipients set. If no recipients are set, they
+   * will be set from the attendees.
+   *
+   * <p>The event will be added to the users outbox which will trigger the send
+   * of requests to other users inboxes. For users within this system the
+   * request will be immediately addded to the recipients inbox. For external
+   * users they are sent via mail.
+   *
+   * @param event         BwEvent object
+   * @throws CalFacadeException
+   */
+  public void scheduleRequest(BwEvent event) throws WebdavIntfException;
+
+  /* ====================================================================
+   *                   Events
+   * ==================================================================== */
 
   /** Add an event.
   *
@@ -357,10 +385,10 @@ public interface SysIntf {
    *
    * @param cal       calendar in which to place entities
    * @param rdr
-   * @return Collection
+   * @return Icalendar
    * @throws WebdavIntfException
    */
-  public Collection fromIcal(BwCalendar cal, Reader rdr) throws WebdavIntfException;
+  public Icalendar fromIcal(BwCalendar cal, Reader rdr) throws WebdavIntfException;
 
   /** Make an ical Calendar from a Collection of events.
    *

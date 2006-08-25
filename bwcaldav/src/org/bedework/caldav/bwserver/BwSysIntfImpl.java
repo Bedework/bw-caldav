@@ -73,7 +73,9 @@ import org.bedework.calsvci.CalSvcIPars;
 import org.bedework.davdefs.CaldavTags;
 import org.bedework.icalendar.IcalMalformedException;
 import org.bedework.icalendar.IcalTranslator;
+import org.bedework.icalendar.Icalendar;
 
+import edu.rpi.cct.webdav.servlet.common.WebdavUtils;
 import edu.rpi.cct.webdav.servlet.shared.PrincipalPropertySearch;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavIntfException;
@@ -113,6 +115,8 @@ public class BwSysIntfImpl implements SysIntf {
   private IcalTranslator trans;
   private CalSvcI svci;
 
+  private String urlPrefix;
+
   public void init(HttpServletRequest req,
                    String envPrefix,
                    String account,
@@ -142,9 +146,14 @@ public class BwSysIntfImpl implements SysIntf {
       String userRootPath = sys.getUserCalendarRoot();
 
       principalCollectionSetUri = "/" + userRootPath + "/";
+      urlPrefix = WebdavUtils.getUrlPrefix(req);
     } catch (Throwable t) {
       throw new WebdavIntfException(t);
     }
+  }
+
+  public String getUrlPrefix() {
+    return urlPrefix;
   }
 
   public boolean getDirectoryBrowsingDisallowed() throws WebdavIntfException {
@@ -157,20 +166,7 @@ public class BwSysIntfImpl implements SysIntf {
 
   public String caladdrToUser(String caladdr) throws WebdavIntfException {
     try {
-      String sysid = getSvci().getSysid();
-
-      String addrPart = sysid.substring(sysid.indexOf("@"));
-
-      if (!caladdr.endsWith(addrPart)) {
-        return caladdr;
-      }
-
-      String acc = caladdr.substring(0, caladdr.length() - addrPart.length());
-
-      // XXX We need a way to validate this against a user directory
-      // Yet another pluggable class
-
-      return acc;
+      return getSvci().caladdrToUser(caladdr);
     } catch (CalFacadeException cfe) {
       throw new WebdavIntfException(cfe);
     } catch (Throwable t) {
@@ -281,6 +277,25 @@ public class BwSysIntfImpl implements SysIntf {
   public boolean validGroup(String account) throws WebdavIntfException {
     // XXX do this
     return true;
+  }
+
+  /* ====================================================================
+   *                   Scheduling
+   * ==================================================================== */
+
+  public void scheduleRequest(BwEvent event) throws WebdavIntfException {
+    try {
+      getSvci().scheduleRequest(event);
+    } catch (CalFacadeAccessException cfae) {
+      throw WebdavIntfException.forbidden();
+    } catch (CalFacadeException cfe) {
+      if (CalFacadeException.duplicateGuid.equals(cfe.getMessage())) {
+        throw WebdavIntfException.badRequest("Duplicate-guid");
+      }
+      throw new WebdavIntfException(cfe);
+    } catch (Throwable t) {
+      throw new WebdavIntfException(t);
+    }
   }
 
   public void addEvent(BwCalendar cal,
@@ -497,7 +512,7 @@ public class BwSysIntfImpl implements SysIntf {
     }
   }
 
-  public Collection fromIcal(BwCalendar cal, Reader rdr) throws WebdavIntfException {
+  public Icalendar fromIcal(BwCalendar cal, Reader rdr) throws WebdavIntfException {
     getSvci(); // Ensure open
     try {
       return trans.fromIcal(cal, rdr);

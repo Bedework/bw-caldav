@@ -63,7 +63,9 @@ import org.bedework.calfacade.BwUser;
 import org.bedework.calfacade.base.BwShareableDbentity;
 import org.bedework.calfacade.timezones.CalTimezones;
 import org.bedework.calfacade.timezones.ResourceTimezones;
+import org.bedework.icalendar.Icalendar;
 
+import edu.rpi.cct.webdav.servlet.common.WebdavUtils;
 import edu.rpi.cct.webdav.servlet.shared.PrincipalPropertySearch;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavIntfException;
@@ -109,15 +111,22 @@ public class GoogleSysIntfImpl implements SysIntf {
 
   private transient Logger log;
 
+  private String urlPrefix;
+
   public void init(HttpServletRequest req,
                    String envPrefix,
                    String account,
                    boolean debug) throws WebdavIntfException {
     try {
       this.debug = debug;
+      urlPrefix = WebdavUtils.getUrlPrefix(req);
     } catch (Throwable t) {
       throw new WebdavIntfException(t);
     }
+  }
+
+  public String getUrlPrefix() {
+    return urlPrefix;
   }
 
   public boolean getDirectoryBrowsingDisallowed() throws WebdavIntfException {
@@ -149,6 +158,14 @@ public class GoogleSysIntfImpl implements SysIntf {
   }
 
   public boolean validGroup(String account) throws WebdavIntfException {
+    throw new WebdavIntfException("unimplemented");
+  }
+
+  /* ====================================================================
+   *                   Scheduling
+   * ==================================================================== */
+
+  public void scheduleRequest(BwEvent event) throws WebdavIntfException {
     throw new WebdavIntfException("unimplemented");
   }
 
@@ -369,7 +386,7 @@ public class GoogleSysIntfImpl implements SysIntf {
     throw new WebdavIntfException("unimplemented");
   }
 
-  public Collection fromIcal(BwCalendar cal, Reader rdr) throws WebdavIntfException {
+  public Icalendar fromIcal(BwCalendar cal, Reader rdr) throws WebdavIntfException {
     throw new WebdavIntfException("unimplemented");
   }
 

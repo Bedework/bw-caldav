@@ -51,18 +51,20 @@
     special, consequential, or incidental damages related to the software,
     to the maximum extent the law permits.
 */
-
 package org.bedework.caldav.server;
 
-import java.util.Collection;
-import java.util.Enumeration;
-
 import org.bedework.calfacade.BwCalendar;
+import org.bedework.icalendar.Icalendar;
 
 import edu.rpi.cct.webdav.servlet.common.MethodBase;
+import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
+import edu.rpi.cct.webdav.servlet.shared.WebdavForbidden;
+import edu.rpi.cct.webdav.servlet.shared.WebdavNotFound;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
 import edu.rpi.cmt.access.PrivilegeDefs;
+
+import java.util.Enumeration;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -125,16 +127,12 @@ public class PostMethod extends MethodBase {
       BwCalendar cal = calnode.getCDURI().getCal();
 
       if (cal.getCalType() != BwCalendar.calTypeOutbox) {
-        node.setStatus(HttpServletResponse.SC_FORBIDDEN);
-        resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
-        return;
+        throw new WebdavForbidden();
       }
 
       /* (CALDAV:supported-calendar-data) */
       if (req.getContentType() != "text/calendar") {
-        node.setStatus(HttpServletResponse.SC_FORBIDDEN);
-        resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
-        return;
+        throw new WebdavForbidden();
       }
 
       /* (CALDAV:valid-calendar-data) -- later */
@@ -143,18 +141,17 @@ public class PostMethod extends MethodBase {
       /* (CALDAV:originator-specified) */
       String originator = req.getHeader("Originator");
       if (originator == null) {
-        node.setStatus(HttpServletResponse.SC_FORBIDDEN);
-        resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
-        return;
+        throw new WebdavNotFound();
       }
 
-      /* (CALDAV:originator-allowed) */
+      /* (CALDAV:originator-allowed)
+       * The authenticated user is the originator so we just check the current
+       * user has schedule acess to the outbox.
+       */
       if (intf.getSysi().checkAccess(cal,
                                      PrivilegeDefs.privSchedule,
                                      true) == null) {
-        node.setStatus(HttpServletResponse.SC_FORBIDDEN);
-        resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
-        return;
+        throw new WebdavForbidden();
       }
 
       /* (CALDAV:organizer-allowed) -- later */
@@ -162,19 +159,40 @@ public class PostMethod extends MethodBase {
       /* (CALDAV:recipient-specified) */
       Enumeration rs = req.getHeaders("Recipient");
       if ((rs == null) || (!rs.hasMoreElements())) {
-        node.setStatus(HttpServletResponse.SC_FORBIDDEN);
-        resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
-        return;
+        throw new WebdavNotFound();
       }
 
-      Collection c = intf.getIcal(cal, req);
+      Icalendar ic = null;
+
+      try {
+        ic = intf.getIcal(cal, req);
+      } catch (Throwable t) {
+        if (debug) {
+          error(t);
+        }
+      }
+
+      /* (CALDAV:valid-calendar-data) -- exception above means invalid */
+      if ((ic == null) ||
+          (ic.size() != 1)) {
+        throw new WebdavBadRequest();
+      }
+
+      if ((ic.getMethodType() != Icalendar.methodTypePublish) &&
+          (ic.getMethodType() != Icalendar.methodTypeRequest)) {
+        throw new WebdavBadRequest();
+      }
 
       /* Do the stuff we deferred above */
 
-      /* (CALDAV:valid-calendar-data) -- later */
       /* (CALDAV:valid-scheduling-message) -- later */
       /* (CALDAV:organizer-allowed) -- later */
 
+      if (ic.getComponentType() != Icalendar.componentTypeEvent) {
+        throw new WebdavBadRequest();
+      }
+
+      intf.getSysi().scheduleRequest(ic.getEvent());
     } catch (WebdavException we) {
       throw we;
     } catch (Throwable t) {
@@ -183,4 +201,3 @@ public class PostMethod extends MethodBase {
 
   }
 }
-

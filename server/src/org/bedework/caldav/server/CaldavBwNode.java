@@ -54,13 +54,18 @@
 
 package org.bedework.caldav.server;
 
+import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavIntfException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
+import edu.rpi.sss.util.xml.XmlEmit;
 
 import java.io.StringReader;
 import java.io.Reader;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
+
+import org.bedework.davdefs.WebdavTags;
 
 /** Class to represent a caldav node.
  *
@@ -83,6 +88,28 @@ public abstract class CaldavBwNode extends WebdavNsNode {
     if (cdURI != null) {
       this.uri = cdURI.getUri();
       this.owner = cdURI.getOwner();
+    }
+  }
+
+  protected void generateHref(XmlEmit xml) throws WebdavException {
+    try {
+      String url = sysi.getUrlPrefix() + new URI(getEncodedUri()).toASCIIString();
+      xml.property(WebdavTags.href, url);
+    } catch (WebdavException wde) {
+      throw wde;
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
+  }
+
+  protected void generateHref(XmlEmit xml, String uri) throws WebdavException {
+    try {
+      String enc = new URI(null, null, uri, null).toString();
+
+      String url = sysi.getUrlPrefix() + "/" + new URI(enc).toASCIIString();
+      xml.property(WebdavTags.href, url);
+    } catch (Throwable t) {
+      throw new WebdavException(t);
     }
   }
 
