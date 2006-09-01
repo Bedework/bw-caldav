@@ -60,8 +60,6 @@ import org.bedework.calfacade.BwDateTime;
 import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.BwFreeBusy;
 import org.bedework.calfacade.BwUser;
-import org.bedework.calfacade.CalFacadeAccessException;
-import org.bedework.calfacade.CalFacadeException;
 import org.bedework.calfacade.base.BwShareableDbentity;
 import org.bedework.calfacade.timezones.CalTimezones;
 import org.bedework.calfacade.timezones.ResourceTimezones;
@@ -251,7 +249,7 @@ public class BexchangeSysIntfImpl implements SysIntf {
    *                   Scheduling
    * ==================================================================== */
 
-  public void scheduleRequest(BwEvent event) throws WebdavIntfException {
+  public Collection scheduleRequest(BwEvent event) throws WebdavIntfException {
     throw new WebdavIntfException("unimplemented");
   }
 

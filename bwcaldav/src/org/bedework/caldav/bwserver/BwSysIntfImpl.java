@@ -70,6 +70,7 @@ import org.bedework.calfacade.timezones.CalTimezones;
 import org.bedework.calsvci.CalSvcFactoryDefault;
 import org.bedework.calsvci.CalSvcI;
 import org.bedework.calsvci.CalSvcIPars;
+import org.bedework.calsvci.CalSvcI.ScheduleResult;
 import org.bedework.davdefs.CaldavTags;
 import org.bedework.icalendar.IcalMalformedException;
 import org.bedework.icalendar.IcalTranslator;
@@ -283,9 +284,31 @@ public class BwSysIntfImpl implements SysIntf {
    *                   Scheduling
    * ==================================================================== */
 
-  public void scheduleRequest(BwEvent event) throws WebdavIntfException {
+  public Collection scheduleRequest(BwEvent event) throws WebdavIntfException {
     try {
-      getSvci().scheduleRequest(event);
+      event.setOwner(svci.findUser(account, false));
+      Collection bwsrs = getSvci().scheduleRequest(event);
+      Collection srs = new ArrayList();
+
+      Iterator it = bwsrs.iterator();
+      while (it.hasNext()) {
+        ScheduleResult sr = (ScheduleResult)it.next();
+
+        ScheduleRequestResult srr = new ScheduleRequestResult();
+        srr.recipient = sr.recipient;
+
+        if (sr.status == ScheduleResult.scheduleDeferred) {
+          srr.requestStatus = BwEvent.requestStatusDeferred;
+        } else if (sr.status == ScheduleResult.scheduleNoAccess) {
+          srr.requestStatus = BwEvent.requestStatusNoAccess;
+        } else {
+          srr.requestStatus = BwEvent.requestStatusOK;
+        }
+
+        srs.add(srr);
+      }
+
+      return srs;
     } catch (CalFacadeAccessException cfae) {
       throw WebdavIntfException.forbidden();
     } catch (CalFacadeException cfe) {
@@ -405,7 +428,7 @@ public class BwSysIntfImpl implements SysIntf {
                                 BwDateTime start,
                                 BwDateTime end) throws WebdavException {
     try {
-      BwUser user = getSvci().findUser(account);
+      BwUser user = getSvci().findUser(account, false);
       if (user == null) {
         throw WebdavIntfException.unauthorized();
       }
@@ -497,16 +520,16 @@ public class BwSysIntfImpl implements SysIntf {
   public Calendar toCalendar(BwEvent ev) throws WebdavIntfException {
     getSvci(); // Ensure open
     try {
-      return trans.toIcal(ev);
+      return trans.toIcal(ev, Icalendar.methodTypeNone);
     } catch (Throwable t) {
       throw new WebdavIntfException(t);
     }
   }
 
-  public Calendar toCalendar(Collection evs) throws WebdavIntfException {
+  public Calendar toCalendar(Collection ents) throws WebdavIntfException {
     getSvci(); // Ensure open
     try {
-      return trans.toIcal(evs);
+      return trans.toIcal(ents, Icalendar.methodTypeNone);
     } catch (Throwable t) {
       throw new WebdavIntfException(t);
     }

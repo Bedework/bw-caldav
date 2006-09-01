@@ -226,6 +226,16 @@ public interface SysIntf {
    *                   Scheduling
    * ==================================================================== */
 
+  /** Result for a single recipient.
+   */
+  public static class ScheduleRequestResult {
+    /** */
+    public String recipient;
+
+    /** One of the itip defined values (such as they are) */
+    public String requestStatus;
+  }
+
   /** Request to schedule a meeting. The event object must have the organizer
    * and attendees and possibly recipients set. If no recipients are set, they
    * will be set from the attendees.
@@ -236,9 +246,10 @@ public interface SysIntf {
    * users they are sent via mail.
    *
    * @param event         BwEvent object
+   * @return Collection   of ScheduleResult
    * @throws CalFacadeException
    */
-  public void scheduleRequest(BwEvent event) throws WebdavIntfException;
+  public Collection scheduleRequest(BwEvent event) throws WebdavIntfException;
 
   /* ====================================================================
    *                   Events
@@ -381,6 +392,14 @@ public interface SysIntf {
    */
   public Calendar toCalendar(BwEvent ev) throws WebdavIntfException;
 
+  /** Make an ical Calendar from a Collection of calendar objects.
+   *
+   * @param ents
+   * @return Calendar
+   * @throws WebdavIntfException
+   */
+  public Calendar toCalendar(Collection ents) throws WebdavIntfException;
+
   /** Convert the Icalendar reader to a Collection of Calendar objects
    *
    * @param cal       calendar in which to place entities
@@ -389,14 +408,6 @@ public interface SysIntf {
    * @throws WebdavIntfException
    */
   public Icalendar fromIcal(BwCalendar cal, Reader rdr) throws WebdavIntfException;
-
-  /** Make an ical Calendar from a Collection of events.
-   *
-   * @param evs
-   * @return Calendar
-   * @throws WebdavIntfException
-   */
-  public Calendar toCalendar(Collection evs) throws WebdavIntfException;
 
   /**
    * @return CalTimezones

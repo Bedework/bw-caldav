@@ -165,7 +165,7 @@ public class GoogleSysIntfImpl implements SysIntf {
    *                   Scheduling
    * ==================================================================== */
 
-  public void scheduleRequest(BwEvent event) throws WebdavIntfException {
+  public Collection scheduleRequest(BwEvent event) throws WebdavIntfException {
     throw new WebdavIntfException("unimplemented");
   }
 

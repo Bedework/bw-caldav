@@ -245,7 +245,7 @@ public class DominoSysIntfImpl implements SysIntf {
    *                   Scheduling
    * ==================================================================== */
 
-  public void scheduleRequest(BwEvent event) throws WebdavIntfException {
+  public Collection scheduleRequest(BwEvent event) throws WebdavIntfException {
     throw new WebdavIntfException("unimplemented");
   }
 

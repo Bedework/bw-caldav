@@ -60,6 +60,7 @@ import org.bedework.davdefs.CaldavDefs;
 import org.bedework.davdefs.CaldavTags;
 import org.bedework.davdefs.WebdavTags;
 import org.bedework.icalendar.IcalTranslator;
+import org.bedework.icalendar.Icalendar;
 import org.bedework.icalendar.VFreeUtil;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavIntfException;
@@ -201,7 +202,7 @@ public class CaldavCalNode extends CaldavBwNode {
     try {
       VFreeBusy vfreeBusy = VFreeUtil.toVFreeBusy(fb);
       if (vfreeBusy != null) {
-        ical = IcalTranslator.newIcal();
+        ical = IcalTranslator.newIcal(Icalendar.methodTypeNone);
         ical.getComponents().add(vfreeBusy);
         vfreeBusyString = ical.toString();
         contentLen = vfreeBusyString.length();

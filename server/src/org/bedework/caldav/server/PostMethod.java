@@ -53,7 +53,10 @@
 */
 package org.bedework.caldav.server;
 
+import org.bedework.caldav.server.SysIntf.ScheduleRequestResult;
 import org.bedework.calfacade.BwCalendar;
+import org.bedework.calfacade.BwEvent;
+import org.bedework.davdefs.CaldavTags;
 import org.bedework.icalendar.Icalendar;
 
 import edu.rpi.cct.webdav.servlet.common.MethodBase;
@@ -64,7 +67,10 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavNotFound;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
 import edu.rpi.cmt.access.PrivilegeDefs;
 
+import java.util.Collection;
 import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -127,12 +133,18 @@ public class PostMethod extends MethodBase {
       BwCalendar cal = calnode.getCDURI().getCal();
 
       if (cal.getCalType() != BwCalendar.calTypeOutbox) {
+        if (debug) {
+          debugMsg("Not targetted at Outbox");
+        }
         throw new WebdavForbidden();
       }
 
       /* (CALDAV:supported-calendar-data) */
-      if (req.getContentType() != "text/calendar") {
-        throw new WebdavForbidden();
+      if (!"text/calendar".equals(req.getContentType())) {
+        if (debug) {
+          debugMsg("Bad content type: " + req.getContentType());
+        }
+        throw new WebdavBadRequest();
       }
 
       /* (CALDAV:valid-calendar-data) -- later */
@@ -141,6 +153,9 @@ public class PostMethod extends MethodBase {
       /* (CALDAV:originator-specified) */
       String originator = req.getHeader("Originator");
       if (originator == null) {
+        if (debug) {
+          debugMsg("No originator");
+        }
         throw new WebdavNotFound();
       }
 
@@ -151,6 +166,9 @@ public class PostMethod extends MethodBase {
       if (intf.getSysi().checkAccess(cal,
                                      PrivilegeDefs.privSchedule,
                                      true) == null) {
+        if (debug) {
+          debugMsg("No access for scheduling");
+        }
         throw new WebdavForbidden();
       }
 
@@ -158,8 +176,17 @@ public class PostMethod extends MethodBase {
 
       /* (CALDAV:recipient-specified) */
       Enumeration rs = req.getHeaders("Recipient");
+      Collection recipients = new TreeSet();
+
       if ((rs == null) || (!rs.hasMoreElements())) {
+        if (debug) {
+          debugMsg("No recipient(s)");
+        }
         throw new WebdavNotFound();
+      } else {
+        while (rs.hasMoreElements()) {
+          recipients.add(rs.nextElement());
+        }
       }
 
       Icalendar ic = null;
@@ -175,11 +202,23 @@ public class PostMethod extends MethodBase {
       /* (CALDAV:valid-calendar-data) -- exception above means invalid */
       if ((ic == null) ||
           (ic.size() != 1)) {
+        if (debug) {
+          debugMsg("Not icalendar");
+        }
         throw new WebdavBadRequest();
       }
 
       if ((ic.getMethodType() != Icalendar.methodTypePublish) &&
           (ic.getMethodType() != Icalendar.methodTypeRequest)) {
+        if (debug) {
+          String mt;
+          if (ic.getMethodType() == Icalendar.methodTypeUnknown) {
+            mt =" UNKNOWN";
+          } else {
+            mt = Icalendar.methods[ic.getMethodType()];
+          }
+          debugMsg("Bad method: " + mt);
+        }
         throw new WebdavBadRequest();
       }
 
@@ -189,15 +228,41 @@ public class PostMethod extends MethodBase {
       /* (CALDAV:organizer-allowed) -- later */
 
       if (ic.getComponentType() != Icalendar.componentTypeEvent) {
+        if (debug) {
+          debugMsg("Not event");
+        }
         throw new WebdavBadRequest();
       }
 
-      intf.getSysi().scheduleRequest(ic.getEvent());
+      BwEvent event = ic.getEvent();
+      event.setRecipients(recipients);
+
+      Collection srs = intf.getSysi().scheduleRequest(event);
+
+      startEmit(resp);
+
+      resp.setStatus(HttpServletResponse.SC_OK);
+      resp.setContentType("text/xml");
+
+      openTag(CaldavTags.scheduleResponse);
+
+      Iterator it = srs.iterator();
+      while (it.hasNext()) {
+        openTag(CaldavTags.response);
+
+        ScheduleRequestResult srr = (ScheduleRequestResult)it.next();
+        property(CaldavTags.recipient, srr.recipient);
+        property(CaldavTags.requestStatus, srr.requestStatus);
+        closeTag(CaldavTags.response);
+      }
+
+      closeTag(CaldavTags.scheduleResponse);
+
+      flush();
     } catch (WebdavException we) {
       throw we;
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
-
   }
 }
