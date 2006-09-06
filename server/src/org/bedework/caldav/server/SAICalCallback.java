@@ -74,6 +74,8 @@ import java.util.Collection;
  *
  */
 public class SAICalCallback implements IcalCallback {
+  private int strictness;
+
   private CalTimezones timezones;
   private BwUser user;
 
@@ -85,6 +87,14 @@ public class SAICalCallback implements IcalCallback {
   public SAICalCallback(CalTimezones timezones, String account) {
     this.timezones = timezones;
     user = new BwUser(account);
+  }
+
+  public void setStrictness(int val) throws CalFacadeException {
+    strictness = val;
+  }
+
+  public int getStrictness() throws CalFacadeException {
+    return strictness;
   }
 
   public BwUser getUser() throws CalFacadeException {
