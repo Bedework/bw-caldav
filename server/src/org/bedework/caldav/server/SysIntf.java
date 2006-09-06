@@ -247,7 +247,7 @@ public interface SysIntf {
    *
    * @param event         BwEvent object
    * @return Collection   of ScheduleResult
-   * @throws CalFacadeException
+   * @throws WebdavIntfException
    */
   public Collection scheduleRequest(BwEvent event) throws WebdavIntfException;
 

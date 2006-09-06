@@ -87,7 +87,9 @@ public class CaldavUserNode extends CaldavBwNode {
   /**
    * @param cdURI
    * @param sysi
+   * @param ui    User Info
    * @param debug
+   * @throws WebdavIntfException
    */
   public CaldavUserNode(CaldavURI cdURI, SysIntf sysi,
                         SysIntf.CalUserInfo ui, boolean debug) throws WebdavIntfException {

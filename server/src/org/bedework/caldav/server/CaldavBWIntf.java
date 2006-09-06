@@ -528,6 +528,12 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
   }
 
+  /**
+   * @param cal
+   * @param req
+   * @return Icalendar
+   * @throws WebdavIntfException
+   */
   public Icalendar getIcal(BwCalendar cal, HttpServletRequest req)
       throws WebdavIntfException {
     try {
@@ -1176,6 +1182,11 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
   }
 
+  /**
+   * @param node
+   * @return CaldavBwNode
+   * @throws WebdavIntfException
+   */
   public CaldavBwNode getBwnode(WebdavNsNode node)
       throws WebdavIntfException {
     if (!(node instanceof CaldavBwNode)) {
@@ -1186,6 +1197,12 @@ public class CaldavBWIntf extends WebdavNsIntf {
     return (CaldavBwNode)node;
   }
 
+  /**
+   * @param node
+   * @param errstatus
+   * @return CaldavCalNode
+   * @throws WebdavException
+   */
   public CaldavCalNode getCalnode(WebdavNsNode node, int errstatus)
       throws WebdavException {
     if (!(node instanceof CaldavCalNode)) {
