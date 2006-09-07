@@ -70,6 +70,7 @@ import org.bedework.calfacade.timezones.CalTimezones;
 import org.bedework.calsvci.CalSvcFactoryDefault;
 import org.bedework.calsvci.CalSvcI;
 import org.bedework.calsvci.CalSvcIPars;
+import org.bedework.calsvci.CalSvcI.ScheduleRecipientResult;
 import org.bedework.calsvci.CalSvcI.ScheduleResult;
 import org.bedework.davdefs.CaldavTags;
 import org.bedework.icalendar.IcalMalformedException;
@@ -284,22 +285,22 @@ public class BwSysIntfImpl implements SysIntf {
    *                   Scheduling
    * ==================================================================== */
 
-  public Collection scheduleRequest(BwEvent event) throws WebdavIntfException {
+  public Collection schedule(BwEvent event) throws WebdavIntfException {
     try {
       event.setOwner(svci.findUser(account, false));
-      Collection bwsrs = getSvci().scheduleRequest(event);
+      ScheduleResult sr = getSvci().schedule(event);
       Collection srs = new ArrayList();
 
-      Iterator it = bwsrs.iterator();
+      Iterator it = sr.recipientResults.iterator();
       while (it.hasNext()) {
-        ScheduleResult sr = (ScheduleResult)it.next();
+        ScheduleRecipientResult srec = (ScheduleRecipientResult)it.next();
 
-        ScheduleRequestResult srr = new ScheduleRequestResult();
-        srr.recipient = sr.recipient;
+        SchedulingResult srr = new SchedulingResult();
+        srr.recipient = srec.recipient;
 
-        if (sr.status == ScheduleResult.scheduleDeferred) {
+        if (srec.status == ScheduleRecipientResult.scheduleDeferred) {
           srr.requestStatus = BwEvent.requestStatusDeferred;
-        } else if (sr.status == ScheduleResult.scheduleNoAccess) {
+        } else if (srec.status == ScheduleRecipientResult.scheduleNoAccess) {
           srr.requestStatus = BwEvent.requestStatusNoAccess;
         } else {
           srr.requestStatus = BwEvent.requestStatusOK;

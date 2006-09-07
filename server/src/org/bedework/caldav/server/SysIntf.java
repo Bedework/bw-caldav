@@ -228,7 +228,7 @@ public interface SysIntf {
 
   /** Result for a single recipient.
    */
-  public static class ScheduleRequestResult {
+  public static class SchedulingResult {
     /** */
     public String recipient;
 
@@ -240,16 +240,19 @@ public interface SysIntf {
    * and attendees and possibly recipients set. If no recipients are set, they
    * will be set from the attendees.
    *
+   * <p>The functioning of this method must conform to the requirements of iTip.
+   * The event object must have the required method (publish, request etc) set.
+   *
    * <p>The event will be added to the users outbox which will trigger the send
    * of requests to other users inboxes. For users within this system the
    * request will be immediately addded to the recipients inbox. For external
    * users they are sent via mail.
    *
    * @param event         BwEvent object
-   * @return Collection   of ScheduleResult
+   * @return Collection   of SchedulingResult
    * @throws WebdavIntfException
    */
-  public Collection scheduleRequest(BwEvent event) throws WebdavIntfException;
+  public Collection schedule(BwEvent event) throws WebdavIntfException;
 
   /* ====================================================================
    *                   Events

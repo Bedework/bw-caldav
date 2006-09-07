@@ -53,7 +53,7 @@
 */
 package org.bedework.caldav.server;
 
-import org.bedework.caldav.server.SysIntf.ScheduleRequestResult;
+import org.bedework.caldav.server.SysIntf.SchedulingResult;
 import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwEvent;
 import org.bedework.davdefs.CaldavTags;
@@ -208,16 +208,9 @@ public class PostMethod extends MethodBase {
         throw new WebdavBadRequest();
       }
 
-      if ((ic.getMethodType() != Icalendar.methodTypePublish) &&
-          (ic.getMethodType() != Icalendar.methodTypeRequest)) {
+      if (!ic.validItipMethodType()) {
         if (debug) {
-          String mt;
-          if (ic.getMethodType() == Icalendar.methodTypeUnknown) {
-            mt =" UNKNOWN";
-          } else {
-            mt = Icalendar.methods[ic.getMethodType()];
-          }
-          debugMsg("Bad method: " + mt);
+          debugMsg("Bad method: " + String.valueOf(ic.getMethodType()));
         }
         throw new WebdavBadRequest();
       }
@@ -236,8 +229,9 @@ public class PostMethod extends MethodBase {
 
       BwEvent event = ic.getEvent();
       event.setRecipients(recipients);
+      event.setScheduleMethod(ic.getMethodType());
 
-      Collection srs = intf.getSysi().scheduleRequest(event);
+      Collection srs = intf.getSysi().schedule(event);
 
       startEmit(resp);
 
@@ -250,7 +244,7 @@ public class PostMethod extends MethodBase {
       while (it.hasNext()) {
         openTag(CaldavTags.response);
 
-        ScheduleRequestResult srr = (ScheduleRequestResult)it.next();
+        SchedulingResult srr = (SchedulingResult)it.next();
         property(CaldavTags.recipient, srr.recipient);
         property(CaldavTags.requestStatus, srr.requestStatus);
         closeTag(CaldavTags.response);
