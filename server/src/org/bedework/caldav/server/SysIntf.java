@@ -57,6 +57,7 @@ import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwDateTime;
 import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.BwFreeBusy;
+import org.bedework.calfacade.ScheduleResult;
 import org.bedework.calfacade.base.BwShareableDbentity;
 import org.bedework.calfacade.timezones.CalTimezones;
 import org.bedework.icalendar.Icalendar;
@@ -226,16 +227,6 @@ public interface SysIntf {
    *                   Scheduling
    * ==================================================================== */
 
-  /** Result for a single recipient.
-   */
-  public static class SchedulingResult {
-    /** */
-    public String recipient;
-
-    /** One of the itip defined values (such as they are) */
-    public String requestStatus;
-  }
-
   /** Request to schedule a meeting. The event object must have the organizer
    * and attendees and possibly recipients set. If no recipients are set, they
    * will be set from the attendees.
@@ -249,10 +240,10 @@ public interface SysIntf {
    * users they are sent via mail.
    *
    * @param event         BwEvent object
-   * @return Collection   of SchedulingResult
+   * @return ScheduleResult
    * @throws WebdavIntfException
    */
-  public Collection schedule(BwEvent event) throws WebdavIntfException;
+  public ScheduleResult schedule(BwEvent event) throws WebdavIntfException;
 
   /* ====================================================================
    *                   Events

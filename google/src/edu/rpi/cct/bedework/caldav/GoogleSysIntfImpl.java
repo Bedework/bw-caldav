@@ -60,6 +60,7 @@ import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.BwFreeBusy;
 import org.bedework.calfacade.BwFreeBusyComponent;
 import org.bedework.calfacade.BwUser;
+import org.bedework.calfacade.ScheduleResult;
 import org.bedework.calfacade.base.BwShareableDbentity;
 import org.bedework.calfacade.timezones.CalTimezones;
 import org.bedework.calfacade.timezones.ResourceTimezones;
@@ -165,7 +166,7 @@ public class GoogleSysIntfImpl implements SysIntf {
    *                   Scheduling
    * ==================================================================== */
 
-  public Collection schedule(BwEvent event) throws WebdavIntfException {
+  public ScheduleResult schedule(BwEvent event) throws WebdavIntfException {
     throw new WebdavIntfException("unimplemented");
   }
 

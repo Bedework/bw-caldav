@@ -64,14 +64,13 @@ import org.bedework.calfacade.BwUser;
 import org.bedework.calfacade.CalFacadeAccessException;
 import org.bedework.calfacade.CalFacadeDefs;
 import org.bedework.calfacade.CalFacadeException;
+import org.bedework.calfacade.ScheduleResult;
 import org.bedework.calfacade.base.BwShareableDbentity;
 import org.bedework.calfacade.svc.BwSubscription;
 import org.bedework.calfacade.timezones.CalTimezones;
 import org.bedework.calsvci.CalSvcFactoryDefault;
 import org.bedework.calsvci.CalSvcI;
 import org.bedework.calsvci.CalSvcIPars;
-import org.bedework.calsvci.CalSvcI.ScheduleRecipientResult;
-import org.bedework.calsvci.CalSvcI.ScheduleResult;
 import org.bedework.davdefs.CaldavTags;
 import org.bedework.icalendar.IcalMalformedException;
 import org.bedework.icalendar.IcalTranslator;
@@ -285,31 +284,10 @@ public class BwSysIntfImpl implements SysIntf {
    *                   Scheduling
    * ==================================================================== */
 
-  public Collection schedule(BwEvent event) throws WebdavIntfException {
+  public ScheduleResult schedule(BwEvent event) throws WebdavIntfException {
     try {
       event.setOwner(svci.findUser(account, false));
-      ScheduleResult sr = getSvci().schedule(event);
-      Collection srs = new ArrayList();
-
-      Iterator it = sr.recipientResults.iterator();
-      while (it.hasNext()) {
-        ScheduleRecipientResult srec = (ScheduleRecipientResult)it.next();
-
-        SchedulingResult srr = new SchedulingResult();
-        srr.recipient = srec.recipient;
-
-        if (srec.status == ScheduleRecipientResult.scheduleDeferred) {
-          srr.requestStatus = BwEvent.requestStatusDeferred;
-        } else if (srec.status == ScheduleRecipientResult.scheduleNoAccess) {
-          srr.requestStatus = BwEvent.requestStatusNoAccess;
-        } else {
-          srr.requestStatus = BwEvent.requestStatusOK;
-        }
-
-        srs.add(srr);
-      }
-
-      return srs;
+      return getSvci().schedule(event);
     } catch (CalFacadeAccessException cfae) {
       throw WebdavIntfException.forbidden();
     } catch (CalFacadeException cfe) {

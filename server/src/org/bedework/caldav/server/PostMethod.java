@@ -53,9 +53,10 @@
 */
 package org.bedework.caldav.server;
 
-import org.bedework.caldav.server.SysIntf.SchedulingResult;
 import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwEvent;
+import org.bedework.calfacade.ScheduleResult;
+import org.bedework.calfacade.ScheduleResult.ScheduleRecipientResult;
 import org.bedework.davdefs.CaldavTags;
 import org.bedework.icalendar.Icalendar;
 
@@ -231,7 +232,7 @@ public class PostMethod extends MethodBase {
       event.setRecipients(recipients);
       event.setScheduleMethod(ic.getMethodType());
 
-      Collection srs = intf.getSysi().schedule(event);
+      ScheduleResult sr = intf.getSysi().schedule(event);
 
       startEmit(resp);
 
@@ -240,13 +241,24 @@ public class PostMethod extends MethodBase {
 
       openTag(CaldavTags.scheduleResponse);
 
-      Iterator it = srs.iterator();
+      Iterator it = sr.recipientResults.iterator();
       while (it.hasNext()) {
         openTag(CaldavTags.response);
 
-        SchedulingResult srr = (SchedulingResult)it.next();
+        ScheduleRecipientResult srr = (ScheduleRecipientResult)it.next();
         property(CaldavTags.recipient, srr.recipient);
-        property(CaldavTags.requestStatus, srr.requestStatus);
+
+        String reqstat;
+
+        if (srr.status == ScheduleRecipientResult.scheduleDeferred) {
+          reqstat = BwEvent.requestStatusDeferred;
+        } else if (srr.status == ScheduleRecipientResult.scheduleNoAccess) {
+          reqstat = BwEvent.requestStatusNoAccess;
+        } else {
+          reqstat = BwEvent.requestStatusOK;
+        }
+
+        property(CaldavTags.requestStatus, reqstat);
         closeTag(CaldavTags.response);
       }
 
