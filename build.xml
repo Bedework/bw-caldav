@@ -150,7 +150,8 @@
   <!-- ===================== internal build targets ====================
        ================================================================= -->
 
-  <target name="bld.boeingexchange" if="org.bedework.build.caldav.bexchange" >
+  <target name="bld.boeingexchange" >
+    <echo message="org.bedework.build.caldav.bexchange=${org.bedework.build.caldav.bexchange}" />
       <ant antfile="${org.bedework.caldav.boeingexchange.base}/build.xml" inheritrefs="true"
            target="build" />
   </target>
@@ -161,12 +162,12 @@
            target="build" />
   </target>
 
-  <target name="bld.domino" if="org.bedework.build.caldav.domino" >
+  <target name="bld.domino" >
       <ant antfile="${org.bedework.caldav.domino.base}/build.xml" inheritrefs="true"
            target="build" />
   </target>
 
-  <target name="bld.google" if="org.bedework.build.caldav.google" >
+  <target name="bld.google" >
       <ant antfile="${org.bedework.caldav.google.base}/build.xml" inheritrefs="true"
            target="build" />
   </target>
