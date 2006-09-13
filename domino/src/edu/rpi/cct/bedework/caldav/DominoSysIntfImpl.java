@@ -53,7 +53,6 @@
 */
 package edu.rpi.cct.bedework.caldav;
 
-import org.bedework.caldav.server.SAICalCallback;
 import org.bedework.caldav.server.SysIntf;
 import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwDateTime;
@@ -70,6 +69,7 @@ import org.bedework.http.client.dav.DavReq;
 import org.bedework.http.client.dav.DavResp;
 import org.bedework.icalendar.IcalTranslator;
 import org.bedework.icalendar.Icalendar;
+import org.bedework.icalendar.SAICalCallback;
 
 import edu.rpi.cct.webdav.servlet.common.WebdavUtils;
 import edu.rpi.cct.webdav.servlet.shared.PrincipalPropertySearch;

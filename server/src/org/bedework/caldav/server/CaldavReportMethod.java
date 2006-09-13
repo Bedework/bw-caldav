@@ -203,6 +203,7 @@ public class CaldavReportMethod extends ReportMethod {
         }
 
         if (reportType == reportTypeFreeBusy) {
+          freeBusy = new FreeBusyQuery(intf, debug);
           freeBusy.parse(curnode);
         } else {
           /* Two possibilities:
