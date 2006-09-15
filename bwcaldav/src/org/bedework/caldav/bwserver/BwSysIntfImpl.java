@@ -496,6 +496,18 @@ public class BwSysIntfImpl implements SysIntf {
     }
   }
 
+  public Collection getCalendars(BwCalendar cal) throws WebdavIntfException {
+    try {
+      return getSvci().getCalendars(cal);
+    } catch (CalFacadeAccessException cfae) {
+      throw WebdavIntfException.forbidden();
+    } catch (CalFacadeException cfe) {
+      throw new WebdavIntfException(cfe);
+    } catch (Throwable t) {
+      throw new WebdavIntfException(t);
+    }
+  }
+
   public Calendar toCalendar(BwEvent ev) throws WebdavIntfException {
     getSvci(); // Ensure open
     try {

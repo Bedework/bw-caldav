@@ -180,7 +180,7 @@ public class CaldavCalNode extends CaldavBwNode {
         if (debug) {
           debugMsg("POSSIBLE SEARCH: getChildren for cal " + cal.getId());
         }
-        return cal.getChildren();
+        return getSysi().getCalendars(cal);
       }
 
       /* Othewise, return the events in this calendar */

@@ -438,6 +438,10 @@ public class DominoSysIntfImpl implements SysIntf {
     return cal;
   }
 
+  public Collection getCalendars(BwCalendar cal) throws WebdavIntfException {
+    throw new WebdavIntfException("unimplemented");
+  }
+
   public Calendar toCalendar(BwEvent ev) throws WebdavIntfException {
     throw new WebdavIntfException("unimplemented");
   }

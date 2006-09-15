@@ -378,6 +378,15 @@ public interface SysIntf {
    */
   public BwCalendar getCalendar(String path) throws WebdavIntfException;
 
+  /** Returns children of the given calendar to which the current user has
+   * some access.
+   *
+   * @param  cal          parent calendar
+   * @return Collection   of BwCalendar
+   * @throws WebdavIntfException
+   */
+  public Collection getCalendars(BwCalendar cal) throws WebdavIntfException;
+
   /** Make an ical Calendar from an event.
    *
    * @param ev
