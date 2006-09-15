@@ -71,14 +71,16 @@ import org.bedework.calfacade.BwCalendar;
 public class CaldavURI {
   BwCalendar cal;
 
+  Object entity;
+
   String entityName;
 
   boolean userUri; // entityname is user
 
   boolean groupUri;// entityname is group
 
-  CaldavURI(BwCalendar cal, String entityName) {
-    init(cal, entityName);
+  CaldavURI(BwCalendar cal, Object entity, String entityName) {
+    init(cal, entity, entityName);
   }
 
   CaldavURI(String entityName, boolean isUser) {
@@ -91,8 +93,9 @@ public class CaldavURI {
     }
   }
 
-  private void init(BwCalendar cal, String entityName) {
+  private void init(BwCalendar cal, Object entity, String entityName) {
     this.cal = cal;
+    this.entity = entity;
     this.entityName = entityName;
   }
 
@@ -101,6 +104,13 @@ public class CaldavURI {
    */
   public BwCalendar getCal() {
     return cal;
+  }
+
+  /**
+   * @return Object
+   */
+  public Object getEntity() {
+    return entity;
   }
 
   /**
@@ -182,7 +192,7 @@ public class CaldavURI {
       return true;
     }
 
-    if ((entityName != null) || (getEntityName() != null)) {
+    if ((entityName == null) || (getEntityName() == null)) {
       return false;
     }
 

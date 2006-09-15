@@ -290,8 +290,8 @@ public interface SysIntf {
    * given date and time range.
    *
    * @param cal
-   * @param startDate    DateTimeVO start - may be null
-   * @param endDate      DateTimeVO end - may be null.
+   * @param startDate    BwDateTime start - may be null
+   * @param endDate      BwDateTime end - may be null.
    * @param recurRetrieval Takes value defined in.CalFacadeDefs
    * @return Collection  populated event value objects
    * @throws WebdavIntfException
@@ -304,7 +304,7 @@ public interface SysIntf {
    * found. For non-recurring there should be only one event. Otherwise we
    * return the currently expanded set of recurring events.
    *
-   * @param cal        CalendarVO object
+   * @param cal        BwCalendar object
    * @param val        String possible name
    * @return Collection of EventInfo or null
    * @throws WebdavIntfException

@@ -65,6 +65,7 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavForbidden;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNotFound;
+import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
 import edu.rpi.cmt.access.PrivilegeDefs;
 
@@ -94,7 +95,9 @@ public class PostMethod extends MethodBase {
 
     try {
       CaldavBWIntf intf = (CaldavBWIntf)getNsIntf();
-      WebdavNsNode node = intf.getNode(getResourceUri(req));
+      WebdavNsNode node = intf.getNode(getResourceUri(req),
+                                       WebdavNsIntf.existanceMust,
+                                       WebdavNsIntf.nodeTypeCollection);
 
       if (node == null) {
         resp.setStatus(HttpServletResponse.SC_NOT_FOUND);

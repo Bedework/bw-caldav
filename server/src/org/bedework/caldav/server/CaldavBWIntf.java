@@ -250,15 +250,24 @@ public class CaldavBWIntf extends WebdavNsIntf {
     return namespacePrefix + node.getUri();
   }
 
-  public WebdavNsNode getNode(String uri) throws WebdavIntfException {
-    return getNodeInt(uri, true);
+  public WebdavNsNode getNode(String uri,
+                              int existance,
+                              int nodeType) throws WebdavIntfException {
+    return getNodeInt(uri, existance, nodeType, true, null, null);
   }
 
-  public WebdavNsNode getNodeEncoded(String uri) throws WebdavIntfException {
-    return getNodeInt(uri, false);
+  public WebdavNsNode getNodeEncoded(String uri,
+                                     int existance,
+                                     int nodeType) throws WebdavIntfException {
+    return getNodeInt(uri, existance, nodeType, false, null, null);
   }
 
-  private WebdavNsNode getNodeInt(String uri, boolean decoded) throws WebdavIntfException {
+  private WebdavNsNode getNodeInt(String uri,
+                                  int existance,
+                                  int nodeType,
+                                  boolean decoded,
+                                  BwCalendar cal,
+                                  EventInfo ei) throws WebdavIntfException {
     if (debug) {
       debugMsg("About to get node for " + uri);
     }
@@ -268,7 +277,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
 
     try {
-      CaldavURI wi = findURI(uri, decoded, null);
+      CaldavURI wi = findURI(uri, existance, nodeType, decoded, cal, ei);
 
       if (wi == null) {
         throw WebdavIntfException.notFound();
@@ -292,12 +301,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
     } catch (Throwable t) {
       throw new WebdavIntfException(t);
     }
-  }
-
-  public WebdavNsNode getNode(String uri, boolean followAlias)
-      throws WebdavIntfException {
-    //XXX probably needs fixing
-    return getNode(uri);
   }
 
   public void putNode(WebdavNsNode node)
@@ -358,25 +361,29 @@ public class CaldavBWIntf extends WebdavNsIntf {
       while (it.hasNext()) {
         Object o = it.next();
         BwCalendar cal = null;
-        BwEvent ev = null;
+        EventInfo ei = null;
         String name;
+        int nodeType;
 
         if (o instanceof BwCalendar) {
           cal = (BwCalendar)o;
           name = cal.getName();
+          nodeType = WebdavNsIntf.nodeTypeCollection;
           if (debug) {
             debugMsg("Found child " + cal);
           }
         } else if (o instanceof EventInfo) {
           cal = parent;
-          EventInfo ei = (EventInfo)o;
-          ev = ei.getEvent();
-          name = ev.getName();
+          ei = (EventInfo)o;
+          name = ei.getEvent().getName();
+          nodeType = WebdavNsIntf.nodeTypeEntity;
         } else {
           throw new WebdavIntfException("Unexpected return type");
         }
 
-        CaldavURI wi = findURI(uri + "/" + name, true, cal);
+        CaldavURI wi = findURI(uri + "/" + name,
+                               WebdavNsIntf.existanceDoesExist,
+                               nodeType, true, cal, ei);
 
         if (wi.isCalendar()) {
           if (debug) {
@@ -390,7 +397,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
           }
 
           CaldavComponentNode cnode = new CaldavComponentNode(wi, sysi, debug);
-          cnode.addEvent(ev);
           al.add(cnode);
         }
       }
@@ -607,7 +613,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
               sb.append(".ics");
             }
             if (pcr.node == null) {
-              pcr.node = getNode(sb.toString());
+              // Can this happen???????
+              throw new RuntimeException("Guess it can happen");
+              //pcr.node = getNode(sb.toString(),
+              //                   WebdavNsIntf.existanceMust); // Just created it
             }
           } else {
             if (!entityName.equals(ev.getName())) {
@@ -857,7 +866,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
   public void updateAccess(AclInfo ainfo) throws WebdavIntfException {
     CdAclInfo info = (CdAclInfo)ainfo;
 
-    CaldavBwNode node = (CaldavBwNode)getNode(info.what);
+    CaldavBwNode node = (CaldavBwNode)getNode(info.what,
+                                              WebdavNsIntf.existanceMust,
+                                              WebdavNsIntf.nodeTypeUnknown);
 
     try {
       if (node.isCollection()) {
@@ -1126,7 +1137,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
         EventInfo ei = (EventInfo)evit.next();
         BwEvent ev = ei.getEvent();
 
-        String uri = ev.getCalendar().getPath();
+        BwCalendar cal = ev.getCalendar();
+        String uri = cal.getPath();
 
         /* If no name was assigned use the guid */
         String evName = ev.getName();
@@ -1142,9 +1154,13 @@ public class CaldavBWIntf extends WebdavNsIntf {
         evnode = (CaldavComponentNode)evnodeMap.get(evuri);
 
         if (evnode == null) {
-          evnode = (CaldavComponentNode)getNode(evuri);
+          evnode = (CaldavComponentNode)getNodeInt(evuri,
+                                                   WebdavNsIntf.existanceDoesExist,
+                                                   WebdavNsIntf.nodeTypeEntity,
+                                                   false,
+                                                   cal,
+                                                   ei);
         }
-        evnode.addEvent(ev);
 
         evnodes.add(evnode);
         evnodeMap.put(evuri, evnode);
@@ -1216,35 +1232,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
    *                         Private methods
    * ==================================================================== */
 
-  /*
-  private void setAccess(HttpServletRequest request,
-                         LuwakState ks) {
-    access = ks.getAccess();
-
-    if (access.getAccessSet()) {
-      return;
-    }
-
-    access.init(ks.getUser(),
-            request.isUserInRole(
-              props.getProperty("edu.rpi.cct.luwak.role.admin")),
-            request.isUserInRole(
-              props.getProperty("edu.rpi.cct.luwak.role.chiefeditor")),
-            request.isUserInRole(
-              props.getProperty("edu.rpi.cct.luwak.role.editor")),
-            request.isUserInRole(
-              props.getProperty("edu.rpi.cct.luwak.role.writer")),
-            request.isUserInRole(
-              props.getProperty("edu.rpi.cct.luwak.role.broadcaster")),
-            request.isUserInRole(
-              props.getProperty("edu.rpi.cct.luwak.role.eventpublisher")),
-            debug);
-    /** security-role-ref in web.xml doesn't seem to work (or I missed something
-        somewhere). Until it does work use the above
-    access.setAdminUser(request.isUserInRole("admin"));
-    access.setWriterUser(request.isUserInRole("writer")); * /
-  }*/
-
   /** Find the named item by following down the path from the root.
    * This requires the names at each level to be unique (and present)
    *
@@ -1259,179 +1246,101 @@ public class CaldavBWIntf extends WebdavNsIntf {
    * entity name.
    *
    * @param uri        String uri - just the path part
+   * @param existance        Say's something about the state of existance
+   * @param nodeType         Say's something about the type of node
    * @param decoded    true if the uri has been decoded
-   * @param cal        Supplied CalendarVO object if we already have it.
+   * @param cal        Supplied BwCalendar object if we already have it.
+   * @param ei
    * @return CaldavURI object representing the uri
    * @throws WebdavIntfException
    */
-  private CaldavURI findURI(String uri, boolean decoded,
-                            BwCalendar cal) throws WebdavIntfException {
+  private CaldavURI findURI(String uri,
+                            int existance,
+                            int nodeType, boolean decoded,
+                            BwCalendar cal,
+                            EventInfo ei) throws WebdavIntfException {
     try {
-      /*Remove all "." and ".." components */
-      if (decoded) {
-        try {
-          uri = new URI(null, null, uri, null).toString();
-        } catch (Throwable t) {
-          if (debug) {
-            error(t);
-          }
-          throw WebdavIntfException.badRequest();
-        }
+      if ((nodeType == WebdavNsIntf.nodeTypeUnknown) &&
+          (existance != WebdavNsIntf.existanceMust)) {
+        // We assume an unknown type must exist
+        throw WebdavIntfException.serverError();
       }
 
-      uri = new URI(uri).normalize().getPath();
-      if (debug) {
-        debugMsg("Normalized uri=" + uri);
-      }
-
-      try {
-        uri = URLDecoder.decode(uri, "UTF-8");
-      } catch (Throwable t) {
-        if (debug) {
-          error(t);
-        }
-        throw WebdavIntfException.badRequest();
-      }
+      uri = normalizeUri(uri, decoded);
 
       if (!uri.startsWith("/")) {
         return null;
       }
 
-      if (uri.endsWith("/")) {
-        uri = uri.substring(0, uri.length() - 1);
-      }
-
-      String[] ss = uri.split("/");
-      int pathLength = ss.length - 1;  // First element is empty string
-      String namePart = null;
-
-      if (pathLength == 0) {
-        throw WebdavIntfException.badRequest();
-      }
-
-      int minLength = 1;
-
-      /* If the uri ends with .ics or .ifb split it off
-       */
-      if (uri.endsWith(".ics") || uri.endsWith(".ifb")) {
-        if (pathLength == minLength) {
-          throw WebdavIntfException.notFound();
-        }
-
-        int pos = uri.lastIndexOf("/");
-        if (pos < 0) {
-          // bad uri
-          throw WebdavIntfException.badRequest();
-        }
-
-        namePart = uri.substring(pos + 1);
-        uri = uri.substring(0, pos);
-      }
-
-      if (cal == null) {
-        // See if the full path is in the map
-        CaldavURI curi = getUriPath(uri);
-        if (curi != null) {
-          /* We've avoided a search down the path - can we use this caldavuri object
-           */
-
-          if (curi.sameName(namePart)) {
-            if (debug) {
-              debugMsg("reuse uri - cal=\"" + curi.getPath() +
-                       "\" entityName=\"" + namePart + "\"");
-            }
-            return curi;
-          }
-
-          if (debug) {
-            debugMsg("create uri from mapped uri -" +
-                     " cal=\"" + curi.getPath() +
-                     "\" entityName=\"" + namePart + "\"");
-          }
-
-          if (curi.isUser() || curi.isGroup()) {
-            curi = new CaldavURI(namePart, curi.isUser());
-          } else {
-            curi = new CaldavURI(curi.getCal(), namePart);
-          }
-          putUriPath(curi);
-
-          return curi;
-        }
-
-        // Search to see if the uri exists
+      /* Look for it in the map */
+      CaldavURI curi = getUriPath(uri);
+      if (curi != null) {
         if (debug) {
-          trace("SEARCH: for " + uri);
+          debugMsg("reuse uri - " + curi.getPath() +
+                   "\" entityName=\"" + curi.getEntityName() + "\"");
         }
+        return curi;
+      }
 
-        if (uri.startsWith(SysIntf.userPrincipalPrefix)) {
-          if (!sysi.validUser(namePart)) {
-            throw WebdavIntfException.forbidden();
-          }
-
-          curi = new CaldavURI(namePart, true);
-          putUriPath(curi);
-
-          return curi;
+      if (existance == WebdavNsIntf.existanceDoesExist) {
+        // Provided with calendar and entity if needed.
+        String name = null;
+        if (ei != null) {
+          name = ei.getEvent().getName();
         }
+        curi = new CaldavURI(cal, ei, name);
+        putUriPath(curi);
 
-        if (uri.startsWith(SysIntf.groupPrincipalPrefix)) {
-          if (!sysi.validGroup(namePart)) {
-            throw WebdavIntfException.forbidden();
-          }
+        return curi;
+      }
 
-          curi = new CaldavURI(namePart, false);
-          putUriPath(curi);
-
-          return curi;
+      if ((nodeType == WebdavNsIntf.nodeTypeCollection) ||
+          (nodeType == WebdavNsIntf.nodeTypeUnknown)) {
+        // For unknown we try the full path first as a calendar.
+        if (debug) {
+          debugMsg("search for collection uri \"" + uri + "\"");
         }
-
-        /* uri for data objects */
         cal = sysi.getCalendar(uri);
 
         if (cal == null) {
-          if (namePart != null) {
-            throw WebdavIntfException.notFound();
-          }
-          /* Try removing the last element - this could be mkcalendar/mkcol
-           */
-          if (pathLength == minLength) {
+          if (nodeType == WebdavNsIntf.nodeTypeCollection) {
             throw WebdavIntfException.notFound();
           }
 
-          int pos = uri.lastIndexOf("/");
-          if (pos < 0) {
-            // bad uri
-            throw WebdavIntfException.notFound();
-          }
-
-          namePart = uri.substring(pos + 1);
-          uri = uri.substring(0, pos);
-
-          // See if the uri exists
+          // We'll try as an entity for unknown
+        } else {
           if (debug) {
-            trace("SEARCH: for calendar " + uri);
+            debugMsg("create collection uri - cal=\"" + cal.getPath() + "\"");
           }
-          cal = sysi.getCalendar(uri);
-        }
 
-        if (cal == null) {
-          throw WebdavIntfException.notFound();
+          curi = new CaldavURI(cal, null, null);
+          putUriPath(curi);
+
+          return curi;
         }
       }
 
-      /* The situation now is that the uri is the path of a collection that
-         exists and that we have access to.
+      // Entity or unknown
+      String[] split = splitUri(uri);
 
-         namePart, if not null, represents an entity we are going to access
-         or create, or possibly a calendar we want to create.
-       */
+      if (split[1] == null) {
+        // No name part
+        throw WebdavIntfException.notFound();
+      }
+
+      cal = sysi.getCalendar(split[0]);
+
+      if (cal == null) {
+        throw WebdavIntfException.notFound();
+      }
 
       if (debug) {
-        debugMsg("create uri - cal=\"" + cal.getPath() +
-                 "\" entityName=\"" + namePart + "\"");
+        debugMsg("find event(s) - cal=\"" + cal.getPath() + "\" name=\"" +
+                 split[1] + "\"");
       }
-      CaldavURI curi = new CaldavURI(cal, namePart);
+      Collection evs = sysi.findEventsByName(cal, split[1]);
+
+      curi = new CaldavURI(cal, evs, split[1]);
       putUriPath(curi);
 
       return curi;
@@ -1439,6 +1348,57 @@ public class CaldavBWIntf extends WebdavNsIntf {
       throw wi;
     } catch (Throwable t) {
       throw new WebdavIntfException(t);
+    }
+  }
+
+  /* Split the uri so that result[0] is the path up to the name part result[1]
+   */
+  private String[] splitUri(String uri) throws WebdavIntfException {
+    int pos = uri.lastIndexOf("/");
+    if (pos < 0) {
+      // bad uri
+      throw WebdavIntfException.badRequest();
+    }
+
+    if (pos == 0) {
+      return new String[]{
+          uri,
+          null
+      };
+    }
+
+    return new String[]{
+        uri.substring(0, pos),
+        uri.substring(pos + 1)
+    };
+  }
+
+  private String normalizeUri(String uri,
+                              boolean decoded) throws WebdavIntfException {
+    /*Remove all "." and ".." components */
+    try {
+      if (decoded) {
+        uri = new URI(null, null, uri, null).toString();
+      }
+
+      uri = new URI(uri).normalize().getPath();
+
+      uri = URLDecoder.decode(uri, "UTF-8");
+
+      if (uri.endsWith("/")) {
+        uri = uri.substring(0, uri.length() - 1);
+      }
+
+      if (debug) {
+        debugMsg("Normalized uri=" + uri);
+      }
+
+      return uri;
+    } catch (Throwable t) {
+      if (debug) {
+        error(t);
+      }
+      throw WebdavIntfException.badRequest();
     }
   }
 

@@ -59,6 +59,7 @@ import org.bedework.davdefs.CaldavTags;
 import edu.rpi.cct.webdav.servlet.common.PropPatchMethod;
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
+import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
 
 import java.util.Collection;
@@ -96,7 +97,9 @@ public class MkcalendarMethod extends PropPatchMethod {
       processDoc(req, doc);
     }
 
-    WebdavNsNode node = getNsIntf().getNode(resourceUri);
+    WebdavNsNode node = getNsIntf().getNode(resourceUri,
+                                            WebdavNsIntf.existanceNot,
+                                            WebdavNsIntf.nodeTypeCollection);
 
     // XXX Make calendar using properties sent in request
     getNsIntf().makeCollection(req, node);

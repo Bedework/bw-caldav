@@ -128,12 +128,22 @@ public class CaldavComponentNode extends CaldavBwNode {
    * @param cdURI
    * @param sysi
    * @param debug
+   * @throws WebdavIntfException
    */
-  public CaldavComponentNode(CaldavURI cdURI, SysIntf sysi, boolean debug) {
+  public CaldavComponentNode(CaldavURI cdURI,
+                             SysIntf sysi, boolean debug) throws WebdavIntfException {
     super(cdURI, sysi, debug);
 
     collection = false;
     allowsGet = true;
+
+    Object ent = cdURI.getEntity();
+
+    if (ent instanceof EventInfo) {
+      addEvent((EventInfo)ent);
+    } else {
+      setEvents((Collection)ent);
+    }
 
     contentLang = "en";
     contentLen = -1;
@@ -299,54 +309,42 @@ public class CaldavComponentNode extends CaldavBwNode {
         String entityName = cdURI.getEntityName();
 
         if (entityName == null) {
+          exists = false;
           return;
         }
-
-        if (debug) {
-          debugMsg("SEARCH: compNode retrieve event on path " +
-                   cdURI.getCal().getPath() +
-                   " with name " + entityName);
-        }
-
-        if (events == null) {
-          events = getSysi().findEventsByName(cdURI.getCal(), entityName);
-        }
-        if ((events == null) || (events.size() == 0)) {
-          exists = false;
-        } else {
-          if (events.size() == 1) {
-            /* Non recurring or no overrides */
-            eventInfo = (EventInfo)events.iterator().next();
-          } else {
-            /* Find the master */
-            // XXX Check the guids here?
-            Iterator it = events.iterator();
-            while (it.hasNext()) {
-              EventInfo ei = (EventInfo)it.next();
-
-              if (ei.getEvent().getRecurring()) {
-                eventInfo = ei;
-              }
-            }
-
-            if (eventInfo == null) {
-              throw new WebdavIntfException("Missing master for " + cdURI);
-            }
-          }
-        }
       }
-
-      if (eventInfo != null) {
-        BwEvent event = eventInfo.getEvent();
-
-        creDate = event.getCreated();
-        lastmodDate = event.getLastmod();
-      }
-//      name = cdURI.getEntityName();
-    } catch (WebdavIntfException wie) {
-      throw wie;
     } catch (Throwable t) {
       throw new WebdavIntfException(t);
+    }
+  }
+
+  /**
+   * @param evs
+   * @throws WebdavIntfException
+   */
+  public void setEvents(Collection evs) throws WebdavIntfException {
+    events = evs;
+
+    if ((events == null) || (events.size() == 0)) {
+      exists = false;
+    } else if (events.size() == 1) {
+      /* Non recurring or no overrides */
+      eventInfo = (EventInfo)events.iterator().next();
+    } else {
+      /* Find the master */
+      // XXX Check the guids here?
+      Iterator it = events.iterator();
+      while (it.hasNext()) {
+        EventInfo ei = (EventInfo)it.next();
+
+        if (ei.getEvent().getRecurring()) {
+          eventInfo = ei;
+        }
+      }
+
+      if (eventInfo == null) {
+        throw new WebdavIntfException("Missing master for " + cdURI);
+      }
     }
   }
 
@@ -355,7 +353,7 @@ public class CaldavComponentNode extends CaldavBwNode {
    * @return
    * @throws WebdavIntfException
    */
-  public Collection getPropertyNames()throws WebdavIntfException {
+  public Collection getPropertyNames() throws WebdavIntfException {
     Collection res = new ArrayList();
 
     res.addAll(super.getPropertyNames());
@@ -368,15 +366,13 @@ public class CaldavComponentNode extends CaldavBwNode {
    *
    * @param val
    */
-  public void addEvent(BwEvent val) {
+  public void addEvent(EventInfo val) {
     if (events == null) {
       events = new ArrayList();
     }
 
-    EventInfo ei = new EventInfo(val);
-
-    ei.setRecurrenceId(val.getRecurrence().getRecurrenceId());
-    events.add(ei);
+    events.add(val);
+    eventInfo = val;
   }
 
   /** Returns the only event or the master event for a recurrence
