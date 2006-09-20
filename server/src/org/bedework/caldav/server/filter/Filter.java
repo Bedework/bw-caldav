@@ -58,6 +58,7 @@ import org.bedework.caldav.server.CaldavBWIntf;
 import org.bedework.caldav.server.CaldavBwNode;
 import org.bedework.caldav.server.CaldavComponentNode;
 import org.bedework.caldav.server.TimeRange;
+import org.bedework.davdefs.CaldavDefs;
 import org.bedework.davdefs.CaldavTags;
 
 import edu.rpi.cct.webdav.servlet.common.MethodBase;
@@ -65,6 +66,7 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cct.webdav.servlet.common.WebdavUtils;
+import edu.rpi.sss.util.xml.QName;
 import edu.rpi.sss.util.xml.XmlUtil;
 
 import java.util.ArrayList;
@@ -540,7 +542,11 @@ public class Filter {
               curnode.getLocalName());
         }
 
-        if (MethodBase.nodeMatches(curnode, CaldavTags.timeRange)) {
+        QName isDefined = new QName(CaldavDefs.caldavNamespace,
+                                    "is-defined");
+        if (MethodBase.nodeMatches(curnode, isDefined)) {
+          // Probably out of date evolution - ignore it
+        } else if (MethodBase.nodeMatches(curnode, CaldavTags.timeRange)) {
           cf.setTimeRange(CalDavParseUtil.parseTimeRange(curnode,
                           intf.getSysi().getTimezones()));
 
