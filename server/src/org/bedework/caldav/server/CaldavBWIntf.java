@@ -53,6 +53,7 @@
 */
 package org.bedework.caldav.server;
 
+import org.bedework.caldav.server.SysIntf.CalUserInfo;
 import org.bedework.caldav.server.calquery.CalendarData;
 import org.bedework.caldav.server.calquery.FreeBusyQuery;
 import org.bedework.caldav.server.filter.Filter;
@@ -750,7 +751,18 @@ public class CaldavBWIntf extends WebdavNsIntf {
   public Collection getPrincipals(String resourceUri,
                                   PrincipalPropertySearch pps)
           throws WebdavIntfException {
-    return sysi.getPrincipals(resourceUri, pps);
+    Collection ps = sysi.getPrincipals(resourceUri, pps);
+    ArrayList pnodes = new ArrayList();
+
+    Iterator it = ps.iterator();
+    while (it.hasNext()) {
+      CalUserInfo cui = (CalUserInfo)it.next();
+
+      pnodes.add(new CaldavUserNode(new CaldavURI(cui.account, true),
+                                    getSysi(), cui, debug));
+    }
+
+    return pnodes;
   }
 
   public String makeUserHref(String id) throws WebdavIntfException {

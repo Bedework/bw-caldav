@@ -200,7 +200,7 @@ public interface SysIntf {
    *
    * @param resourceUri
    * @param pps Collection of PrincipalPropertySearch
-   * @return Collection of WebdavNsNode principals
+   * @return Collection of CalUserInfo
    * @throws WebdavIntfException
    */
   public Collection getPrincipals(String resourceUri,

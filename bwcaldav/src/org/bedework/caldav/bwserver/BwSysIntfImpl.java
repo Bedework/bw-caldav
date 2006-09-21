@@ -82,6 +82,7 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavIntfException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavProperty;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
+import edu.rpi.sss.util.xml.XmlUtil;
 
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.TimeZone;
@@ -179,7 +180,8 @@ public class BwSysIntfImpl implements SysIntf {
     try {
       String account = caladdrToUser(caladdr);
       BwSystem sys = getSvci().getSyspars();
-      String userHomePath = sys.getUserCalendarRoot() + "/" + account;
+      String userHomePath = "/" + sys.getUserCalendarRoot() +
+                            "/" + account + "/";
       String defaultCalendarPath = userHomePath + sys.getUserDefaultCalendar();
       String inboxPath = userHomePath + sys.getUserInbox();
       String outboxPath = userHomePath + sys.getUserOutbox();
@@ -249,7 +251,12 @@ public class BwSysIntfImpl implements SysIntf {
         }
       }
 
-      String mval = ps.match.getNodeValue();
+      String mval;
+      try {
+        mval = XmlUtil.getElementContent(ps.match);
+      } catch (Throwable t) {
+        throw new WebdavIntfException("org.bedework.caldavintf.badvalue");
+      }
 
       if (debug) {
         debugMsg("Try to match " + mval);
@@ -267,6 +274,9 @@ public class BwSysIntfImpl implements SysIntf {
     CalUserInfo cui = getCalUserInfo(caladdr);
 
     // XXX This needs to do a search of a system user directory - probably ldap
+
+    principals.add(cui);
+
     return principals;
   }
 
