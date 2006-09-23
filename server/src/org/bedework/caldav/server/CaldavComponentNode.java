@@ -106,6 +106,7 @@ public class CaldavComponentNode extends CaldavBwNode {
 
   static {
     addPropEntry(CaldavTags.calendarData);
+    addPropEntry(CaldavTags.scheduleState, false);
 
     addPropEntry(ICalTags.dtend);
     addPropEntry(ICalTags.dtstart);
@@ -223,6 +224,17 @@ public class CaldavComponentNode extends CaldavBwNode {
       BwEvent ev = checkEv(pv);
       if (ev == null) {
         return false;
+      }
+
+      if (tag.equals(CaldavTags.scheduleState)) {
+        xml.openTag(tag);
+        if (ev.getScheduleState() == BwEvent.scheduleStateNotProcessed) {
+          xml.emptyTag(CaldavTags.notProcessed);
+        } else {
+          xml.emptyTag(CaldavTags.processed);
+        }
+        xml.closeTag(tag);
+        return true;
       }
 
       if (tag.equals(ICalTags.summary)) {
