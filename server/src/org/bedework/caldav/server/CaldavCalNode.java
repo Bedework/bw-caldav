@@ -65,6 +65,7 @@ import org.bedework.icalendar.VFreeUtil;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavIntfException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
+import edu.rpi.cmt.access.PrivilegeDefs;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
 import edu.rpi.sss.util.xml.QName;
 import edu.rpi.sss.util.xml.XmlEmit;
@@ -86,6 +87,8 @@ public class CaldavCalNode extends CaldavBwNode {
   private Calendar ical;
 
   private String vfreeBusyString;
+
+  private CurrentAccess currentAccess;
 
   private final static Collection propertyNames = new ArrayList();
 
@@ -234,12 +237,22 @@ public class CaldavCalNode extends CaldavBwNode {
    * ==================================================================== */
 
   public CurrentAccess getCurrentAccess() throws WebdavIntfException {
+    if (currentAccess != null) {
+      return currentAccess;
+    }
+
     BwCalendar cal = getCDURI().getCal();
     if (cal == null) {
       return null;
     }
 
-    return cal.getCurrentAccess();
+    try {
+      currentAccess = getSysi().checkAccess(cal, PrivilegeDefs.privAny, true);
+    } catch (Throwable t) {
+      throw new WebdavIntfException(t);
+    }
+
+    return currentAccess;
   }
 
   /* ====================================================================

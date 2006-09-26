@@ -106,20 +106,59 @@ public class CaldavComponentNode extends CaldavBwNode {
 
   static {
     addPropEntry(CaldavTags.calendarData);
+    addPropEntry(CaldavTags.calendarData);
+    addPropEntry(CaldavTags.originator, false);
+    addPropEntry(CaldavTags.recipient, false);
     addPropEntry(CaldavTags.scheduleState, false);
 
-    addPropEntry(ICalTags.dtend);
-    addPropEntry(ICalTags.dtstart);
-    addPropEntry(ICalTags.due);
-    addPropEntry(ICalTags.duration);
-    addPropEntry(ICalTags.hasAlarm);
-    addPropEntry(ICalTags.hasAttachment);
-    addPropEntry(ICalTags.hasRecurrence);
-    addPropEntry(ICalTags.sequence);
-    addPropEntry(ICalTags.summary);
-    addPropEntry(ICalTags.status);
-    addPropEntry(ICalTags.transp);
-    addPropEntry(ICalTags.uid);
+    //addPropEntry(ICalTags.action);      /*     *     *     *        *            *   VALARM */
+    addPropEntry(ICalTags.attach);        /* VEVENT VTODO VJOURNAL    *            *   VALARM */
+    addPropEntry(ICalTags.attendee);      /* VEVENT VTODO VJOURNAL VFREEBUSY       *   VALARM */
+    //addPropEntry(ICalTags.calscale);    /*     *     *     *        *            *     *    CALENDAR*/
+    addPropEntry(ICalTags.categories);    /* VEVENT VTODO VJOURNAL */
+    addPropEntry(ICalTags._class);        /* VEVENT VTODO VJOURNAL */
+    addPropEntry(ICalTags.comment);       /* VEVENT VTODO VJOURNAL VFREEBUSY VTIMEZONE */
+    //addPropEntry(ICalTags.completed);   /*     *  VTODO */
+    addPropEntry(ICalTags.contact);       /* VEVENT VTODO VJOURNAL VFREEBUSY */
+    addPropEntry(ICalTags.created);       /* VEVENT VTODO VJOURNAL */
+    addPropEntry(ICalTags.description);   /* VEVENT VTODO VJOURNAL    *            *   VALARM */
+    addPropEntry(ICalTags.dtend);         /* VEVENT    *     *     VFREEBUSY */
+    addPropEntry(ICalTags.dtstamp);       /* VEVENT VTODO VJOURNAL VFREEBUSY */
+    addPropEntry(ICalTags.dtstart);       /* VEVENT VTODO    *     VFREEBUSY VTIMEZONE */
+    //addPropEntry(ICalTags.due);         /*     *  VTODO */
+    addPropEntry(ICalTags.duration);      /* VEVENT VTODO    *     VFREEBUSY       *   VALARM */
+    addPropEntry(ICalTags.exdate);        /* VEVENT VTODO VJOURNAL    *      VTIMEZONE */
+    addPropEntry(ICalTags.exrule);        /* VEVENT VTODO VJOURNAL */
+    //addPropEntry(ICalTags.freebusy);    /*     *     *     *     VFREEBUSY */
+    addPropEntry(ICalTags.geo);           /* VEVENT VTODO */
+    //addPropEntry(ICalTags.hasAlarm);
+    //addPropEntry(ICalTags.hasAttachment);
+    //addPropEntry(ICalTags.hasRecurrence);
+    addPropEntry(ICalTags.lastModified);  /* VEVENT VTODO VJOURNAL    *      VTIMEZONE */
+    addPropEntry(ICalTags.location);      /* VEVENT VTODO */
+    addPropEntry(ICalTags.organizer);     /* VEVENT VTODO VJOURNAL VFREEBUSY */
+    //addPropEntry(ICalTags.percentComplete);  /*     *  VTODO */
+    addPropEntry(ICalTags.priority);      /* VEVENT VTODO */
+    addPropEntry(ICalTags.rdate);         /* VEVENT VTODO VJOURNAL    *      VTIMEZONE */
+    addPropEntry(ICalTags.recurrenceId);  /* VEVENT VTODO VJOURNAL    *      VTIMEZONE */
+    addPropEntry(ICalTags.relatedTo);     /* VEVENT VTODO VJOURNAL */
+    //addPropEntry(ICalTags.repeat);      /*     *     *     *        *            *   VALARM */
+    addPropEntry(ICalTags.resources);     /* VEVENT VTODO */
+    addPropEntry(ICalTags.requestStatus); /* VEVENT VTODO VJOURNAL VFREEBUSY */
+    addPropEntry(ICalTags.rrule);         /* VEVENT VTODO VJOURNAL    *      VTIMEZONE */
+    addPropEntry(ICalTags.sequence);      /* VEVENT VTODO VJOURNAL */
+    addPropEntry(ICalTags.status);        /* VEVENT VTODO VJOURNAL */
+    addPropEntry(ICalTags.summary);       /* VEVENT VTODO VJOURNAL    *            *   VALARM */
+    addPropEntry(ICalTags.transp);        /* VEVENT */
+    addPropEntry(ICalTags.trigger);       /* VEVENT VTODO    *        *            *   VALARM */
+    //addPropEntry(ICalTags.tzid);        /*     *     *     *        *      VTIMEZONE */
+    //addPropEntry(ICalTags.tzname);      /*     *     *     *               VTIMEZONE */
+    //addPropEntry(ICalTags.tzoffsetfrom);  /*   *     *     *        *      VTIMEZONE */
+    //addPropEntry(ICalTags.tzoffsetto);  /*     *     *     *        *      VTIMEZONE */
+    //addPropEntry(ICalTags.tzurl);       /*     *     *     *        *      VTIMEZONE */
+    addPropEntry(ICalTags.uid);           /* VEVENT VTODO VJOURNAL VFREEBUSY */
+    addPropEntry(ICalTags.url);           /* VEVENT VTODO VJOURNAL VFREEBUSY */
+    //addPropEntry(ICalTags.version);     /*     *     *     *        *            *          CALENDAR*/
 
     addPropEntry(WebdavTags.collection);
   }
@@ -237,13 +276,44 @@ public class CaldavComponentNode extends CaldavBwNode {
         return true;
       }
 
-      if (tag.equals(ICalTags.summary)) {
-        xml.property(tag, ev.getSummary());
+      if (tag.equals(CaldavTags.originator)) {
+        if (ev.getOriginator() != null) {
+          xml.openTag(tag);
+          xml.property(WebdavTags.href, ev.getOriginator());
+          xml.closeTag(tag);
+        }
         return true;
       }
 
-      if (tag.equals(ICalTags.dtstart)) {
-        xml.property(tag, ev.getDtstart().getDate());
+      if (tag.equals(CaldavTags.recipient)) {
+        Collection r = ev.getRecipients();
+        if ((r == null) || (r.size() == 0)) {
+          return true;
+        }
+
+        xml.openTag(tag);
+        Iterator it = r.iterator();
+        while (it.hasNext()) {
+          xml.property(WebdavTags.href, (String)it.next());
+        }
+        xml.closeTag(tag);
+        return true;
+      }
+
+      // action
+      // attach
+      // attendee
+      // categories
+      // _class
+      // comment
+      // completed
+      // contact
+      // created
+
+      if (tag.equals(ICalTags.description)) {
+        if (ev.getDescription() != null) {
+          xml.property(tag, ev.getDescription());
+        }
         return true;
       }
 
@@ -252,13 +322,10 @@ public class CaldavComponentNode extends CaldavBwNode {
         return true;
       }
 
-      if (tag.equals(ICalTags.duration)) {
-        xml.property(tag, ev.getDuration());
-        return true;
-      }
+      // dtstamp
 
-      if (tag.equals(ICalTags.transp)) {
-        xml.property(tag, ev.getTransparency());
+      if (tag.equals(ICalTags.dtstart)) {
+        xml.property(tag, ev.getDtstart().getDate());
         return true;
       }
 
@@ -269,21 +336,15 @@ public class CaldavComponentNode extends CaldavBwNode {
        }
        */
 
-      if (tag.equals(ICalTags.status)) {
-        xml.property(tag, ev.getStatus());
+      if (tag.equals(ICalTags.duration)) {
+        xml.property(tag, ev.getDuration());
         return true;
       }
 
-      if (tag.equals(ICalTags.uid)) {
-        xml.property(tag, ev.getGuid());
-        return true;
-      }
-
-      if (tag.equals(ICalTags.sequence)) {
-        xml.property(tag, String.valueOf(ev.getSequence()));
-
-        return true;
-      }
+      // exdate
+      // exrule
+      // freebusy
+      // geo
 
       /*
        if (tag.equals(ICalTags.hasRecurrence)) {
@@ -300,6 +361,91 @@ public class CaldavComponentNode extends CaldavBwNode {
        pv.val = ev
        return pv;
        }*/
+
+      // lastModified
+
+      if (tag.equals(ICalTags.lastModified)) {
+        xml.property(tag, ev.getLastmod());
+        return true;
+      }
+
+      // location
+      // organizer
+
+      if (tag.equals(ICalTags.organizer)) {
+        if (ev.getOrganizer() != null) {
+          xml.property(tag, ev.getOrganizer().getOrganizerUri());
+        }
+        return true;
+      }
+
+      // percentComplete
+      // priority
+      // rdate
+
+      // recurrenceId
+
+      if (tag.equals(ICalTags.recurrenceId)) {
+        if (ev.getRecurrenceId() != null) {
+          xml.property(tag, ev.getRecurrenceId());
+        }
+        return true;
+      }
+
+      // relatedTo
+      // repeat
+      // resources
+
+      if (tag.equals(ICalTags.requestStatus)) {
+        if (ev.getRequestStatus() != null) {
+          xml.property(tag, ev.getRequestStatus());
+        }
+        return true;
+      }
+
+      // rrule
+
+      if (tag.equals(ICalTags.sequence)) {
+        xml.property(tag, String.valueOf(ev.getSequence()));
+
+        return true;
+      }
+
+      if (tag.equals(ICalTags.status)) {
+        xml.property(tag, ev.getStatus());
+        return true;
+      }
+
+      if (tag.equals(ICalTags.summary)) {
+        xml.property(tag, ev.getSummary());
+        return true;
+      }
+
+      if (tag.equals(ICalTags.transp)) {
+        xml.property(tag, ev.getTransparency());
+        return true;
+      }
+
+      // trigger
+      // tzid
+      // tzname
+      // tzoffsetfrom
+      // tzoffsetto
+      // tzurl
+
+      if (tag.equals(ICalTags.uid)) {
+        xml.property(tag, ev.getGuid());
+        return true;
+      }
+
+      if (tag.equals(ICalTags.url)) {
+        if (ev.getLink() != null) {
+          xml.property(tag, ev.getLink());
+        }
+        return true;
+      }
+
+      // version
 
       return false;
     } catch (WebdavIntfException wde) {

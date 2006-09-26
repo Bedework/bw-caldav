@@ -98,8 +98,8 @@ public class MkcalendarMethod extends PropPatchMethod {
     }
 
     WebdavNsNode node = getNsIntf().getNode(resourceUri,
-                                            WebdavNsIntf.existanceNot,
-                                            WebdavNsIntf.nodeTypeCollection);
+                                 WebdavNsIntf.existanceNot,
+                                 WebdavNsIntf.nodeTypeCollection);
 
     // XXX Make calendar using properties sent in request
     getNsIntf().makeCollection(req, node);

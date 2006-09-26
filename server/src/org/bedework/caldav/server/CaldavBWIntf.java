@@ -80,7 +80,9 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
 import edu.rpi.cct.webdav.servlet.shared.WebdavProperty;
 import edu.rpi.cmt.access.Ace;
 import edu.rpi.cmt.access.Acl;
+import edu.rpi.cmt.access.PrivilegeDefs;
 import edu.rpi.cmt.access.Privileges;
+import edu.rpi.cmt.access.Acl.CurrentAccess;
 import edu.rpi.sss.util.xml.QName;
 
 import net.fortuna.ical4j.model.TimeZone;
@@ -701,7 +703,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
       }
 
       String name = cdUri.getEntityName();
-
       if (name == null) {
         throw WebdavIntfException.forbidden();
       }
@@ -903,12 +904,17 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
     try {
       if (cdUri.isCalendar()) {
-        acl = cdUri.getCal().getCurrentAccess().acl;
-      } else {
+        CurrentAccess ca = node.getCurrentAccess();
+        if (ca != null) {
+          acl = ca.acl;
+        }
+      } else if (node instanceof CaldavComponentNode) {
         acl = ((CaldavComponentNode)node).getEventInfo().getCurrentAccess().acl;
       }
 
-      emitAccess.emitAcl(acl);
+      if (acl != null) {
+        emitAccess.emitAcl(acl);
+      }
     } catch (Throwable t) {
       throw new WebdavIntfException(t);
     }
@@ -1294,6 +1300,30 @@ public class CaldavBWIntf extends WebdavNsIntf {
         return curi;
       }
 
+      if (uri.startsWith(SysIntf.userPrincipalPrefix)) {
+        int end = uri.length();
+        if (uri.endsWith("/")) {
+          end--;
+        }
+
+        int start = SysIntf.userPrincipalPrefix.length();
+        if (uri.charAt(start) != '/') {
+          throw WebdavIntfException.notFound();
+        }
+
+        String account = uri.substring(start + 1, end);
+        if (debug) {
+          debugMsg("get uri for account \"" + account +
+                   "\" principalUri=\"" + uri + "\"");
+        }
+
+        if (!sysi.validUser(account)) {
+          throw WebdavIntfException.notFound();
+        }
+
+        return new CaldavURI(account, true);
+      }
+
       if (existance == WebdavNsIntf.existanceDoesExist) {
         // Provided with calendar and entity if needed.
         String name = null;
@@ -1315,7 +1345,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
         cal = sysi.getCalendar(uri);
 
         if (cal == null) {
-          if (nodeType == WebdavNsIntf.nodeTypeCollection) {
+          if (existance != WebdavNsIntf.existanceNot) {
             throw WebdavIntfException.notFound();
           }
 
@@ -1346,11 +1376,24 @@ public class CaldavBWIntf extends WebdavNsIntf {
         throw WebdavIntfException.notFound();
       }
 
+      if (nodeType == WebdavNsIntf.nodeTypeCollection) {
+        // Trying to create calendar
+        curi = new CaldavURI(cal, null, split[1]);
+        putUriPath(curi);
+
+        return curi;
+      }
+
       if (debug) {
         debugMsg("find event(s) - cal=\"" + cal.getPath() + "\" name=\"" +
                  split[1] + "\"");
       }
       Collection evs = sysi.findEventsByName(cal, split[1]);
+
+      if ((existance == WebdavNsIntf.existanceMust) &&
+          ((evs == null) || evs.isEmpty())) {
+        throw WebdavIntfException.notFound();
+      }
 
       curi = new CaldavURI(cal, evs, split[1]);
       putUriPath(curi);
