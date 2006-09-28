@@ -137,8 +137,7 @@ public class CaldavCalNode extends CaldavBwNode {
   }
 
   public void init(boolean content) throws WebdavIntfException {
-    name = cdURI.getEntityName();
-
+    name = cdURI.getCalName();
     if (!content) {
       return;
     }

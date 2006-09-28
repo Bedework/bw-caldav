@@ -484,6 +484,7 @@ public class CaldavReportMethod extends ReportMethod {
       } catch (WebdavException wde) {
         if (debug) {
           trace("intf.getFreeBusy exception");
+          wde.printStackTrace();
         }
         node.setStatus(wde.getStatusCode());
       }
