@@ -108,7 +108,7 @@ public class GoogleSysIntfImpl implements SysIntf {
   private ResourceTimezones timezones;
 
   // XXX get from properties
-  private static String defaultTimezone = "America/New_York";
+  private static String defaultTimezone = "America/Los_Angeles";
 
   private transient Logger log;
 
@@ -201,6 +201,10 @@ public class GoogleSysIntfImpl implements SysIntf {
   }
 
   public void deleteEvent(BwEvent ev) throws WebdavIntfException {
+    throw new WebdavIntfException("unimplemented");
+  }
+
+  public void deleteCalendar(BwCalendar cal) throws WebdavIntfException {
     throw new WebdavIntfException("unimplemented");
   }
 

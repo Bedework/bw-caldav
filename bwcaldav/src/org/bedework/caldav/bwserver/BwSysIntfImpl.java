@@ -412,6 +412,14 @@ public class BwSysIntfImpl implements SysIntf {
     }
   }
 
+  public void deleteCalendar(BwCalendar cal) throws WebdavIntfException {
+    try {
+      getSvci().deleteCalendar(cal);
+    } catch (Throwable t) {
+      throw new WebdavIntfException(t);
+    }
+  }
+
   public BwFreeBusy getFreeBusy(BwCalendar cal,
                                 String account,
                                 BwDateTime start,

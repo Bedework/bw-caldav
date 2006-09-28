@@ -320,6 +320,12 @@ public interface SysIntf {
 
   /**
    * @param cal
+   * @throws WebdavIntfException
+   */
+  public void deleteCalendar(BwCalendar cal) throws WebdavIntfException;
+
+  /**
+   * @param cal
    * @param account
    * @param start
    * @param end

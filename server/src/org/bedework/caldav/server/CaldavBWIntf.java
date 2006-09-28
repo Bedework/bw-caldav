@@ -80,7 +80,6 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
 import edu.rpi.cct.webdav.servlet.shared.WebdavProperty;
 import edu.rpi.cmt.access.Ace;
 import edu.rpi.cmt.access.Acl;
-import edu.rpi.cmt.access.PrivilegeDefs;
 import edu.rpi.cmt.access.Privileges;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
 import edu.rpi.sss.util.xml.QName;
@@ -314,23 +313,31 @@ public class CaldavBWIntf extends WebdavNsIntf {
     try {
       CaldavBwNode uwnode = getBwnode(node);
 
-      if (!(uwnode instanceof CaldavComponentNode)) {
-        throw WebdavIntfException.unauthorized();
-      }
+      if (uwnode instanceof CaldavComponentNode) {
+        CaldavComponentNode cnode = (CaldavComponentNode)uwnode;
 
-      CaldavComponentNode cnode = (CaldavComponentNode)uwnode;
+        BwEvent ev = cnode.getEventInfo().getEvent();
 
-      BwEvent ev = cnode.getEventInfo().getEvent();
-
-      if (ev != null) {
-        if (debug) {
-          trace("About to delete event " + ev);
+        if (ev != null) {
+          if (debug) {
+            trace("About to delete event " + ev);
+          }
+          sysi.deleteEvent(ev);
+        } else {
+          if (debug) {
+            trace("No event object available");
+          }
         }
-        sysi.deleteEvent(ev);
       } else {
-        if (debug) {
-          trace("No event object available");
+        if (!(uwnode instanceof CaldavCalNode)) {
+          throw WebdavIntfException.unauthorized();
         }
+
+        CaldavCalNode cnode = (CaldavCalNode)uwnode;
+
+        BwCalendar cal = cnode.getCDURI().getCal();
+
+        sysi.deleteCalendar(cal);
       }
     } catch (WebdavIntfException we) {
       throw we;
@@ -1345,7 +1352,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
         cal = sysi.getCalendar(uri);
 
         if (cal == null) {
-          if (existance != WebdavNsIntf.existanceNot) {
+          if ((nodeType == WebdavNsIntf.nodeTypeCollection) &&
+              (existance != WebdavNsIntf.existanceNot)) {
+            /* We asked for a collection and it doesn't exist */
             throw WebdavIntfException.notFound();
           }
 
