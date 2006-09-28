@@ -100,6 +100,10 @@ public class CaldavGroupNode extends CaldavBwNode {
     return null;
   }
 
+  public String getEtagValue() throws WebdavIntfException {
+    return "1234567890";
+  }
+
   /* ====================================================================
    *                   Private methods
    * ==================================================================== */

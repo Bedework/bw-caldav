@@ -471,6 +471,12 @@ public class CaldavComponentNode extends CaldavBwNode {
           return;
         }
       }
+
+      if (exists) {
+        BwEvent ev = eventInfo.getEvent();
+
+        super.setLastmodDate(ev.getLastmod());
+      }
     } catch (Throwable t) {
       throw new WebdavIntfException(t);
     }
@@ -622,6 +628,17 @@ public class CaldavComponentNode extends CaldavBwNode {
     }
 
     return eventInfo.getCurrentAccess();
+  }
+
+  public String getEtagValue() throws WebdavIntfException {
+    init(true);
+
+    BwEvent ev = getEvent();
+    if (ev == null) {
+      return null;
+    }
+
+    return ev.getLastmod() + "-" + ev.getSeq();
   }
 
   public void setLastmodDate(String val) throws WebdavIntfException {

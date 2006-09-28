@@ -424,11 +424,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
     return null;
   }
 
-  public String getEtagValue(WebdavNsNode node, boolean strong)
-      throws WebdavIntfException {
-    return namespace + String.valueOf(node.getLastmodDate());
-  }
-
   public Iterator iterateProperties(WebdavNsNode node) throws WebdavIntfException {
     try {
       CaldavBwNode bwnode = getBwnode(node);

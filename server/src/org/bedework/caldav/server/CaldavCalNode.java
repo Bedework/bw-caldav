@@ -136,6 +136,40 @@ public class CaldavCalNode extends CaldavBwNode {
     contentLen = 0;
   }
 
+  public void init(boolean content) throws WebdavIntfException {
+    name = cdURI.getEntityName();
+
+    if (!content) {
+      return;
+    }
+
+    BwCalendar cal = getCDURI().getCal();
+    if (cal == null) {
+      return;
+    }
+
+    super.setLastmodDate(cal.getLastmod());
+  }
+
+  public String getEtagValue() throws WebdavIntfException {
+    BwCalendar cal = getCDURI().getCal();
+    if (cal == null) {
+      return null;
+    }
+
+    return cal.getLastmod() + "-" + cal.getSeq();
+  }
+
+  public void setLastmodDate(String val) throws WebdavIntfException {
+    init(true);
+    super.setLastmodDate(val);
+  }
+
+  public String getLastmodDate() throws WebdavIntfException {
+    init(true);
+    return super.getLastmodDate();
+  }
+
   public boolean removeProperty(Element val) throws WebdavIntfException {
     warn("Unimplemented - removeProperty");
     return false;

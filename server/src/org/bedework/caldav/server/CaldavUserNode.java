@@ -125,6 +125,10 @@ public class CaldavUserNode extends CaldavBwNode {
     return null;
   }
 
+  public String getEtagValue() throws WebdavIntfException {
+    return "1234567890";
+  }
+
   /* ====================================================================
    *                   Property methods
    * ==================================================================== */

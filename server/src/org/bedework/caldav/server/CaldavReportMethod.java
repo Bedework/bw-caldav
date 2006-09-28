@@ -257,9 +257,11 @@ public class CaldavReportMethod extends ReportMethod {
             hrefs.add(href);
           } else {
             if (debug) {
-              trace("REPORT: unexpected element");
+              trace("REPORT: unexpected element " + curnode.getNodeName() +
+                    " with type " + curnode.getNodeType());
             }
-            throw new WebdavBadRequest();
+            throw new WebdavBadRequest("REPORT: unexpected element " + curnode.getNodeName() +
+                                       " with type " + curnode.getNodeType());
           }
         }
       }
