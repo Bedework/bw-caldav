@@ -406,10 +406,11 @@ public class CaldavReportMethod extends ReportMethod {
         /* expand XXX use range */
         retrieveRecur = CalFacadeDefs.retrieveRecurExpanded;
       } else if (caldata.getLrs() != null) {
-        /* expand XXX use range */
+        /* Only return instances not overridden and overrides */
         retrieveRecur = CalFacadeDefs.retrieveRecurOverrides;
       } else {
-        retrieveRecur = CalFacadeDefs.retrieveRecurMaster;
+        /* Return master + instances and overrides */
+        retrieveRecur = CalFacadeDefs.retrieveRecurExpanded;
       }
 
       return intf.query(node, retrieveRecur, filter);

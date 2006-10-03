@@ -59,6 +59,7 @@ import org.bedework.caldav.server.calquery.FreeBusyQuery;
 import org.bedework.caldav.server.filter.Filter;
 import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwEvent;
+import org.bedework.calfacade.BwEventProxy;
 import org.bedework.calfacade.BwFreeBusy;
 import org.bedework.calfacade.env.CalEnvFactory;
 import org.bedework.calfacade.env.CalEnvI;
@@ -1174,16 +1175,32 @@ public class CaldavBWIntf extends WebdavNsIntf {
         evnode = (CaldavComponentNode)evnodeMap.get(evuri);
 
         if (evnode == null) {
+          EventInfo rei = null;
+
+          if (ev.getRecurrenceId() != null) {
+            /* First add the master event */
+            rei = ei;
+
+            BwEventProxy proxy = (BwEventProxy)ev;
+            ei = new EventInfo(proxy.getTarget());
+          }
+
           evnode = (CaldavComponentNode)getNodeInt(evuri,
                                                    WebdavNsIntf.existanceDoesExist,
                                                    WebdavNsIntf.nodeTypeEntity,
                                                    false,
                                                    cal,
                                                    ei);
-        }
+          evnodeMap.put(evuri, evnode);
+          evnodes.add(evnode);
 
-        evnodes.add(evnode);
-        evnodeMap.put(evuri, evnode);
+          if (rei != null) {
+            // Recurring - add first instance.
+            evnode.addEvent(rei);
+          }
+        } else {
+          evnode.addEvent(ei);
+        }
       }
 
       evnodes = fltr.postFilter(evnodes);

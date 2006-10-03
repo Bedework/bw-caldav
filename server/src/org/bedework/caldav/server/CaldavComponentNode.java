@@ -106,7 +106,6 @@ public class CaldavComponentNode extends CaldavBwNode {
 
   static {
     addPropEntry(CaldavTags.calendarData);
-    addPropEntry(CaldavTags.calendarData);
     addPropEntry(CaldavTags.originator, false);
     addPropEntry(CaldavTags.recipient, false);
     addPropEntry(CaldavTags.scheduleState, false);
