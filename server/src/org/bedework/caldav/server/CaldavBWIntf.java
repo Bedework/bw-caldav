@@ -602,7 +602,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
           if (evinfo.getNewEvent()) {
             pcr.created = true;
             ev.setName(entityName);
-            sysi.addEvent(cal, ev, evinfo.getOverrides());
+            sysi.addEvent(cal, ev, evinfo.getOverrideProxies());
 
             StringBuffer sb = new StringBuffer(cdUri.getPath());
             sb.append("/");
@@ -622,7 +622,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
             if (debug) {
               debugMsg("putContent: update event " + ev);
             }
-            sysi.updateEvent(ev, evinfo.getOverrides(), evinfo.getChangeset());
+            sysi.updateEvent(ev, evinfo.getOverrideProxies(),
+                             evinfo.getChangeset());
           }
         } else {
           fail = true;

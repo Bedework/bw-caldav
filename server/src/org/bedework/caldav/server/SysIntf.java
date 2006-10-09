@@ -256,8 +256,8 @@ public interface SysIntf {
   *
   * @param cal          BwCalendar defining recipient calendar
   * @param event        BwEvent object to be added
-  * @param overrides    Collection of BwEventProxy objects which override instances
-  *                     of the new event
+  * @param overrides    Collection of EventInfo objects with refs to BwEventProxy
+  *                     objects which override instances of the new event
   * @throws WebdavIntfException
   */
  public void addEvent(BwCalendar cal,
