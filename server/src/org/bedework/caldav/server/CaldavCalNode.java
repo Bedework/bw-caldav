@@ -56,6 +56,7 @@ package org.bedework.caldav.server;
 
 import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwFreeBusy;
+import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.davdefs.CaldavDefs;
 import org.bedework.davdefs.CaldavTags;
 import org.bedework.davdefs.WebdavTags;
@@ -221,10 +222,13 @@ public class CaldavCalNode extends CaldavBwNode {
 
       /* Othewise, return the events in this calendar */
       if (debug) {
-        debugMsg("SEARCH: getEvents in calendar " + cal.getPath());
+        debugMsg("Get all resources in calendar " + cal.getPath());
       }
 
-      return getSysi().getEventsExpanded(cal);
+      // DORECUR - need to group master + overrides
+      RecurringRetrievalMode rrm = new RecurringRetrievalMode(
+                           RecurringRetrievalMode.overrides);
+      return getSysi().getEvents(cal, null, null, rrm);
     } catch (Throwable t) {
       throw new WebdavIntfException(t);
     }

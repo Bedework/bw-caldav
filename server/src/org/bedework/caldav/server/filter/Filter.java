@@ -58,6 +58,7 @@ import org.bedework.caldav.server.CaldavBWIntf;
 import org.bedework.caldav.server.CaldavBwNode;
 import org.bedework.caldav.server.CaldavComponentNode;
 import org.bedework.caldav.server.TimeRange;
+import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.davdefs.CaldavDefs;
 import org.bedework.davdefs.CaldavTags;
 
@@ -239,7 +240,7 @@ public class Filter {
    * @throws WebdavException
    */
   public Collection query(CaldavBwNode wdnode,
-                          int retrieveRecur) throws WebdavException {
+                          RecurringRetrievalMode retrieveRecur) throws WebdavException {
     CompFilter cfltr = filter;
 
     // Currently only accept VCALENDAR for top level.
@@ -335,7 +336,7 @@ public class Filter {
           debugMsg("SEARCH: Filter get all events");
         }
         events = wdnode.getSysi().getEvents(wdnode.getCDURI().getCal(),
-                                            retrieveRecur);
+                                            null, null, retrieveRecur);
       } else {
         // fetch within time range
         if (debug) {

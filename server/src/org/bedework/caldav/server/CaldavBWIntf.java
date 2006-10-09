@@ -59,8 +59,8 @@ import org.bedework.caldav.server.calquery.FreeBusyQuery;
 import org.bedework.caldav.server.filter.Filter;
 import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwEvent;
-import org.bedework.calfacade.BwEventProxy;
 import org.bedework.calfacade.BwFreeBusy;
+import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.env.CalEnvFactory;
 import org.bedework.calfacade.env.CalEnvI;
 import org.bedework.calfacade.svc.EventInfo;
@@ -564,15 +564,16 @@ public class CaldavBWIntf extends WebdavNsIntf {
       pcr.node = node;
       pcr.created = create;
 
-      CaldavBwNode bwnode = getBwnode(node);
+      CaldavComponentNode bwnode = (CaldavComponentNode)getBwnode(node);
       CaldavURI cdUri = bwnode.getCDURI();
       String entityName = cdUri.getEntityName();
       BwCalendar cal = cdUri.getCal();
 
       Icalendar ic = sysi.fromIcal(cal, new MyReader(contentRdr));
 
-      /** if more than one event these must all be instances of the same recurrence, i.e the
-       * uid must be the same for each.
+      /** We can only put a single resource - that resource will be an ics file
+       * containing an event and possible overrides. The calendar may contain
+       * timezones which we can ignore.
        */
 
       Iterator it = ic.iterator();
@@ -598,15 +599,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
                      " and summary " + ev.getSummary());
           }
 
-          /* For non recurring (or just the master) we have a single event which we
-           * found by searching for it's guid.
-           *
-           * For an event with a recurrence id we might have multiple events at the
-           * moment.
-           *
-           * This is incomplete - if we continue with sending multiple vevents
-           * for recurring events we need to do some work here
-           */
           if (evinfo.getNewEvent()) {
             pcr.created = true;
             ev.setName(entityName);
@@ -618,12 +610,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
             if (!entityName.toLowerCase().endsWith(".ics")) {
               sb.append(".ics");
             }
-            if (pcr.node == null) {
-              // Can this happen???????
-              throw new RuntimeException("Guess it can happen");
-              //pcr.node = getNode(sb.toString(),
-              //                   WebdavNsIntf.existanceMust); // Just created it
-            }
+
+            bwnode.setEventInfo(evinfo);
           } else {
             if (!entityName.equals(ev.getName())) {
               throw WebdavIntfException.badRequest();
@@ -634,7 +622,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
             if (debug) {
               debugMsg("putContent: update event " + ev);
             }
-            sysi.updateEvent(ev);
+            sysi.updateEvent(ev, evinfo.getOverrides(), evinfo.getChangeset());
           }
         } else {
           fail = true;
@@ -1129,7 +1117,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
    * @return Collection of result nodes (empty for no result)
    * @throws WebdavIntfException
    */
-  public Collection query(WebdavNsNode wdnode, int retrieveRecur,
+  public Collection query(WebdavNsNode wdnode,
+                          RecurringRetrievalMode retrieveRecur,
                           Filter fltr) throws WebdavIntfException {
     CaldavBwNode node = getBwnode(wdnode);
     Collection events;
@@ -1149,7 +1138,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
      */
 
     Collection evnodes = new ArrayList();
-    HashMap evnodeMap = new HashMap();
+    //HashMap evnodeMap = new HashMap();
 
     try {
       Iterator evit = events.iterator();
@@ -1169,7 +1158,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
         String evuri = uri + "/" + evName;
 
-        /* See if we've seen this one already - possible for recurring */
+        /* See if we've seen this one already - possible for recurring * /
         CaldavComponentNode evnode;
 
         evnode = (CaldavComponentNode)evnodeMap.get(evuri);
@@ -1178,21 +1167,22 @@ public class CaldavBWIntf extends WebdavNsIntf {
           EventInfo rei = null;
 
           if (ev.getRecurrenceId() != null) {
-            /* First add the master event */
+            /* First add the master event * /
             rei = ei;
 
             BwEventProxy proxy = (BwEventProxy)ev;
             ei = new EventInfo(proxy.getTarget());
-          }
+          } */
 
-          evnode = (CaldavComponentNode)getNodeInt(evuri,
+        CaldavComponentNode evnode = (CaldavComponentNode)getNodeInt(evuri,
                                                    WebdavNsIntf.existanceDoesExist,
                                                    WebdavNsIntf.nodeTypeEntity,
                                                    false,
                                                    cal,
                                                    ei);
-          evnodeMap.put(evuri, evnode);
+
           evnodes.add(evnode);
+          /*evnodeMap.put(evuri, evnode);
 
           if (rei != null) {
             // Recurring - add first instance.
@@ -1200,7 +1190,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
           }
         } else {
           evnode.addEvent(ei);
-        }
+        }*/
       }
 
       evnodes = fltr.postFilter(evnodes);
@@ -1409,14 +1399,15 @@ public class CaldavBWIntf extends WebdavNsIntf {
         debugMsg("find event(s) - cal=\"" + cal.getPath() + "\" name=\"" +
                  split[1] + "\"");
       }
-      Collection evs = sysi.findEventsByName(cal, split[1]);
+      RecurringRetrievalMode rrm =
+        new RecurringRetrievalMode(RecurringRetrievalMode.overrides);
+      ei = sysi.getEvent(cal, split[1], rrm);
 
-      if ((existance == WebdavNsIntf.existanceMust) &&
-          ((evs == null) || evs.isEmpty())) {
+      if ((existance == WebdavNsIntf.existanceMust) && (ei == null)) {
         throw WebdavIntfException.notFound();
       }
 
-      curi = new CaldavURI(cal, evs, split[1]);
+      curi = new CaldavURI(cal, ei, split[1]);
       putUriPath(curi);
 
       return curi;

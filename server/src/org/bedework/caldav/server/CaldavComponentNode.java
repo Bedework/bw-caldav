@@ -91,7 +91,7 @@ public class CaldavComponentNode extends CaldavBwNode {
   /* Collection of BwEvent for this node
    * Only 1 for non-recurring
    */
-  private Collection events;
+  //private Collection events;
 
   /** The Component object
    */
@@ -176,13 +176,13 @@ public class CaldavComponentNode extends CaldavBwNode {
     collection = false;
     allowsGet = true;
 
-    Object ent = cdURI.getEntity();
+    eventInfo = cdURI.getEntity();
 
-    if (ent instanceof EventInfo) {
+    /*if (ent instanceof EventInfo) {
       addEvent((EventInfo)ent);
     } else {
       setEvents((Collection)ent);
-    }
+    }*/
 
     contentLang = "en";
     contentLen = -1;
@@ -210,10 +210,7 @@ public class CaldavComponentNode extends CaldavBwNode {
 
     try {
       if ((eventInfo != null) && (vevent == null)) {
-        Calendar ical = getSysi().toCalendar(eventInfo.getEvent());
-        if (events.size() == 1) {
-          this.ical = ical; // Save doing it again
-        }
+        ical = getSysi().toCalendar(eventInfo);
         vevent = (VEvent)ical.getComponents().getComponent(Component.VEVENT);
 
         /*
@@ -481,36 +478,6 @@ public class CaldavComponentNode extends CaldavBwNode {
     }
   }
 
-  /**
-   * @param evs
-   * @throws WebdavIntfException
-   */
-  public void setEvents(Collection evs) throws WebdavIntfException {
-    events = evs;
-
-    if ((events == null) || (events.size() == 0)) {
-      exists = false;
-    } else if (events.size() == 1) {
-      /* Non recurring or no overrides */
-      eventInfo = (EventInfo)events.iterator().next();
-    } else {
-      /* Find the master */
-      // XXX Check the guids here?
-      Iterator it = events.iterator();
-      while (it.hasNext()) {
-        EventInfo ei = (EventInfo)it.next();
-
-        if (ei.getEvent().getRecurring()) {
-          eventInfo = ei;
-        }
-      }
-
-      if (eventInfo == null) {
-        throw new WebdavIntfException("Missing master for " + cdURI);
-      }
-    }
-  }
-
   /** Return a set o QName defining properties this node supports.
    *
    * @return
@@ -525,16 +492,10 @@ public class CaldavComponentNode extends CaldavBwNode {
     return res;
   }
 
-  /** Add an event to our collection.
-   *
+  /**
    * @param val
    */
-  public void addEvent(EventInfo val) {
-    if (events == null) {
-      events = new ArrayList();
-    }
-
-    events.add(val);
+  public void setEventInfo(EventInfo val) {
     eventInfo = val;
   }
 
@@ -558,12 +519,7 @@ public class CaldavComponentNode extends CaldavBwNode {
 
     try {
       if (ical == null) {
-        if (events.size() == 1) {
-          ical = getSysi().toCalendar(eventInfo.getEvent());
-        } else {
-          // recurring
-          ical = getSysi().toCalendar(events);
-        }
+        ical = getSysi().toCalendar(eventInfo);
       }
       if ((veventString == null)) {
         veventString = ical.toString();

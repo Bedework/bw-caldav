@@ -62,11 +62,13 @@ import org.bedework.calfacade.BwFreeBusy;
 import org.bedework.calfacade.BwSystem;
 import org.bedework.calfacade.BwUser;
 import org.bedework.calfacade.CalFacadeAccessException;
-import org.bedework.calfacade.CalFacadeDefs;
 import org.bedework.calfacade.CalFacadeException;
+import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.ScheduleResult;
+import org.bedework.calfacade.BwRecurrence.ChangeSet;
 import org.bedework.calfacade.base.BwShareableDbentity;
 import org.bedework.calfacade.svc.BwSubscription;
+import org.bedework.calfacade.svc.EventInfo;
 import org.bedework.calfacade.timezones.CalTimezones;
 import org.bedework.calsvci.CalSvcFactoryDefault;
 import org.bedework.calsvci.CalSvcI;
@@ -327,9 +329,11 @@ public class BwSysIntfImpl implements SysIntf {
     }
   }
 
-  public void updateEvent(BwEvent event) throws WebdavIntfException {
+  public void updateEvent(BwEvent event,
+                          Collection overrides,
+                          ChangeSet recurrenceChanges) throws WebdavIntfException {
     try {
-      getSvci().updateEvent(event);
+      getSvci().updateEvent(event, overrides, recurrenceChanges);
     } catch (CalFacadeAccessException cfae) {
       throw WebdavIntfException.forbidden();
     } catch (CalFacadeException cfe) {
@@ -342,49 +346,16 @@ public class BwSysIntfImpl implements SysIntf {
     }
   }
 
-  /** Get events in the given calendar with recurrences expanded
-   *
-   * @param cal
-   * @return Collection of BwEvent
-   * @throws WebdavIntfException
-   */
-  public Collection getEventsExpanded(BwCalendar cal) throws WebdavIntfException {
-    try {
-      BwSubscription sub = BwSubscription.makeSubscription(cal);
-
-      Collection events = getSvci().getEvents(sub, CalFacadeDefs.retrieveRecurExpanded);
-
-      if (events == null) {
-        return new ArrayList();
-      }
-
-      return events;
-    } catch (Throwable t) {
-      throw new WebdavIntfException(t);
-    }
-  }
-
-  public Collection getEvents(BwCalendar cal,
-                              int recurRetrieval) throws WebdavIntfException {
-    try {
-      BwSubscription sub = BwSubscription.makeSubscription(cal);
-
-      return getSvci().getEvents(sub, recurRetrieval);
-    } catch (CalFacadeAccessException cfae) {
-      throw WebdavIntfException.forbidden();
-    } catch (CalFacadeException cfe) {
-      throw new WebdavIntfException(cfe);
-    } catch (Throwable t) {
-      throw new WebdavIntfException(t);
-    }
-  }
-
   public Collection getEvents(BwCalendar cal,
                               BwDateTime startDate, BwDateTime endDate,
-                              int recurRetrieval) throws WebdavIntfException {
+                              RecurringRetrievalMode recurRetrieval)
+          throws WebdavIntfException {
     try {
       BwSubscription sub = BwSubscription.makeSubscription(cal);
 
+      if ((startDate == null) && (endDate == null)) {
+        return getSvci().getEvents(sub, recurRetrieval);
+      }
       return getSvci().getEvents(sub, null, startDate, endDate, recurRetrieval);
     } catch (CalFacadeAccessException cfae) {
       throw WebdavIntfException.forbidden();
@@ -395,10 +366,11 @@ public class BwSysIntfImpl implements SysIntf {
     }
   }
 
-  public Collection findEventsByName(BwCalendar cal, String val)
+  public EventInfo getEvent(BwCalendar cal, String val,
+                            RecurringRetrievalMode recurRetrieval)
               throws WebdavIntfException {
     try {
-      return getSvci().findEventsByName(cal, val);
+      return getSvci().getEvent(cal, val, recurRetrieval);
     } catch (Throwable t) {
       throw new WebdavIntfException(t);
     }
@@ -474,7 +446,7 @@ public class BwSysIntfImpl implements SysIntf {
                            Collection aces) throws WebdavIntfException{
     try {
       getSvci().changeAccess(ev, aces);
-      getSvci().updateEvent(ev);
+      getSvci().updateEvent(ev, null, null);
     } catch (CalFacadeAccessException cfae) {
       throw WebdavIntfException.forbidden();
     } catch (CalFacadeException cfe) {
@@ -526,19 +498,10 @@ public class BwSysIntfImpl implements SysIntf {
     }
   }
 
-  public Calendar toCalendar(BwEvent ev) throws WebdavIntfException {
+  public Calendar toCalendar(EventInfo ev) throws WebdavIntfException {
     getSvci(); // Ensure open
     try {
       return trans.toIcal(ev, Icalendar.methodTypeNone);
-    } catch (Throwable t) {
-      throw new WebdavIntfException(t);
-    }
-  }
-
-  public Calendar toCalendar(Collection ents) throws WebdavIntfException {
-    getSvci(); // Ensure open
-    try {
-      return trans.toIcal(ents, Icalendar.methodTypeNone);
     } catch (Throwable t) {
       throw new WebdavIntfException(t);
     }

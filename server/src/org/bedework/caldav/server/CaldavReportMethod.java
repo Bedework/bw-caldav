@@ -55,9 +55,11 @@
 package org.bedework.caldav.server;
 
 import org.bedework.caldav.server.calquery.CalendarData;
+import org.bedework.caldav.server.calquery.ExpandRecurrenceSet;
 import org.bedework.caldav.server.calquery.FreeBusyQuery;
+import org.bedework.caldav.server.calquery.LimitRecurrenceSet;
 import org.bedework.caldav.server.filter.Filter;
-import org.bedework.calfacade.CalFacadeDefs;
+import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.davdefs.CaldavTags;
 import org.bedework.davdefs.WebdavTags;
 
@@ -398,22 +400,27 @@ public class CaldavReportMethod extends ReportMethod {
 
       CaldavBWIntf intf = (CaldavBWIntf)getNsIntf();
 
-      int retrieveRecur;
+      RecurringRetrievalMode rrm;
 
       if (caldata == null) {
-        retrieveRecur = CalFacadeDefs.retrieveRecurMaster;
+        rrm = new RecurringRetrievalMode(RecurringRetrievalMode.overrides);
       } else if (caldata.getErs() != null) {
-        /* expand XXX use range */
-        retrieveRecur = CalFacadeDefs.retrieveRecurExpanded;
+        /* expand with time range */
+        ExpandRecurrenceSet ers = caldata.getErs();
+
+        rrm = new RecurringRetrievalMode(RecurringRetrievalMode.expanded,
+                                         ers.getStart(), ers.getEnd());
       } else if (caldata.getLrs() != null) {
-        /* Only return instances not overridden and overrides */
-        retrieveRecur = CalFacadeDefs.retrieveRecurOverrides;
+        /* Only return master event and overrides in range */
+        LimitRecurrenceSet lrs = caldata.getLrs();
+        rrm = new RecurringRetrievalMode(RecurringRetrievalMode.overrides,
+                                         lrs.getStart(), lrs.getEnd());
       } else {
-        /* Return master + instances and overrides */
-        retrieveRecur = CalFacadeDefs.retrieveRecurExpanded;
+        /* Return master + overrides */
+        rrm = new RecurringRetrievalMode(RecurringRetrievalMode.overrides);
       }
 
-      return intf.query(node, retrieveRecur, filter);
+      return intf.query(node, rrm, filter);
     } catch (WebdavException wde) {
       throw new WebdavException(wde.getStatusCode());
     }

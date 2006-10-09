@@ -55,6 +55,7 @@
 package org.bedework.caldav.server;
 
 import org.bedework.calfacade.BwCalendar;
+import org.bedework.calfacade.svc.EventInfo;
 
 /** We map uris onto an object which may be a calendar or an
  * entity contained within that calendar.
@@ -71,7 +72,7 @@ import org.bedework.calfacade.BwCalendar;
 public class CaldavURI {
   BwCalendar cal;
 
-  Object entity;
+  EventInfo entity;
 
   String entityName;
 
@@ -79,7 +80,7 @@ public class CaldavURI {
 
   boolean groupUri;// entityname is group
 
-  CaldavURI(BwCalendar cal, Object entity, String entityName) {
+  CaldavURI(BwCalendar cal, EventInfo entity, String entityName) {
     init(cal, entity, entityName);
   }
 
@@ -93,7 +94,7 @@ public class CaldavURI {
     }
   }
 
-  private void init(BwCalendar cal, Object entity, String entityName) {
+  private void init(BwCalendar cal, EventInfo entity, String entityName) {
     this.cal = cal;
     this.entity = entity;
     this.entityName = entityName;
@@ -109,7 +110,7 @@ public class CaldavURI {
   /**
    * @return Object
    */
-  public Object getEntity() {
+  public EventInfo getEntity() {
     return entity;
   }
 

@@ -59,8 +59,11 @@ import org.bedework.calfacade.BwDateTime;
 import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.BwFreeBusy;
 import org.bedework.calfacade.BwUser;
+import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.ScheduleResult;
+import org.bedework.calfacade.BwRecurrence.ChangeSet;
 import org.bedework.calfacade.base.BwShareableDbentity;
+import org.bedework.calfacade.svc.EventInfo;
 import org.bedework.calfacade.timezones.CalTimezones;
 import org.bedework.calfacade.timezones.ResourceTimezones;
 import org.bedework.http.client.dav.DavClient;
@@ -260,26 +263,20 @@ public class BexchangeSysIntfImpl implements SysIntf {
     throw new WebdavIntfException("unimplemented");
   }
 
-  public void updateEvent(BwEvent event) throws WebdavIntfException {
-    throw new WebdavIntfException("unimplemented");
-  }
-
-  public Collection getEventsExpanded(BwCalendar cal) throws WebdavIntfException {
-    throw new WebdavIntfException("unimplemented");
-  }
-
-  public Collection getEvents(BwCalendar cal,
-                              int recurRetrieval) throws WebdavIntfException {
+  public void updateEvent(BwEvent event,
+                          Collection overrides,
+                          ChangeSet recurrenceChanges) throws WebdavIntfException {
     throw new WebdavIntfException("unimplemented");
   }
 
   public Collection getEvents(BwCalendar cal,
                               BwDateTime startDate, BwDateTime endDate,
-                              int recurRetrieval) throws WebdavIntfException {
+                              RecurringRetrievalMode recurRetrieval) throws WebdavIntfException {
     throw new WebdavIntfException("unimplemented");
   }
 
-  public Collection findEventsByName(BwCalendar cal, String val)
+  public EventInfo getEvent(BwCalendar cal, String val,
+                            RecurringRetrievalMode recurRetrieval)
               throws WebdavIntfException {
     throw new WebdavIntfException("unimplemented");
   }
@@ -419,11 +416,7 @@ public class BexchangeSysIntfImpl implements SysIntf {
     throw new WebdavIntfException("unimplemented");
   }
 
-  public Calendar toCalendar(BwEvent ev) throws WebdavIntfException {
-    throw new WebdavIntfException("unimplemented");
-  }
-
-  public Calendar toCalendar(Collection evs) throws WebdavIntfException {
+  public Calendar toCalendar(EventInfo ev) throws WebdavIntfException {
     throw new WebdavIntfException("unimplemented");
   }
 

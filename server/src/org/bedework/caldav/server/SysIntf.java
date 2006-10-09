@@ -57,8 +57,11 @@ import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwDateTime;
 import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.BwFreeBusy;
+import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.ScheduleResult;
+import org.bedework.calfacade.BwRecurrence.ChangeSet;
 import org.bedework.calfacade.base.BwShareableDbentity;
+import org.bedework.calfacade.svc.EventInfo;
 import org.bedework.calfacade.timezones.CalTimezones;
 import org.bedework.icalendar.Icalendar;
 
@@ -261,30 +264,16 @@ public interface SysIntf {
                       BwEvent event,
                       Collection overrides) throws WebdavIntfException;
 
- /** Update an event.
-  *
-  * @param event         updated BwEvent object
-  * @throws WebdavIntfException
-  */
- public void updateEvent(BwEvent event) throws WebdavIntfException;
-
-  /** Get events in the given calendar with recurrences expanded
+  /** Update an event.
    *
-   * @param cal
-   * @return Collection of BwEvent
+   * @param event         updated BwEvent object
+   * @param overrides     overrides which may need changing
+   * @param recurrenceChanges  recurrence rule changes to master
    * @throws WebdavIntfException
    */
-  public Collection getEventsExpanded(BwCalendar cal) throws WebdavIntfException;
-
-  /** Return events for the current user in the given calendar.
-   *
-   * @param cal
-   * @param recurRetrieval Takes value defined in.CalFacadeDefs
-   * @return Collection of EventInfo objects
-   * @throws WebdavIntfException
-   */
-  public Collection getEvents(BwCalendar cal,
-                              int recurRetrieval) throws WebdavIntfException;
+  public void updateEvent(BwEvent event,
+                          Collection overrides,
+                          ChangeSet recurrenceChanges) throws WebdavIntfException;
 
   /** Return the events for the current user in the given calendar within the
    * given date and time range.
@@ -292,24 +281,27 @@ public interface SysIntf {
    * @param cal
    * @param startDate    BwDateTime start - may be null
    * @param endDate      BwDateTime end - may be null.
-   * @param recurRetrieval Takes value defined in.CalFacadeDefs
+   * @param recurRetrieval How recurring event is returned.
    * @return Collection  populated event value objects
    * @throws WebdavIntfException
    */
   public Collection getEvents(BwCalendar cal,
                               BwDateTime startDate, BwDateTime endDate,
-                              int recurRetrieval) throws WebdavIntfException;
+                              RecurringRetrievalMode recurRetrieval)
+          throws WebdavIntfException;
 
   /** Get events given the calendar and String name. Return null for not
-   * found. For non-recurring there should be only one event. Otherwise we
-   * return the currently expanded set of recurring events.
+   * found. There should be only one event or none. For recurring, the
+   * overrides and possibly the instances will be attached.
    *
    * @param cal        BwCalendar object
    * @param val        String possible name
-   * @return Collection of EventInfo or null
+   * @param recurRetrieval
+   * @return EventInfo or null
    * @throws WebdavIntfException
    */
-  public Collection findEventsByName(BwCalendar cal, String val)
+  public EventInfo getEvent(BwCalendar cal, String val,
+                            RecurringRetrievalMode recurRetrieval)
           throws WebdavIntfException;
 
   /**
@@ -399,15 +391,7 @@ public interface SysIntf {
    * @return Calendar
    * @throws WebdavIntfException
    */
-  public Calendar toCalendar(BwEvent ev) throws WebdavIntfException;
-
-  /** Make an ical Calendar from a Collection of calendar objects.
-   *
-   * @param ents
-   * @return Calendar
-   * @throws WebdavIntfException
-   */
-  public Calendar toCalendar(Collection ents) throws WebdavIntfException;
+  public Calendar toCalendar(EventInfo ev) throws WebdavIntfException;
 
   /** Convert the Icalendar reader to a Collection of Calendar objects
    *
