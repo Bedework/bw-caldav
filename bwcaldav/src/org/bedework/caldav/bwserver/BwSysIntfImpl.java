@@ -65,11 +65,11 @@ import org.bedework.calfacade.CalFacadeAccessException;
 import org.bedework.calfacade.CalFacadeException;
 import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.ScheduleResult;
-import org.bedework.calfacade.BwRecurrence.ChangeSet;
 import org.bedework.calfacade.base.BwShareableDbentity;
 import org.bedework.calfacade.svc.BwSubscription;
 import org.bedework.calfacade.svc.EventInfo;
 import org.bedework.calfacade.timezones.CalTimezones;
+import org.bedework.calfacade.util.ChangeTable;
 import org.bedework.calsvci.CalSvcFactoryDefault;
 import org.bedework.calsvci.CalSvcI;
 import org.bedework.calsvci.CalSvcIPars;
@@ -331,9 +331,9 @@ public class BwSysIntfImpl implements SysIntf {
 
   public void updateEvent(BwEvent event,
                           Collection overrides,
-                          ChangeSet recurrenceChanges) throws WebdavIntfException {
+                          ChangeTable changes) throws WebdavIntfException {
     try {
-      getSvci().updateEvent(event, overrides, recurrenceChanges);
+      getSvci().updateEvent(event, overrides, changes);
     } catch (CalFacadeAccessException cfae) {
       throw WebdavIntfException.forbidden();
     } catch (CalFacadeException cfe) {

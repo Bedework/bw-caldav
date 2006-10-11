@@ -62,11 +62,11 @@ import org.bedework.calfacade.BwFreeBusyComponent;
 import org.bedework.calfacade.BwUser;
 import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.ScheduleResult;
-import org.bedework.calfacade.BwRecurrence.ChangeSet;
 import org.bedework.calfacade.base.BwShareableDbentity;
 import org.bedework.calfacade.svc.EventInfo;
 import org.bedework.calfacade.timezones.CalTimezones;
 import org.bedework.calfacade.timezones.ResourceTimezones;
+import org.bedework.calfacade.util.ChangeTable;
 import org.bedework.http.client.dav.DavClient;
 import org.bedework.http.client.dav.DavReq;
 import org.bedework.http.client.dav.DavResp;
@@ -261,7 +261,7 @@ public class DominoSysIntfImpl implements SysIntf {
 
   public void updateEvent(BwEvent event,
                           Collection overrides,
-                          ChangeSet recurrenceChanges) throws WebdavIntfException {
+                          ChangeTable changes) throws WebdavIntfException {
     throw new WebdavIntfException("unimplemented");
   }
 
