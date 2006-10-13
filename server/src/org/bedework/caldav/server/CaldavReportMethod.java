@@ -69,6 +69,7 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
+import edu.rpi.cct.webdav.servlet.shared.WebdavProperty;
 import edu.rpi.cct.webdav.servlet.shared.WebdavStatusCode;
 import edu.rpi.sss.util.xml.XmlUtil;
 
@@ -283,11 +284,9 @@ public class CaldavReportMethod extends ReportMethod {
 
       if (preq != null) {
         // Look for a calendar-data property
-        Iterator it = preq.iterateProperties();
-        while (it.hasNext()) {
-          Object o = it.next();
-          if (o instanceof CalendarData) {
-            caldata = (CalendarData)o;
+        for (WebdavProperty prop: preq.props) {
+          if (prop instanceof CalendarData) {
+            caldata = (CalendarData)prop;
           }
         }
       }

@@ -244,10 +244,7 @@ public class BwSysIntfImpl implements SysIntf {
       PrincipalPropertySearch.PropertySearch ps =
         (PrincipalPropertySearch.PropertySearch)it.next();
 
-      Iterator pit = ps.props.iterator();
-      while (pit.hasNext()) {
-        WebdavProperty prop = (WebdavProperty)pit.next();
-
+      for (WebdavProperty prop: ps.props) {
         if (!CaldavTags.calendarUserAddressSet.equals(prop.getTag())) {
           return principals;
         }

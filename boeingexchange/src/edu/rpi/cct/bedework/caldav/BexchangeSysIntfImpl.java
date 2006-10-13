@@ -109,7 +109,7 @@ public class BexchangeSysIntfImpl implements SysIntf {
    * of calls to the same host + port combination it makes sense to preserve
    * the objects between calls.
    */
-  private HashMap cioTable = new HashMap();
+  private HashMap<String, DavClient> cioTable = new HashMap<String, DavClient>();
 
   private ResourceTimezones timezones;
 
@@ -171,7 +171,8 @@ public class BexchangeSysIntfImpl implements SysIntf {
   }
 
 
-  private static final HashMap serversInfo = new HashMap();
+  private static final HashMap<String, BexchangeInfo> serversInfo =
+    new HashMap<String, BexchangeInfo>();
 
   static {
     serversInfo.put("wenfang@calnet.local",
@@ -299,7 +300,7 @@ public class BexchangeSysIntfImpl implements SysIntf {
     try {
       String serviceName = getServiceName(cal.getPath());
 
-      BexchangeInfo di = (BexchangeInfo)serversInfo.get(serviceName);
+      BexchangeInfo di = serversInfo.get(serviceName);
       if (di == null) {
         throw WebdavIntfException.badRequest();
       }
@@ -773,7 +774,7 @@ END:VCALENDAR
   }
 
   private DavClient getCio(String host, int port, boolean secure) throws Throwable {
-    DavClient cio = (DavClient)cioTable.get(host + port + secure);
+    DavClient cio = cioTable.get(host + port + secure);
 
     if (cio == null) {
       cio = new DavClient(host, port, 30 * 1000, secure, debug);
