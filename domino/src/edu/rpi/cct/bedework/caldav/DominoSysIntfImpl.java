@@ -338,17 +338,18 @@ public class DominoSysIntfImpl implements SysIntf {
         if (o instanceof BwFreeBusy) {
           BwFreeBusy fb = (BwFreeBusy)o;
 
-          Iterator fbpit = fb.iterateTimes();
-          while (fbpit.hasNext()) {
-            BwFreeBusyComponent fbcomp = (BwFreeBusyComponent)fbpit.next();
+          Collection<BwFreeBusyComponent> times = fb.getTimes();
 
-            if (fbcomp.getType() != BwFreeBusyComponent.typeFree) {
-              throw WebdavIntfException.serverError();
-            }
+          if (times != null) {
+            for (BwFreeBusyComponent fbcomp: times) {
+              if (fbcomp.getType() != BwFreeBusyComponent.typeFree) {
+                throw WebdavIntfException.serverError();
+              }
 
-            Iterator perit = fbcomp.iteratePeriods();
-            while (perit.hasNext()) {
-              periods.add(perit.next());
+              Iterator perit = fbcomp.iteratePeriods();
+              while (perit.hasNext()) {
+                periods.add(perit.next());
+              }
             }
           }
         }
