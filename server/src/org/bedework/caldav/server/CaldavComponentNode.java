@@ -102,7 +102,8 @@ public class CaldavComponentNode extends CaldavBwNode {
 
   private ComponentWrapper comp;
 
-  private final static Collection propertyNames = new ArrayList();
+  private final static Collection<PropertyTagEntry> propertyNames =
+    new ArrayList<PropertyTagEntry>();
 
   static {
     addPropEntry(CaldavTags.calendarData);
@@ -478,13 +479,13 @@ public class CaldavComponentNode extends CaldavBwNode {
     }
   }
 
-  /** Return a set o QName defining properties this node supports.
+  /** Return a set of QName defining properties this node supports.
    *
    * @return
    * @throws WebdavIntfException
    */
-  public Collection getPropertyNames() throws WebdavIntfException {
-    Collection res = new ArrayList();
+  public Collection<PropertyTagEntry> getPropertyNames() throws WebdavIntfException {
+    Collection<PropertyTagEntry> res = new ArrayList<PropertyTagEntry>();
 
     res.addAll(super.getPropertyNames());
     res.addAll(propertyNames);
@@ -532,9 +533,9 @@ public class CaldavComponentNode extends CaldavBwNode {
     return ical;
   }
 
-  public Collection getProperties(String ns) throws WebdavIntfException {
+  public Collection<WebdavProperty> getProperties(String ns) throws WebdavIntfException {
     init(true);
-    ArrayList al = new ArrayList();
+    ArrayList<WebdavProperty> al = new ArrayList<WebdavProperty>();
 
     getVevent(); // init comp
     if (comp == null) {
@@ -646,7 +647,7 @@ public class CaldavComponentNode extends CaldavBwNode {
     return ev;
   }
 
-  private void addProp(Collection c, QName tag, Object val) {
+  private void addProp(Collection<WebdavProperty> c, QName tag, Object val) {
     if (val != null) {
       c.add(new WebdavProperty(tag, String.valueOf(val)));
     }

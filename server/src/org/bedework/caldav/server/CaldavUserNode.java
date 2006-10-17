@@ -75,7 +75,8 @@ import java.util.Collection;
 public class CaldavUserNode extends CaldavBwNode {
   private SysIntf.CalUserInfo ui;
 
-  private final static Collection propertyNames = new ArrayList();
+  private final static Collection<PropertyTagEntry> propertyNames =
+    new ArrayList<PropertyTagEntry>();
 
   static {
     addPropEntry(CaldavTags.calendarHomeSet, false);
@@ -188,8 +189,8 @@ public class CaldavUserNode extends CaldavBwNode {
    * @return
    * @throws WebdavIntfException
    */
-  public Collection getPropertyNames()throws WebdavIntfException {
-    Collection res = new ArrayList();
+  public Collection<PropertyTagEntry> getPropertyNames()throws WebdavIntfException {
+    Collection<PropertyTagEntry> res = new ArrayList<PropertyTagEntry>();
 
     res.addAll(super.getPropertyNames());
     res.addAll(propertyNames);

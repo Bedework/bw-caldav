@@ -91,7 +91,8 @@ public class CaldavCalNode extends CaldavBwNode {
 
   private CurrentAccess currentAccess;
 
-  private final static Collection propertyNames = new ArrayList();
+  private final static Collection<PropertyTagEntry> propertyNames =
+    new ArrayList<PropertyTagEntry>();
 
   static {
     addPropEntry(CaldavTags.calendarDescription, false);
@@ -396,8 +397,8 @@ public class CaldavCalNode extends CaldavBwNode {
    * @return
    * @throws WebdavIntfException
    */
-  public Collection getPropertyNames()throws WebdavIntfException {
-    Collection res = new ArrayList();
+  public Collection<PropertyTagEntry> getPropertyNames()throws WebdavIntfException {
+    Collection<PropertyTagEntry> res = new ArrayList<PropertyTagEntry>();
 
     res.addAll(super.getPropertyNames());
     res.addAll(propertyNames);
