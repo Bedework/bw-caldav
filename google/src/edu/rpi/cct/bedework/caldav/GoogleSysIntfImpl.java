@@ -146,13 +146,13 @@ public class GoogleSysIntfImpl implements SysIntf {
                            null, null, null, null);
   }
 
-  public Collection getPrincipalCollectionSet(String resourceUri)
+  public Collection<String> getPrincipalCollectionSet(String resourceUri)
           throws WebdavIntfException {
     throw new WebdavIntfException("unimplemented");
   }
 
-  public Collection getPrincipals(String resourceUri,
-                           PrincipalPropertySearch pps)
+  public Collection<CalUserInfo> getPrincipals(String resourceUri,
+                                               PrincipalPropertySearch pps)
           throws WebdavIntfException {
     throw new WebdavIntfException("unimplemented");
   }
@@ -185,9 +185,9 @@ public class GoogleSysIntfImpl implements SysIntf {
     throw new WebdavIntfException("unimplemented");
   }
 
-  public Collection getEvents(BwCalendar cal,
-                              BwDateTime startDate, BwDateTime endDate,
-                              RecurringRetrievalMode recurRetrieval)
+  public Collection<EventInfo> getEvents(BwCalendar cal,
+                                         BwDateTime startDate, BwDateTime endDate,
+                                         RecurringRetrievalMode recurRetrieval)
           throws WebdavIntfException {
     throw new WebdavIntfException("unimplemented");
   }
@@ -381,7 +381,7 @@ public class GoogleSysIntfImpl implements SysIntf {
     return cal;
   }
 
-  public Collection getCalendars(BwCalendar cal) throws WebdavIntfException {
+  public Collection<BwCalendar> getCalendars(BwCalendar cal) throws WebdavIntfException {
     throw new WebdavIntfException("unimplemented");
   }
 

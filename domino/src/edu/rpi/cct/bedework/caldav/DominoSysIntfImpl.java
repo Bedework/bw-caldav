@@ -122,7 +122,7 @@ public class DominoSysIntfImpl implements SysIntf {
    * of calls to the same host + port combination it makes sense to preserve
    * the objects between calls.
    */
-  private HashMap cioTable = new HashMap();
+  private HashMap<String, DavClient> cioTable = new HashMap<String, DavClient>();
 
   private ResourceTimezones timezones;
 
@@ -179,7 +179,8 @@ public class DominoSysIntfImpl implements SysIntf {
   private static final DominoInfo showcase2Info =
     new DominoInfo("showcase2.notes.net", 443, "/servlet/Freetime", true);
 
-  private static final HashMap serversInfo = new HashMap();
+  private static final HashMap<String, DominoInfo> serversInfo =
+    new HashMap<String, DominoInfo>();
 
   static {
     serversInfo.put("egenconsulting", egenconsultingInfo);
@@ -226,13 +227,13 @@ public class DominoSysIntfImpl implements SysIntf {
                            null, null, null, null);
   }
 
-  public Collection getPrincipalCollectionSet(String resourceUri)
+  public Collection<String> getPrincipalCollectionSet(String resourceUri)
           throws WebdavIntfException {
     throw new WebdavIntfException("unimplemented");
   }
 
-  public Collection getPrincipals(String resourceUri,
-                           PrincipalPropertySearch pps)
+  public Collection<CalUserInfo> getPrincipals(String resourceUri,
+                                               PrincipalPropertySearch pps)
           throws WebdavIntfException {
     throw new WebdavIntfException("unimplemented");
   }
@@ -265,9 +266,9 @@ public class DominoSysIntfImpl implements SysIntf {
     throw new WebdavIntfException("unimplemented");
   }
 
-  public Collection getEvents(BwCalendar cal,
-                              BwDateTime startDate, BwDateTime endDate,
-                              RecurringRetrievalMode recurRetrieval)
+  public Collection<EventInfo> getEvents(BwCalendar cal,
+                                         BwDateTime startDate, BwDateTime endDate,
+                                         RecurringRetrievalMode recurRetrieval)
           throws WebdavIntfException {
     throw new WebdavIntfException("unimplemented");
   }
@@ -296,7 +297,7 @@ public class DominoSysIntfImpl implements SysIntf {
     try {
       String serviceName = getServiceName(cal.getPath());
 
-      DominoInfo di = (DominoInfo)serversInfo.get(serviceName);
+      DominoInfo di = serversInfo.get(serviceName);
       if (di == null) {
         throw WebdavIntfException.badRequest();
       }
@@ -330,7 +331,7 @@ public class DominoSysIntfImpl implements SysIntf {
        * First we'll order all the periods in the result.
        */
 
-      TreeSet periods = new TreeSet();
+      TreeSet<Period> periods = new TreeSet<Period>();
       Iterator fbit = ic.iterator();
       while (fbit.hasNext()) {
         Object o = fbit.next();
@@ -346,9 +347,8 @@ public class DominoSysIntfImpl implements SysIntf {
                 throw WebdavIntfException.serverError();
               }
 
-              Iterator perit = fbcomp.iteratePeriods();
-              while (perit.hasNext()) {
-                periods.add(perit.next());
+              for (Period p: fbcomp.getPeriods()) {
+                periods.add(p);
               }
             }
           }
@@ -441,7 +441,7 @@ public class DominoSysIntfImpl implements SysIntf {
     return cal;
   }
 
-  public Collection getCalendars(BwCalendar cal) throws WebdavIntfException {
+  public Collection<BwCalendar> getCalendars(BwCalendar cal) throws WebdavIntfException {
     throw new WebdavIntfException("unimplemented");
   }
 
@@ -756,7 +756,7 @@ public class DominoSysIntfImpl implements SysIntf {
   }
 
   private DavClient getCio(String host, int port, boolean secure) throws Throwable {
-    DavClient cio = (DavClient)cioTable.get(host + port + secure);
+    DavClient cio = cioTable.get(host + port + secure);
 
     if (cio == null) {
       cio = new DavClient(host, port, 30 * 1000, secure, debug);

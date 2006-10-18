@@ -56,6 +56,7 @@ package org.bedework.caldav.server;
 import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwDateTime;
 import org.bedework.calfacade.BwEvent;
+import org.bedework.calfacade.BwEventProxy;
 import org.bedework.calfacade.BwFreeBusy;
 import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.ScheduleResult;
@@ -68,6 +69,7 @@ import org.bedework.icalendar.Icalendar;
 import edu.rpi.cct.webdav.servlet.shared.PrincipalPropertySearch;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavIntfException;
+import edu.rpi.cmt.access.Ace;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
 
 import net.fortuna.ical4j.model.Calendar;
@@ -196,7 +198,7 @@ public interface SysIntf {
    * @return Collection of String
    * @throws WebdavIntfException
    */
-  public Collection getPrincipalCollectionSet(String resourceUri)
+  public Collection<String> getPrincipalCollectionSet(String resourceUri)
          throws WebdavIntfException;
 
   /** Given a PrincipalPropertySearch returns a Collection of matching principals.
@@ -206,7 +208,7 @@ public interface SysIntf {
    * @return Collection of CalUserInfo
    * @throws WebdavIntfException
    */
-  public Collection getPrincipals(String resourceUri,
+  public Collection<CalUserInfo> getPrincipals(String resourceUri,
                                   PrincipalPropertySearch pps)
           throws WebdavIntfException;
 
@@ -262,7 +264,7 @@ public interface SysIntf {
   */
  public void addEvent(BwCalendar cal,
                       BwEvent event,
-                      Collection overrides) throws WebdavIntfException;
+                      Collection<BwEventProxy> overrides) throws WebdavIntfException;
 
   /** Update an event.
    *
@@ -272,7 +274,7 @@ public interface SysIntf {
    * @throws WebdavIntfException
    */
   public void updateEvent(BwEvent event,
-                          Collection overrides,
+                          Collection<BwEventProxy> overrides,
                           ChangeTable changes) throws WebdavIntfException;
 
   /** Return the events for the current user in the given calendar within the
@@ -285,9 +287,9 @@ public interface SysIntf {
    * @return Collection  populated event value objects
    * @throws WebdavIntfException
    */
-  public Collection getEvents(BwCalendar cal,
-                              BwDateTime startDate, BwDateTime endDate,
-                              RecurringRetrievalMode recurRetrieval)
+  public Collection<EventInfo> getEvents(BwCalendar cal,
+                                         BwDateTime startDate, BwDateTime endDate,
+                                         RecurringRetrievalMode recurRetrieval)
           throws WebdavIntfException;
 
   /** Get events given the calendar and String name. Return null for not
@@ -349,7 +351,7 @@ public interface SysIntf {
    * @throws WebdavIntfException
    */
   public void updateAccess(BwCalendar cal,
-                           Collection aces) throws WebdavIntfException;
+                           Collection<Ace> aces) throws WebdavIntfException;
 
   /**
    * @param ev
@@ -357,7 +359,7 @@ public interface SysIntf {
    * @throws WebdavIntfException
    */
   public void updateAccess(BwEvent ev,
-                           Collection aces) throws WebdavIntfException;
+                           Collection<Ace> aces) throws WebdavIntfException;
 
   /**
    * @param name
@@ -383,7 +385,8 @@ public interface SysIntf {
    * @return Collection   of BwCalendar
    * @throws WebdavIntfException
    */
-  public Collection getCalendars(BwCalendar cal) throws WebdavIntfException;
+  public Collection<BwCalendar> getCalendars(BwCalendar cal)
+          throws WebdavIntfException;
 
   /** Make an ical Calendar from an event.
    *

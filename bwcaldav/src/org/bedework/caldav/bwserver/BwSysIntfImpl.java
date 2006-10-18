@@ -58,6 +58,7 @@ import org.bedework.caldav.server.SysIntf;
 import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwDateTime;
 import org.bedework.calfacade.BwEvent;
+import org.bedework.calfacade.BwEventProxy;
 import org.bedework.calfacade.BwFreeBusy;
 import org.bedework.calfacade.BwSystem;
 import org.bedework.calfacade.BwUser;
@@ -83,6 +84,7 @@ import edu.rpi.cct.webdav.servlet.shared.PrincipalPropertySearch;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavIntfException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavProperty;
+import edu.rpi.cmt.access.Ace;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
 import edu.rpi.sss.util.xml.XmlUtil;
 
@@ -92,7 +94,6 @@ import net.fortuna.ical4j.model.TimeZone;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -200,7 +201,7 @@ public class BwSysIntfImpl implements SysIntf {
     }
   }
 
-  public Collection getPrincipalCollectionSet(String resourceUri)
+  public Collection<String> getPrincipalCollectionSet(String resourceUri)
           throws WebdavIntfException {
     try {
       StringBuffer sb = new StringBuffer();
@@ -208,7 +209,7 @@ public class BwSysIntfImpl implements SysIntf {
       sb.append(hostPortContext);
       sb.append(principalCollectionSetUri);
 
-      ArrayList al = new ArrayList();
+      ArrayList<String> al = new ArrayList<String>();
 
       al.add(sb.toString());
 
@@ -218,8 +219,8 @@ public class BwSysIntfImpl implements SysIntf {
     }
   }
 
-  public Collection getPrincipals(String resourceUri,
-                                  PrincipalPropertySearch pps)
+  public Collection<CalUserInfo> getPrincipals(String resourceUri,
+                                               PrincipalPropertySearch pps)
           throws WebdavIntfException {
     if (pps.applyToPrincipalCollectionSet) {
       throw new WebdavIntfException("unimplemented");
@@ -229,7 +230,7 @@ public class BwSysIntfImpl implements SysIntf {
       resourceUri += "/";
     }
 
-    ArrayList principals = new ArrayList();
+    ArrayList<CalUserInfo> principals = new ArrayList<CalUserInfo>();
 
     if (!resourceUri.equals(principalCollectionSetUri)) {
       return principals;
@@ -239,11 +240,7 @@ public class BwSysIntfImpl implements SysIntf {
      */
     String caladdr = null;
 
-    Iterator it = pps.propertySearches.iterator();
-    while (it.hasNext()) {
-      PrincipalPropertySearch.PropertySearch ps =
-        (PrincipalPropertySearch.PropertySearch)it.next();
-
+    for (PrincipalPropertySearch.PropertySearch ps: pps.propertySearches) {
       for (WebdavProperty prop: ps.props) {
         if (!CaldavTags.calendarUserAddressSet.equals(prop.getTag())) {
           return principals;
@@ -311,7 +308,7 @@ public class BwSysIntfImpl implements SysIntf {
 
   public void addEvent(BwCalendar cal,
                        BwEvent event,
-                       Collection overrides) throws WebdavIntfException {
+                       Collection<BwEventProxy> overrides) throws WebdavIntfException {
     try {
       getSvci().addEvent(cal, event, overrides);
     } catch (CalFacadeAccessException cfae) {
@@ -327,7 +324,7 @@ public class BwSysIntfImpl implements SysIntf {
   }
 
   public void updateEvent(BwEvent event,
-                          Collection overrides,
+                          Collection<BwEventProxy> overrides,
                           ChangeTable changes) throws WebdavIntfException {
     try {
       getSvci().updateEvent(event, overrides, changes);
@@ -343,9 +340,9 @@ public class BwSysIntfImpl implements SysIntf {
     }
   }
 
-  public Collection getEvents(BwCalendar cal,
-                              BwDateTime startDate, BwDateTime endDate,
-                              RecurringRetrievalMode recurRetrieval)
+  public Collection<EventInfo> getEvents(BwCalendar cal,
+                                         BwDateTime startDate, BwDateTime endDate,
+                                         RecurringRetrievalMode recurRetrieval)
           throws WebdavIntfException {
     try {
       BwSubscription sub = BwSubscription.makeSubscription(cal);
@@ -426,7 +423,7 @@ public class BwSysIntfImpl implements SysIntf {
   }
 
   public void updateAccess(BwCalendar cal,
-                           Collection aces) throws WebdavIntfException {
+                           Collection<Ace> aces) throws WebdavIntfException {
     try {
       getSvci().changeAccess(cal, aces);
       getSvci().updateCalendar(cal);
@@ -440,7 +437,7 @@ public class BwSysIntfImpl implements SysIntf {
   }
 
   public void updateAccess(BwEvent ev,
-                           Collection aces) throws WebdavIntfException{
+                           Collection<Ace> aces) throws WebdavIntfException{
     try {
       getSvci().changeAccess(ev, aces);
       getSvci().updateEvent(ev, null, null);
@@ -483,7 +480,7 @@ public class BwSysIntfImpl implements SysIntf {
     }
   }
 
-  public Collection getCalendars(BwCalendar cal) throws WebdavIntfException {
+  public Collection<BwCalendar> getCalendars(BwCalendar cal) throws WebdavIntfException {
     try {
       return getSvci().getCalendars(cal);
     } catch (CalFacadeAccessException cfae) {
