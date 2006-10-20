@@ -255,16 +255,19 @@ public interface SysIntf {
    * ==================================================================== */
 
   /** Add an event.
-  *
-  * @param cal          BwCalendar defining recipient calendar
-  * @param event        BwEvent object to be added
-  * @param overrides    Collection of EventInfo objects with refs to BwEventProxy
-  *                     objects which override instances of the new event
-  * @throws WebdavIntfException
-  */
- public void addEvent(BwCalendar cal,
-                      BwEvent event,
-                      Collection<BwEventProxy> overrides) throws WebdavIntfException;
+   *
+   * @param cal          BwCalendar defining recipient calendar
+   * @param event        BwEvent object to be added
+   * @param overrides    Collection of EventInfo objects with refs to BwEventProxy
+   *                     objects which override instances of the new event
+   * @param rollbackOnError true if we rollback and throw an exception on error
+   * @return Collection of overrides which did not match or null if all matched
+   * @throws WebdavIntfException
+   */
+ public Collection<BwEventProxy> addEvent(BwCalendar cal,
+                                          BwEvent event,
+                                          Collection<BwEventProxy> overrides,
+                                          boolean rollbackOnError) throws WebdavIntfException;
 
   /** Update an event.
    *

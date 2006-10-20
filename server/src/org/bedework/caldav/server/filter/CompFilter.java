@@ -75,9 +75,9 @@ public class CompFilter {
 
   private TimeRange timeRange;
 
-  private Collection compFilters;
+  private Collection<CompFilter> compFilters;
 
-  private Collection propFilters;
+  private Collection<PropFilter> propFilters;
 
   /** Constructor
    * @param name
@@ -131,9 +131,9 @@ public class CompFilter {
   /**
    * @return Vector of comp filters
    */
-  public Collection getCompFilters() {
+  public Collection<CompFilter> getCompFilters() {
     if (compFilters == null) {
-      compFilters = new ArrayList();
+      compFilters = new ArrayList<CompFilter>();
     }
 
     return compFilters;
@@ -156,9 +156,9 @@ public class CompFilter {
   /**
    * @return Vector of prop filter
    */
-  public Collection getPropFilters() {
+  public Collection<PropFilter> getPropFilters() {
     if (propFilters == null) {
-      propFilters = new ArrayList();
+      propFilters = new ArrayList<PropFilter>();
     }
 
     return propFilters;

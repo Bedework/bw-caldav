@@ -59,6 +59,7 @@ import org.bedework.caldav.server.CaldavBwNode;
 import org.bedework.caldav.server.CaldavComponentNode;
 import org.bedework.caldav.server.TimeRange;
 import org.bedework.calfacade.RecurringRetrievalMode;
+import org.bedework.calfacade.svc.EventInfo;
 import org.bedework.davdefs.CaldavDefs;
 import org.bedework.davdefs.CaldavTags;
 
@@ -66,6 +67,7 @@ import edu.rpi.cct.webdav.servlet.common.MethodBase;
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
+import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
 import edu.rpi.cct.webdav.servlet.common.WebdavUtils;
 import edu.rpi.sss.util.xml.QName;
 import edu.rpi.sss.util.xml.XmlUtil;
@@ -182,7 +184,7 @@ public class Filter {
   /** If none null this is a collection of PropFilter to be applied to
    * retrieved event components
    */
-  private Collection eventFilters;
+  private Collection<PropFilter> eventFilters;
 
   /* Set by internal methods to indicate failure reason.
    */
@@ -239,14 +241,14 @@ public class Filter {
    * @return Collection of result nodes (empty for no result)
    * @throws WebdavException
    */
-  public Collection query(CaldavBwNode wdnode,
-                          RecurringRetrievalMode retrieveRecur) throws WebdavException {
+  public Collection<EventInfo> query(CaldavBwNode wdnode,
+                                     RecurringRetrievalMode retrieveRecur) throws WebdavException {
     CompFilter cfltr = filter;
 
     // Currently only accept VCALENDAR for top level.
 
     if (!"VCALENDAR".equals(cfltr.getName())) {
-      return new ArrayList();
+      return new ArrayList<EventInfo>();
     }
 
     /* Currently we only handle events */
@@ -272,7 +274,7 @@ public class Filter {
       calTimerange = cfltr.getTimeRange();
       if ((calTimerange != null) &&
           (calTimerange.getStart().after(calTimerange.getEnd()))) {
-        return new ArrayList();
+        return new ArrayList<EventInfo>();
       }
 
       /* Now look at named sub components. Because we AND the components I
@@ -284,8 +286,8 @@ public class Filter {
         eventq = new EventQuery();
         eventq.trange = calTimerange;
       } else {
-        Collection subcfs = cfltr.getCompFilters();
-        CompFilter subcf = (CompFilter)subcfs.iterator().next();
+        Collection<CompFilter> subcfs = cfltr.getCompFilters();
+        CompFilter subcf = subcfs.iterator().next();
 
         if ("VEVENT".equals(subcf.getName())) {
           eventq = buildEventQuery(subcfs, calTimerange);
@@ -297,25 +299,25 @@ public class Filter {
           if (subcf.hasPropFilters()) {
             postFilterNeeded = true;
             if (eventFilters == null) {
-              eventFilters = new ArrayList();
+              eventFilters = new ArrayList<PropFilter>();
             }
             eventFilters.addAll(subcf.getPropFilters());
           }
 
           if (eventq == null) {
-            return new ArrayList();
+            return new ArrayList<EventInfo>();
           }
         } else {
           /* Don't support anything else so just return an empty
              Collection
            */
-          return new ArrayList();
+          return new ArrayList<EventInfo>();
         }
       }
     }
 
     if (eventq == null) {
-      return new ArrayList();
+      return new ArrayList<EventInfo>();
     }
 
     if (debug) {
@@ -328,7 +330,7 @@ public class Filter {
       }
     }
 
-    Collection events;
+    Collection<EventInfo> events;
 
     try {
       if (eventq.trange == null) {
@@ -365,7 +367,8 @@ public class Filter {
    * @return Collection of filtered nodes (empty for no result)
    * @throws WebdavException
    */
-  public Collection postFilter(Collection nodes) throws WebdavException {
+  public Collection<? extends WebdavNsNode> postFilter(
+                   Collection<CaldavBwNode> nodes) throws WebdavException {
     if (!postFilterNeeded) {
       return nodes;
     }
@@ -378,10 +381,10 @@ public class Filter {
 
     // Currently only handle VCALENDAR for top level.
     if (!"VCALENDAR".equals(cfltr.getName())) {
-      return new ArrayList();
+      return new ArrayList<CaldavComponentNode>();
     }
 
-    ArrayList filtered = new ArrayList();
+    ArrayList<CaldavComponentNode> filtered = new ArrayList<CaldavComponentNode>();
     Iterator it = nodes.iterator();
     while (it.hasNext()) {
       Object node = it.next();

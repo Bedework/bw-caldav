@@ -306,11 +306,12 @@ public class BwSysIntfImpl implements SysIntf {
     }
   }
 
-  public void addEvent(BwCalendar cal,
-                       BwEvent event,
-                       Collection<BwEventProxy> overrides) throws WebdavIntfException {
+  public Collection<BwEventProxy> addEvent(BwCalendar cal,
+                                           BwEvent event,
+                                           Collection<BwEventProxy> overrides,
+                                           boolean rollbackOnError) throws WebdavIntfException {
     try {
-      getSvci().addEvent(cal, event, overrides);
+      return getSvci().addEvent(cal, event, overrides, rollbackOnError).failedOverrides;
     } catch (CalFacadeAccessException cfae) {
       throw WebdavIntfException.forbidden();
     } catch (CalFacadeException cfe) {

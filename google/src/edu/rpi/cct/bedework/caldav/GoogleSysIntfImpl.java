@@ -57,6 +57,7 @@ import org.bedework.caldav.server.SysIntf;
 import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwDateTime;
 import org.bedework.calfacade.BwEvent;
+import org.bedework.calfacade.BwEventProxy;
 import org.bedework.calfacade.BwFreeBusy;
 import org.bedework.calfacade.BwFreeBusyComponent;
 import org.bedework.calfacade.BwUser;
@@ -173,9 +174,10 @@ public class GoogleSysIntfImpl implements SysIntf {
     throw new WebdavIntfException("unimplemented");
   }
 
-  public void addEvent(BwCalendar cal,
-                       BwEvent event,
-                       Collection overrides) throws WebdavIntfException {
+  public Collection<BwEventProxy> addEvent(BwCalendar cal,
+                                           BwEvent event,
+                                           Collection<BwEventProxy> overrides,
+                                           boolean rollbackOnError) throws WebdavIntfException {
     throw new WebdavIntfException("unimplemented");
   }
 

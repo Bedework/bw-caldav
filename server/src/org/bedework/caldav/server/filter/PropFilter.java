@@ -58,7 +58,6 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 
 import net.fortuna.ical4j.model.Component;
 import net.fortuna.ical4j.model.Property;
@@ -81,7 +80,7 @@ public class PropFilter {
 
   private TextMatch match;
 
-  private ArrayList paramFilters;
+  private ArrayList<ParamFilter> paramFilters;
 
   /** Constructor
    *
@@ -180,9 +179,9 @@ public class PropFilter {
   /**
    * @return Collection
    */
-  public Collection getParamFilters() {
+  public Collection<ParamFilter> getParamFilters() {
     if (paramFilters == null) {
-      paramFilters = new ArrayList();
+      paramFilters = new ArrayList<ParamFilter>();
     }
 
     return paramFilters;
@@ -257,10 +256,7 @@ public class PropFilter {
     }
 
     if (paramFilters != null) {
-      Iterator it = paramFilters.iterator();
-
-      while (it.hasNext()) {
-        ParamFilter pf = (ParamFilter)it.next();
+      for (ParamFilter pf: paramFilters) {
         pf.dump(log, indent + "  ");
       }
     }

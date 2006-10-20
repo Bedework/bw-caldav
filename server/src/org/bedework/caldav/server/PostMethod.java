@@ -180,7 +180,7 @@ public class PostMethod extends MethodBase {
 
       /* (CALDAV:recipient-specified) */
       Enumeration rs = req.getHeaders("Recipient");
-      Collection recipients = new TreeSet();
+      Collection<String> recipients = new TreeSet<String>();
 
       if ((rs == null) || (!rs.hasMoreElements())) {
         if (debug) {
@@ -189,7 +189,7 @@ public class PostMethod extends MethodBase {
         throw new WebdavNotFound();
       } else {
         while (rs.hasMoreElements()) {
-          recipients.add(rs.nextElement());
+          recipients.add((String)rs.nextElement());
         }
       }
 

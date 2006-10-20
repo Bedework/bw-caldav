@@ -54,8 +54,8 @@
 
 package org.bedework.caldav.server.calquery;
 
-import java.util.Iterator;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import org.apache.log4j.Logger;
 
@@ -69,12 +69,12 @@ public class Comp {
   /* if allcomp != true then look at comp */
   private boolean allcomp;
 
-  private Vector comps; // null for zero otherwise vector of comp
+  private Collection<Comp> comps; // null for zero
 
   // true or look at props
   private boolean allprop;
 
-  private Vector props; // null for zero otherwise vector of prop
+  private Collection<Prop> props; // null for zero
 
   /** Constructor
    *
@@ -115,9 +115,9 @@ public class Comp {
   /**
    * @return Vector of comp
    */
-  public Vector getComps() {
+  public Collection<Comp> getComps() {
     if (comps == null) {
-      comps = new Vector();
+      comps = new ArrayList<Comp>();
     }
 
     return comps;
@@ -147,9 +147,9 @@ public class Comp {
   /**
    * @return Vector of props
    */
-  public Vector getProps() {
+  public Collection<Prop> getProps() {
     if (props == null) {
-      props = new Vector();
+      props = new ArrayList<Prop>();
     }
 
     return props;
@@ -178,10 +178,7 @@ public class Comp {
     if (allcomp) {
       log.debug(indent + "  <allcomp/>");
     } else if (comps != null) {
-      Iterator it = comps.iterator();
-
-      while (it.hasNext()) {
-        Comp c = (Comp)it.next();
+      for (Comp c: comps) {
         c.dump(log, indent + "  ");
       }
     }
@@ -189,10 +186,7 @@ public class Comp {
     if (allprop) {
       log.debug(indent + "  <allprop/>");
     } else if (props != null) {
-      Iterator it = props.iterator();
-
-      while (it.hasNext()) {
-        Prop pr = (Prop)it.next();
+      for (Prop pr: props) {
         pr.dump(log, indent + "  ");
       }
     }

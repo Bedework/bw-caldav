@@ -69,8 +69,8 @@ import edu.rpi.sss.util.xml.QName;
 import edu.rpi.sss.util.xml.XmlUtil;
 
 
+import java.util.Collection;
 import java.util.Iterator;
-import java.util.Vector;
 import javax.servlet.http.HttpServletResponse;
 
 import net.fortuna.ical4j.model.Calendar;
@@ -363,7 +363,7 @@ public class CalendarData extends WebdavProperty {
    * properties.
    */
   private String transformVevent(Calendar ical,
-                                 Vector props)  throws WebdavException {
+                                 Collection<Prop> props)  throws WebdavException {
     try {
       Calendar nical = new Calendar();
       PropertyList pl = ical.getProperties();
@@ -392,11 +392,7 @@ public class CalendarData extends WebdavProperty {
           PropertyList vpl = c.getProperties();
           PropertyList nvpl = v.getProperties();
 
-          Iterator prit = props.iterator();
-
-          while (prit.hasNext()) {
-            Prop pr = (Prop)prit.next();
-
+          for (Prop pr: props) {
             Property p = vpl.getProperty(pr.getName());
 
             if (p != null) {

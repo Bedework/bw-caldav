@@ -54,6 +54,7 @@
 
 package org.bedework.caldav.server;
 
+import edu.rpi.cct.webdav.servlet.common.MethodBase;
 import edu.rpi.cct.webdav.servlet.common.WebdavServlet;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
@@ -100,7 +101,7 @@ public class CaldavBWServlet extends WebdavServlet {
   }
 
   public void addMethods(WebdavNsIntf nsIntf) throws WebdavException{
-    HashMap methods = nsIntf.getMethods();
+    HashMap<String, MethodBase> methods = nsIntf.getMethods();
 
     super.addMethods(nsIntf);
 

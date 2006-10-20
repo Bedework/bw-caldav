@@ -57,6 +57,7 @@ package org.bedework.caldav.server;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavIntfException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
+import edu.rpi.cct.webdav.servlet.shared.WebdavProperty;
 import edu.rpi.sss.util.xml.XmlEmit;
 
 import java.io.StringReader;
@@ -158,8 +159,8 @@ public abstract class CaldavBwNode extends WebdavNsNode {
    * @return Collection (possibly empty) of WebdavProperty objects
    * @throws WebdavIntfException
    */
-  public Collection getProperties(String ns) throws WebdavIntfException {
-    return new ArrayList();
+  public Collection<WebdavProperty> getProperties(String ns) throws WebdavIntfException {
+    return new ArrayList<WebdavProperty>();
   }
 
   /** Returns an InputStream for the content.

@@ -130,6 +130,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
   /** Namespace based on the request url.
    */
+  @SuppressWarnings("unused")
   private String namespace;
 
   /* Prefix for our properties */
@@ -146,7 +147,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
   /** We store CaldavURI objects here
    */
-  private HashMap uriMap = new HashMap();
+  private HashMap<String, CaldavURI> uriMap = new HashMap<String, CaldavURI>();
 
   /** An object representing the current users access
    */
@@ -347,12 +348,11 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
   }
 
-  public Iterator getChildren(WebdavNsNode node)
-      throws WebdavIntfException {
+  public Iterator getChildren(WebdavNsNode node) throws WebdavIntfException {
     try {
       CaldavBwNode uwnode = getBwnode(node);
 
-      ArrayList al = new ArrayList();
+      ArrayList<WebdavNsNode> al = new ArrayList<WebdavNsNode>();
 
       if (!uwnode.getCollection()) {
         // Don't think we should have been called
@@ -423,18 +423,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
   public WebdavNsNode getParent(WebdavNsNode node)
       throws WebdavIntfException {
     return null;
-  }
-
-  public Iterator iterateProperties(WebdavNsNode node) throws WebdavIntfException {
-    try {
-      CaldavBwNode bwnode = getBwnode(node);
-
-      return WebdavProperty.iterator(bwnode.getProperties(namespace));
-    } catch (WebdavIntfException we) {
-      throw we;
-    } catch (Throwable t) {
-      throw new WebdavIntfException(t);
-    }
   }
 
   /*
@@ -602,7 +590,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
           if (evinfo.getNewEvent()) {
             pcr.created = true;
             ev.setName(entityName);
-            sysi.addEvent(cal, ev, evinfo.getOverrideProxies());
+
+            /* Collection<BwEventProxy>failedOverrides = */
+              sysi.addEvent(cal, ev, evinfo.getOverrideProxies(), true);
 
             StringBuffer sb = new StringBuffer(cdUri.getPath());
             sb.append("/");
@@ -717,10 +707,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
     return SysIntf.principalPrefix;
   }
 
-  public Collection principalMatch(String resourceUri,
-                                   PrincipalMatchReport pmatch)
+  public Collection<WebdavNsNode> principalMatch(String resourceUri,
+                                                 PrincipalMatchReport pmatch)
           throws WebdavIntfException {
-    Collection res = new ArrayList();
+    Collection<WebdavNsNode> res = new ArrayList<WebdavNsNode>();
 
     if (pmatch.self) {
       /* ResourceUri should be the principals root */
@@ -736,21 +726,17 @@ public class CaldavBWIntf extends WebdavNsIntf {
     return res;
   }
 
-  public Collection getPrincipalCollectionSet(String resourceUri)
+  public Collection<String> getPrincipalCollectionSet(String resourceUri)
          throws WebdavIntfException {
     return getSysi().getPrincipalCollectionSet(resourceUri);
   }
 
-  public Collection getPrincipals(String resourceUri,
-                                  PrincipalPropertySearch pps)
+  public Collection<CaldavBwNode> getPrincipals(String resourceUri,
+                                                PrincipalPropertySearch pps)
           throws WebdavIntfException {
-    Collection ps = sysi.getPrincipals(resourceUri, pps);
-    ArrayList pnodes = new ArrayList();
+    ArrayList<CaldavBwNode> pnodes = new ArrayList<CaldavBwNode>();
 
-    Iterator it = ps.iterator();
-    while (it.hasNext()) {
-      CalUserInfo cui = (CalUserInfo)it.next();
-
+    for (CalUserInfo cui: sysi.getPrincipals(resourceUri, pps)) {
       pnodes.add(new CaldavUserNode(new CaldavURI(cui.account, true),
                                     getSysi(), cui, debug));
     }
@@ -782,7 +768,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
     int whoType;
     String who;
 
-    ArrayList aces = new ArrayList();
+    ArrayList<Ace> aces = new ArrayList<Ace>();
   }
 
   public AclInfo startAcl(String uri) throws WebdavIntfException {
@@ -1118,11 +1104,11 @@ public class CaldavBWIntf extends WebdavNsIntf {
    * @return Collection of result nodes (empty for no result)
    * @throws WebdavIntfException
    */
-  public Collection query(WebdavNsNode wdnode,
-                          RecurringRetrievalMode retrieveRecur,
-                          Filter fltr) throws WebdavIntfException {
+  public Collection<? extends WebdavNsNode> query(WebdavNsNode wdnode,
+                                                  RecurringRetrievalMode retrieveRecur,
+                                                  Filter fltr) throws WebdavIntfException {
     CaldavBwNode node = getBwnode(wdnode);
-    Collection events;
+    Collection<EventInfo> events;
 
     try {
       events = fltr.query(node, retrieveRecur);
@@ -1138,14 +1124,11 @@ public class CaldavBWIntf extends WebdavNsIntf {
        If there is no calendar name for the event we just give it the default.
      */
 
-    Collection evnodes = new ArrayList();
+    Collection<CaldavBwNode> evnodes = new ArrayList<CaldavBwNode>();
     //HashMap evnodeMap = new HashMap();
 
     try {
-      Iterator evit = events.iterator();
-
-      while (evit.hasNext()) {
-        EventInfo ei = (EventInfo)evit.next();
+      for (EventInfo ei: events) {
         BwEvent ev = ei.getEvent();
 
         BwCalendar cal = ev.getCalendar();
@@ -1194,13 +1177,11 @@ public class CaldavBWIntf extends WebdavNsIntf {
         }*/
       }
 
-      evnodes = fltr.postFilter(evnodes);
+      return fltr.postFilter(evnodes);
     } catch (Throwable t) {
       error(t);
       throw WebdavIntfException.serverError();
     }
-
-    return evnodes;
   }
 
   /** The node represents a calendar resource for which we must get free-busy
@@ -1471,7 +1452,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
   }
 
   private CaldavURI getUriPath(String path) {
-    return (CaldavURI)uriMap.get(path);
+    return uriMap.get(path);
   }
 
   private void putUriPath(CaldavURI wi) {

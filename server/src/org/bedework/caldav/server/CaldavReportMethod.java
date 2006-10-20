@@ -100,7 +100,7 @@ public class CaldavReportMethod extends ReportMethod {
   private FreeBusyQuery freeBusy;
   //private CalendarData caldata;
   private Filter filter;
-  private ArrayList hrefs;
+  private ArrayList<String> hrefs;
 
   CalendarData caldata;
 
@@ -254,7 +254,7 @@ public class CaldavReportMethod extends ReportMethod {
             }
 
             if (hrefs == null) {
-              hrefs = new ArrayList();
+              hrefs = new ArrayList<String>();
             }
 
             hrefs.add(href);
@@ -302,9 +302,7 @@ public class CaldavReportMethod extends ReportMethod {
         } else if (reportType == reportTypeMultiGet) {
           // Multi-get - optional props + one or more hrefs
 
-          Iterator it = hrefs.iterator();
-          while (it.hasNext()) {
-            String href = (String)it.next();
+          for (String href: hrefs) {
             trace("    <DAV:href>" + href + "</DAV:href>");
           }
         } else {
@@ -347,24 +345,21 @@ public class CaldavReportMethod extends ReportMethod {
 
     int status = HttpServletResponse.SC_OK;
 
-    Collection nodes = null;
+    Collection<WebdavNsNode> nodes = null;
 
     if (reportType == reportTypeQuery) {
-      nodes = doNodeAndChildren(node, 0, defaultDepth(depth, 0));
+      nodes = (Collection<WebdavNsNode>)doNodeAndChildren(node, 0, defaultDepth(depth, 0));
     } else if (reportType == reportTypeMultiGet) {
-      nodes = new ArrayList();
+      nodes = new ArrayList<WebdavNsNode>();
 
       if (hrefs != null) {
-        Iterator it = hrefs.iterator();
-        while (it.hasNext()) {
-          String href = intf.getUri((String)it.next());
-
+        for (String hr: hrefs) {
           try {
-            nodes.add(intf.getNode(href,
+            nodes.add(intf.getNode(intf.getUri(hr),
                                    WebdavNsIntf.existanceMust,
                                    WebdavNsIntf.nodeTypeUnknown));
           } catch (WebdavException we) {
-            nodes.add(new CaldavCalNode(we.getStatusCode(), debug));
+            nodes.add((WebdavNsNode)new CaldavCalNode(we.getStatusCode(), debug));
           }
         }
       }
@@ -391,7 +386,8 @@ public class CaldavReportMethod extends ReportMethod {
     flush();
   }
 
-  private Collection getNodes(WebdavNsNode node) throws WebdavException {
+  private Collection<? extends WebdavNsNode> getNodes(WebdavNsNode node)
+          throws WebdavException {
     try {
       if (debug) {
         trace("getNodes: " + node.getUri());
@@ -425,7 +421,7 @@ public class CaldavReportMethod extends ReportMethod {
     }
   }
 
-  private Collection doNodeAndChildren(WebdavNsNode node,
+  private Collection<? extends WebdavNsNode> doNodeAndChildren(WebdavNsNode node,
                                        int curDepth,
                                        int maxDepth) throws WebdavException {
     if (!(node instanceof CaldavCalNode)) {
@@ -443,7 +439,7 @@ public class CaldavReportMethod extends ReportMethod {
       return getNodes(node);
     }
 
-    Collection nodes = new ArrayList();
+    Collection<WebdavNsNode> nodes = new ArrayList<WebdavNsNode>();
 
     curDepth++;
 
