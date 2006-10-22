@@ -359,8 +359,8 @@ public class DominoSysIntfImpl implements SysIntf {
 
       BwFreeBusy fb = new BwFreeBusy();
 
-      fb.setStart(start);
-      fb.setEnd(end);
+      fb.setDtstart(start);
+      fb.setDtend(end);
 
       BwFreeBusyComponent fbcomp = new BwFreeBusyComponent();
 
