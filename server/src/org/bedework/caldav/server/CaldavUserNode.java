@@ -134,22 +134,19 @@ public class CaldavUserNode extends CaldavBwNode {
    *                   Property methods
    * ==================================================================== */
 
-  /** Emit the property indicated by the tag.
-   *
-   * @param tag  QName defining property
-   * @param intf WebdavNsIntf
-   * @return boolean   true if emitted
-   * @throws WebdavIntfException
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#generatePropertyValue(edu.rpi.sss.util.xml.QName, edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf, boolean)
    */
   public boolean generatePropertyValue(QName tag,
-                                       WebdavNsIntf intf) throws WebdavIntfException {
+                                       WebdavNsIntf intf,
+                                       boolean allProp) throws WebdavIntfException {
     String ns = tag.getNamespaceURI();
     XmlEmit xml = intf.getXmlEmit();
 
     /* Deal with webdav properties */
     if (!ns.equals(CaldavDefs.caldavNamespace)) {
       // Not ours
-      return super.generatePropertyValue(tag, intf);
+      return super.generatePropertyValue(tag, intf, allProp);
     }
 
     try {

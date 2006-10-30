@@ -67,7 +67,7 @@ import edu.rpi.sss.util.xml.XmlEmit;
 public class EmitAccess extends AccessXmlUtil {
   private String namespacePrefix;
 
-  /** xml rpivilege tags */
+  /** xml privilege tags */
   private static final QName[] privTags = {
     WebdavTags.all,              // privAll = 0;
     WebdavTags.read,             // privRead = 1;
@@ -91,7 +91,7 @@ public class EmitAccess extends AccessXmlUtil {
   };
 
   /** Acls use tags in the webdav and caldav namespace. For use over caldav
-   * we shoud supply the uris. Otherwise a null namespace will be used.
+   * we should supply the uris. Otherwise a null namespace will be used.
    *
    * @param namespacePrefix String prefix
    * @param xml   XmlEmit

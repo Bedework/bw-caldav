@@ -84,14 +84,12 @@ import java.util.Iterator;
  *   @author Mike Douglass   douglm@rpi.edu
  */
 public class CaldavComponentNode extends CaldavBwNode {
-  /* The only event or the master */
-//  private BwEvent event;
+  /* The event if this component is an event */
   private EventInfo eventInfo;
 
-  /* Collection of BwEvent for this node
-   * Only 1 for non-recurring
-   */
-  //private Collection events;
+  // We also need a todo object and maybe a journal, freebusy and a timezone
+
+  private boolean isTimezone;
 
   /** The Component object
    */
@@ -159,8 +157,6 @@ public class CaldavComponentNode extends CaldavBwNode {
     addPropEntry(ICalTags.uid);           /* VEVENT VTODO VJOURNAL VFREEBUSY */
     addPropEntry(ICalTags.url);           /* VEVENT VTODO VJOURNAL VFREEBUSY */
     //addPropEntry(ICalTags.version);     /*     *     *     *        *            *          CALENDAR*/
-
-    addPropEntry(WebdavTags.collection);
   }
 
   /** Constructor
@@ -235,15 +231,12 @@ public class CaldavComponentNode extends CaldavBwNode {
    *                   Property methods
    * ==================================================================== */
 
-  /** Emit the property indicated by the tag.
-  *
-  * @param tag  QName defining property
-  * @param intf WebdavNsIntf
-  * @return boolean   true if emitted
-  * @throws WebdavIntfException
-  */
- public boolean generatePropertyValue(QName tag,
-                                      WebdavNsIntf intf) throws WebdavIntfException {
+ /* (non-Javadoc)
+ * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#generatePropertyValue(edu.rpi.sss.util.xml.QName, edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf, boolean)
+ */
+public boolean generatePropertyValue(QName tag,
+                                      WebdavNsIntf intf,
+                                      boolean allProp) throws WebdavIntfException {
     PropVal pv = new PropVal();
     XmlEmit xml = intf.getXmlEmit();
 
@@ -253,13 +246,13 @@ public class CaldavComponentNode extends CaldavBwNode {
     if ((!ns.equals(CaldavDefs.caldavNamespace) &&
         !ns.equals(CaldavDefs.icalNamespace))) {
       // Not ours
-      return super.generatePropertyValue(tag, intf);
+      return super.generatePropertyValue(tag, intf, allProp);
     }
 
     try {
       BwEvent ev = checkEv(pv);
       if (ev == null) {
-        return false;
+        return true;
       }
 
       if (tag.equals(CaldavTags.scheduleState)) {
@@ -297,15 +290,52 @@ public class CaldavComponentNode extends CaldavBwNode {
         return true;
       }
 
-      // action
-      // attach
-      // attendee
-      // categories
-      // _class
-      // comment
-      // completed
-      // contact
-      // created
+      /* =============== ICalTags follow ================= */
+
+      if (tag.equals(ICalTags.action)) {
+        // PROPTODO
+        return true;
+      }
+
+      if (tag.equals(ICalTags.attach)) {
+        // PROPTODO
+        return true;
+      }
+
+      if (tag.equals(ICalTags.attendee)) {
+        // PROPTODO
+        return true;
+      }
+
+      if (tag.equals(ICalTags.categories)) {
+        // PROPTODO
+        return true;
+      }
+
+      if (tag.equals(ICalTags._class)) {
+        // PROPTODO
+        return true;
+      }
+
+      if (tag.equals(ICalTags.comment)) {
+        // PROPTODO
+        return true;
+      }
+
+      if (tag.equals(ICalTags.completed)) {
+        // PROPTODO
+        return true;
+      }
+
+      if (tag.equals(ICalTags.contact)) {
+        // PROPTODO
+        return true;
+      }
+
+      if (tag.equals(ICalTags.created)) {
+        xml.property(tag, ev.getCreated());
+        return true;
+      }
 
       if (tag.equals(ICalTags.description)) {
         if (ev.getDescription() != null) {
@@ -319,7 +349,10 @@ public class CaldavComponentNode extends CaldavBwNode {
         return true;
       }
 
-      // dtstamp
+      if (tag.equals(ICalTags.dtstamp)) {
+        xml.property(tag, ev.getDtstamp());
+        return true;
+      }
 
       if (tag.equals(ICalTags.dtstart)) {
         xml.property(tag, ev.getDtstart().getDate());
@@ -338,10 +371,25 @@ public class CaldavComponentNode extends CaldavBwNode {
         return true;
       }
 
-      // exdate
-      // exrule
-      // freebusy
-      // geo
+      if (tag.equals(ICalTags.exdate)) {
+        // PROPTODO
+        return true;
+      }
+
+      if (tag.equals(ICalTags.exrule)) {
+        // PROPTODO
+        return true;
+      }
+
+      if (tag.equals(ICalTags.freebusy)) {
+        // PROPTODO
+        return true;
+      }
+
+      if (tag.equals(ICalTags.geo)) {
+        // PROPTODO
+        return true;
+      }
 
       /*
        if (tag.equals(ICalTags.hasRecurrence)) {
@@ -359,15 +407,25 @@ public class CaldavComponentNode extends CaldavBwNode {
        return pv;
        }*/
 
-      // lastModified
+      if (tag.equals(ICalTags.lastModified)) {
+        // PROPTODO
+        return true;
+      }
 
       if (tag.equals(ICalTags.lastModified)) {
         xml.property(tag, ev.getLastmod());
         return true;
       }
 
-      // location
-      // organizer
+      if (tag.equals(ICalTags.location)) {
+        // PROPTODO
+        return true;
+      }
+
+      if (tag.equals(ICalTags.organizer)) {
+        // PROPTODO
+        return true;
+      }
 
       if (tag.equals(ICalTags.organizer)) {
         if (ev.getOrganizer() != null) {
@@ -376,11 +434,29 @@ public class CaldavComponentNode extends CaldavBwNode {
         return true;
       }
 
-      // percentComplete
-      // priority
-      // rdate
+      if (tag.equals(ICalTags.percentComplete)) {
+        // PROPTODO
+        return true;
+      }
 
-      // recurrenceId
+      if (tag.equals(ICalTags.priority)) {
+        Integer val = ev.getPriority();
+        if ((val != null) && (val != 0)) {
+          xml.property(tag, String.valueOf(val));
+        }
+
+        return true;
+      }
+
+      if (tag.equals(ICalTags.rdate)) {
+        // PROPTODO
+        return true;
+      }
+
+      if (tag.equals(ICalTags.recurrenceId)) {
+        // PROPTODO
+        return true;
+      }
 
       if (tag.equals(ICalTags.recurrenceId)) {
         if (ev.getRecurrenceId() != null) {
@@ -389,9 +465,20 @@ public class CaldavComponentNode extends CaldavBwNode {
         return true;
       }
 
-      // relatedTo
-      // repeat
-      // resources
+      if (tag.equals(ICalTags.relatedTo)) {
+        // PROPTODO
+        return true;
+      }
+
+      if (tag.equals(ICalTags.repeat)) {
+        // PROPTODO
+        return true;
+      }
+
+      if (tag.equals(ICalTags.resources)) {
+        // PROPTODO
+        return true;
+      }
 
       if (tag.equals(ICalTags.requestStatus)) {
         if (ev.getRequestStatus() != null) {
@@ -400,7 +487,10 @@ public class CaldavComponentNode extends CaldavBwNode {
         return true;
       }
 
-      // rrule
+      if (tag.equals(ICalTags.rrule)) {
+        // PROPTODO
+        return true;
+      }
 
       if (tag.equals(ICalTags.sequence)) {
         xml.property(tag, String.valueOf(ev.getSequence()));
@@ -423,12 +513,10 @@ public class CaldavComponentNode extends CaldavBwNode {
         return true;
       }
 
-      // trigger
-      // tzid
-      // tzname
-      // tzoffsetfrom
-      // tzoffsetto
-      // tzurl
+      if (tag.equals(ICalTags.trigger)) {
+        // PROPTODO
+        return true;
+      }
 
       if (tag.equals(ICalTags.uid)) {
         xml.property(tag, ev.getGuid());
@@ -442,7 +530,10 @@ public class CaldavComponentNode extends CaldavBwNode {
         return true;
       }
 
-      // version
+      if (tag.equals(ICalTags.version)) {
+        // PROPTODO
+        return true;
+      }
 
       return false;
     } catch (WebdavIntfException wde) {
@@ -625,6 +716,37 @@ public class CaldavComponentNode extends CaldavBwNode {
   /* ====================================================================
    *                   Private methods
    * ==================================================================== */
+
+  private boolean generateZPropertyValue(QName tag,
+                                         WebdavNsIntf intf,
+                                         boolean allProp) throws WebdavIntfException {
+    if (tag.equals(ICalTags.tzid)) {
+      // PROPTODO
+      return true;
+    }
+
+    if (tag.equals(ICalTags.tzname)) {
+      // PROPTODO
+      return true;
+    }
+
+    if (tag.equals(ICalTags.tzoffsetfrom)) {
+      // PROPTODO
+      return true;
+    }
+
+    if (tag.equals(ICalTags.tzoffsetto)) {
+      // PROPTODO
+      return true;
+    }
+
+    if (tag.equals(ICalTags.tzurl)) {
+      // PROPTODO
+      return true;
+    }
+
+    return false;
+  }
 
   private BwEvent getEvent() throws WebdavIntfException {
     EventInfo ei = getEventInfo();

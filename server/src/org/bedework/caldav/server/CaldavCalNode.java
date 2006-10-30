@@ -104,8 +104,6 @@ public class CaldavCalNode extends CaldavBwNode {
     addPropEntry(CaldavTags.minDateTime);
     addPropEntry(CaldavTags.supportedCalendarComponentSet, false);
     addPropEntry(CaldavTags.supportedCalendarData, false);
-
-    addPropEntry(WebdavTags.collection);
   }
 
   /** Place holder for status
@@ -297,17 +295,12 @@ public class CaldavCalNode extends CaldavBwNode {
    *                   Property methods
    * ==================================================================== */
 
-  /** Get the value for the given property.
-   *
-  /** Get the value for the given property.
-   *
-   * @param tag  QName defining property
-   * @param intf WebdavNsIntf
-   * @return boolean   true if emitted
-   * @throws WebdavIntfException
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#generatePropertyValue(edu.rpi.sss.util.xml.QName, edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf, boolean)
    */
   public boolean generatePropertyValue(QName tag,
-                                       WebdavNsIntf intf) throws WebdavIntfException {
+                                       WebdavNsIntf intf,
+                                       boolean allProp) throws WebdavIntfException {
     String ns = tag.getNamespaceURI();
     XmlEmit xml = intf.getXmlEmit();
 
@@ -341,7 +334,7 @@ public class CaldavCalNode extends CaldavBwNode {
       if ((!ns.equals(CaldavDefs.caldavNamespace) &&
           !ns.equals(CaldavDefs.icalNamespace))) {
         // Not ours
-        return super.generatePropertyValue(tag, intf);
+        return super.generatePropertyValue(tag, intf, allProp);
       }
 
       if (tag.equals(CaldavTags.calendarDescription)) {
@@ -359,7 +352,7 @@ public class CaldavCalNode extends CaldavBwNode {
          *         </C:supported-calendar-component-set>
          */
         if (!cal.getCalendarCollection()) {
-          return false;
+          return true;
         }
 
         xml.openTag(tag);
