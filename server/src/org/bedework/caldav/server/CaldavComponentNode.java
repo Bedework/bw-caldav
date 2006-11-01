@@ -122,7 +122,7 @@ public class CaldavComponentNode extends CaldavBwNode {
     addPropEntry(ICalTags.description);   /* VEVENT VTODO VJOURNAL    *            *   VALARM */
     addPropEntry(ICalTags.dtend);         /* VEVENT    *     *     VFREEBUSY */
     addPropEntry(ICalTags.dtstamp);       /* VEVENT VTODO VJOURNAL VFREEBUSY */
-    addPropEntry(ICalTags.dtstart);       /* VEVENT VTODO    *     VFREEBUSY VTIMEZONE */
+    addPropEntry(ICalTags.dtstart);       /* VEVENT VTODO VJOURNAL VFREEBUSY VTIMEZONE */
     //addPropEntry(ICalTags.due);         /*     *  VTODO */
     addPropEntry(ICalTags.duration);      /* VEVENT VTODO    *     VFREEBUSY       *   VALARM */
     addPropEntry(ICalTags.exdate);        /* VEVENT VTODO VJOURNAL    *      VTIMEZONE */
@@ -247,6 +247,10 @@ public boolean generatePropertyValue(QName tag,
         !ns.equals(CaldavDefs.icalNamespace))) {
       // Not ours
       return super.generatePropertyValue(tag, intf, allProp);
+    }
+
+    if (isTimezone) {
+      return generateTZPropertyValue(tag, intf, allProp);
     }
 
     try {
@@ -482,7 +486,7 @@ public boolean generatePropertyValue(QName tag,
 
       if (tag.equals(ICalTags.requestStatus)) {
         if (ev.getRequestStatus() != null) {
-          xml.property(tag, ev.getRequestStatus());
+          xml.property(tag, ev.getRequestStatus().strVal());
         }
         return true;
       }
@@ -717,9 +721,9 @@ public boolean generatePropertyValue(QName tag,
    *                   Private methods
    * ==================================================================== */
 
-  private boolean generateZPropertyValue(QName tag,
-                                         WebdavNsIntf intf,
-                                         boolean allProp) throws WebdavIntfException {
+  private boolean generateTZPropertyValue(QName tag,
+                                          WebdavNsIntf intf,
+                                          boolean allProp) throws WebdavIntfException {
     if (tag.equals(ICalTags.tzid)) {
       // PROPTODO
       return true;
