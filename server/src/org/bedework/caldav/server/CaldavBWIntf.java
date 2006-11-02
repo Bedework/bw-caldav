@@ -73,6 +73,7 @@ import edu.rpi.cct.webdav.servlet.common.MethodBase;
 import edu.rpi.cct.webdav.servlet.common.PrincipalMatchReport;
 import edu.rpi.cct.webdav.servlet.common.WebdavServlet;
 import edu.rpi.cct.webdav.servlet.common.WebdavUtils;
+import edu.rpi.cct.webdav.servlet.common.MethodBase.MethodInfo;
 import edu.rpi.cct.webdav.servlet.shared.PrincipalPropertySearch;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavIntfException;
@@ -164,13 +165,17 @@ public class CaldavBWIntf extends WebdavNsIntf {
    * @param req
    * @param props
    * @param debug
+   * @param methods    HashMap   table of method info
+   * @param dumpContent
    * @throws WebdavIntfException
    */
   public void init(WebdavServlet servlet,
                    HttpServletRequest req,
                    Properties props,
-                   boolean debug) throws WebdavIntfException {
-    super.init(servlet, req, props, debug);
+                   boolean debug,
+                   HashMap<String, MethodInfo> methods,
+                   boolean dumpContent) throws WebdavIntfException {
+    super.init(servlet, req, props, debug, methods, dumpContent);
 
     try {
 

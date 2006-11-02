@@ -54,15 +54,12 @@
 
 package org.bedework.caldav.server;
 
-import edu.rpi.cct.webdav.servlet.common.MethodBase;
 import edu.rpi.cct.webdav.servlet.common.WebdavServlet;
+import edu.rpi.cct.webdav.servlet.common.MethodBase.MethodInfo;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 
-import java.util.HashMap;
-import java.util.Properties;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.ServletConfig;
 
 /** This class extends the webdav servlet class, implementing the abstract
  * methods and overriding others to extend/modify the behaviour.
@@ -70,14 +67,6 @@ import javax.servlet.ServletConfig;
  * @author Mike Douglass   douglm@rpi.edu
  */
 public class CaldavBWServlet extends WebdavServlet {
-//  private ServletConfig config;
-
-  /** Global resources for the servlet - not to be modified.
-   */
-  protected Properties props;
-
-  //  private static final String intfName = "edu.rpi.cct.uwcal.webdav.intfname";
-
   private String id = null;
   /* ====================================================================
    *                     Abstract servlet methods
@@ -100,27 +89,24 @@ public class CaldavBWServlet extends WebdavServlet {
     return id;
   }
 
-  public void addMethods(WebdavNsIntf nsIntf) throws WebdavException{
-    HashMap<String, MethodBase> methods = nsIntf.getMethods();
-
-    super.addMethods(nsIntf);
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.common.WebdavServlet#addMethods()
+   */
+  protected void addMethods() {
+    super.addMethods();
 
     // Replace methods
-    methods.put("MKCALENDAR", new MkcalendarMethod());
-    //methods.put("OPTIONS", new CalDavOptionsMethod());
-    methods.put("POST", new PostMethod());
-    methods.put("REPORT", new CaldavReportMethod());
+    methods.put("MKCALENDAR", new MethodInfo(MkcalendarMethod.class, true));
+    //methods.put("OPTIONS", new MethodInfo(CalDavOptionsMethod.class, false));
+    methods.put("POST", new MethodInfo(PostMethod.class, true));
+    methods.put("REPORT", new MethodInfo(CaldavReportMethod.class, false));
   }
 
-  public WebdavNsIntf getNsIntf(HttpServletRequest req,
-                                ServletConfig config,
-                                Properties props)
+  public WebdavNsIntf getNsIntf(HttpServletRequest req)
       throws WebdavException {
-    //    this.config = config;
-    this.props = props;
-
     CaldavBWIntf wi = new CaldavBWIntf();
 
+    wi.init(this, req, props, debug, methods, dumpContent);
     return wi;
   }
 }

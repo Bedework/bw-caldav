@@ -76,7 +76,8 @@ import org.w3c.dom.Element;
  *   @author Mike Douglass   douglm@rpi.edu
  */
 public class MkcalendarMethod extends PropPatchMethod {
-  /** Called at each request
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.common.MethodBase#init()
    */
   public void init() {
   }

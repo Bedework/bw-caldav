@@ -95,15 +95,15 @@ public class CaldavCalNode extends CaldavBwNode {
     new ArrayList<PropertyTagEntry>();
 
   static {
-    addPropEntry(CaldavTags.calendarDescription, false);
-    addPropEntry(CaldavTags.calendarTimezone, false);
-    addPropEntry(CaldavTags.maxAttendeesPerInstance);
-    addPropEntry(CaldavTags.maxDateTime);
-    addPropEntry(CaldavTags.maxInstances);
-    addPropEntry(CaldavTags.maxResourceSize);
-    addPropEntry(CaldavTags.minDateTime);
-    addPropEntry(CaldavTags.supportedCalendarComponentSet, false);
-    addPropEntry(CaldavTags.supportedCalendarData, false);
+    addPropEntry(propertyNames, CaldavTags.calendarDescription, false);
+    addPropEntry(propertyNames, CaldavTags.calendarTimezone, false);
+    addPropEntry(propertyNames, CaldavTags.maxAttendeesPerInstance);
+    addPropEntry(propertyNames, CaldavTags.maxDateTime);
+    addPropEntry(propertyNames, CaldavTags.maxInstances);
+    addPropEntry(propertyNames, CaldavTags.maxResourceSize);
+    addPropEntry(propertyNames, CaldavTags.minDateTime);
+    addPropEntry(propertyNames, CaldavTags.supportedCalendarComponentSet, false);
+    addPropEntry(propertyNames, CaldavTags.supportedCalendarData, false);
   }
 
   /** Place holder for status

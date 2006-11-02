@@ -79,10 +79,10 @@ public class CaldavUserNode extends CaldavBwNode {
     new ArrayList<PropertyTagEntry>();
 
   static {
-    addPropEntry(CaldavTags.calendarHomeSet, false);
-    addPropEntry(CaldavTags.calendarHomeURL);
-    addPropEntry(CaldavTags.scheduleInboxURL);
-    addPropEntry(CaldavTags.scheduleOutboxURL);
+    addPropEntry(propertyNames, CaldavTags.calendarHomeSet, false);
+    addPropEntry(propertyNames, CaldavTags.calendarHomeURL);
+    addPropEntry(propertyNames, CaldavTags.scheduleInboxURL);
+    addPropEntry(propertyNames, CaldavTags.scheduleOutboxURL);
   }
 
   /**

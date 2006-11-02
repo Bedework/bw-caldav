@@ -104,59 +104,59 @@ public class CaldavComponentNode extends CaldavBwNode {
     new ArrayList<PropertyTagEntry>();
 
   static {
-    addPropEntry(CaldavTags.calendarData);
-    addPropEntry(CaldavTags.originator, false);
-    addPropEntry(CaldavTags.recipient, false);
-    addPropEntry(CaldavTags.scheduleState, false);
+    addPropEntry(propertyNames, CaldavTags.calendarData);
+    addPropEntry(propertyNames, CaldavTags.originator, false);
+    addPropEntry(propertyNames, CaldavTags.recipient, false);
+    addPropEntry(propertyNames, CaldavTags.scheduleState, false);
 
-    //addPropEntry(ICalTags.action);      /*     *     *     *        *            *   VALARM */
-    addPropEntry(ICalTags.attach);        /* VEVENT VTODO VJOURNAL    *            *   VALARM */
-    addPropEntry(ICalTags.attendee);      /* VEVENT VTODO VJOURNAL VFREEBUSY       *   VALARM */
-    //addPropEntry(ICalTags.calscale);    /*     *     *     *        *            *     *    CALENDAR*/
-    addPropEntry(ICalTags.categories);    /* VEVENT VTODO VJOURNAL */
-    addPropEntry(ICalTags._class);        /* VEVENT VTODO VJOURNAL */
-    addPropEntry(ICalTags.comment);       /* VEVENT VTODO VJOURNAL VFREEBUSY VTIMEZONE */
-    //addPropEntry(ICalTags.completed);   /*     *  VTODO */
-    addPropEntry(ICalTags.contact);       /* VEVENT VTODO VJOURNAL VFREEBUSY */
-    addPropEntry(ICalTags.created);       /* VEVENT VTODO VJOURNAL */
-    addPropEntry(ICalTags.description);   /* VEVENT VTODO VJOURNAL    *            *   VALARM */
-    addPropEntry(ICalTags.dtend);         /* VEVENT    *     *     VFREEBUSY */
-    addPropEntry(ICalTags.dtstamp);       /* VEVENT VTODO VJOURNAL VFREEBUSY */
-    addPropEntry(ICalTags.dtstart);       /* VEVENT VTODO VJOURNAL VFREEBUSY VTIMEZONE */
-    //addPropEntry(ICalTags.due);         /*     *  VTODO */
-    addPropEntry(ICalTags.duration);      /* VEVENT VTODO    *     VFREEBUSY       *   VALARM */
-    addPropEntry(ICalTags.exdate);        /* VEVENT VTODO VJOURNAL    *      VTIMEZONE */
-    addPropEntry(ICalTags.exrule);        /* VEVENT VTODO VJOURNAL */
-    //addPropEntry(ICalTags.freebusy);    /*     *     *     *     VFREEBUSY */
-    addPropEntry(ICalTags.geo);           /* VEVENT VTODO */
-    //addPropEntry(ICalTags.hasAlarm);
-    //addPropEntry(ICalTags.hasAttachment);
-    //addPropEntry(ICalTags.hasRecurrence);
-    addPropEntry(ICalTags.lastModified);  /* VEVENT VTODO VJOURNAL    *      VTIMEZONE */
-    addPropEntry(ICalTags.location);      /* VEVENT VTODO */
-    addPropEntry(ICalTags.organizer);     /* VEVENT VTODO VJOURNAL VFREEBUSY */
-    //addPropEntry(ICalTags.percentComplete);  /*     *  VTODO */
-    addPropEntry(ICalTags.priority);      /* VEVENT VTODO */
-    addPropEntry(ICalTags.rdate);         /* VEVENT VTODO VJOURNAL    *      VTIMEZONE */
-    addPropEntry(ICalTags.recurrenceId);  /* VEVENT VTODO VJOURNAL    *      VTIMEZONE */
-    addPropEntry(ICalTags.relatedTo);     /* VEVENT VTODO VJOURNAL */
-    //addPropEntry(ICalTags.repeat);      /*     *     *     *        *            *   VALARM */
-    addPropEntry(ICalTags.resources);     /* VEVENT VTODO */
-    addPropEntry(ICalTags.requestStatus); /* VEVENT VTODO VJOURNAL VFREEBUSY */
-    addPropEntry(ICalTags.rrule);         /* VEVENT VTODO VJOURNAL    *      VTIMEZONE */
-    addPropEntry(ICalTags.sequence);      /* VEVENT VTODO VJOURNAL */
-    addPropEntry(ICalTags.status);        /* VEVENT VTODO VJOURNAL */
-    addPropEntry(ICalTags.summary);       /* VEVENT VTODO VJOURNAL    *            *   VALARM */
-    addPropEntry(ICalTags.transp);        /* VEVENT */
-    addPropEntry(ICalTags.trigger);       /* VEVENT VTODO    *        *            *   VALARM */
-    //addPropEntry(ICalTags.tzid);        /*     *     *     *        *      VTIMEZONE */
-    //addPropEntry(ICalTags.tzname);      /*     *     *     *               VTIMEZONE */
-    //addPropEntry(ICalTags.tzoffsetfrom);  /*   *     *     *        *      VTIMEZONE */
-    //addPropEntry(ICalTags.tzoffsetto);  /*     *     *     *        *      VTIMEZONE */
-    //addPropEntry(ICalTags.tzurl);       /*     *     *     *        *      VTIMEZONE */
-    addPropEntry(ICalTags.uid);           /* VEVENT VTODO VJOURNAL VFREEBUSY */
-    addPropEntry(ICalTags.url);           /* VEVENT VTODO VJOURNAL VFREEBUSY */
-    //addPropEntry(ICalTags.version);     /*     *     *     *        *            *          CALENDAR*/
+    //addPropEntry(propertyNames, ICalTags.action);      /*     *     *     *        *            *   VALARM */
+    addPropEntry(propertyNames, ICalTags.attach);        /* VEVENT VTODO VJOURNAL    *            *   VALARM */
+    addPropEntry(propertyNames, ICalTags.attendee);      /* VEVENT VTODO VJOURNAL VFREEBUSY       *   VALARM */
+    //addPropEntry(propertyNames, ICalTags.calscale);    /*     *     *     *        *            *     *    CALENDAR*/
+    addPropEntry(propertyNames, ICalTags.categories);    /* VEVENT VTODO VJOURNAL */
+    addPropEntry(propertyNames, ICalTags._class);        /* VEVENT VTODO VJOURNAL */
+    addPropEntry(propertyNames, ICalTags.comment);       /* VEVENT VTODO VJOURNAL VFREEBUSY VTIMEZONE */
+    //addPropEntry(propertyNames, ICalTags.completed);   /*     *  VTODO */
+    addPropEntry(propertyNames, ICalTags.contact);       /* VEVENT VTODO VJOURNAL VFREEBUSY */
+    addPropEntry(propertyNames, ICalTags.created);       /* VEVENT VTODO VJOURNAL */
+    addPropEntry(propertyNames, ICalTags.description);   /* VEVENT VTODO VJOURNAL    *            *   VALARM */
+    addPropEntry(propertyNames, ICalTags.dtend);         /* VEVENT    *     *     VFREEBUSY */
+    addPropEntry(propertyNames, ICalTags.dtstamp);       /* VEVENT VTODO VJOURNAL VFREEBUSY */
+    addPropEntry(propertyNames, ICalTags.dtstart);       /* VEVENT VTODO VJOURNAL VFREEBUSY VTIMEZONE */
+    //addPropEntry(propertyNames, ICalTags.due);         /*     *  VTODO */
+    addPropEntry(propertyNames, ICalTags.duration);      /* VEVENT VTODO    *     VFREEBUSY       *   VALARM */
+    addPropEntry(propertyNames, ICalTags.exdate);        /* VEVENT VTODO VJOURNAL    *      VTIMEZONE */
+    addPropEntry(propertyNames, ICalTags.exrule);        /* VEVENT VTODO VJOURNAL */
+    //addPropEntry(propertyNames, ICalTags.freebusy);    /*     *     *     *     VFREEBUSY */
+    addPropEntry(propertyNames, ICalTags.geo);           /* VEVENT VTODO */
+    //addPropEntry(propertyNames, ICalTags.hasAlarm);
+    //addPropEntry(propertyNames, ICalTags.hasAttachment);
+    //addPropEntry(propertyNames, ICalTags.hasRecurrence);
+    addPropEntry(propertyNames, ICalTags.lastModified);  /* VEVENT VTODO VJOURNAL    *      VTIMEZONE */
+    addPropEntry(propertyNames, ICalTags.location);      /* VEVENT VTODO */
+    addPropEntry(propertyNames, ICalTags.organizer);     /* VEVENT VTODO VJOURNAL VFREEBUSY */
+    //addPropEntry(propertyNames, ICalTags.percentComplete);  /*     *  VTODO */
+    addPropEntry(propertyNames, ICalTags.priority);      /* VEVENT VTODO */
+    addPropEntry(propertyNames, ICalTags.rdate);         /* VEVENT VTODO VJOURNAL    *      VTIMEZONE */
+    addPropEntry(propertyNames, ICalTags.recurrenceId);  /* VEVENT VTODO VJOURNAL    *      VTIMEZONE */
+    addPropEntry(propertyNames, ICalTags.relatedTo);     /* VEVENT VTODO VJOURNAL */
+    //addPropEntry(propertyNames, ICalTags.repeat);      /*     *     *     *        *            *   VALARM */
+    addPropEntry(propertyNames, ICalTags.resources);     /* VEVENT VTODO */
+    addPropEntry(propertyNames, ICalTags.requestStatus); /* VEVENT VTODO VJOURNAL VFREEBUSY */
+    addPropEntry(propertyNames, ICalTags.rrule);         /* VEVENT VTODO VJOURNAL    *      VTIMEZONE */
+    addPropEntry(propertyNames, ICalTags.sequence);      /* VEVENT VTODO VJOURNAL */
+    addPropEntry(propertyNames, ICalTags.status);        /* VEVENT VTODO VJOURNAL */
+    addPropEntry(propertyNames, ICalTags.summary);       /* VEVENT VTODO VJOURNAL    *            *   VALARM */
+    addPropEntry(propertyNames, ICalTags.transp);        /* VEVENT */
+    addPropEntry(propertyNames, ICalTags.trigger);       /* VEVENT VTODO    *        *            *   VALARM */
+    //addPropEntry(propertyNames, ICalTags.tzid);        /*     *     *     *        *      VTIMEZONE */
+    //addPropEntry(propertyNames, ICalTags.tzname);      /*     *     *     *               VTIMEZONE */
+    //addPropEntry(propertyNames, ICalTags.tzoffsetfrom);  /*   *     *     *        *      VTIMEZONE */
+    //addPropEntry(propertyNames, ICalTags.tzoffsetto);  /*     *     *     *        *      VTIMEZONE */
+    //addPropEntry(propertyNames, ICalTags.tzurl);       /*     *     *     *        *      VTIMEZONE */
+    addPropEntry(propertyNames, ICalTags.uid);           /* VEVENT VTODO VJOURNAL VFREEBUSY */
+    addPropEntry(propertyNames, ICalTags.url);           /* VEVENT VTODO VJOURNAL VFREEBUSY */
+    //addPropEntry(propertyNames, ICalTags.version);     /*     *     *     *        *            *          CALENDAR*/
   }
 
   /** Constructor
