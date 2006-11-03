@@ -1010,38 +1010,36 @@ public class CaldavBWIntf extends WebdavNsIntf {
       }
 
       if (tag.equals(CaldavTags.calendarData)) {
-        // pr should be a CalendarData object
+        // pr may be a CalendarData object - if not it's probably allprops
         if (!(pr instanceof CalendarData)) {
-          // XXX software error
-          if (debug) {
-            warn("!(pr instanceof CalendarData)");
-          }
-        } else {
-          CalendarData caldata = (CalendarData)pr;
-          String content = null;
+          pr = new CalendarData(tag, debug);
+        }
 
-          if (debug) {
-            trace("do CalendarData for " + node.getUri());
-          }
+        CalendarData caldata = (CalendarData)pr;
+        String content = null;
 
-          try {
-            content = caldata.process(node);
-          } catch (WebdavException wde) {
-            status = wde.getStatusCode();
-            if (debug && (status != HttpServletResponse.SC_NOT_FOUND)) {
-              error(wde);
-            }
-          }
+        if (debug) {
+          trace("do CalendarData for " + node.getUri());
+        }
 
-          if (status != HttpServletResponse.SC_OK) {
-            xml.emptyTag(tag);
-          } else {
-            /* Output the (transformed) node.
-             */
-
-            xml.cdataProperty(CaldavTags.calendarData, content);
+        try {
+          content = caldata.process(node);
+        } catch (WebdavException wde) {
+          status = wde.getStatusCode();
+          if (debug && (status != HttpServletResponse.SC_NOT_FOUND)) {
+            error(wde);
           }
         }
+
+        if (status != HttpServletResponse.SC_OK) {
+          xml.emptyTag(tag);
+        } else {
+          /* Output the (transformed) node.
+           */
+
+          xml.cdataProperty(CaldavTags.calendarData, content);
+        }
+
         return status;
       }
 
