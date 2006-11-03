@@ -58,7 +58,6 @@ import org.bedework.caldav.server.calquery.CalendarData;
 import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.svc.EventInfo;
 
-import org.bedework.davdefs.CaldavDefs;
 import org.bedework.davdefs.CaldavTags;
 import org.bedework.davdefs.WebdavTags;
 import org.bedework.icalendar.ComponentWrapper;
@@ -77,6 +76,7 @@ import net.fortuna.ical4j.model.component.VEvent;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 
 /** Class to represent an entity such as events in caldav.
@@ -100,8 +100,8 @@ public class CaldavComponentNode extends CaldavBwNode {
 
   private ComponentWrapper comp;
 
-  private final static Collection<PropertyTagEntry> propertyNames =
-    new ArrayList<PropertyTagEntry>();
+  private final static HashMap<QName, PropertyTagEntry> propertyNames =
+    new HashMap<QName, PropertyTagEntry>();
 
   static {
     addPropEntry(propertyNames, CaldavTags.calendarData);
@@ -174,16 +174,6 @@ public class CaldavComponentNode extends CaldavBwNode {
     allowsGet = true;
 
     eventInfo = cdURI.getEntity();
-
-    /*if (ent instanceof EventInfo) {
-      addEvent((EventInfo)ent);
-    } else {
-      setEvents((Collection)ent);
-    }*/
-
-    contentLang = "en";
-    contentLen = -1;
-    contentType = "text/calendar";
   }
 
   public boolean removeProperty(Element val) throws WebdavIntfException {
@@ -240,11 +230,7 @@ public boolean generatePropertyValue(QName tag,
     PropVal pv = new PropVal();
     XmlEmit xml = intf.getXmlEmit();
 
-    String ns = tag.getNamespaceURI();
-
-    /* Deal with webdav properties */
-    if ((!ns.equals(CaldavDefs.caldavNamespace) &&
-        !ns.equals(CaldavDefs.icalNamespace))) {
+    if (propertyNames.get(tag) == null) {
       // Not ours
       return super.generatePropertyValue(tag, intf, allProp);
     }
@@ -548,8 +534,6 @@ public boolean generatePropertyValue(QName tag,
   }
 
   public void init(boolean content) throws WebdavIntfException {
-    name = cdURI.getEntityName();
-
     if (!content) {
       return;
     }
@@ -562,12 +546,6 @@ public boolean generatePropertyValue(QName tag,
           exists = false;
           return;
         }
-      }
-
-      if (exists) {
-        BwEvent ev = eventInfo.getEvent();
-
-        super.setLastmodDate(ev.getLastmod());
       }
     } catch (Throwable t) {
       throw new WebdavIntfException(t);
@@ -583,7 +561,7 @@ public boolean generatePropertyValue(QName tag,
     Collection<PropertyTagEntry> res = new ArrayList<PropertyTagEntry>();
 
     res.addAll(super.getPropertyNames());
-    res.addAll(propertyNames);
+    res.addAll(propertyNames.values());
 
     return res;
   }
@@ -619,7 +597,6 @@ public boolean generatePropertyValue(QName tag,
       }
       if ((veventString == null)) {
         veventString = ical.toString();
-        contentLen = veventString.length();
       }
     } catch (Throwable t) {
       throw new WebdavIntfException(t);
@@ -681,7 +658,7 @@ public boolean generatePropertyValue(QName tag,
     return eventInfo.getCurrentAccess();
   }
 
-  public String getEtagValue() throws WebdavIntfException {
+  public String getEtagValue(boolean strong) throws WebdavIntfException {
     init(true);
 
     BwEvent ev = getEvent();
@@ -689,22 +666,13 @@ public boolean generatePropertyValue(QName tag,
       return null;
     }
 
-    return ev.getLastmod() + "-" + ev.getSeq();
-  }
+    String val = ev.getLastmod() + "-" + ev.getSeq();
 
-  public void setLastmodDate(String val) throws WebdavIntfException {
-    init(true);
-    super.setLastmodDate(val);
-  }
+    if (strong) {
+      return "\"" + val + "\"";
+    }
 
-  public String getLastmodDate() throws WebdavIntfException {
-    init(true);
-    return super.getLastmodDate();
-  }
-
-  public int getContentLen() throws WebdavIntfException {
-    getIcal(); // init length
-    return contentLen;
+    return "W/\"" + val + "\"";
   }
 
   public String toString() {
@@ -715,6 +683,72 @@ public boolean generatePropertyValue(QName tag,
     sb.append("}");
 
     return sb.toString();
+  }
+
+  /* ====================================================================
+   *                   Required webdav properties
+   * ==================================================================== */
+
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getContentLang()
+   */
+  public String getContentLang() throws WebdavIntfException {
+    return "en";
+  }
+
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getContentLen()
+   */
+  public int getContentLen() throws WebdavIntfException {
+    getIcal(); // init length
+    if (veventString != null) {
+      return veventString.length();
+    }
+    return 0;
+  }
+
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getContentType()
+   */
+  public String getContentType() throws WebdavIntfException {
+    return "text/calendar";
+  }
+
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getCreDate()
+   */
+  public String getCreDate() throws WebdavIntfException {
+    init(false);
+    BwEvent ev = getEvent();
+    if (ev == null) {
+      return null;
+    }
+
+    return ev.getCreated();
+  }
+
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getDisplayname()
+   */
+  public String getDisplayname() throws WebdavIntfException {
+    if (cdURI == null) {
+      return null;
+    }
+
+    return cdURI.getEntityName();
+  }
+
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getLastmodDate()
+   */
+  public String getLastmodDate() throws WebdavIntfException {
+    init(false);
+    BwEvent ev = getEvent();
+    if (ev == null) {
+      return null;
+    }
+
+    return ev.getLastmod();
   }
 
   /* ====================================================================

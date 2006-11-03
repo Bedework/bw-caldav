@@ -77,6 +77,7 @@ import net.fortuna.ical4j.model.component.VFreeBusy;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 
 import org.w3c.dom.Element;
 
@@ -91,8 +92,8 @@ public class CaldavCalNode extends CaldavBwNode {
 
   private CurrentAccess currentAccess;
 
-  private final static Collection<PropertyTagEntry> propertyNames =
-    new ArrayList<PropertyTagEntry>();
+  private final static HashMap<QName, PropertyTagEntry> propertyNames =
+    new HashMap<QName, PropertyTagEntry>();
 
   static {
     addPropEntry(propertyNames, CaldavTags.calendarDescription, false);
@@ -124,49 +125,33 @@ public class CaldavCalNode extends CaldavBwNode {
   public CaldavCalNode(CaldavURI cdURI, SysIntf sysi, boolean debug) {
     super(cdURI, sysi, debug);
 
-    this.name = cdURI.getCalName();
     collection = true;
     allowsGet = false;
 
     if (!uri.endsWith("/")) {
       uri += "/";
     }
-
-    contentLang = "en";
-    contentLen = 0;
   }
 
   public void init(boolean content) throws WebdavIntfException {
-    name = cdURI.getCalName();
     if (!content) {
       return;
     }
-
-    BwCalendar cal = getCDURI().getCal();
-    if (cal == null) {
-      return;
-    }
-
-    super.setLastmodDate(cal.getLastmod());
   }
 
-  public String getEtagValue() throws WebdavIntfException {
+  public String getEtagValue(boolean strong) throws WebdavIntfException {
     BwCalendar cal = getCDURI().getCal();
     if (cal == null) {
       return null;
     }
 
-    return cal.getLastmod() + "-" + cal.getSeq();
-  }
+    String val = cal.getLastmod() + "-" + cal.getSeq();
 
-  public void setLastmodDate(String val) throws WebdavIntfException {
-    init(true);
-    super.setLastmodDate(val);
-  }
+    if (strong) {
+      return "\"" + val + "\"";
+    }
 
-  public String getLastmodDate() throws WebdavIntfException {
-    init(true);
-    return super.getLastmodDate();
+    return "W/\"" + val + "\"";
   }
 
   public boolean removeProperty(Element val) throws WebdavIntfException {
@@ -244,10 +229,8 @@ public class CaldavCalNode extends CaldavBwNode {
         ical = IcalTranslator.newIcal(Icalendar.methodTypeNone);
         ical.getComponents().add(vfreeBusy);
         vfreeBusyString = ical.toString();
-        contentLen = vfreeBusyString.length();
       } else {
         vfreeBusyString = null;
-        contentLen = 0;
       }
       allowsGet = true;
     } catch (Throwable t) {
@@ -266,6 +249,70 @@ public class CaldavCalNode extends CaldavBwNode {
     }
 
     return vfreeBusyString;
+  }
+
+  /* ====================================================================
+   *                   Required webdav properties
+   * ==================================================================== */
+
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getContentLang()
+   */
+  public String getContentLang() throws WebdavIntfException {
+    return "en";
+  }
+
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getContentLen()
+   */
+  public int getContentLen() throws WebdavIntfException {
+    if (vfreeBusyString != null) {
+      return vfreeBusyString.length();
+    }
+
+    return 0;
+  }
+
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getContentType()
+   */
+  public String getContentType() throws WebdavIntfException {
+    if (vfreeBusyString != null) {
+      return "text/calendar";
+    }
+
+    return null;
+  }
+
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getCreDate()
+   */
+  public String getCreDate() throws WebdavIntfException {
+    return null;
+  }
+
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getDisplayname()
+   */
+  public String getDisplayname() throws WebdavIntfException {
+    if (cdURI == null) {
+      return null;
+    }
+
+    return cdURI.getCalName();
+  }
+
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getLastmodDate()
+   */
+  public String getLastmodDate() throws WebdavIntfException {
+    init(false);
+    BwCalendar cal = getCDURI().getCal();
+    if (cal == null) {
+      return null;
+    }
+
+    return cal.getLastmod();
   }
 
   /* ====================================================================
@@ -394,7 +441,7 @@ public class CaldavCalNode extends CaldavBwNode {
     Collection<PropertyTagEntry> res = new ArrayList<PropertyTagEntry>();
 
     res.addAll(super.getPropertyNames());
-    res.addAll(propertyNames);
+    res.addAll(propertyNames.values());
 
     return res;
   }

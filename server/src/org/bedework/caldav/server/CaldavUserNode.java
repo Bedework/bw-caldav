@@ -66,6 +66,7 @@ import org.w3c.dom.Element;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 
 /** Class to represent a user in caldav.
  *
@@ -75,8 +76,8 @@ import java.util.Collection;
 public class CaldavUserNode extends CaldavBwNode {
   private SysIntf.CalUserInfo ui;
 
-  private final static Collection<PropertyTagEntry> propertyNames =
-    new ArrayList<PropertyTagEntry>();
+  private final static HashMap<QName, PropertyTagEntry> propertyNames =
+    new HashMap<QName, PropertyTagEntry>();
 
   static {
     addPropEntry(propertyNames, CaldavTags.calendarHomeSet, false);
@@ -96,10 +97,9 @@ public class CaldavUserNode extends CaldavBwNode {
                         SysIntf.CalUserInfo ui, boolean debug) throws WebdavIntfException {
     super(cdURI, sysi, debug);
     this.ui = ui;
-    name = cdURI.getEntityName();
 
     if (ui == null) {
-      this.ui = sysi.getCalUserInfo(name);
+      this.ui = sysi.getCalUserInfo(cdURI.getEntityName());
     }
     userPrincipal = true;
   }
@@ -126,8 +126,64 @@ public class CaldavUserNode extends CaldavBwNode {
     return null;
   }
 
-  public String getEtagValue() throws WebdavIntfException {
-    return "1234567890";
+  public String getEtagValue(boolean strong) throws WebdavIntfException {
+    String val = "1234567890";
+
+    if (strong) {
+      return "\"" + val + "\"";
+    }
+
+    return "W/\"" + val + "\"";
+  }
+
+  /* ====================================================================
+   *                   Required webdav properties
+   * ==================================================================== */
+
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getContentLang()
+   */
+  public String getContentLang() throws WebdavIntfException {
+    return null;
+  }
+
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getContentLen()
+   */
+  public int getContentLen() throws WebdavIntfException {
+    return 0;
+  }
+
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getContentType()
+   */
+  public String getContentType() throws WebdavIntfException {
+    return null;
+  }
+
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getCreDate()
+   */
+  public String getCreDate() throws WebdavIntfException {
+    return null;
+  }
+
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getDisplayname()
+   */
+  public String getDisplayname() throws WebdavIntfException {
+    if (cdURI == null) {
+      return null;
+    }
+
+    return cdURI.getEntityName();
+  }
+
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getLastmodDate()
+   */
+  public String getLastmodDate() throws WebdavIntfException {
+    return null;
   }
 
   /* ====================================================================
@@ -190,7 +246,7 @@ public class CaldavUserNode extends CaldavBwNode {
     Collection<PropertyTagEntry> res = new ArrayList<PropertyTagEntry>();
 
     res.addAll(super.getPropertyNames());
-    res.addAll(propertyNames);
+    res.addAll(propertyNames.values());
 
     return res;
   }

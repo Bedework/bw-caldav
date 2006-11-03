@@ -75,7 +75,6 @@ public class CaldavGroupNode extends CaldavBwNode {
   public CaldavGroupNode(CaldavURI cdURI, SysIntf sysi, boolean debug) {
     super(cdURI, sysi, debug);
     groupPrincipal = true;
-    name = cdURI.getEntityName();
   }
 
   public boolean removeProperty(Element val) throws WebdavIntfException {
@@ -100,8 +99,64 @@ public class CaldavGroupNode extends CaldavBwNode {
     return null;
   }
 
-  public String getEtagValue() throws WebdavIntfException {
-    return "1234567890";
+  public String getEtagValue(boolean strong) throws WebdavIntfException {
+    String val = "1234567890";
+
+    if (strong) {
+      return "\"" + val + "\"";
+    }
+
+    return "W/\"" + val + "\"";
+  }
+
+  /* ====================================================================
+   *                   Required webdav properties
+   * ==================================================================== */
+
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getContentLang()
+   */
+  public String getContentLang() throws WebdavIntfException {
+    return null;
+  }
+
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getContentLen()
+   */
+  public int getContentLen() throws WebdavIntfException {
+    return 0;
+  }
+
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getContentType()
+   */
+  public String getContentType() throws WebdavIntfException {
+    return null;
+  }
+
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getCreDate()
+   */
+  public String getCreDate() throws WebdavIntfException {
+    return null;
+  }
+
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getDisplayname()
+   */
+  public String getDisplayname() throws WebdavIntfException {
+    if (cdURI == null) {
+      return null;
+    }
+
+    return cdURI.getEntityName();
+  }
+
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getLastmodDate()
+   */
+  public String getLastmodDate() throws WebdavIntfException {
+    return null;
   }
 
   /* ====================================================================

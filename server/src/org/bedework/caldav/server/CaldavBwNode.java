@@ -70,11 +70,9 @@ import org.bedework.davdefs.WebdavTags;
 
 /** Class to represent a caldav node.
  *
- *   @author Mike Douglass   douglm@rpi.edu
+ *   @author Mike Douglass   douglm - rpi.edu
  */
 public abstract class CaldavBwNode extends WebdavNsNode {
-  protected String owner;
-
   protected CaldavURI cdURI;
 
   /* for accessing calendars */
@@ -87,8 +85,7 @@ public abstract class CaldavBwNode extends WebdavNsNode {
     this.sysi = sysi;
 
     if (cdURI != null) {
-      this.uri = cdURI.getUri();
-      this.owner = cdURI.getOwner();
+      uri = cdURI.getUri();
     }
   }
 
@@ -187,25 +184,26 @@ public abstract class CaldavBwNode extends WebdavNsNode {
     return null;
   }
 
-  /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#setOwner()
-   */
-  public void setOwner(String val) throws WebdavIntfException {
-    throw WebdavIntfException.forbidden();
-  }
-
-  /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getOwner()
-   */
-  public String getOwner() throws WebdavIntfException {
-    return owner;
-  }
-
   /**
    * @return CalSvcI
    */
   public SysIntf getSysi() {
     return sysi;
+  }
+
+  /* ====================================================================
+   *                   Required webdav properties
+   * ==================================================================== */
+
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getOwner()
+   */
+  public String getOwner() throws WebdavIntfException {
+    if (cdURI != null) {
+      return cdURI.getOwner();
+    }
+
+    return null;
   }
 
   /* ====================================================================
