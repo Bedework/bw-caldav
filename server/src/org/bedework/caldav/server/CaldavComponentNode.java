@@ -471,9 +471,12 @@ public boolean generatePropertyValue(QName tag,
       }
 
       if (tag.equals(ICalTags.requestStatus)) {
+        // PROPTODO
+        /*
         if (ev.getRequestStatus() != null) {
           xml.property(tag, ev.getRequestStatus().strVal());
         }
+        */
         return true;
       }
 
