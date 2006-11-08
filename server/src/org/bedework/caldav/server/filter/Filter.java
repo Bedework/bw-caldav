@@ -251,7 +251,9 @@ public class Filter {
       return new ArrayList<EventInfo>();
     }
 
-    /* Currently we only handle events */
+    boolean getEvents = false;
+    boolean getTodos = false;
+    boolean getJournals = false;
 
     TimeRange calTimerange = null;
 
@@ -261,7 +263,10 @@ public class Filter {
 
     if (cfltr.matchAll()) {
       // return everything
-        eventq = new EventQuery();
+      getEvents = true;
+      getTodos = true;
+      getJournals = true;
+      eventq = new EventQuery();
     } else {
       if (cfltr.hasPropFilters()) {
         // This is almost certainly wrong. Just filter later?
@@ -290,28 +295,30 @@ public class Filter {
         CompFilter subcf = subcfs.iterator().next();
 
         if ("VEVENT".equals(subcf.getName())) {
-          eventq = buildEventQuery(subcfs, calTimerange);
-
-          if (subcf.hasCompFilters()) {
-            postFilterNeeded = true;
-          }
-
-          if (subcf.hasPropFilters()) {
-            postFilterNeeded = true;
-            if (eventFilters == null) {
-              eventFilters = new ArrayList<PropFilter>();
-            }
-            eventFilters.addAll(subcf.getPropFilters());
-          }
-
-          if (eventq == null) {
-            return new ArrayList<EventInfo>();
-          }
+          getEvents = true;
+        } else if ("VTODO".equals(subcf.getName())) {
+          getTodos = true;
+        } else if ("VJOURNAL".equals(subcf.getName())) {
+          getJournals = true;
         } else {
           /* Don't support anything else so just return an empty
              Collection
            */
           return new ArrayList<EventInfo>();
+        }
+
+        eventq = buildEventQuery(subcfs, calTimerange);
+
+        if (subcf.hasCompFilters()) {
+          postFilterNeeded = true;
+        }
+
+        if (subcf.hasPropFilters()) {
+          postFilterNeeded = true;
+          if (eventFilters == null) {
+            eventFilters = new ArrayList<PropFilter>();
+          }
+          eventFilters.addAll(subcf.getPropFilters());
         }
       }
     }
@@ -338,6 +345,7 @@ public class Filter {
           debugMsg("SEARCH: Filter get all events");
         }
         events = wdnode.getSysi().getEvents(wdnode.getCDURI().getCal(),
+                                            getEvents, getTodos, getJournals,
                                             null, null, retrieveRecur);
       } else {
         // fetch within time range
@@ -345,6 +353,7 @@ public class Filter {
           debugMsg("SEARCH: Filter get events in time range");
         }
         events = wdnode.getSysi().getEvents(wdnode.getCDURI().getCal(),
+                                            getEvents, getTodos, getJournals,
                                             eventq.trange.getStart(),
                                             eventq.trange.getEnd(),
                                             retrieveRecur);

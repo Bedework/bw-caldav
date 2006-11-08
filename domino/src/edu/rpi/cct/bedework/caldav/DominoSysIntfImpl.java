@@ -269,6 +269,9 @@ public class DominoSysIntfImpl implements SysIntf {
   }
 
   public Collection<EventInfo> getEvents(BwCalendar cal,
+                                         boolean getEvents,
+                                         boolean getTodos,
+                                         boolean getJournals,
                                          BwDateTime startDate, BwDateTime endDate,
                                          RecurringRetrievalMode recurRetrieval)
           throws WebdavIntfException {

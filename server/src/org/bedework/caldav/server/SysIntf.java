@@ -84,6 +84,10 @@ import javax.servlet.http.HttpServletRequest;
 /** All interactions with the underlying calendar system are made via this
  * interface.
  *
+ * <p>We're using the bedework object classes here. To simplify matters (a little)
+ * we don't have distinct event, todo and journal classes. They are all currently
+ * the BwEvent class with an entityType defining what the object represents.
+ *
  * @author Mike Douglass douglm at rpi.edu
  */
 public interface SysIntf {
@@ -254,7 +258,7 @@ public interface SysIntf {
    *                   Events
    * ==================================================================== */
 
-  /** Add an event.
+  /** Add an event/todo/journal.
    *
    * @param cal          BwCalendar defining recipient calendar
    * @param event        BwEvent object to be added
@@ -269,7 +273,7 @@ public interface SysIntf {
                                           Collection<BwEventProxy> overrides,
                                           boolean rollbackOnError) throws WebdavIntfException;
 
-  /** Update an event.
+  /** Update an event/todo/journal.
    *
    * @param event         updated BwEvent object
    * @param overrides     overrides which may need changing
@@ -283,7 +287,12 @@ public interface SysIntf {
   /** Return the events for the current user in the given calendar within the
    * given date and time range.
    *
+   * <p>We flag the desired entity types.
+   *
    * @param cal
+   * @param getEvents
+   * @param getTodos
+   * @param getJournals
    * @param startDate    BwDateTime start - may be null
    * @param endDate      BwDateTime end - may be null.
    * @param recurRetrieval How recurring event is returned.
@@ -291,6 +300,9 @@ public interface SysIntf {
    * @throws WebdavIntfException
    */
   public Collection<EventInfo> getEvents(BwCalendar cal,
+                                         boolean getEvents,
+                                         boolean getTodos,
+                                         boolean getJournals,
                                          BwDateTime startDate, BwDateTime endDate,
                                          RecurringRetrievalMode recurRetrieval)
           throws WebdavIntfException;

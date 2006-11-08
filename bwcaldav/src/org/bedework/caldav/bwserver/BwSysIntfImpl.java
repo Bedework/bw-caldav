@@ -67,6 +67,9 @@ import org.bedework.calfacade.CalFacadeException;
 import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.ScheduleResult;
 import org.bedework.calfacade.base.BwShareableDbentity;
+import org.bedework.calfacade.filter.BwEntityTypeFilter;
+import org.bedework.calfacade.filter.BwFilter;
+import org.bedework.calfacade.filter.BwOrFilter;
 import org.bedework.calfacade.svc.BwSubscription;
 import org.bedework.calfacade.svc.EventInfo;
 import org.bedework.calfacade.timezones.CalTimezones;
@@ -342,6 +345,9 @@ public class BwSysIntfImpl implements SysIntf {
   }
 
   public Collection<EventInfo> getEvents(BwCalendar cal,
+                                         boolean getEvents,
+                                         boolean getTodos,
+                                         boolean getJournals,
                                          BwDateTime startDate, BwDateTime endDate,
                                          RecurringRetrievalMode recurRetrieval)
           throws WebdavIntfException {
@@ -351,11 +357,16 @@ public class BwSysIntfImpl implements SysIntf {
       if ((startDate == null) && (endDate == null)) {
         return getSvci().getEvents(sub, recurRetrieval);
       }
-      return getSvci().getEvents(sub, null, startDate, endDate, recurRetrieval);
+
+      BwFilter filter = makeFilter(getEvents, getTodos, getJournals);
+      return getSvci().getEvents(sub, filter, startDate, endDate,
+                                 recurRetrieval);
     } catch (CalFacadeAccessException cfae) {
       throw WebdavIntfException.forbidden();
     } catch (CalFacadeException cfe) {
       throw new WebdavIntfException(cfe);
+    } catch (WebdavIntfException wdie) {
+      throw wdie;
     } catch (Throwable t) {
       throw new WebdavIntfException(t);
     }
@@ -560,6 +571,67 @@ public class BwSysIntfImpl implements SysIntf {
   /* ====================================================================
    *                         Private methods
    * ==================================================================== */
+
+  private BwFilter makeFilter(boolean getEvents,
+                              boolean getTodos,
+                              boolean getJournals) throws WebdavIntfException {
+    int numTypes = 0;
+
+    if (getEvents) {
+      numTypes++;
+    }
+
+    if (getTodos) {
+      numTypes++;
+    }
+
+    if (getJournals) {
+      numTypes++;
+    }
+
+    if (numTypes == 0) {
+      throw new WebdavIntfException("org.bedework.caldav.badquery");
+    }
+
+    if (numTypes == 3) {
+      // No filter
+      return null;
+    }
+
+    BwFilter filter = null;
+    BwOrFilter orFilter = null;
+
+    if (numTypes > 1) {
+      orFilter = new BwOrFilter();
+    }
+
+    if (getEvents) {
+      filter = BwEntityTypeFilter.eventFilter(null);
+      if (numTypes > 1) {
+        orFilter.addChild(filter);
+      }
+    }
+
+    if (getTodos) {
+      filter = BwEntityTypeFilter.todoFilter(null);
+      if (numTypes > 1) {
+        orFilter.addChild(filter);
+      }
+    }
+
+    if (getJournals) {
+      filter = BwEntityTypeFilter.journalFilter(null);
+      if (numTypes > 1) {
+        orFilter.addChild(filter);
+      }
+    }
+
+    if (numTypes > 1) {
+      return orFilter;
+    }
+
+    return filter;
+  }
 
   /**
    * @return CalSvcI

@@ -209,10 +209,9 @@ public class CaldavCalNode extends CaldavBwNode {
         debugMsg("Get all resources in calendar " + cal.getPath());
       }
 
-      // DORECUR - need to group master + overrides
       RecurringRetrievalMode rrm = new RecurringRetrievalMode(
                            RecurringRetrievalMode.overrides);
-      return getSysi().getEvents(cal, null, null, rrm);
+      return getSysi().getEvents(cal, true, true, true, null, null, rrm);
     } catch (Throwable t) {
       throw new WebdavIntfException(t);
     }
