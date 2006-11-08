@@ -581,8 +581,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
           BwEvent ev = evinfo.getEvent();
 
           if (guid == null) {
-            guid = ev.getGuid();
-          } else if (!guid.equals(ev.getGuid())) {
+            guid = ev.getUid();
+          } else if (!guid.equals(ev.getUid())) {
             fail = true;
             break;
           }
@@ -1136,7 +1136,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
         /* If no name was assigned use the guid */
         String evName = ev.getName();
         if (evName == null) {
-          evName = ev.getGuid() + ".ics";
+          evName = ev.getUid() + ".ics";
         }
 
         String evuri = uri + "/" + evName;

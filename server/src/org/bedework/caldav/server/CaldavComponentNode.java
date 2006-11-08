@@ -512,7 +512,7 @@ public boolean generatePropertyValue(QName tag,
       }
 
       if (tag.equals(ICalTags.uid)) {
-        xml.property(tag, ev.getGuid());
+        xml.property(tag, ev.getUid());
         return true;
       }
 
