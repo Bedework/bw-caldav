@@ -91,18 +91,6 @@ import javax.servlet.http.HttpServletRequest;
  * @author Mike Douglass douglm at rpi.edu
  */
 public interface SysIntf {
-  /** Prefix which defines a principal URIs
-   */
-  public static final String principalPrefix = "/principals";
-
-  /** Prefix which defines a user principal URI
-   */
-  public static final String userPrincipalPrefix = principalPrefix + "/users";
-
-  /** Prefix which defines a group principal URI
-   */
-  public static final String groupPrincipalPrefix = principalPrefix + "/groups";
-
   /** Called before any other method is called to allow initialisation to
    * take place at the first or subsequent requests
    *
@@ -121,6 +109,41 @@ public interface SysIntf {
    * @return String url prefix derived from request.
    */
   public String getUrlPrefix();
+
+  /** get the principal root e.g. "/principals"
+   *
+   * @return String
+   * @throws WebdavIntfException  for errors
+   */
+  public String getPrincipalRoot() throws WebdavIntfException;
+
+  /** get the principal root e.g. "/principals/users"
+   *
+   * @return String
+   * @throws WebdavIntfException  for errors
+   */
+  public String getUserPrincipalRoot() throws WebdavIntfException;
+
+  /** get the group principal root e.g. "/principals/groups"
+   *
+   * @return String
+   * @throws WebdavIntfException  for errors
+   */
+  public String getGroupPrincipalRoot() throws WebdavIntfException;
+
+  /**
+   * @param id
+   * @return String href
+   * @throws WebdavIntfException
+   */
+  public String makeUserHref(String id) throws WebdavIntfException;
+
+  /**
+   * @param id
+   * @return String href
+   * @throws WebdavIntfException
+   */
+  public String makeGroupHref(String id) throws WebdavIntfException;
 
   /** Do we allow browsing of directories?
    *

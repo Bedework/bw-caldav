@@ -56,6 +56,7 @@ package org.bedework.caldav.server;
 import org.bedework.davdefs.CaldavTags;
 import org.bedework.davdefs.WebdavTags;
 
+import edu.rpi.cmt.access.AccessException;
 import edu.rpi.cmt.access.AccessXmlUtil;
 import edu.rpi.sss.util.xml.QName;
 import edu.rpi.sss.util.xml.XmlEmit;
@@ -90,14 +91,41 @@ public class EmitAccess extends AccessXmlUtil {
     null                         // privNone = 16;
   };
 
+  /**
+   */
+  public static class OurHrefBuilder extends HrefBuilder {
+    private SysIntf sysi;
+
+    OurHrefBuilder(SysIntf sysi) {
+      this.sysi = sysi;
+    }
+
+    public String makeUserHref(String id) throws AccessException {
+      try {
+        return sysi.makeUserHref(id);
+      } catch (Throwable t) {
+        throw new AccessException(t);
+      }
+    }
+
+    public String makeGroupHref(String id) throws AccessException {
+      try {
+        return sysi.makeGroupHref(id);
+      } catch (Throwable t) {
+        throw new AccessException(t);
+      }
+    }
+  }
+
   /** Acls use tags in the webdav and caldav namespace. For use over caldav
    * we should supply the uris. Otherwise a null namespace will be used.
    *
    * @param namespacePrefix String prefix
    * @param xml   XmlEmit
+   * @param sysi
    */
-  public EmitAccess(String namespacePrefix, XmlEmit xml) {
-    super(privTags, new WebdavTags(), xml);
+  public EmitAccess(String namespacePrefix, XmlEmit xml, SysIntf sysi) {
+    super(privTags, new WebdavTags(), xml, new OurHrefBuilder(sysi));
 
     this.namespacePrefix = namespacePrefix;
   }

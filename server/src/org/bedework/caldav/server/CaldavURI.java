@@ -75,6 +75,7 @@ public class CaldavURI {
   EventInfo entity;
 
   String entityName;
+  String path;  // for principals
 
   boolean userUri; // entityname is user
 
@@ -84,7 +85,7 @@ public class CaldavURI {
     init(cal, entity, entityName);
   }
 
-  CaldavURI(String entityName, boolean isUser) {
+  CaldavURI(String entityName, String path, boolean isUser) {
     cal = null;
     this.entityName = entityName;
     if (isUser) {
@@ -143,11 +144,11 @@ public class CaldavURI {
    */
   public String getPath() {
     if (userUri) {
-      return SysIntf.userPrincipalPrefix;
+      return path;
     }
 
     if (groupUri) {
-      return SysIntf.groupPrincipalPrefix;
+      return path;
     }
 
     return cal.getPath();

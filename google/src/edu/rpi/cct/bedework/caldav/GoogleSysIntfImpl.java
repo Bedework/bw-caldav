@@ -134,6 +134,41 @@ public class GoogleSysIntfImpl implements SysIntf {
     return urlPrefix;
   }
 
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#getPrincipalRoot()
+   */
+  public String getPrincipalRoot() {
+    return "/principals";
+  }
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#getUserPrincipalRoot()
+   */
+  public String getUserPrincipalRoot() {
+    return "/principals/users";
+  }
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#getGroupPrincipalRoot()
+   */
+  public String getGroupPrincipalRoot() {
+    return "/principals/groups";
+  }
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#makeUserHref(java.lang.String)
+   */
+  public String makeUserHref(String id) throws WebdavIntfException {
+    return getUrlPrefix() + "/" + getUserPrincipalRoot() + "/" + id;
+  }
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#makeGroupHref(java.lang.String)
+   */
+  public String makeGroupHref(String id) throws WebdavIntfException {
+    return getUrlPrefix() + "/" + getGroupPrincipalRoot() + "/" + id;
+  }
+
   public boolean getDirectoryBrowsingDisallowed() throws WebdavIntfException {
     return false;
   }

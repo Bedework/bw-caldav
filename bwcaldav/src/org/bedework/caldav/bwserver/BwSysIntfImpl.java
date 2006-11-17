@@ -164,6 +164,53 @@ public class BwSysIntfImpl implements SysIntf {
     return urlPrefix;
   }
 
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#getPrincipalRoot()
+   */
+  public String getPrincipalRoot() throws WebdavIntfException {
+    try {
+      return getSvci().getSyspars().getPrincipalRoot();
+    } catch (Throwable t) {
+      throw new WebdavIntfException(t);
+    }
+  }
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#getUserPrincipalRoot()
+   */
+  public String getUserPrincipalRoot() throws WebdavIntfException {
+    try {
+      return getSvci().getSyspars().getUserPrincipalRoot();
+    } catch (Throwable t) {
+      throw new WebdavIntfException(t);
+    }
+  }
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#getGroupPrincipalRoot()
+   */
+  public String getGroupPrincipalRoot() throws WebdavIntfException {
+    try {
+      return getSvci().getSyspars().getGroupPrincipalRoot();
+    } catch (Throwable t) {
+      throw new WebdavIntfException(t);
+    }
+  }
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#makeUserHref(java.lang.String)
+   */
+  public String makeUserHref(String id) throws WebdavIntfException {
+    return getUrlPrefix() + "/" + getUserPrincipalRoot() + "/" + id;
+  }
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#makeGroupHref(java.lang.String)
+   */
+  public String makeGroupHref(String id) throws WebdavIntfException {
+    return getUrlPrefix() + "/" + getGroupPrincipalRoot() + "/" + id;
+  }
+
   public boolean getDirectoryBrowsingDisallowed() throws WebdavIntfException {
     try {
       return getSvci().getSyspars().getDirectoryBrowsingDisallowed();
