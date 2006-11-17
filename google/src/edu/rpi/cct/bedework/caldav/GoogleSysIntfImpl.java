@@ -406,6 +406,7 @@ public class GoogleSysIntfImpl implements SysIntf {
     BwCalendar cal = new BwCalendar();
     cal.setName(namePart);
     cal.setPath(path);
+    cal.setDtstamps();
 
     String owner;
 
