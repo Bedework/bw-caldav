@@ -96,15 +96,15 @@ public class CaldavCalNode extends CaldavBwNode {
     new HashMap<QName, PropertyTagEntry>();
 
   static {
-    addPropEntry(propertyNames, CaldavTags.calendarDescription, false);
-    addPropEntry(propertyNames, CaldavTags.calendarTimezone, false);
+    addPropEntry(propertyNames, CaldavTags.calendarDescription);
+    addPropEntry(propertyNames, CaldavTags.calendarTimezone);
     addPropEntry(propertyNames, CaldavTags.maxAttendeesPerInstance);
     addPropEntry(propertyNames, CaldavTags.maxDateTime);
     addPropEntry(propertyNames, CaldavTags.maxInstances);
     addPropEntry(propertyNames, CaldavTags.maxResourceSize);
     addPropEntry(propertyNames, CaldavTags.minDateTime);
-    addPropEntry(propertyNames, CaldavTags.supportedCalendarComponentSet, false);
-    addPropEntry(propertyNames, CaldavTags.supportedCalendarData, false);
+    addPropEntry(propertyNames, CaldavTags.supportedCalendarComponentSet);
+    addPropEntry(propertyNames, CaldavTags.supportedCalendarData);
   }
 
   /** Place holder for status

@@ -80,7 +80,7 @@ public class CaldavUserNode extends CaldavBwNode {
     new HashMap<QName, PropertyTagEntry>();
 
   static {
-    addPropEntry(propertyNames, CaldavTags.calendarHomeSet, false);
+    addPropEntry(propertyNames, CaldavTags.calendarHomeSet);
     addPropEntry(propertyNames, CaldavTags.calendarHomeURL);
     addPropEntry(propertyNames, CaldavTags.scheduleInboxURL);
     addPropEntry(propertyNames, CaldavTags.scheduleOutboxURL);

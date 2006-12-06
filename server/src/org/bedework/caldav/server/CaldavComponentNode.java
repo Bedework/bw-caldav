@@ -105,9 +105,9 @@ public class CaldavComponentNode extends CaldavBwNode {
 
   static {
     addPropEntry(propertyNames, CaldavTags.calendarData);
-    addPropEntry(propertyNames, CaldavTags.originator, false);
-    addPropEntry(propertyNames, CaldavTags.recipient, false);
-    addPropEntry(propertyNames, CaldavTags.scheduleState, false);
+    addPropEntry(propertyNames, CaldavTags.originator);
+    addPropEntry(propertyNames, CaldavTags.recipient);
+    addPropEntry(propertyNames, CaldavTags.scheduleState);
 
     //addPropEntry(propertyNames, ICalTags.action);      /*     *     *     *        *            *   VALARM */
     addPropEntry(propertyNames, ICalTags.attach);        /* VEVENT VTODO VJOURNAL    *            *   VALARM */
