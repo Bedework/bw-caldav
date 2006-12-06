@@ -433,9 +433,9 @@ public class CaldavCalNode extends CaldavBwNode {
     }
   }
 
-  /** Return a set of QName defining properties this node supports.
+  /** Return a set of PropertyTagEntry defining properties this node supports.
    *
-   * @return
+   * @return Collection of PropertyTagEntry
    * @throws WebdavIntfException
    */
   public Collection<PropertyTagEntry> getPropertyNames()throws WebdavIntfException {

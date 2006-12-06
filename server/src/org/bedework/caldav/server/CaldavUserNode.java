@@ -237,10 +237,8 @@ public class CaldavUserNode extends CaldavBwNode {
     }
   }
 
-  /** Return a set of QName defining properties this node supports.
-   *
-   * @return
-   * @throws WebdavIntfException
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getPropertyNames()
    */
   public Collection<PropertyTagEntry> getPropertyNames()throws WebdavIntfException {
     Collection<PropertyTagEntry> res = new ArrayList<PropertyTagEntry>();
