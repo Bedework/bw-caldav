@@ -61,6 +61,7 @@ import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.BwFreeBusy;
 import org.bedework.calfacade.RecurringRetrievalMode;
+import org.bedework.calfacade.RecurringRetrievalMode.Rmode;
 import org.bedework.calfacade.env.CalEnvFactory;
 import org.bedework.calfacade.env.CalEnvI;
 import org.bedework.calfacade.svc.EventInfo;
@@ -1415,7 +1416,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
                  split[1] + "\"");
       }
       RecurringRetrievalMode rrm =
-        new RecurringRetrievalMode(RecurringRetrievalMode.overrides);
+        new RecurringRetrievalMode(Rmode.overrides);
       ei = sysi.getEvent(cal, split[1], rrm);
 
       if ((existance == WebdavNsIntf.existanceMust) && (ei == null)) {

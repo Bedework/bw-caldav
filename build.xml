@@ -77,6 +77,23 @@
   </target>
 
   <!-- =================================================================
+       Clean out all library files from other projects and all generated
+       files in preparation for a complete rebuild.
+
+       Needed because switching versions leaves a load of old bedework
+       generated stuff in the libraries.
+       ================================================================= -->
+  <target name="deep-clean" depends="clean">
+    <delete>
+      <fileset dir="${lib.dir}">
+        <include name="rpiutil-*.jar" />
+        <include name="rpiaccess-*.jar" />
+        <include name="bw-*.jar" />
+      </fileset>
+    </delete>
+  </target>
+
+  <!-- =================================================================
        Clean all generated files
        ================================================================= -->
   <target name="clean">

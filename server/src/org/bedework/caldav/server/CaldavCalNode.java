@@ -57,6 +57,7 @@ package org.bedework.caldav.server;
 import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwFreeBusy;
 import org.bedework.calfacade.RecurringRetrievalMode;
+import org.bedework.calfacade.RecurringRetrievalMode.Rmode;
 import org.bedework.davdefs.CaldavDefs;
 import org.bedework.davdefs.CaldavTags;
 import org.bedework.davdefs.WebdavTags;
@@ -212,7 +213,7 @@ public class CaldavCalNode extends CaldavBwNode {
       }
 
       RecurringRetrievalMode rrm = new RecurringRetrievalMode(
-                           RecurringRetrievalMode.overrides);
+                           Rmode.overrides);
       return getSysi().getEvents(cal, true, true, true, null, null, rrm);
     } catch (Throwable t) {
       throw new WebdavIntfException(t);

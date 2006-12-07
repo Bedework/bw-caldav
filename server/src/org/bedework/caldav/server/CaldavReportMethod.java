@@ -60,6 +60,7 @@ import org.bedework.caldav.server.calquery.FreeBusyQuery;
 import org.bedework.caldav.server.calquery.LimitRecurrenceSet;
 import org.bedework.caldav.server.filter.Filter;
 import org.bedework.calfacade.RecurringRetrievalMode;
+import org.bedework.calfacade.RecurringRetrievalMode.Rmode;
 import org.bedework.davdefs.CaldavTags;
 import org.bedework.davdefs.WebdavTags;
 
@@ -399,21 +400,21 @@ public class CaldavReportMethod extends ReportMethod {
       RecurringRetrievalMode rrm;
 
       if (caldata == null) {
-        rrm = new RecurringRetrievalMode(RecurringRetrievalMode.overrides);
+        rrm = new RecurringRetrievalMode(Rmode.overrides);
       } else if (caldata.getErs() != null) {
         /* expand with time range */
         ExpandRecurrenceSet ers = caldata.getErs();
 
-        rrm = new RecurringRetrievalMode(RecurringRetrievalMode.expanded,
+        rrm = new RecurringRetrievalMode(Rmode.expanded,
                                          ers.getStart(), ers.getEnd());
       } else if (caldata.getLrs() != null) {
         /* Only return master event and overrides in range */
         LimitRecurrenceSet lrs = caldata.getLrs();
-        rrm = new RecurringRetrievalMode(RecurringRetrievalMode.overrides,
+        rrm = new RecurringRetrievalMode(Rmode.overrides,
                                          lrs.getStart(), lrs.getEnd());
       } else {
         /* Return master + overrides */
-        rrm = new RecurringRetrievalMode(RecurringRetrievalMode.overrides);
+        rrm = new RecurringRetrievalMode(Rmode.overrides);
       }
 
       return intf.query(node, rrm, filter);
