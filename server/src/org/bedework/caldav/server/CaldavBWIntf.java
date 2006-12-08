@@ -209,7 +209,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
   /** Return DAV header
    *
-   * @retrun  String
+   * @return  String
    */
   public String getDavHeader() {
     return "1, access-control, calendar-access";

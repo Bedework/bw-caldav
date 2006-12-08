@@ -6,6 +6,7 @@
 -->
 
 <project name="caldav" default="build-all">
+  <property environment="env"/>
   <!-- These may already be set from calling dir -->
   <dirname property="org.bedework.project.caldav" file="${ant.file}"/>
   <dirname property="project.home" file="${ant.file}"/>
@@ -143,15 +144,16 @@
 
   <target name="javadoc" depends="init"
           description="Create Javadoc API documentation">
+    <property name="destdir" location="${dist.home}/docs/api"/>
+    <mkdir dir="${destdir}"/>
 
-    <mkdir dir="${dist.home}/docs/api"/>
     <javadoc sourcepath="${org.bedework.caldav.boeingexchange.base}/src:
                          ${org.bedework.caldav.bwcaldav.base}/src:
                          ${org.bedework.caldav.domino.base}/src:
                          ${org.bedework.caldav.google.base}/src:
                          ${org.bedework.caldav.server.base}/src:"
            classpathref="compile.classpath"
-                destdir="${dist.home}/docs/api"
+                destdir="${destdir}"
            packagenames="org.bedework.*,
                          edu.rpi.*"
                  access="public"
@@ -161,6 +163,12 @@
             windowtitle="${project.name} ${project.version} API Documentation">
       <doctitle><![CDATA[${project.name} ${project.version}<br/>API Documentation]]></doctitle>
       <header><![CDATA[${project.name} ${project.version}<br/>API Documentation]]></header>
+      <link href="../../access/api" />
+      <link href="../../calendarapi/api" />
+      <link href="../../davutil/api" />
+      <link href="../../rpiutil/api" />
+      <link href="../../webdav/api" />
+      <link href="${env.JAVA_HOME}/docs/api" />
     </javadoc>
   </target>
 
