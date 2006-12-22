@@ -552,7 +552,6 @@ public class BwSysIntfImpl implements SysIntf {
   }
 
   public Calendar toCalendar(EventInfo ev) throws WebdavIntfException {
-    getSvci(); // Ensure open
     try {
       return trans.toIcal(ev, Icalendar.methodTypeNone);
     } catch (Throwable t) {

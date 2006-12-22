@@ -105,14 +105,24 @@ public class CalDavParseUtil {
 
       if (nmAttr != null) {
         attrCt--;
-        start = CalFacadeUtil.getDateTime(nmAttr.getNodeValue(), timezones);
+        start = CalFacadeUtil.getDateTime(nmAttr.getNodeValue(),
+                                          false,
+                                          true,
+                                          false,
+                                          null,
+                                          timezones);
       }
 
       nmAttr = nnm.getNamedItem("end");
 
       if (nmAttr != null) {
         attrCt--;
-        end = CalFacadeUtil.getDateTime(nmAttr.getNodeValue(), timezones);
+        end = CalFacadeUtil.getDateTime(nmAttr.getNodeValue(),
+                                        false,
+                                        true,
+                                        false,
+                                        null,
+                                        timezones);
       }
     } catch (Throwable t) {
       throw new WebdavBadRequest();
