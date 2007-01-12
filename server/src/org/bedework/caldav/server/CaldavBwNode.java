@@ -58,6 +58,7 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavIntfException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
 import edu.rpi.cct.webdav.servlet.shared.WebdavProperty;
+import edu.rpi.sss.util.xml.QName;
 import edu.rpi.sss.util.xml.XmlEmit;
 
 import java.io.StringReader;
@@ -101,6 +102,10 @@ public abstract class CaldavBwNode extends WebdavNsNode {
   }
 
   protected void generateHref(XmlEmit xml, String uri) throws WebdavException {
+    generateUrl(xml, WebdavTags.href, uri);
+  }
+
+  protected void generateUrl(XmlEmit xml, QName tag, String uri) throws WebdavException {
     try {
       String enc = new URI(null, null, uri, null).toString();
       enc = new URI(enc).toASCIIString();  // XXX ???????
@@ -112,7 +117,7 @@ public abstract class CaldavBwNode extends WebdavNsNode {
       }
 
       sb.append(enc);
-      xml.property(WebdavTags.href, sb.toString());
+      xml.property(tag, sb.toString());
     } catch (Throwable t) {
       throw new WebdavException(t);
     }

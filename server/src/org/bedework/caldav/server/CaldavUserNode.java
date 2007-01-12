@@ -215,18 +215,18 @@ public class CaldavUserNode extends CaldavBwNode {
       }
 
       if (tag.equals(CaldavTags.calendarHomeURL)) {
-        xml.property(tag, ui.userHomePath);
+        generateUrl(xml, tag, ui.userHomePath);
 
         return true;
       }
 
       if (tag.equals(CaldavTags.scheduleInboxURL)) {
-        xml.property(tag, ui.inboxPath);
+        generateUrl(xml, tag, ui.inboxPath);
         return true;
       }
 
       if (tag.equals(CaldavTags.scheduleOutboxURL)) {
-        xml.property(tag, ui.outboxPath);
+        generateUrl(xml, tag, ui.outboxPath);
         return true;
       }
 
