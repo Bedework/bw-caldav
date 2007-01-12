@@ -149,7 +149,7 @@ public class PostMethod extends MethodBase {
         if (debug) {
           debugMsg("Bad content type: " + req.getContentType());
         }
-        throw new WebdavBadRequest();
+        throw new WebdavBadRequest("Bad content type: " + req.getContentType());
       }
 
       /* (CALDAV:valid-calendar-data) -- later */
@@ -161,7 +161,7 @@ public class PostMethod extends MethodBase {
         if (debug) {
           debugMsg("No originator");
         }
-        throw new WebdavNotFound();
+        throw new WebdavNotFound("No originator");
       }
 
       /* (CALDAV:originator-allowed)
@@ -174,7 +174,7 @@ public class PostMethod extends MethodBase {
         if (debug) {
           debugMsg("No access for scheduling");
         }
-        throw new WebdavForbidden();
+        throw new WebdavForbidden("No access for scheduling");
       }
 
       /* (CALDAV:organizer-allowed) -- later */
@@ -187,7 +187,7 @@ public class PostMethod extends MethodBase {
         if (debug) {
           debugMsg("No recipient(s)");
         }
-        throw new WebdavNotFound();
+        throw new WebdavNotFound("No recipient(s)");
       } else {
         while (rs.hasMoreElements()) {
           recipients.add((String)rs.nextElement());
@@ -210,14 +210,14 @@ public class PostMethod extends MethodBase {
         if (debug) {
           debugMsg("Not icalendar");
         }
-        throw new WebdavBadRequest();
+        throw new WebdavBadRequest("Not icalendar");
       }
 
       if (!ic.validItipMethodType()) {
         if (debug) {
           debugMsg("Bad method: " + String.valueOf(ic.getMethodType()));
         }
-        throw new WebdavBadRequest();
+        throw new WebdavBadRequest("Bad method: " + String.valueOf(ic.getMethodType()));
       }
 
       /* Do the stuff we deferred above */
@@ -229,7 +229,7 @@ public class PostMethod extends MethodBase {
         if (debug) {
           debugMsg("Not event");
         }
-        throw new WebdavBadRequest();
+        throw new WebdavBadRequest("Not event");
       }
 
       BwEvent event = ic.getEvent();
@@ -274,5 +274,9 @@ public class PostMethod extends MethodBase {
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
+  }
+
+  private void HandleEvent() {
+
   }
 }

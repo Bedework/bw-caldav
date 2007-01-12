@@ -211,24 +211,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#getDavHeader(edu.rpi.cct.webdav.servlet.shared.WebdavNsNode)
    */
   public String getDavHeader(WebdavNsNode node) throws WebdavIntfException {
-    // XXX Fix this
-    /*(
-    boolean schedulingOK = false;
-
-    if (node instanceof CaldavUserNode) {
-      schedulingOK = true;
-    } else if (node instanceof CaldavCalNode) {
-      CaldavCalNode cn = (CaldavCalNode)node;
-
-      schedulingOK = cn.getSchedulingAllowed();
-    }
-
-    if (schedulingOK) {
-      return "1, access-control, calendar-access, calendar-schedule";
-    }
-
-    return "1, access-control, calendar-access";
-    */
     return "1, access-control, calendar-access, calendar-schedule";
   }
 

@@ -93,6 +93,7 @@ public class CaldavURI {
     } else {
       groupUri = true;
     }
+    this.path = path;
   }
 
   private void init(BwCalendar cal, EventInfo entity, String entityName) {
