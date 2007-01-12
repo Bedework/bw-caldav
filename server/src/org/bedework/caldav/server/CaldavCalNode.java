@@ -191,6 +191,28 @@ public class CaldavCalNode extends CaldavBwNode {
     }
   }
 
+  /**
+   * @return true if scheduling allowed
+   * @throws WebdavIntfException
+   */
+  public boolean getSchedulingAllowed() throws WebdavIntfException {
+    BwCalendar cal = getCDURI().getCal();
+    if (cal == null) {
+      return false;
+    }
+
+    int type = cal.getCalType();
+    if (type == BwCalendar.calTypeInbox) {
+      return true;
+    }
+
+    if (type == BwCalendar.calTypeOutbox) {
+      return true;
+    }
+
+    return false;
+  }
+
   public Collection getChildren() throws WebdavIntfException {
     /* For the moment we're going to do this the inefficient way.
        We really need to have calendar defs that can be expressed as a search

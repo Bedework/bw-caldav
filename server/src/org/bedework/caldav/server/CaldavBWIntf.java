@@ -207,12 +207,29 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
   }
 
-  /** Return DAV header
-   *
-   * @return  String
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#getDavHeader(edu.rpi.cct.webdav.servlet.shared.WebdavNsNode)
    */
-  public String getDavHeader() {
+  public String getDavHeader(WebdavNsNode node) throws WebdavIntfException {
+    // XXX Fix this
+    /*(
+    boolean schedulingOK = false;
+
+    if (node instanceof CaldavUserNode) {
+      schedulingOK = true;
+    } else if (node instanceof CaldavCalNode) {
+      CaldavCalNode cn = (CaldavCalNode)node;
+
+      schedulingOK = cn.getSchedulingAllowed();
+    }
+
+    if (schedulingOK) {
+      return "1, access-control, calendar-access, calendar-schedule";
+    }
+
     return "1, access-control, calendar-access";
+    */
+    return "1, access-control, calendar-access, calendar-schedule";
   }
 
   public boolean getDirectoryBrowsingDisallowed() throws WebdavIntfException {
@@ -1267,13 +1284,13 @@ public class CaldavBWIntf extends WebdavNsIntf {
    * @param cal        Supplied BwCalendar object if we already have it.
    * @param ei
    * @return CaldavURI object representing the uri
-   * @throws WebdavIntfException
+   * @throws WebdavException
    */
   private CaldavURI findURI(String uri,
                             int existance,
                             int nodeType, boolean decoded,
                             BwCalendar cal,
-                            EventInfo ei) throws WebdavIntfException {
+                            EventInfo ei) throws WebdavException {
     try {
       if ((nodeType == WebdavNsIntf.nodeTypeUnknown) &&
           (existance != WebdavNsIntf.existanceMust)) {
@@ -1427,8 +1444,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
       putUriPath(curi);
 
       return curi;
-    } catch (WebdavIntfException wi) {
-      throw wi;
+    } catch (WebdavException wde) {
+      throw wde;
     } catch (Throwable t) {
       throw new WebdavIntfException(t);
     }
