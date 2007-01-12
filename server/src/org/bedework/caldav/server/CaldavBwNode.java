@@ -103,9 +103,16 @@ public abstract class CaldavBwNode extends WebdavNsNode {
   protected void generateHref(XmlEmit xml, String uri) throws WebdavException {
     try {
       String enc = new URI(null, null, uri, null).toString();
+      enc = new URI(enc).toASCIIString();  // XXX ???????
 
-      String url = sysi.getUrlPrefix() + "/" + new URI(enc).toASCIIString();
-      xml.property(WebdavTags.href, url);
+      StringBuffer sb = new StringBuffer(sysi.getUrlPrefix());
+
+      if (!enc.startsWith("/")) {
+        sb.append("/");
+      }
+
+      sb.append(enc);
+      xml.property(WebdavTags.href, sb.toString());
     } catch (Throwable t) {
       throw new WebdavException(t);
     }

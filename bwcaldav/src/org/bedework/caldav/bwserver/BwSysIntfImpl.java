@@ -201,14 +201,36 @@ public class BwSysIntfImpl implements SysIntf {
    * @see org.bedework.caldav.server.SysIntf#makeUserHref(java.lang.String)
    */
   public String makeUserHref(String id) throws WebdavIntfException {
-    return getUrlPrefix() + "/" + getUserPrincipalRoot() + "/" + id;
+    StringBuffer sb = new StringBuffer(getUrlPrefix());
+
+    String root = getUserPrincipalRoot();
+    if (!root.startsWith("/")) {
+      sb.append("/");
+    }
+
+    sb.append(root);
+    sb.append("/");
+    sb.append(id);
+
+    return sb.toString();
   }
 
   /* (non-Javadoc)
    * @see org.bedework.caldav.server.SysIntf#makeGroupHref(java.lang.String)
    */
   public String makeGroupHref(String id) throws WebdavIntfException {
-    return getUrlPrefix() + "/" + getGroupPrincipalRoot() + "/" + id;
+    StringBuffer sb = new StringBuffer(getUrlPrefix());
+
+    String root = getGroupPrincipalRoot();
+    if (!root.startsWith("/")) {
+      sb.append("/");
+    }
+
+    sb.append(root);
+    sb.append("/");
+    sb.append(id);
+
+    return sb.toString();
   }
 
   public boolean getDirectoryBrowsingDisallowed() throws WebdavIntfException {
