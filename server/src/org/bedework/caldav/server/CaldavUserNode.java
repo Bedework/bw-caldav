@@ -54,7 +54,7 @@
 
 package org.bedework.caldav.server;
 
-import edu.rpi.cct.webdav.servlet.shared.WebdavIntfException;
+import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
 import edu.rpi.sss.util.xml.QName;
@@ -91,10 +91,10 @@ public class CaldavUserNode extends CaldavBwNode {
    * @param sysi
    * @param ui    User Info
    * @param debug
-   * @throws WebdavIntfException
+   * @throws WebdavException
    */
   public CaldavUserNode(CaldavURI cdURI, SysIntf sysi,
-                        SysIntf.CalUserInfo ui, boolean debug) throws WebdavIntfException {
+                        SysIntf.CalUserInfo ui, boolean debug) throws WebdavException {
     super(cdURI, sysi, debug);
     this.ui = ui;
 
@@ -104,17 +104,17 @@ public class CaldavUserNode extends CaldavBwNode {
     userPrincipal = true;
   }
 
-  public boolean removeProperty(Element val) throws WebdavIntfException {
+  public boolean removeProperty(Element val) throws WebdavException {
     warn("Unimplemented - removeProperty");
     return false;
   }
 
-  public boolean setProperty(Element val) throws WebdavIntfException {
+  public boolean setProperty(Element val) throws WebdavException {
     warn("Unimplemented - setProperty");
     return false;
   }
 
-  public Collection getChildren() throws WebdavIntfException {
+  public Collection getChildren() throws WebdavException {
     return null;
   }
 
@@ -122,11 +122,11 @@ public class CaldavUserNode extends CaldavBwNode {
    *                   Abstract methods
    * ==================================================================== */
 
-  public CurrentAccess getCurrentAccess() throws WebdavIntfException {
+  public CurrentAccess getCurrentAccess() throws WebdavException {
     return null;
   }
 
-  public String getEtagValue(boolean strong) throws WebdavIntfException {
+  public String getEtagValue(boolean strong) throws WebdavException {
     String val = "1234567890";
 
     if (strong) {
@@ -143,35 +143,35 @@ public class CaldavUserNode extends CaldavBwNode {
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getContentLang()
    */
-  public String getContentLang() throws WebdavIntfException {
+  public String getContentLang() throws WebdavException {
     return null;
   }
 
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getContentLen()
    */
-  public int getContentLen() throws WebdavIntfException {
+  public int getContentLen() throws WebdavException {
     return 0;
   }
 
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getContentType()
    */
-  public String getContentType() throws WebdavIntfException {
+  public String getContentType() throws WebdavException {
     return null;
   }
 
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getCreDate()
    */
-  public String getCreDate() throws WebdavIntfException {
+  public String getCreDate() throws WebdavException {
     return null;
   }
 
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getDisplayname()
    */
-  public String getDisplayname() throws WebdavIntfException {
+  public String getDisplayname() throws WebdavException {
     if (cdURI == null) {
       return null;
     }
@@ -182,7 +182,7 @@ public class CaldavUserNode extends CaldavBwNode {
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getLastmodDate()
    */
-  public String getLastmodDate() throws WebdavIntfException {
+  public String getLastmodDate() throws WebdavException {
     return null;
   }
 
@@ -195,7 +195,7 @@ public class CaldavUserNode extends CaldavBwNode {
    */
   public boolean generatePropertyValue(QName tag,
                                        WebdavNsIntf intf,
-                                       boolean allProp) throws WebdavIntfException {
+                                       boolean allProp) throws WebdavException {
     String ns = tag.getNamespaceURI();
     XmlEmit xml = intf.getXmlEmit();
 
@@ -233,14 +233,14 @@ public class CaldavUserNode extends CaldavBwNode {
       // Not known
       return false;
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getPropertyNames()
    */
-  public Collection<PropertyTagEntry> getPropertyNames()throws WebdavIntfException {
+  public Collection<PropertyTagEntry> getPropertyNames()throws WebdavException {
     Collection<PropertyTagEntry> res = new ArrayList<PropertyTagEntry>();
 
     res.addAll(super.getPropertyNames());

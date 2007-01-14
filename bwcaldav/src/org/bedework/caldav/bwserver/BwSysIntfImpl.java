@@ -1,33 +1,5 @@
-/*
- Copyright (c) 2000-2005 University of Washington.  All rights reserved.
-
- Redistribution and use of this distribution in source and binary forms,
- with or without modification, are permitted provided that:
-
-   The above copyright notice and this permission notice appear in
-   all copies and supporting documentation;
-
-   The name, identifiers, and trademarks of the University of Washington
-   are not used in advertising or publicity without the express prior
-   written permission of the University of Washington;
-
-   Recipients acknowledge that this distribution is made available as a
-   research courtesy, "as is", potentially with defects, without
-   any obligation on the part of the University of Washington to
-   provide support, services, or repair;
-
-   THE UNIVERSITY OF WASHINGTON DISCLAIMS ALL WARRANTIES, EXPRESS OR
-   IMPLIED, WITH REGARD TO THIS SOFTWARE, INCLUDING WITHOUT LIMITATION
-   ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
-   PARTICULAR PURPOSE, AND IN NO EVENT SHALL THE UNIVERSITY OF
-   WASHINGTON BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL
-   DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
-   PROFITS, WHETHER IN AN ACTION OF CONTRACT, TORT (INCLUDING
-   NEGLIGENCE) OR STRICT LIABILITY, ARISING OUT OF OR IN CONNECTION WITH
-   THE USE OR PERFORMANCE OF THIS SOFTWARE.
- */
 /* **********************************************************************
-    Copyright 2005 Rensselaer Polytechnic Institute. All worldwide rights reserved.
+    Copyright 2006 Rensselaer Polytechnic Institute. All worldwide rights reserved.
 
     Redistribution and use of this distribution in source and binary forms,
     with or without modification, are permitted provided that:
@@ -84,9 +56,11 @@ import org.bedework.icalendar.Icalendar;
 
 import edu.rpi.cct.webdav.servlet.common.WebdavUtils;
 import edu.rpi.cct.webdav.servlet.shared.PrincipalPropertySearch;
+import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
-import edu.rpi.cct.webdav.servlet.shared.WebdavIntfException;
+import edu.rpi.cct.webdav.servlet.shared.WebdavForbidden;
 import edu.rpi.cct.webdav.servlet.shared.WebdavProperty;
+import edu.rpi.cct.webdav.servlet.shared.WebdavUnauthorized;
 import edu.rpi.cmt.access.Ace;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
 import edu.rpi.sss.util.xml.XmlUtil;
@@ -128,7 +102,7 @@ public class BwSysIntfImpl implements SysIntf {
   public void init(HttpServletRequest req,
                    String envPrefix,
                    String account,
-                   boolean debug) throws WebdavIntfException {
+                   boolean debug) throws WebdavException {
     try {
       this.envPrefix = envPrefix;
       this.account = account;
@@ -156,7 +130,7 @@ public class BwSysIntfImpl implements SysIntf {
       principalCollectionSetUri = "/" + userRootPath + "/";
       urlPrefix = WebdavUtils.getUrlPrefix(req);
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
@@ -167,40 +141,40 @@ public class BwSysIntfImpl implements SysIntf {
   /* (non-Javadoc)
    * @see org.bedework.caldav.server.SysIntf#getPrincipalRoot()
    */
-  public String getPrincipalRoot() throws WebdavIntfException {
+  public String getPrincipalRoot() throws WebdavException {
     try {
       return getSvci().getSyspars().getPrincipalRoot();
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
   /* (non-Javadoc)
    * @see org.bedework.caldav.server.SysIntf#getUserPrincipalRoot()
    */
-  public String getUserPrincipalRoot() throws WebdavIntfException {
+  public String getUserPrincipalRoot() throws WebdavException {
     try {
       return getSvci().getSyspars().getUserPrincipalRoot();
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
   /* (non-Javadoc)
    * @see org.bedework.caldav.server.SysIntf#getGroupPrincipalRoot()
    */
-  public String getGroupPrincipalRoot() throws WebdavIntfException {
+  public String getGroupPrincipalRoot() throws WebdavException {
     try {
       return getSvci().getSyspars().getGroupPrincipalRoot();
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
   /* (non-Javadoc)
    * @see org.bedework.caldav.server.SysIntf#makeUserHref(java.lang.String)
    */
-  public String makeUserHref(String id) throws WebdavIntfException {
+  public String makeUserHref(String id) throws WebdavException {
     StringBuffer sb = new StringBuffer(getUrlPrefix());
 
     String root = getUserPrincipalRoot();
@@ -218,7 +192,7 @@ public class BwSysIntfImpl implements SysIntf {
   /* (non-Javadoc)
    * @see org.bedework.caldav.server.SysIntf#makeGroupHref(java.lang.String)
    */
-  public String makeGroupHref(String id) throws WebdavIntfException {
+  public String makeGroupHref(String id) throws WebdavException {
     StringBuffer sb = new StringBuffer(getUrlPrefix());
 
     String root = getGroupPrincipalRoot();
@@ -233,25 +207,25 @@ public class BwSysIntfImpl implements SysIntf {
     return sb.toString();
   }
 
-  public boolean getDirectoryBrowsingDisallowed() throws WebdavIntfException {
+  public boolean getDirectoryBrowsingDisallowed() throws WebdavException {
     try {
       return getSvci().getSyspars().getDirectoryBrowsingDisallowed();
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
-  public String caladdrToUser(String caladdr) throws WebdavIntfException {
+  public String caladdrToUser(String caladdr) throws WebdavException {
     try {
       return getSvci().caladdrToUser(caladdr);
     } catch (CalFacadeException cfe) {
-      throw new WebdavIntfException(cfe);
+      throw new WebdavException(cfe);
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
-  public CalUserInfo getCalUserInfo(String caladdr) throws WebdavIntfException {
+  public CalUserInfo getCalUserInfo(String caladdr) throws WebdavException {
     try {
       String account = caladdrToUser(caladdr);
       BwSystem sys = getSvci().getSyspars();
@@ -267,14 +241,14 @@ public class BwSysIntfImpl implements SysIntf {
                              inboxPath,
                              outboxPath);
     } catch (CalFacadeException cfe) {
-      throw new WebdavIntfException(cfe);
+      throw new WebdavException(cfe);
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
   public Collection<String> getPrincipalCollectionSet(String resourceUri)
-          throws WebdavIntfException {
+          throws WebdavException {
     try {
       StringBuffer sb = new StringBuffer();
 
@@ -287,15 +261,15 @@ public class BwSysIntfImpl implements SysIntf {
 
       return al;
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
   public Collection<CalUserInfo> getPrincipals(String resourceUri,
                                                PrincipalPropertySearch pps)
-          throws WebdavIntfException {
+          throws WebdavException {
     if (pps.applyToPrincipalCollectionSet) {
-      throw new WebdavIntfException("unimplemented");
+      throw new WebdavException("unimplemented");
     }
 
     if (!resourceUri.endsWith("/")) {
@@ -323,7 +297,7 @@ public class BwSysIntfImpl implements SysIntf {
       try {
         mval = XmlUtil.getElementContent(ps.match);
       } catch (Throwable t) {
-        throw new WebdavIntfException("org.bedework.caldavintf.badvalue");
+        throw new WebdavException("org.bedework.caldavintf.badvalue");
       }
 
       if (debug) {
@@ -348,12 +322,12 @@ public class BwSysIntfImpl implements SysIntf {
     return principals;
   }
 
-  public boolean validUser(String account) throws WebdavIntfException {
+  public boolean validUser(String account) throws WebdavException {
     // XXX do this
     return true;
   }
 
-  public boolean validGroup(String account) throws WebdavIntfException {
+  public boolean validGroup(String account) throws WebdavException {
     // XXX do this
     return true;
   }
@@ -362,54 +336,54 @@ public class BwSysIntfImpl implements SysIntf {
    *                   Scheduling
    * ==================================================================== */
 
-  public ScheduleResult schedule(BwEvent event) throws WebdavIntfException {
+  public ScheduleResult schedule(BwEvent event) throws WebdavException {
     try {
       event.setOwner(svci.findUser(account, false));
       return getSvci().schedule(event);
     } catch (CalFacadeAccessException cfae) {
-      throw WebdavIntfException.forbidden();
+      throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
       if (CalFacadeException.duplicateGuid.equals(cfe.getMessage())) {
-        throw WebdavIntfException.badRequest("Duplicate-guid");
+        throw new WebdavBadRequest("Duplicate-guid");
       }
-      throw new WebdavIntfException(cfe);
+      throw new WebdavException(cfe);
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
   public Collection<BwEventProxy> addEvent(BwCalendar cal,
                                            BwEvent event,
                                            Collection<BwEventProxy> overrides,
-                                           boolean rollbackOnError) throws WebdavIntfException {
+                                           boolean rollbackOnError) throws WebdavException {
     try {
       return getSvci().addEvent(cal, event, overrides, rollbackOnError).failedOverrides;
     } catch (CalFacadeAccessException cfae) {
-      throw WebdavIntfException.forbidden();
+      throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
       if (CalFacadeException.duplicateGuid.equals(cfe.getMessage())) {
-        throw WebdavIntfException.badRequest("Duplicate-guid");
+        throw new WebdavBadRequest("Duplicate-guid");
       }
-      throw new WebdavIntfException(cfe);
+      throw new WebdavException(cfe);
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
   public void updateEvent(BwEvent event,
                           Collection<BwEventProxy> overrides,
-                          ChangeTable changes) throws WebdavIntfException {
+                          ChangeTable changes) throws WebdavException {
     try {
       getSvci().updateEvent(event, overrides, changes);
     } catch (CalFacadeAccessException cfae) {
-      throw WebdavIntfException.forbidden();
+      throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
       if (CalFacadeException.duplicateGuid.equals(cfe.getMessage())) {
-        throw WebdavIntfException.badRequest("Duplicate-guid");
+        throw new WebdavBadRequest("Duplicate-guid");
       }
-      throw new WebdavIntfException(cfe);
+      throw new WebdavException(cfe);
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
@@ -419,7 +393,7 @@ public class BwSysIntfImpl implements SysIntf {
                                          boolean getJournals,
                                          BwDateTime startDate, BwDateTime endDate,
                                          RecurringRetrievalMode recurRetrieval)
-          throws WebdavIntfException {
+          throws WebdavException {
     try {
       BwSubscription sub = BwSubscription.makeSubscription(cal);
 
@@ -431,39 +405,39 @@ public class BwSysIntfImpl implements SysIntf {
       return getSvci().getEvents(sub, filter, startDate, endDate,
                                  recurRetrieval);
     } catch (CalFacadeAccessException cfae) {
-      throw WebdavIntfException.forbidden();
+      throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
-      throw new WebdavIntfException(cfe);
-    } catch (WebdavIntfException wdie) {
-      throw wdie;
+      throw new WebdavException(cfe);
+    } catch (WebdavException wde) {
+      throw wde;
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
   public EventInfo getEvent(BwCalendar cal, String val,
                             RecurringRetrievalMode recurRetrieval)
-              throws WebdavIntfException {
+              throws WebdavException {
     try {
       return getSvci().getEvent(cal, val, recurRetrieval);
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
-  public void deleteEvent(BwEvent ev) throws WebdavIntfException {
+  public void deleteEvent(BwEvent ev) throws WebdavException {
     try {
       getSvci().deleteEvent(ev, true);
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
-  public void deleteCalendar(BwCalendar cal) throws WebdavIntfException {
+  public void deleteCalendar(BwCalendar cal) throws WebdavException {
     try {
       getSvci().deleteCalendar(cal);
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
@@ -474,7 +448,7 @@ public class BwSysIntfImpl implements SysIntf {
     try {
       BwUser user = getSvci().findUser(account, false);
       if (user == null) {
-        throw WebdavIntfException.unauthorized();
+        throw new WebdavUnauthorized();
       }
 
       if (getSvci().isUserRoot(cal)) {
@@ -484,11 +458,11 @@ public class BwSysIntfImpl implements SysIntf {
       return getSvci().getFreeBusy(null, cal, user, start, end,
                                    null, false);
     } catch (CalFacadeException cfe) {
-      throw new WebdavIntfException(cfe);
-    } catch (WebdavIntfException wde) {
+      throw new WebdavException(cfe);
+    } catch (WebdavException wde) {
       throw wde;
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
@@ -504,35 +478,35 @@ public class BwSysIntfImpl implements SysIntf {
   }
 
   public void updateAccess(BwCalendar cal,
-                           Collection<Ace> aces) throws WebdavIntfException {
+                           Collection<Ace> aces) throws WebdavException {
     try {
       getSvci().changeAccess(cal, aces);
       getSvci().updateCalendar(cal);
     } catch (CalFacadeAccessException cfae) {
-      throw WebdavIntfException.forbidden();
+      throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
-      throw new WebdavIntfException(cfe);
+      throw new WebdavException(cfe);
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
   public void updateAccess(BwEvent ev,
-                           Collection<Ace> aces) throws WebdavIntfException{
+                           Collection<Ace> aces) throws WebdavException{
     try {
       getSvci().changeAccess(ev, aces);
       getSvci().updateEvent(ev, null, null);
     } catch (CalFacadeAccessException cfae) {
-      throw WebdavIntfException.forbidden();
+      throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
-      throw new WebdavIntfException(cfe);
+      throw new WebdavException(cfe);
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
   public void makeCollection(String name, boolean calendarCollection,
-                             String parentPath) throws WebdavIntfException {
+                             String parentPath) throws WebdavException {
     BwCalendar newcal = new BwCalendar();
 
     newcal.setName(name);
@@ -541,98 +515,98 @@ public class BwSysIntfImpl implements SysIntf {
     try {
       getSvci().addCalendar(newcal, parentPath);
     } catch (CalFacadeAccessException cfae) {
-      throw WebdavIntfException.forbidden();
+      throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
-      throw new WebdavIntfException(cfe);
+      throw new WebdavException(cfe);
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
-  public BwCalendar getCalendar(String path) throws WebdavIntfException {
+  public BwCalendar getCalendar(String path) throws WebdavException {
     try {
       return getSvci().getCalendar(path);
     } catch (CalFacadeAccessException cfae) {
-      throw WebdavIntfException.forbidden();
+      throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
-      throw new WebdavIntfException(cfe);
+      throw new WebdavException(cfe);
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
-  public Collection<BwCalendar> getCalendars(BwCalendar cal) throws WebdavIntfException {
+  public Collection<BwCalendar> getCalendars(BwCalendar cal) throws WebdavException {
     try {
       return getSvci().getCalendars(cal);
     } catch (CalFacadeAccessException cfae) {
-      throw WebdavIntfException.forbidden();
+      throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
-      throw new WebdavIntfException(cfe);
+      throw new WebdavException(cfe);
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
-  public Calendar toCalendar(EventInfo ev) throws WebdavIntfException {
+  public Calendar toCalendar(EventInfo ev) throws WebdavException {
     try {
       return trans.toIcal(ev, Icalendar.methodTypeNone);
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
-  public Icalendar fromIcal(BwCalendar cal, Reader rdr) throws WebdavIntfException {
+  public Icalendar fromIcal(BwCalendar cal, Reader rdr) throws WebdavException {
     getSvci(); // Ensure open
     try {
       return trans.fromIcal(cal, rdr);
     } catch (IcalMalformedException ime) {
-      throw WebdavIntfException.badRequest(ime.getMessage());
+      throw new WebdavBadRequest(ime.getMessage());
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
-  public CalTimezones getTimezones() throws WebdavIntfException {
+  public CalTimezones getTimezones() throws WebdavException {
     try {
       return getSvci().getTimezones();
     } catch (CalFacadeException cfe) {
-      throw new WebdavIntfException(cfe);
+      throw new WebdavException(cfe);
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
-  public TimeZone getDefaultTimeZone() throws WebdavIntfException {
+  public TimeZone getDefaultTimeZone() throws WebdavException {
     try {
       return getSvci().getTimezones().getDefaultTimeZone();
     } catch (CalFacadeException cfe) {
-      throw new WebdavIntfException(cfe);
+      throw new WebdavException(cfe);
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
-  public String toStringTzCalendar(String tzid) throws WebdavIntfException {
+  public String toStringTzCalendar(String tzid) throws WebdavException {
     try {
       return trans.toStringTzCalendar(tzid);
     } catch (CalFacadeException cfe) {
-      throw new WebdavIntfException(cfe);
+      throw new WebdavException(cfe);
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
-  public int getMaxUserEntitySize() throws WebdavIntfException {
+  public int getMaxUserEntitySize() throws WebdavException {
     try {
       return getSvci().getSyspars().getMaxUserEntitySize();
     } catch (CalFacadeException cfe) {
-      throw new WebdavIntfException(cfe);
+      throw new WebdavException(cfe);
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
-  public void close() throws WebdavIntfException {
+  public void close() throws WebdavException {
     close(svci);
   }
 
@@ -642,7 +616,7 @@ public class BwSysIntfImpl implements SysIntf {
 
   private BwFilter makeFilter(boolean getEvents,
                               boolean getTodos,
-                              boolean getJournals) throws WebdavIntfException {
+                              boolean getJournals) throws WebdavException {
     int numTypes = 0;
 
     if (getEvents) {
@@ -658,7 +632,7 @@ public class BwSysIntfImpl implements SysIntf {
     }
 
     if (numTypes == 0) {
-      throw new WebdavIntfException("org.bedework.caldav.badquery");
+      throw new WebdavBadRequest("org.bedework.caldav.noentitytypespecified");
     }
 
     if (numTypes == 3) {
@@ -703,16 +677,16 @@ public class BwSysIntfImpl implements SysIntf {
 
   /**
    * @return CalSvcI
-   * @throws WebdavIntfException
+   * @throws WebdavException
    */
-  private CalSvcI getSvci() throws WebdavIntfException {
+  private CalSvcI getSvci() throws WebdavException {
     if (svci != null) {
       if (!svci.isOpen()) {
         try {
           svci.open();
           svci.beginTransaction();
         } catch (Throwable t) {
-          throw new WebdavIntfException(t);
+          throw new WebdavException(t);
         }
       }
 
@@ -741,13 +715,13 @@ public class BwSysIntfImpl implements SysIntf {
 
       trans = new IcalTranslator(svci.getIcalCallback(), debug);
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
 
     return svci;
   }
 
-  private void close(CalSvcI svci) throws WebdavIntfException {
+  private void close(CalSvcI svci) throws WebdavException {
     if ((svci == null) || !svci.isOpen()) {
       return;
     }
@@ -760,14 +734,14 @@ public class BwSysIntfImpl implements SysIntf {
       } catch (Throwable t1) {
       }
       svci = null;
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
 
     try {
       svci.close();
     } catch (Throwable t) {
       svci = null;
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 

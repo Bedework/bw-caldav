@@ -65,7 +65,8 @@ import org.bedework.icalendar.IcalTranslator;
 import org.bedework.icalendar.Icalendar;
 import org.bedework.icalendar.VFreeUtil;
 
-import edu.rpi.cct.webdav.servlet.shared.WebdavIntfException;
+import edu.rpi.cct.webdav.servlet.shared.WebdavException;
+import edu.rpi.cct.webdav.servlet.shared.WebdavForbidden;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cmt.access.PrivilegeDefs;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
@@ -136,13 +137,13 @@ public class CaldavCalNode extends CaldavBwNode {
     }
   }
 
-  public void init(boolean content) throws WebdavIntfException {
+  public void init(boolean content) throws WebdavException {
     if (!content) {
       return;
     }
   }
 
-  public String getEtagValue(boolean strong) throws WebdavIntfException {
+  public String getEtagValue(boolean strong) throws WebdavException {
     BwCalendar cal = getCDURI().getCal();
     if (cal == null) {
       return null;
@@ -157,12 +158,12 @@ public class CaldavCalNode extends CaldavBwNode {
     return "W/\"" + val + "\"";
   }
 
-  public boolean removeProperty(Element val) throws WebdavIntfException {
+  public boolean removeProperty(Element val) throws WebdavException {
     warn("Unimplemented - removeProperty");
     return false;
   }
 
-  public boolean setProperty(Element val) throws WebdavIntfException {
+  public boolean setProperty(Element val) throws WebdavException {
     BwCalendar cal = getCDURI().getCal();
     if (cal == null) {
       return false;
@@ -178,24 +179,24 @@ public class CaldavCalNode extends CaldavBwNode {
       } else if (CaldavTags.calendarFreeBusySet.nodeMatches(val)) {
         // Only valid for inbox
         if (cal.getCalType() != BwCalendar.calTypeInbox) {
-          throw WebdavIntfException.forbidden();
+          throw new WebdavForbidden("Not on inbox");
         }
 
         warn("Unimplemented - calendarFreeBusySet: got " + str);
       }
       return false;
-    } catch (WebdavIntfException wie) {
-      throw wie;
+    } catch (WebdavException wde) {
+      throw wde;
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
   /**
    * @return true if scheduling allowed
-   * @throws WebdavIntfException
+   * @throws WebdavException
    */
-  public boolean getSchedulingAllowed() throws WebdavIntfException {
+  public boolean getSchedulingAllowed() throws WebdavException {
     BwCalendar cal = getCDURI().getCal();
     if (cal == null) {
       return false;
@@ -213,7 +214,7 @@ public class CaldavCalNode extends CaldavBwNode {
     return false;
   }
 
-  public Collection getChildren() throws WebdavIntfException {
+  public Collection getChildren() throws WebdavException {
     /* For the moment we're going to do this the inefficient way.
        We really need to have calendar defs that can be expressed as a search
        allowing us to retrieve all the ids of objects within a calendar.
@@ -238,15 +239,15 @@ public class CaldavCalNode extends CaldavBwNode {
                            Rmode.overrides);
       return getSysi().getEvents(cal, true, true, true, null, null, rrm);
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
   /**
    * @param fb
-   * @throws WebdavIntfException
+   * @throws WebdavException
    */
-  public void setFreeBusy(BwFreeBusy fb) throws WebdavIntfException {
+  public void setFreeBusy(BwFreeBusy fb) throws WebdavException {
     try {
       VFreeBusy vfreeBusy = VFreeUtil.toVFreeBusy(fb);
       if (vfreeBusy != null) {
@@ -261,11 +262,11 @@ public class CaldavCalNode extends CaldavBwNode {
       if (debug) {
         error(t);
       }
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
-  public String getContentString() throws WebdavIntfException {
+  public String getContentString() throws WebdavException {
     init(true);
 
     if (ical == null) {
@@ -282,14 +283,14 @@ public class CaldavCalNode extends CaldavBwNode {
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getContentLang()
    */
-  public String getContentLang() throws WebdavIntfException {
+  public String getContentLang() throws WebdavException {
     return "en";
   }
 
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getContentLen()
    */
-  public int getContentLen() throws WebdavIntfException {
+  public int getContentLen() throws WebdavException {
     if (vfreeBusyString != null) {
       return vfreeBusyString.length();
     }
@@ -300,7 +301,7 @@ public class CaldavCalNode extends CaldavBwNode {
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getContentType()
    */
-  public String getContentType() throws WebdavIntfException {
+  public String getContentType() throws WebdavException {
     if (vfreeBusyString != null) {
       return "text/calendar";
     }
@@ -311,14 +312,14 @@ public class CaldavCalNode extends CaldavBwNode {
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getCreDate()
    */
-  public String getCreDate() throws WebdavIntfException {
+  public String getCreDate() throws WebdavException {
     return null;
   }
 
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getDisplayname()
    */
-  public String getDisplayname() throws WebdavIntfException {
+  public String getDisplayname() throws WebdavException {
     if (cdURI == null) {
       return null;
     }
@@ -329,7 +330,7 @@ public class CaldavCalNode extends CaldavBwNode {
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getLastmodDate()
    */
-  public String getLastmodDate() throws WebdavIntfException {
+  public String getLastmodDate() throws WebdavException {
     init(false);
     BwCalendar cal = getCDURI().getCal();
     if (cal == null) {
@@ -343,7 +344,7 @@ public class CaldavCalNode extends CaldavBwNode {
    *                   Abstract methods
    * ==================================================================== */
 
-  public CurrentAccess getCurrentAccess() throws WebdavIntfException {
+  public CurrentAccess getCurrentAccess() throws WebdavException {
     if (currentAccess != null) {
       return currentAccess;
     }
@@ -356,7 +357,7 @@ public class CaldavCalNode extends CaldavBwNode {
     try {
       currentAccess = getSysi().checkAccess(cal, PrivilegeDefs.privAny, true);
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
 
     return currentAccess;
@@ -371,7 +372,7 @@ public class CaldavCalNode extends CaldavBwNode {
    */
   public boolean generatePropertyValue(QName tag,
                                        WebdavNsIntf intf,
-                                       boolean allProp) throws WebdavIntfException {
+                                       boolean allProp) throws WebdavException {
     String ns = tag.getNamespaceURI();
     XmlEmit xml = intf.getXmlEmit();
 
@@ -449,19 +450,19 @@ public class CaldavCalNode extends CaldavBwNode {
       }
 
       return false;
-    } catch (WebdavIntfException wde) {
+    } catch (WebdavException wde) {
       throw wde;
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
   /** Return a set of PropertyTagEntry defining properties this node supports.
    *
    * @return Collection of PropertyTagEntry
-   * @throws WebdavIntfException
+   * @throws WebdavException
    */
-  public Collection<PropertyTagEntry> getPropertyNames()throws WebdavIntfException {
+  public Collection<PropertyTagEntry> getPropertyNames()throws WebdavException {
     Collection<PropertyTagEntry> res = new ArrayList<PropertyTagEntry>();
 
     res.addAll(super.getPropertyNames());

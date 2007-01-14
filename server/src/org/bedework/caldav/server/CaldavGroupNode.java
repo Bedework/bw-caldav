@@ -1,33 +1,5 @@
-/*
- Copyright (c) 2000-2005 University of Washington.  All rights reserved.
-
- Redistribution and use of this distribution in source and binary forms,
- with or without modification, are permitted provided that:
-
-   The above copyright notice and this permission notice appear in
-   all copies and supporting documentation;
-
-   The name, identifiers, and trademarks of the University of Washington
-   are not used in advertising or publicity without the express prior
-   written permission of the University of Washington;
-
-   Recipients acknowledge that this distribution is made available as a
-   research courtesy, "as is", potentially with defects, without
-   any obligation on the part of the University of Washington to
-   provide support, services, or repair;
-
-   THE UNIVERSITY OF WASHINGTON DISCLAIMS ALL WARRANTIES, EXPRESS OR
-   IMPLIED, WITH REGARD TO THIS SOFTWARE, INCLUDING WITHOUT LIMITATION
-   ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
-   PARTICULAR PURPOSE, AND IN NO EVENT SHALL THE UNIVERSITY OF
-   WASHINGTON BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL
-   DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
-   PROFITS, WHETHER IN AN ACTION OF CONTRACT, TORT (INCLUDING
-   NEGLIGENCE) OR STRICT LIABILITY, ARISING OUT OF OR IN CONNECTION WITH
-   THE USE OR PERFORMANCE OF THIS SOFTWARE.
- */
 /* **********************************************************************
-    Copyright 2005 Rensselaer Polytechnic Institute. All worldwide rights reserved.
+    Copyright 2007 Rensselaer Polytechnic Institute. All worldwide rights reserved.
 
     Redistribution and use of this distribution in source and binary forms,
     with or without modification, are permitted provided that:
@@ -51,10 +23,9 @@
     special, consequential, or incidental damages related to the software,
     to the maximum extent the law permits.
 */
-
 package org.bedework.caldav.server;
 
-import edu.rpi.cct.webdav.servlet.shared.WebdavIntfException;
+import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
 
 import java.util.Collection;
@@ -77,17 +48,17 @@ public class CaldavGroupNode extends CaldavBwNode {
     groupPrincipal = true;
   }
 
-  public boolean removeProperty(Element val) throws WebdavIntfException {
+  public boolean removeProperty(Element val) throws WebdavException {
     warn("Unimplemented - removeProperty");
     return false;
   }
 
-  public boolean setProperty(Element val) throws WebdavIntfException {
+  public boolean setProperty(Element val) throws WebdavException {
     warn("Unimplemented - setProperty");
     return false;
   }
 
-  public Collection getChildren() throws WebdavIntfException {
+  public Collection getChildren() throws WebdavException {
     return null;
   }
 
@@ -95,11 +66,11 @@ public class CaldavGroupNode extends CaldavBwNode {
    *                   Abstract methods
    * ==================================================================== */
 
-  public CurrentAccess getCurrentAccess() throws WebdavIntfException {
+  public CurrentAccess getCurrentAccess() throws WebdavException {
     return null;
   }
 
-  public String getEtagValue(boolean strong) throws WebdavIntfException {
+  public String getEtagValue(boolean strong) throws WebdavException {
     String val = "1234567890";
 
     if (strong) {
@@ -116,35 +87,35 @@ public class CaldavGroupNode extends CaldavBwNode {
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getContentLang()
    */
-  public String getContentLang() throws WebdavIntfException {
+  public String getContentLang() throws WebdavException {
     return null;
   }
 
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getContentLen()
    */
-  public int getContentLen() throws WebdavIntfException {
+  public int getContentLen() throws WebdavException {
     return 0;
   }
 
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getContentType()
    */
-  public String getContentType() throws WebdavIntfException {
+  public String getContentType() throws WebdavException {
     return null;
   }
 
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getCreDate()
    */
-  public String getCreDate() throws WebdavIntfException {
+  public String getCreDate() throws WebdavException {
     return null;
   }
 
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getDisplayname()
    */
-  public String getDisplayname() throws WebdavIntfException {
+  public String getDisplayname() throws WebdavException {
     if (cdURI == null) {
       return null;
     }
@@ -155,7 +126,7 @@ public class CaldavGroupNode extends CaldavBwNode {
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getLastmodDate()
    */
-  public String getLastmodDate() throws WebdavIntfException {
+  public String getLastmodDate() throws WebdavException {
     return null;
   }
 

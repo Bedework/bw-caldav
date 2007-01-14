@@ -55,7 +55,6 @@
 package org.bedework.caldav.server;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
-import edu.rpi.cct.webdav.servlet.shared.WebdavIntfException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
 import edu.rpi.cct.webdav.servlet.shared.WebdavProperty;
 import edu.rpi.sss.util.xml.QName;
@@ -154,9 +153,9 @@ public abstract class CaldavBwNode extends WebdavNsNode {
    * <p>Default is to return null
    *
    * @return Collection
-   * @throws WebdavIntfException
+   * @throws WebdavException
    */
-  public Collection getChildren() throws WebdavIntfException {
+  public Collection getChildren() throws WebdavException {
     return null;
   }
 
@@ -166,18 +165,18 @@ public abstract class CaldavBwNode extends WebdavNsNode {
    *
    * @param ns      String interface namespace.
    * @return Collection (possibly empty) of WebdavProperty objects
-   * @throws WebdavIntfException
+   * @throws WebdavException
    */
-  public Collection<WebdavProperty> getProperties(String ns) throws WebdavIntfException {
+  public Collection<WebdavProperty> getProperties(String ns) throws WebdavException {
     return new ArrayList<WebdavProperty>();
   }
 
   /** Returns an InputStream for the content.
    *
    * @return Reader       A reader for the content.
-   * @throws WebdavIntfException
+   * @throws WebdavException
    */
-  public Reader getContent() throws WebdavIntfException {
+  public Reader getContent() throws WebdavException {
     String cont = getContentString();
 
     if (cont == null) {
@@ -190,9 +189,9 @@ public abstract class CaldavBwNode extends WebdavNsNode {
   /** Return string content
    *
    * @return String       content.
-   * @throws WebdavIntfException
+   * @throws WebdavException
    */
-  public String getContentString() throws WebdavIntfException {
+  public String getContentString() throws WebdavException {
     return null;
   }
 
@@ -210,7 +209,7 @@ public abstract class CaldavBwNode extends WebdavNsNode {
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getOwner()
    */
-  public String getOwner() throws WebdavIntfException {
+  public String getOwner() throws WebdavException {
     if (cdURI != null) {
       return cdURI.getOwner();
     }

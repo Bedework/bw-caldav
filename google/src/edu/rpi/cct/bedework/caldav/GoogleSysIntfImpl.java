@@ -72,8 +72,8 @@ import org.bedework.icalendar.Icalendar;
 
 import edu.rpi.cct.webdav.servlet.common.WebdavUtils;
 import edu.rpi.cct.webdav.servlet.shared.PrincipalPropertySearch;
+import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
-import edu.rpi.cct.webdav.servlet.shared.WebdavIntfException;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
 
 import net.fortuna.ical4j.model.Calendar;
@@ -121,12 +121,12 @@ public class GoogleSysIntfImpl implements SysIntf {
   public void init(HttpServletRequest req,
                    String envPrefix,
                    String account,
-                   boolean debug) throws WebdavIntfException {
+                   boolean debug) throws WebdavException {
     try {
       this.debug = debug;
       urlPrefix = WebdavUtils.getUrlPrefix(req);
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
@@ -158,68 +158,68 @@ public class GoogleSysIntfImpl implements SysIntf {
   /* (non-Javadoc)
    * @see org.bedework.caldav.server.SysIntf#makeUserHref(java.lang.String)
    */
-  public String makeUserHref(String id) throws WebdavIntfException {
+  public String makeUserHref(String id) throws WebdavException {
     return getUrlPrefix() + "/" + getUserPrincipalRoot() + "/" + id;
   }
 
   /* (non-Javadoc)
    * @see org.bedework.caldav.server.SysIntf#makeGroupHref(java.lang.String)
    */
-  public String makeGroupHref(String id) throws WebdavIntfException {
+  public String makeGroupHref(String id) throws WebdavException {
     return getUrlPrefix() + "/" + getGroupPrincipalRoot() + "/" + id;
   }
 
-  public boolean getDirectoryBrowsingDisallowed() throws WebdavIntfException {
+  public boolean getDirectoryBrowsingDisallowed() throws WebdavException {
     return false;
   }
 
-  public String caladdrToUser(String caladdr) throws WebdavIntfException {
+  public String caladdrToUser(String caladdr) throws WebdavException {
     return caladdr;
   }
 
-  public CalUserInfo getCalUserInfo(String caladdr) throws WebdavIntfException {
+  public CalUserInfo getCalUserInfo(String caladdr) throws WebdavException {
     return new CalUserInfo(caladdrToUser(caladdr),
                            null, null, null, null);
   }
 
   public Collection<String> getPrincipalCollectionSet(String resourceUri)
-          throws WebdavIntfException {
-    throw new WebdavIntfException("unimplemented");
+          throws WebdavException {
+    throw new WebdavException("unimplemented");
   }
 
   public Collection<CalUserInfo> getPrincipals(String resourceUri,
                                                PrincipalPropertySearch pps)
-          throws WebdavIntfException {
-    throw new WebdavIntfException("unimplemented");
+          throws WebdavException {
+    throw new WebdavException("unimplemented");
   }
 
-  public boolean validUser(String account) throws WebdavIntfException {
-    throw new WebdavIntfException("unimplemented");
+  public boolean validUser(String account) throws WebdavException {
+    throw new WebdavException("unimplemented");
   }
 
-  public boolean validGroup(String account) throws WebdavIntfException {
-    throw new WebdavIntfException("unimplemented");
+  public boolean validGroup(String account) throws WebdavException {
+    throw new WebdavException("unimplemented");
   }
 
   /* ====================================================================
    *                   Scheduling
    * ==================================================================== */
 
-  public ScheduleResult schedule(BwEvent event) throws WebdavIntfException {
-    throw new WebdavIntfException("unimplemented");
+  public ScheduleResult schedule(BwEvent event) throws WebdavException {
+    throw new WebdavException("unimplemented");
   }
 
   public Collection<BwEventProxy> addEvent(BwCalendar cal,
                                            BwEvent event,
                                            Collection<BwEventProxy> overrides,
-                                           boolean rollbackOnError) throws WebdavIntfException {
-    throw new WebdavIntfException("unimplemented");
+                                           boolean rollbackOnError) throws WebdavException {
+    throw new WebdavException("unimplemented");
   }
 
   public void updateEvent(BwEvent event,
                           Collection overrides,
-                          ChangeTable changes) throws WebdavIntfException {
-    throw new WebdavIntfException("unimplemented");
+                          ChangeTable changes) throws WebdavException {
+    throw new WebdavException("unimplemented");
   }
 
   public Collection<EventInfo> getEvents(BwCalendar cal,
@@ -228,22 +228,22 @@ public class GoogleSysIntfImpl implements SysIntf {
                                          boolean getJournals,
                                          BwDateTime startDate, BwDateTime endDate,
                                          RecurringRetrievalMode recurRetrieval)
-          throws WebdavIntfException {
-    throw new WebdavIntfException("unimplemented");
+          throws WebdavException {
+    throw new WebdavException("unimplemented");
   }
 
   public EventInfo getEvent(BwCalendar cal, String val,
                             RecurringRetrievalMode recurRetrieval)
-              throws WebdavIntfException {
-    throw new WebdavIntfException("unimplemented");
+              throws WebdavException {
+    throw new WebdavException("unimplemented");
   }
 
-  public void deleteEvent(BwEvent ev) throws WebdavIntfException {
-    throw new WebdavIntfException("unimplemented");
+  public void deleteEvent(BwEvent ev) throws WebdavException {
+    throw new WebdavException("unimplemented");
   }
 
-  public void deleteCalendar(BwCalendar cal) throws WebdavIntfException {
-    throw new WebdavIntfException("unimplemented");
+  public void deleteCalendar(BwCalendar cal) throws WebdavException {
+    throw new WebdavException("unimplemented");
   }
 
   public BwFreeBusy getFreeBusy(BwCalendar cal,
@@ -366,7 +366,7 @@ public class GoogleSysIntfImpl implements SysIntf {
 
       return fb;
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
@@ -374,31 +374,31 @@ public class GoogleSysIntfImpl implements SysIntf {
                                    int desiredAccess,
                                    boolean returnResult)
           throws WebdavException {
-    throw new WebdavIntfException("unimplemented");
+    throw new WebdavException("unimplemented");
   }
 
   public void updateAccess(BwCalendar cal,
-                           Collection aces) throws WebdavIntfException {
-    throw new WebdavIntfException("unimplemented");
+                           Collection aces) throws WebdavException {
+    throw new WebdavException("unimplemented");
   }
 
   public void updateAccess(BwEvent ev,
-                           Collection aces) throws WebdavIntfException{
-    throw new WebdavIntfException("unimplemented");
+                           Collection aces) throws WebdavException{
+    throw new WebdavException("unimplemented");
   }
 
   public void makeCollection(String name, boolean calendarCollection,
-                             String parentPath) throws WebdavIntfException {
-    throw new WebdavIntfException("unimplemented");
+                             String parentPath) throws WebdavException {
+    throw new WebdavException("unimplemented");
   }
 
-  public BwCalendar getCalendar(String path) throws WebdavIntfException {
+  public BwCalendar getCalendar(String path) throws WebdavException {
     // XXX Just fake it up for the moment.
 
     int pos = path.lastIndexOf("/");
     if (pos < 0) {
       // bad uri
-      throw WebdavIntfException.badRequest();
+      throw new WebdavBadRequest("Bad uri:" + path);
     }
 
     String namePart = path.substring(pos + 1);
@@ -422,19 +422,19 @@ public class GoogleSysIntfImpl implements SysIntf {
     return cal;
   }
 
-  public Collection<BwCalendar> getCalendars(BwCalendar cal) throws WebdavIntfException {
-    throw new WebdavIntfException("unimplemented");
+  public Collection<BwCalendar> getCalendars(BwCalendar cal) throws WebdavException {
+    throw new WebdavException("unimplemented");
   }
 
-  public Calendar toCalendar(EventInfo ev) throws WebdavIntfException {
-    throw new WebdavIntfException("unimplemented");
+  public Calendar toCalendar(EventInfo ev) throws WebdavException {
+    throw new WebdavException("unimplemented");
   }
 
-  public Icalendar fromIcal(BwCalendar cal, Reader rdr) throws WebdavIntfException {
-    throw new WebdavIntfException("unimplemented");
+  public Icalendar fromIcal(BwCalendar cal, Reader rdr) throws WebdavException {
+    throw new WebdavException("unimplemented");
   }
 
-  public CalTimezones getTimezones() throws WebdavIntfException {
+  public CalTimezones getTimezones() throws WebdavException {
     try {
       if (timezones == null) {
         timezones = new ResourceTimezones(debug, null);
@@ -443,27 +443,27 @@ public class GoogleSysIntfImpl implements SysIntf {
 
       return timezones;
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
-  public TimeZone getDefaultTimeZone() throws WebdavIntfException {
+  public TimeZone getDefaultTimeZone() throws WebdavException {
     try {
       return getTimezones().getDefaultTimeZone();
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
-  public String toStringTzCalendar(String tzid) throws WebdavIntfException {
-    throw new WebdavIntfException("unimplemented");
+  public String toStringTzCalendar(String tzid) throws WebdavException {
+    throw new WebdavException("unimplemented");
   }
 
-  public int getMaxUserEntitySize() throws WebdavIntfException {
-    throw new WebdavIntfException("unimplemented");
+  public int getMaxUserEntitySize() throws WebdavException {
+    throw new WebdavException("unimplemented");
   }
 
-  public void close() throws WebdavIntfException {
+  public void close() throws WebdavException {
   }
 
   /* ====================================================================
@@ -474,18 +474,18 @@ public class GoogleSysIntfImpl implements SysIntf {
     return new CalendarService("org.bedework-caldav-1");
   }
 
-  private DateTime makeDateTime(BwDateTime dt) throws WebdavIntfException {
+  private DateTime makeDateTime(BwDateTime dt) throws WebdavException {
     try {
       TimeZone tz = getTimezones().getTimeZone(dt.getTzid());
       long millis = dt.makeDate().getTime();
       return new DateTime(millis, tz.getOffset(millis) / 60000);
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
   private net.fortuna.ical4j.model.DateTime makeIcalDateTime(DateTime val)
-          throws WebdavIntfException {
+          throws WebdavException {
     try {
       long millis = val.getValue();
       /*
@@ -499,7 +499,7 @@ public class GoogleSysIntfImpl implements SysIntf {
       icaldt.setTime(millis);
       return icaldt;
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 

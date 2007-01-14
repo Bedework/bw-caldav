@@ -63,7 +63,7 @@ import org.bedework.davdefs.WebdavTags;
 import org.bedework.icalendar.ComponentWrapper;
 import org.w3c.dom.Element;
 
-import edu.rpi.cct.webdav.servlet.shared.WebdavIntfException;
+import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cct.webdav.servlet.shared.WebdavProperty;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
@@ -164,10 +164,10 @@ public class CaldavComponentNode extends CaldavBwNode {
    * @param cdURI
    * @param sysi
    * @param debug
-   * @throws WebdavIntfException
+   * @throws WebdavException
    */
   public CaldavComponentNode(CaldavURI cdURI,
-                             SysIntf sysi, boolean debug) throws WebdavIntfException {
+                             SysIntf sysi, boolean debug) throws WebdavException {
     super(cdURI, sysi, debug);
 
     collection = false;
@@ -176,12 +176,12 @@ public class CaldavComponentNode extends CaldavBwNode {
     eventInfo = cdURI.getEntity();
   }
 
-  public boolean removeProperty(Element val) throws WebdavIntfException {
+  public boolean removeProperty(Element val) throws WebdavException {
     warn("Unimplemented - removeProperty");
     return false;
   }
 
-  public boolean setProperty(Element val) throws WebdavIntfException {
+  public boolean setProperty(Element val) throws WebdavException {
     warn("Unimplemented - setProperty");
     return false;
   }
@@ -190,9 +190,9 @@ public class CaldavComponentNode extends CaldavBwNode {
    * filters.
    *
    * @return Component
-   * @throws WebdavIntfException
+   * @throws WebdavException
    */
-  public Component getVevent() throws WebdavIntfException {
+  public Component getVevent() throws WebdavException {
     init(true);
 
     try {
@@ -211,7 +211,7 @@ public class CaldavComponentNode extends CaldavBwNode {
         comp = new ComponentWrapper(vevent);
       }
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
 
     return vevent;
@@ -226,7 +226,7 @@ public class CaldavComponentNode extends CaldavBwNode {
  */
 public boolean generatePropertyValue(QName tag,
                                       WebdavNsIntf intf,
-                                      boolean allProp) throws WebdavIntfException {
+                                      boolean allProp) throws WebdavException {
     PropVal pv = new PropVal();
     XmlEmit xml = intf.getXmlEmit();
 
@@ -529,14 +529,14 @@ public boolean generatePropertyValue(QName tag,
       }
 
       return false;
-    } catch (WebdavIntfException wde) {
+    } catch (WebdavException wde) {
       throw wde;
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
-  public void init(boolean content) throws WebdavIntfException {
+  public void init(boolean content) throws WebdavException {
     if (!content) {
       return;
     }
@@ -551,14 +551,14 @@ public boolean generatePropertyValue(QName tag,
         }
       }
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getPropertyNames()
    */
-  public Collection<PropertyTagEntry> getPropertyNames() throws WebdavIntfException {
+  public Collection<PropertyTagEntry> getPropertyNames() throws WebdavException {
     Collection<PropertyTagEntry> res = new ArrayList<PropertyTagEntry>();
 
     res.addAll(super.getPropertyNames());
@@ -577,9 +577,9 @@ public boolean generatePropertyValue(QName tag,
   /** Returns the only event or the master event for a recurrence
    *
    * @return EventInfo
-   * @throws WebdavIntfException
+   * @throws WebdavException
    */
-  public EventInfo getEventInfo() throws WebdavIntfException {
+  public EventInfo getEventInfo() throws WebdavException {
     init(true);
 
     return eventInfo;
@@ -587,9 +587,9 @@ public boolean generatePropertyValue(QName tag,
 
   /**
    * @return Calendar
-   * @throws WebdavIntfException
+   * @throws WebdavException
    */
-  public Calendar getIcal() throws WebdavIntfException {
+  public Calendar getIcal() throws WebdavException {
     init(true);
 
     try {
@@ -600,19 +600,19 @@ public boolean generatePropertyValue(QName tag,
         veventString = ical.toString();
       }
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
 
     return ical;
   }
 
-  public Collection<WebdavProperty> getProperties(String ns) throws WebdavIntfException {
+  public Collection<WebdavProperty> getProperties(String ns) throws WebdavException {
     init(true);
     ArrayList<WebdavProperty> al = new ArrayList<WebdavProperty>();
 
     getVevent(); // init comp
     if (comp == null) {
-      throw new WebdavIntfException("getProperties, comp == null");
+      throw new WebdavException("getProperties, comp == null");
     }
 
     addProp(al, ICalTags.summary, comp.getSummary());
@@ -641,7 +641,7 @@ public boolean generatePropertyValue(QName tag,
     return al;
   }
 
-  public String getContentString() throws WebdavIntfException {
+  public String getContentString() throws WebdavException {
     getIcal(); // init content
 
     return veventString;
@@ -651,7 +651,7 @@ public boolean generatePropertyValue(QName tag,
    *                   Overridden property methods
    * ==================================================================== */
 
-  public CurrentAccess getCurrentAccess() throws WebdavIntfException {
+  public CurrentAccess getCurrentAccess() throws WebdavException {
     if (eventInfo == null) {
       return null;
     }
@@ -659,7 +659,7 @@ public boolean generatePropertyValue(QName tag,
     return eventInfo.getCurrentAccess();
   }
 
-  public String getEtagValue(boolean strong) throws WebdavIntfException {
+  public String getEtagValue(boolean strong) throws WebdavException {
     init(true);
 
     BwEvent ev = getEvent();
@@ -693,14 +693,14 @@ public boolean generatePropertyValue(QName tag,
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getContentLang()
    */
-  public String getContentLang() throws WebdavIntfException {
+  public String getContentLang() throws WebdavException {
     return "en";
   }
 
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getContentLen()
    */
-  public int getContentLen() throws WebdavIntfException {
+  public int getContentLen() throws WebdavException {
     getIcal(); // init length
     if (veventString != null) {
       return veventString.length();
@@ -711,14 +711,14 @@ public boolean generatePropertyValue(QName tag,
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getContentType()
    */
-  public String getContentType() throws WebdavIntfException {
+  public String getContentType() throws WebdavException {
     return "text/calendar";
   }
 
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getCreDate()
    */
-  public String getCreDate() throws WebdavIntfException {
+  public String getCreDate() throws WebdavException {
     init(false);
     BwEvent ev = getEvent();
     if (ev == null) {
@@ -731,7 +731,7 @@ public boolean generatePropertyValue(QName tag,
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getDisplayname()
    */
-  public String getDisplayname() throws WebdavIntfException {
+  public String getDisplayname() throws WebdavException {
     if (cdURI == null) {
       return null;
     }
@@ -742,7 +742,7 @@ public boolean generatePropertyValue(QName tag,
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getLastmodDate()
    */
-  public String getLastmodDate() throws WebdavIntfException {
+  public String getLastmodDate() throws WebdavException {
     init(false);
     BwEvent ev = getEvent();
     if (ev == null) {
@@ -758,7 +758,7 @@ public boolean generatePropertyValue(QName tag,
 
   private boolean generateTZPropertyValue(QName tag,
                                           WebdavNsIntf intf,
-                                          boolean allProp) throws WebdavIntfException {
+                                          boolean allProp) throws WebdavException {
     if (tag.equals(ICalTags.tzid)) {
       // PROPTODO
       return true;
@@ -787,7 +787,7 @@ public boolean generatePropertyValue(QName tag,
     return false;
   }
 
-  private BwEvent getEvent() throws WebdavIntfException {
+  private BwEvent getEvent() throws WebdavException {
     EventInfo ei = getEventInfo();
 
     if (ei == null) {
@@ -797,7 +797,7 @@ public boolean generatePropertyValue(QName tag,
     return ei.getEvent();
   }
 
-  private BwEvent checkEv(PropVal pv) throws WebdavIntfException {
+  private BwEvent checkEv(PropVal pv) throws WebdavException {
     BwEvent ev = getEvent();
 
     if (ev == null) {

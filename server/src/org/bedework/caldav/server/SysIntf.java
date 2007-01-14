@@ -68,7 +68,6 @@ import org.bedework.icalendar.Icalendar;
 
 import edu.rpi.cct.webdav.servlet.shared.PrincipalPropertySearch;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
-import edu.rpi.cct.webdav.servlet.shared.WebdavIntfException;
 import edu.rpi.cmt.access.Ace;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
 
@@ -98,12 +97,12 @@ public interface SysIntf {
    * @param envPrefix
    * @param account
    * @param debug
-   * @throws WebdavIntfException
+   * @throws WebdavException
    */
   public void init(HttpServletRequest req,
                    String envPrefix,
                    String account,
-                   boolean debug) throws WebdavIntfException;
+                   boolean debug) throws WebdavException;
 
   /**
    * @return String url prefix derived from request.
@@ -113,44 +112,44 @@ public interface SysIntf {
   /** get the principal root e.g. "/principals"
    *
    * @return String
-   * @throws WebdavIntfException  for errors
+   * @throws WebdavException  for errors
    */
-  public String getPrincipalRoot() throws WebdavIntfException;
+  public String getPrincipalRoot() throws WebdavException;
 
   /** get the principal root e.g. "/principals/users"
    *
    * @return String
-   * @throws WebdavIntfException  for errors
+   * @throws WebdavException  for errors
    */
-  public String getUserPrincipalRoot() throws WebdavIntfException;
+  public String getUserPrincipalRoot() throws WebdavException;
 
   /** get the group principal root e.g. "/principals/groups"
    *
    * @return String
-   * @throws WebdavIntfException  for errors
+   * @throws WebdavException  for errors
    */
-  public String getGroupPrincipalRoot() throws WebdavIntfException;
+  public String getGroupPrincipalRoot() throws WebdavException;
 
   /**
    * @param id
    * @return String href
-   * @throws WebdavIntfException
+   * @throws WebdavException
    */
-  public String makeUserHref(String id) throws WebdavIntfException;
+  public String makeUserHref(String id) throws WebdavException;
 
   /**
    * @param id
    * @return String href
-   * @throws WebdavIntfException
+   * @throws WebdavException
    */
-  public String makeGroupHref(String id) throws WebdavIntfException;
+  public String makeGroupHref(String id) throws WebdavException;
 
   /** Do we allow browsing of directories?
    *
    * @return boolean true if browsing disallowed
-   * @throws WebdavIntfException  for errors
+   * @throws WebdavException  for errors
    */
-  public boolean getDirectoryBrowsingDisallowed() throws WebdavIntfException;
+  public boolean getDirectoryBrowsingDisallowed() throws WebdavException;
 
   /** Given a calendar address return the associated calendar account.
    * For example, we might have a calendar address<br/>
@@ -163,9 +162,9 @@ public interface SysIntf {
    *
    * @param caladdr      calendar address
    * @return account or null if not caladdr for this system
-   * @throws WebdavIntfException  for errors
+   * @throws WebdavException  for errors
    */
-  public String caladdrToUser(String caladdr) throws WebdavIntfException;
+  public String caladdrToUser(String caladdr) throws WebdavException;
 
   /**
    * @author Mike Douglass
@@ -214,46 +213,46 @@ public interface SysIntf {
    *
    * @param account     as returned by caladdrToUser
    * @return CalUserInfo or null if not caladdr for this system
-   * @throws WebdavIntfException  for errors
+   * @throws WebdavException  for errors
    */
-  public CalUserInfo getCalUserInfo(String account) throws WebdavIntfException;
+  public CalUserInfo getCalUserInfo(String account) throws WebdavException;
 
   /** Given a uri returns a Collection of uris that allow search operations on
    * principals for that resource.
    *
    * @param resourceUri
    * @return Collection of String
-   * @throws WebdavIntfException
+   * @throws WebdavException
    */
   public Collection<String> getPrincipalCollectionSet(String resourceUri)
-         throws WebdavIntfException;
+         throws WebdavException;
 
   /** Given a PrincipalPropertySearch returns a Collection of matching principals.
    *
    * @param resourceUri
    * @param pps Collection of PrincipalPropertySearch
    * @return Collection of CalUserInfo
-   * @throws WebdavIntfException
+   * @throws WebdavException
    */
   public Collection<CalUserInfo> getPrincipals(String resourceUri,
                                   PrincipalPropertySearch pps)
-          throws WebdavIntfException;
+          throws WebdavException;
 
   /** Is account a valid user?
    *
    * @param account
    * @return boolean true for a valid user
-   * @throws WebdavIntfException  for errors
+   * @throws WebdavException  for errors
    */
-  public boolean validUser(String account) throws WebdavIntfException;
+  public boolean validUser(String account) throws WebdavException;
 
   /** Is account a valid group?
    *
    * @param account
    * @return boolean true for a valid group
-   * @throws WebdavIntfException  for errors
+   * @throws WebdavException  for errors
    */
-  public boolean validGroup(String account) throws WebdavIntfException;
+  public boolean validGroup(String account) throws WebdavException;
 
   /* ====================================================================
    *                   Scheduling
@@ -273,9 +272,9 @@ public interface SysIntf {
    *
    * @param event         BwEvent object
    * @return ScheduleResult
-   * @throws WebdavIntfException
+   * @throws WebdavException
    */
-  public ScheduleResult schedule(BwEvent event) throws WebdavIntfException;
+  public ScheduleResult schedule(BwEvent event) throws WebdavException;
 
   /* ====================================================================
    *                   Events
@@ -289,23 +288,23 @@ public interface SysIntf {
    *                     objects which override instances of the new event
    * @param rollbackOnError true if we rollback and throw an exception on error
    * @return Collection of overrides which did not match or null if all matched
-   * @throws WebdavIntfException
+   * @throws WebdavException
    */
  public Collection<BwEventProxy> addEvent(BwCalendar cal,
                                           BwEvent event,
                                           Collection<BwEventProxy> overrides,
-                                          boolean rollbackOnError) throws WebdavIntfException;
+                                          boolean rollbackOnError) throws WebdavException;
 
   /** Update an event/todo/journal.
    *
    * @param event         updated BwEvent object
    * @param overrides     overrides which may need changing
    * @param changes       help for recurrence rule changes to master
-   * @throws WebdavIntfException
+   * @throws WebdavException
    */
   public void updateEvent(BwEvent event,
                           Collection<BwEventProxy> overrides,
-                          ChangeTable changes) throws WebdavIntfException;
+                          ChangeTable changes) throws WebdavException;
 
   /** Return the events for the current user in the given calendar within the
    * given date and time range.
@@ -320,7 +319,7 @@ public interface SysIntf {
    * @param endDate      BwDateTime end - may be null.
    * @param recurRetrieval How recurring event is returned.
    * @return Collection  populated event value objects
-   * @throws WebdavIntfException
+   * @throws WebdavException
    */
   public Collection<EventInfo> getEvents(BwCalendar cal,
                                          boolean getEvents,
@@ -328,7 +327,7 @@ public interface SysIntf {
                                          boolean getJournals,
                                          BwDateTime startDate, BwDateTime endDate,
                                          RecurringRetrievalMode recurRetrieval)
-          throws WebdavIntfException;
+          throws WebdavException;
 
   /** Get events given the calendar and String name. Return null for not
    * found. There should be only one event or none. For recurring, the
@@ -338,23 +337,23 @@ public interface SysIntf {
    * @param val        String possible name
    * @param recurRetrieval
    * @return EventInfo or null
-   * @throws WebdavIntfException
+   * @throws WebdavException
    */
   public EventInfo getEvent(BwCalendar cal, String val,
                             RecurringRetrievalMode recurRetrieval)
-          throws WebdavIntfException;
+          throws WebdavException;
 
   /**
    * @param ev
-   * @throws WebdavIntfException
+   * @throws WebdavException
    */
-  public void deleteEvent(BwEvent ev) throws WebdavIntfException;
+  public void deleteEvent(BwEvent ev) throws WebdavException;
 
   /**
    * @param cal
-   * @throws WebdavIntfException
+   * @throws WebdavException
    */
-  public void deleteCalendar(BwCalendar cal) throws WebdavIntfException;
+  public void deleteCalendar(BwCalendar cal) throws WebdavException;
 
   /**
    * @param cal
@@ -386,95 +385,95 @@ public interface SysIntf {
   /**
    * @param cal
    * @param aces
-   * @throws WebdavIntfException
+   * @throws WebdavException
    */
   public void updateAccess(BwCalendar cal,
-                           Collection<Ace> aces) throws WebdavIntfException;
+                           Collection<Ace> aces) throws WebdavException;
 
   /**
    * @param ev
    * @param aces
-   * @throws WebdavIntfException
+   * @throws WebdavException
    */
   public void updateAccess(BwEvent ev,
-                           Collection<Ace> aces) throws WebdavIntfException;
+                           Collection<Ace> aces) throws WebdavException;
 
   /**
    * @param name
    * @param calendarCollection
    * @param parentPath
-   * @throws WebdavIntfException
+   * @throws WebdavException
    */
   public void makeCollection(String name, boolean calendarCollection,
-                             String parentPath) throws WebdavIntfException;
+                             String parentPath) throws WebdavException;
 
   /** Get a calendar given the path
    *
    * @param  path     String path of calendar
    * @return BwCalendar null for unknown calendar
-   * @throws WebdavIntfException
+   * @throws WebdavException
    */
-  public BwCalendar getCalendar(String path) throws WebdavIntfException;
+  public BwCalendar getCalendar(String path) throws WebdavException;
 
   /** Returns children of the given calendar to which the current user has
    * some access.
    *
    * @param  cal          parent calendar
    * @return Collection   of BwCalendar
-   * @throws WebdavIntfException
+   * @throws WebdavException
    */
   public Collection<BwCalendar> getCalendars(BwCalendar cal)
-          throws WebdavIntfException;
+          throws WebdavException;
 
   /** Make an ical Calendar from an event.
    *
    * @param ev
    * @return Calendar
-   * @throws WebdavIntfException
+   * @throws WebdavException
    */
-  public Calendar toCalendar(EventInfo ev) throws WebdavIntfException;
+  public Calendar toCalendar(EventInfo ev) throws WebdavException;
 
   /** Convert the Icalendar reader to a Collection of Calendar objects
    *
    * @param cal       calendar in which to place entities
    * @param rdr
    * @return Icalendar
-   * @throws WebdavIntfException
+   * @throws WebdavException
    */
-  public Icalendar fromIcal(BwCalendar cal, Reader rdr) throws WebdavIntfException;
+  public Icalendar fromIcal(BwCalendar cal, Reader rdr) throws WebdavException;
 
   /**
    * @return CalTimezones
-   * @throws WebdavIntfException
+   * @throws WebdavException
    */
-  public CalTimezones getTimezones() throws WebdavIntfException;
+  public CalTimezones getTimezones() throws WebdavException;
 
   /** Get the default timezone for this system.
    *
    * @return default TimeZone or null for none set.
-   * @throws WebdavIntfException
+   * @throws WebdavException
    */
-  public TimeZone getDefaultTimeZone() throws WebdavIntfException;
+  public TimeZone getDefaultTimeZone() throws WebdavException;
 
   /** Create a Calendar object from the named timezone and convert to
    * a String representation
    *
    * @param tzid       String timezone id
    * @return String
-   * @throws WebdavIntfException
+   * @throws WebdavException
    */
-  public String toStringTzCalendar(String tzid) throws WebdavIntfException;
+  public String toStringTzCalendar(String tzid) throws WebdavException;
 
   /** Max size for an entity
    *
    * @return int
-   * @throws WebdavIntfException
+   * @throws WebdavException
    */
-  public int getMaxUserEntitySize() throws WebdavIntfException;
+  public int getMaxUserEntitySize() throws WebdavException;
 
   /** End any transactions.
    *
-   * @throws WebdavIntfException
+   * @throws WebdavException
    */
-  public void close() throws WebdavIntfException;
+  public void close() throws WebdavException;
 }

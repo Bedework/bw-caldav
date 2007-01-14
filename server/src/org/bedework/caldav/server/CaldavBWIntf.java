@@ -76,12 +76,16 @@ import edu.rpi.cct.webdav.servlet.common.WebdavServlet;
 import edu.rpi.cct.webdav.servlet.common.WebdavUtils;
 import edu.rpi.cct.webdav.servlet.common.MethodBase.MethodInfo;
 import edu.rpi.cct.webdav.servlet.shared.PrincipalPropertySearch;
+import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavForbidden;
-import edu.rpi.cct.webdav.servlet.shared.WebdavIntfException;
+import edu.rpi.cct.webdav.servlet.shared.WebdavNotFound;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
 import edu.rpi.cct.webdav.servlet.shared.WebdavProperty;
+import edu.rpi.cct.webdav.servlet.shared.WebdavServerError;
+import edu.rpi.cct.webdav.servlet.shared.WebdavUnauthorized;
+import edu.rpi.cct.webdav.servlet.shared.WebdavUnsupportedMediaType;
 import edu.rpi.cmt.access.Ace;
 import edu.rpi.cmt.access.Acl;
 import edu.rpi.cmt.access.Privileges;
@@ -169,14 +173,14 @@ public class CaldavBWIntf extends WebdavNsIntf {
    * @param debug
    * @param methods    HashMap   table of method info
    * @param dumpContent
-   * @throws WebdavIntfException
+   * @throws WebdavException
    */
   public void init(WebdavServlet servlet,
                    HttpServletRequest req,
                    Properties props,
                    boolean debug,
                    HashMap<String, MethodInfo> methods,
-                   boolean dumpContent) throws WebdavIntfException {
+                   boolean dumpContent) throws WebdavException {
     super.init(servlet, req, props, debug, methods, dumpContent);
 
     try {
@@ -203,22 +207,22 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       emitAccess = new EmitAccess(namespacePrefix, xml, sysi);
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#getDavHeader(edu.rpi.cct.webdav.servlet.shared.WebdavNsNode)
    */
-  public String getDavHeader(WebdavNsNode node) throws WebdavIntfException {
+  public String getDavHeader(WebdavNsNode node) throws WebdavException {
     return "1, access-control, calendar-access, calendar-schedule";
   }
 
-  public boolean getDirectoryBrowsingDisallowed() throws WebdavIntfException {
+  public boolean getDirectoryBrowsingDisallowed() throws WebdavException {
     return sysi.getDirectoryBrowsingDisallowed();
   }
 
-  public void close() throws WebdavIntfException {
+  public void close() throws WebdavException {
     sysi.close();
   }
 
@@ -245,30 +249,30 @@ public class CaldavBWIntf extends WebdavNsIntf {
     return true;
   }
 
-  public void addNamespace() throws WebdavIntfException {
+  public void addNamespace() throws WebdavException {
     super.addNamespace();
 
     try {
       xml.addNs(CaldavDefs.caldavNamespace);
       xml.addNs(CaldavDefs.icalNamespace);
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
-  public String getLocation(WebdavNsNode node) throws WebdavIntfException {
+  public String getLocation(WebdavNsNode node) throws WebdavException {
     return namespacePrefix + node.getUri();
   }
 
   public WebdavNsNode getNode(String uri,
                               int existance,
-                              int nodeType) throws WebdavIntfException {
+                              int nodeType) throws WebdavException {
     return getNodeInt(uri, existance, nodeType, true, null, null);
   }
 
   public WebdavNsNode getNodeEncoded(String uri,
                                      int existance,
-                                     int nodeType) throws WebdavIntfException {
+                                     int nodeType) throws WebdavException {
     return getNodeInt(uri, existance, nodeType, false, null, null);
   }
 
@@ -277,7 +281,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
                                   int nodeType,
                                   boolean decoded,
                                   BwCalendar cal,
-                                  EventInfo ei) throws WebdavIntfException {
+                                  EventInfo ei) throws WebdavException {
     if (debug) {
       debugMsg("About to get node for " + uri);
     }
@@ -290,7 +294,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       CaldavURI wi = findURI(uri, existance, nodeType, decoded, cal, ei);
 
       if (wi == null) {
-        throw WebdavIntfException.notFound();
+        throw new WebdavNotFound(uri);
       }
 
       WebdavNsNode nd = null;
@@ -306,18 +310,18 @@ public class CaldavBWIntf extends WebdavNsIntf {
       }
 
       return nd;
-    } catch (WebdavIntfException we) {
+    } catch (WebdavException we) {
       throw we;
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
   public void putNode(WebdavNsNode node)
-      throws WebdavIntfException {
+      throws WebdavException {
   }
 
-  public void delete(WebdavNsNode node) throws WebdavIntfException {
+  public void delete(WebdavNsNode node) throws WebdavException {
     try {
       CaldavBwNode uwnode = getBwnode(node);
 
@@ -338,7 +342,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
         }
       } else {
         if (!(uwnode instanceof CaldavCalNode)) {
-          throw WebdavIntfException.unauthorized();
+          throw new WebdavUnauthorized();
         }
 
         CaldavCalNode cnode = (CaldavCalNode)uwnode;
@@ -347,14 +351,14 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
         sysi.deleteCalendar(cal);
       }
-    } catch (WebdavIntfException we) {
+    } catch (WebdavException we) {
       throw we;
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
-  public Iterator<WebdavNsNode> getChildren(WebdavNsNode node) throws WebdavIntfException {
+  public Iterator<WebdavNsNode> getChildren(WebdavNsNode node) throws WebdavException {
     try {
       CaldavBwNode uwnode = getBwnode(node);
 
@@ -395,7 +399,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
           name = ei.getEvent().getName();
           nodeType = WebdavNsIntf.nodeTypeEntity;
         } else {
-          throw new WebdavIntfException("Unexpected return type");
+          throw new WebdavException("Unexpected return type");
         }
 
         CaldavURI wi = findURI(uri + "/" + name,
@@ -419,15 +423,15 @@ public class CaldavBWIntf extends WebdavNsIntf {
       }
 
       return al.iterator();
-    } catch (WebdavIntfException we) {
+    } catch (WebdavException we) {
       throw we;
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
   public WebdavNsNode getParent(WebdavNsNode node)
-      throws WebdavIntfException {
+      throws WebdavException {
     return null;
   }
 
@@ -439,7 +443,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
   }*/
 
   public Reader getContent(WebdavNsNode node)
-      throws WebdavIntfException {
+      throws WebdavException {
     try {
       if (!node.getAllowsGet()) {
         return null;
@@ -448,10 +452,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
       CaldavBwNode uwnode = getBwnode(node);
 
       return uwnode.getContent();
-    } catch (WebdavIntfException we) {
+    } catch (WebdavException we) {
       throw we;
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
@@ -538,21 +542,21 @@ public class CaldavBWIntf extends WebdavNsIntf {
    * @param cal
    * @param req
    * @return Icalendar
-   * @throws WebdavIntfException
+   * @throws WebdavException
    */
   public Icalendar getIcal(BwCalendar cal, HttpServletRequest req)
-      throws WebdavIntfException {
+      throws WebdavException {
     try {
       return sysi.fromIcal(cal, new MyReader(req.getReader()));
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
   public PutContentResult putContent(WebdavNsNode node,
                                      Reader contentRdr,
                                      boolean create)
-      throws WebdavIntfException {
+      throws WebdavException {
     try {
       PutContentResult pcr = new PutContentResult();
       pcr.node = node;
@@ -610,7 +614,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
             bwnode.setEventInfo(evinfo);
           } else {
             if (!entityName.equals(ev.getName())) {
-              throw WebdavIntfException.badRequest();
+              throw new WebdavBadRequest("Mismatched names");
             }
 
             /* XXX check calendar not changed */
@@ -629,29 +633,35 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       if (fail) {
         warn("More than one calendar object for PUT or not event");
-        throw WebdavIntfException.badRequest();
+        throw new WebdavBadRequest("More than one calendar object for PUT or not event");
       }
 
 
       return pcr;
-    } catch (WebdavIntfException we) {
+    } catch (WebdavException we) {
       throw we;
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
-  public void create(WebdavNsNode node)
-      throws WebdavIntfException {
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#create(edu.rpi.cct.webdav.servlet.shared.WebdavNsNode)
+   */
+  public void create(WebdavNsNode node) throws WebdavException {
   }
 
-  public void createAlias(WebdavNsNode alias)
-      throws WebdavIntfException {
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#createAlias(edu.rpi.cct.webdav.servlet.shared.WebdavNsNode)
+   */
+  public void createAlias(WebdavNsNode alias) throws WebdavException {
   }
 
-  public void acceptMkcolContent(HttpServletRequest req)
-          throws WebdavIntfException {
-    throw WebdavIntfException.unsupportedMediaType();
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#acceptMkcolContent(javax.servlet.http.HttpServletRequest)
+   */
+  public void acceptMkcolContent(HttpServletRequest req) throws WebdavException {
+    throw new WebdavUnsupportedMediaType();
   }
 
   /** Create an empty collection at the given location.
@@ -672,9 +682,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
    *
    * @param req       HttpServletRequest
    * @param node             node to create
-   * @throws WebdavIntfException
+   * @throws WebdavException
    */
-  public void makeCollection(HttpServletRequest req, WebdavNsNode node) throws WebdavIntfException {
+  public void makeCollection(HttpServletRequest req, WebdavNsNode node) throws WebdavException {
     try {
       CaldavBwNode uwnode = getBwnode(node);
       CaldavURI cdUri = uwnode.getCDURI();
@@ -687,21 +697,21 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       BwCalendar parent = cdUri.getCal();
       if (parent.getCalendarCollection()) {
-        throw WebdavIntfException.forbidden();
+        throw new WebdavForbidden("Forbidden: Calendar collection as parent");
       }
 
       String name = cdUri.getEntityName();
       if (name == null) {
-        throw WebdavIntfException.forbidden();
+        throw new WebdavForbidden("Forbidden: Null name");
       }
 
       sysi.makeCollection(name,
                           "MKCALENDAR".equalsIgnoreCase(req.getMethod()),
                           parent.getPath());
-    } catch (WebdavIntfException we) {
+    } catch (WebdavException we) {
       throw we;
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
@@ -709,13 +719,19 @@ public class CaldavBWIntf extends WebdavNsIntf {
    *                  Access methods
    * ==================================================================== */
 
-  public String getPrincipalPrefix() throws WebdavIntfException {
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#getPrincipalPrefix()
+   */
+  public String getPrincipalPrefix() throws WebdavException {
     return getSysi().getPrincipalRoot();
   }
 
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#principalMatch(java.lang.String, edu.rpi.cct.webdav.servlet.common.PrincipalMatchReport)
+   */
   public Collection<WebdavNsNode> principalMatch(String resourceUri,
                                                  PrincipalMatchReport pmatch)
-          throws WebdavIntfException {
+          throws WebdavException {
     Collection<WebdavNsNode> res = new ArrayList<WebdavNsNode>();
 
     if (pmatch.self) {
@@ -734,14 +750,20 @@ public class CaldavBWIntf extends WebdavNsIntf {
     return res;
   }
 
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#getPrincipalCollectionSet(java.lang.String)
+   */
   public Collection<String> getPrincipalCollectionSet(String resourceUri)
-         throws WebdavIntfException {
+         throws WebdavException {
     return getSysi().getPrincipalCollectionSet(resourceUri);
   }
 
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#getPrincipals(java.lang.String, edu.rpi.cct.webdav.servlet.shared.PrincipalPropertySearch)
+   */
   public Collection<CaldavBwNode> getPrincipals(String resourceUri,
                                                 PrincipalPropertySearch pps)
-          throws WebdavIntfException {
+          throws WebdavException {
     ArrayList<CaldavBwNode> pnodes = new ArrayList<CaldavBwNode>();
 
     for (CalUserInfo cui: sysi.getPrincipals(resourceUri, pps)) {
@@ -757,14 +779,14 @@ public class CaldavBWIntf extends WebdavNsIntf {
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#makeUserHref(java.lang.String)
    */
-  public String makeUserHref(String id) throws WebdavIntfException {
+  public String makeUserHref(String id) throws WebdavException {
     return getSysi().makeUserHref(id);
   }
 
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#makeGroupHref(java.lang.String)
    */
-  public String makeGroupHref(String id) throws WebdavIntfException {
+  public String makeGroupHref(String id) throws WebdavException {
     return getSysi().makeGroupHref(id);
   }
 
@@ -782,7 +804,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
     ArrayList<Ace> aces = new ArrayList<Ace>();
   }
 
-  public AclInfo startAcl(String uri) throws WebdavIntfException {
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#startAcl(java.lang.String)
+   */
+  public AclInfo startAcl(String uri) throws WebdavException {
     CdAclInfo ainfo = new CdAclInfo();
 
     ainfo.what = uri;
@@ -790,8 +815,11 @@ public class CaldavBWIntf extends WebdavNsIntf {
     return ainfo;
   }
 
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#parseAcePrincipal(edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf.AclInfo, org.w3c.dom.Node, boolean)
+   */
   public void parseAcePrincipal(AclInfo ainfo, Node nd,
-                                boolean inverted) throws WebdavIntfException {
+                                boolean inverted) throws WebdavException {
     CdAclInfo info = (CdAclInfo)ainfo;
 
     info.notWho = inverted;
@@ -805,7 +833,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       String href = getElementContent(el);
 
       if ((href == null) || (href.length() == 0)) {
-        throw WebdavIntfException.badRequest();
+        throw new WebdavBadRequest("Missing href");
       }
       info.pi = getPrincipalInfo(info.pi, href);
       info.whoType = info.pi.whoType;
@@ -821,13 +849,13 @@ public class CaldavBWIntf extends WebdavNsIntf {
       if (MethodBase.nodeMatches(el, WebdavTags.owner)) {
         info.whoType = Ace.whoTypeOwner;
       } else {
-        throw WebdavIntfException.badRequest();
+        throw new WebdavBadRequest("Bad WHO property");
       }
     } else if (MethodBase.nodeMatches(el, WebdavTags.self)) {
       info.whoType = Ace.whoTypeUser;
       info.who = account;
     } else {
-      throw WebdavIntfException.badRequest();
+      throw new WebdavBadRequest("Bad WHO");
     }
 
     if (debug) {
@@ -836,13 +864,16 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
   }
 
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#parsePrivilege(edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf.AclInfo, org.w3c.dom.Node, boolean)
+   */
   public void parsePrivilege(AclInfo ainfo, Node nd,
-                             boolean grant) throws WebdavIntfException {
+                             boolean grant) throws WebdavException {
     CdAclInfo info = (CdAclInfo)ainfo;
 
     if (!grant) {
       // There's probably a way to block this
-      throw WebdavIntfException.badRequest();
+      throw new WebdavBadRequest("Only allow grant");
     }
 
     Element el = getOnlyChild(nd);
@@ -858,14 +889,17 @@ public class CaldavBWIntf extends WebdavNsIntf {
           break findPriv;
         }
       }
-      throw WebdavIntfException.badRequest();
+      throw new WebdavBadRequest("Bad privilege");
     }
 
     info.aces.add(new Ace(info.who, info.notWho, info.whoType,
                           Privileges.makePriv(priv)));
   }
 
-  public void updateAccess(AclInfo ainfo) throws WebdavIntfException {
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#updateAccess(edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf.AclInfo)
+   */
+  public void updateAccess(AclInfo ainfo) throws WebdavException {
     CdAclInfo info = (CdAclInfo)ainfo;
 
     CaldavBwNode node = (CaldavBwNode)getNode(info.what,
@@ -879,14 +913,14 @@ public class CaldavBWIntf extends WebdavNsIntf {
         sysi.updateAccess(((CaldavComponentNode)node).getEventInfo().getEvent(),
                           info.aces);
       }
-    } catch (WebdavIntfException wi) {
+    } catch (WebdavException wi) {
       throw wi;
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
-  public void emitAcl(WebdavNsNode node) throws WebdavIntfException {
+  public void emitAcl(WebdavNsNode node) throws WebdavException {
     CaldavBwNode uwnode = getBwnode(node);
     CaldavURI cdUri = uwnode.getCDURI();
     Acl acl = null;
@@ -905,15 +939,15 @@ public class CaldavBWIntf extends WebdavNsIntf {
         emitAccess.emitAcl(acl);
       }
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
-  public void emitSupportedPrivSet(WebdavNsNode node) throws WebdavIntfException {
+  public void emitSupportedPrivSet(WebdavNsNode node) throws WebdavException {
     try {
       emitAccess.emitSupportedPrivSet();
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
@@ -925,7 +959,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
   }
 
   private PrincipalInfo getPrincipalInfo(PrincipalInfo pi, String href)
-          throws WebdavIntfException {
+          throws WebdavException {
     if (pi == null) {
       pi = new PrincipalInfo();
     }
@@ -939,7 +973,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       // third is id.
 
       if ((segs.length != 3) || (segs[0].length() != 0)) {
-        throw WebdavIntfException.badRequest();
+        throw new WebdavBadRequest("0 or 3 elements expected");
       }
 
       if ("users".equals(segs[1])) {
@@ -947,11 +981,11 @@ public class CaldavBWIntf extends WebdavNsIntf {
       } else if ("groups".equals(segs[1])) {
         pi.whoType = Ace.whoTypeGroup;
       } else {
-        throw WebdavIntfException.badRequest();
+        throw new WebdavBadRequest("Bad WHO type - expect 'users|groups'");
       }
 
       if (segs[2].length() == 0) {
-        throw WebdavIntfException.badRequest();
+        throw new WebdavBadRequest("Missing id");
       }
 
       pi.who = segs[2];
@@ -960,7 +994,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       if (debug) {
         error(t);
       }
-      throw WebdavIntfException.badRequest();
+      throw new WebdavBadRequest();
     }
   }
 
@@ -1002,7 +1036,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
    */
   public int generatePropValue(WebdavNsNode node,
                                WebdavProperty pr,
-                               boolean allProp) throws WebdavIntfException {
+                               boolean allProp) throws WebdavException {
     QName tag = pr.getTag();
     String ns = tag.getNamespaceURI();
     int status = HttpServletResponse.SC_OK;
@@ -1088,10 +1122,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
       // Not known
       xml.emptyTag(tag);
       return HttpServletResponse.SC_NOT_FOUND;
-    } catch (WebdavIntfException wie) {
+    } catch (WebdavException wie) {
       throw wie;
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
@@ -1107,19 +1141,15 @@ public class CaldavBWIntf extends WebdavNsIntf {
    * @param retrieveRecur  How we retrieve recurring events
    * @param fltr      Filter object defining search
    * @return Collection of result nodes (empty for no result)
-   * @throws WebdavIntfException
+   * @throws WebdavException
    */
   public Collection<? extends WebdavNsNode> query(WebdavNsNode wdnode,
                                                   RecurringRetrievalMode retrieveRecur,
-                                                  Filter fltr) throws WebdavIntfException {
+                                                  Filter fltr) throws WebdavException {
     CaldavBwNode node = getBwnode(wdnode);
     Collection<EventInfo> events;
 
-    try {
-      events = fltr.query(node, retrieveRecur);
-    } catch (WebdavException wde) {
-      throw new WebdavIntfException(wde.getStatusCode());
-    }
+    events = fltr.query(node, retrieveRecur);
 
     /* We now need to build a node for each of the events in the collection.
        For each event we first determine what calendar it's in. We then take the
@@ -1183,9 +1213,11 @@ public class CaldavBWIntf extends WebdavNsIntf {
       }
 
       return fltr.postFilter(evnodes);
+    } catch (WebdavException we) {
+      throw we;
     } catch (Throwable t) {
       error(t);
-      throw WebdavIntfException.serverError();
+      throw new WebdavServerError();
     }
   }
 
@@ -1194,10 +1226,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
    *
    * @param cnode  CaldavCalNode
    * @param freeBusy
-   * @throws WebdavIntfException
+   * @throws WebdavException
    */
   public void getFreeBusy(CaldavCalNode cnode,
-                          FreeBusyQuery freeBusy) throws WebdavIntfException {
+                          FreeBusyQuery freeBusy) throws WebdavException {
     try {
       String user = cnode.getCDURI().getOwner();
 
@@ -1205,22 +1237,22 @@ public class CaldavBWIntf extends WebdavNsIntf {
                                            user);
 
       cnode.setFreeBusy(fb);
-    } catch (WebdavIntfException we) {
+    } catch (WebdavException we) {
       throw we;
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
   /**
    * @param node
    * @return CaldavBwNode
-   * @throws WebdavIntfException
+   * @throws WebdavException
    */
   public CaldavBwNode getBwnode(WebdavNsNode node)
-      throws WebdavIntfException {
+      throws WebdavException {
     if (!(node instanceof CaldavBwNode)) {
-      throw new WebdavIntfException("Not a valid node object " +
+      throw new WebdavException("Not a valid node object " +
                                     node.getClass().getName());
     }
 
@@ -1277,7 +1309,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       if ((nodeType == WebdavNsIntf.nodeTypeUnknown) &&
           (existance != WebdavNsIntf.existanceMust)) {
         // We assume an unknown type must exist
-        throw WebdavIntfException.serverError();
+        throw new WebdavServerError();
       }
 
       uri = normalizeUri(uri, decoded);
@@ -1318,7 +1350,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
           prefix = groupRoot;
           group = true;
         } else {
-          throw WebdavIntfException.notFound();
+          throw new WebdavNotFound(uri);
         }
 
         if (start == end) {
@@ -1327,7 +1359,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
         }
 
         if (uri.charAt(start) != '/') {
-          throw WebdavIntfException.notFound();
+          throw new WebdavNotFound(uri);
         }
 
         String account = uri.substring(start + 1, end);
@@ -1339,10 +1371,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
         if (group) {
           if (!sysi.validGroup(account)) {
-            throw WebdavIntfException.notFound();
+            throw new WebdavNotFound(uri);
           }
         } else if (!sysi.validUser(account)) {
-          throw WebdavIntfException.notFound();
+          throw new WebdavNotFound(uri);
         }
 
         return new CaldavURI(account, prefix, !group);
@@ -1372,7 +1404,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
           if ((nodeType == WebdavNsIntf.nodeTypeCollection) &&
               (existance != WebdavNsIntf.existanceNot)) {
             /* We asked for a collection and it doesn't exist */
-            throw WebdavIntfException.notFound();
+            throw new WebdavNotFound(uri);
           }
 
           // We'll try as an entity for unknown
@@ -1393,13 +1425,13 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       if (split[1] == null) {
         // No name part
-        throw WebdavIntfException.notFound();
+        throw new WebdavNotFound(uri);
       }
 
       cal = sysi.getCalendar(split[0]);
 
       if (cal == null) {
-        throw WebdavIntfException.notFound();
+        throw new WebdavNotFound(uri);
       }
 
       if (nodeType == WebdavNsIntf.nodeTypeCollection) {
@@ -1419,7 +1451,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       ei = sysi.getEvent(cal, split[1], rrm);
 
       if ((existance == WebdavNsIntf.existanceMust) && (ei == null)) {
-        throw WebdavIntfException.notFound();
+        throw new WebdavNotFound(uri);
       }
 
       curi = new CaldavURI(cal, ei, split[1]);
@@ -1429,17 +1461,17 @@ public class CaldavBWIntf extends WebdavNsIntf {
     } catch (WebdavException wde) {
       throw wde;
     } catch (Throwable t) {
-      throw new WebdavIntfException(t);
+      throw new WebdavException(t);
     }
   }
 
   /* Split the uri so that result[0] is the path up to the name part result[1]
    */
-  private String[] splitUri(String uri) throws WebdavIntfException {
+  private String[] splitUri(String uri) throws WebdavException {
     int pos = uri.lastIndexOf("/");
     if (pos < 0) {
       // bad uri
-      throw WebdavIntfException.badRequest();
+      throw new WebdavBadRequest("Invalid uri: " + uri);
     }
 
     if (pos == 0) {
@@ -1456,7 +1488,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
   }
 
   private String normalizeUri(String uri,
-                              boolean decoded) throws WebdavIntfException {
+                              boolean decoded) throws WebdavException {
     /*Remove all "." and ".." components */
     try {
       if (decoded) {
@@ -1480,7 +1512,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       if (debug) {
         error(t);
       }
-      throw WebdavIntfException.badRequest();
+      throw new WebdavBadRequest("Bad uri: " + uri);
     }
   }
 
