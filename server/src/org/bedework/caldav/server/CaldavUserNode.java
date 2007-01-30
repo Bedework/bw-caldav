@@ -68,6 +68,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
+import javax.servlet.http.HttpServletResponse;
+
 /** Class to represent a user in caldav.
  *
  *
@@ -104,14 +106,28 @@ public class CaldavUserNode extends CaldavBwNode {
     userPrincipal = true;
   }
 
-  public boolean removeProperty(Element val) throws WebdavException {
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#removeProperty(org.w3c.dom.Element)
+   */
+  public SetPropertyResult removeProperty(Element val) throws WebdavException {
     warn("Unimplemented - removeProperty");
-    return false;
+    SetPropertyResult spr = new SetPropertyResult(val);
+    spr.status = HttpServletResponse.SC_NOT_IMPLEMENTED;
+    spr.message = "Unimplemented - removeProperty";
+
+    return spr;
   }
 
-  public boolean setProperty(Element val) throws WebdavException {
-    warn("Unimplemented - setProperty");
-    return false;
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#setProperty(org.w3c.dom.Element)
+   */
+  public SetPropertyResult setProperty(Element val) throws WebdavException {
+    SetPropertyResult spr = new SetPropertyResult(val);
+
+    spr.status = HttpServletResponse.SC_NOT_IMPLEMENTED;
+    spr.message = "Unimplemented - setProperty";
+
+    return spr;
   }
 
   public Collection getChildren() throws WebdavException {

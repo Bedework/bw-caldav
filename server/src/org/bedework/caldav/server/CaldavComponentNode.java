@@ -79,6 +79,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import javax.servlet.http.HttpServletResponse;
+
 /** Class to represent an entity such as events in caldav.
  *
  *   @author Mike Douglass   douglm@rpi.edu
@@ -176,14 +178,28 @@ public class CaldavComponentNode extends CaldavBwNode {
     eventInfo = cdURI.getEntity();
   }
 
-  public boolean removeProperty(Element val) throws WebdavException {
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#removeProperty(org.w3c.dom.Element)
+   */
+  public SetPropertyResult removeProperty(Element val) throws WebdavException {
     warn("Unimplemented - removeProperty");
-    return false;
+    SetPropertyResult spr = new SetPropertyResult(val);
+    spr.status = HttpServletResponse.SC_NOT_IMPLEMENTED;
+    spr.message = "Unimplemented - removeProperty";
+
+    return spr;
   }
 
-  public boolean setProperty(Element val) throws WebdavException {
-    warn("Unimplemented - setProperty");
-    return false;
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#setProperty(org.w3c.dom.Element)
+   */
+  public SetPropertyResult setProperty(Element val) throws WebdavException {
+    SetPropertyResult spr = new SetPropertyResult(val);
+
+    spr.status = HttpServletResponse.SC_NOT_IMPLEMENTED;
+    spr.message = "Unimplemented - setProperty";
+
+    return spr;
   }
 
   /** Get a vevent form of the only or master event. Mainly for property

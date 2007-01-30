@@ -686,8 +686,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
    */
   public void makeCollection(HttpServletRequest req, WebdavNsNode node) throws WebdavException {
     try {
-      CaldavBwNode uwnode = getBwnode(node);
-      CaldavURI cdUri = uwnode.getCDURI();
+      CaldavBwNode bwnode = getBwnode(node);
+      CaldavURI cdUri = bwnode.getCDURI();
 
       /* The uri should have an entity name representing the new collection
        * and a calendar object representing the parent.
@@ -695,12 +695,13 @@ public class CaldavBWIntf extends WebdavNsIntf {
        * A namepart of null means that the path already exists
        */
 
-      BwCalendar parent = cdUri.getCal();
+      BwCalendar newCal = cdUri.getCal();
+      BwCalendar parent = newCal.getCalendar();
       if (parent.getCalendarCollection()) {
         throw new WebdavForbidden("Forbidden: Calendar collection as parent");
       }
 
-      String name = cdUri.getEntityName();
+      String name = newCal.getName();
       if (name == null) {
         throw new WebdavForbidden("Forbidden: Null name");
       }
@@ -1435,8 +1436,14 @@ public class CaldavBWIntf extends WebdavNsIntf {
       }
 
       if (nodeType == WebdavNsIntf.nodeTypeCollection) {
-        // Trying to create calendar
-        curi = new CaldavURI(cal, null, split[1]);
+        // Trying to create calendar/collection
+        BwCalendar newCal = new BwCalendar();
+
+        newCal.setCalendar(cal);
+        newCal.setName(split[1]);
+        newCal.setPath(cal.getPath() + "/" + newCal.getName());
+
+        curi = new CaldavURI(newCal, null, null);
         putUriPath(curi);
 
         return curi;

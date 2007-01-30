@@ -30,6 +30,8 @@ import edu.rpi.cmt.access.Acl.CurrentAccess;
 
 import java.util.Collection;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.w3c.dom.Element;
 
 /** Class to represent a user in caldav. Should only be created in
@@ -48,14 +50,28 @@ public class CaldavGroupNode extends CaldavBwNode {
     groupPrincipal = true;
   }
 
-  public boolean removeProperty(Element val) throws WebdavException {
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#removeProperty(org.w3c.dom.Element)
+   */
+  public SetPropertyResult removeProperty(Element val) throws WebdavException {
     warn("Unimplemented - removeProperty");
-    return false;
+    SetPropertyResult spr = new SetPropertyResult(val);
+    spr.status = HttpServletResponse.SC_NOT_IMPLEMENTED;
+    spr.message = "Unimplemented - removeProperty";
+
+    return spr;
   }
 
-  public boolean setProperty(Element val) throws WebdavException {
-    warn("Unimplemented - setProperty");
-    return false;
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#setProperty(org.w3c.dom.Element)
+   */
+  public SetPropertyResult setProperty(Element val) throws WebdavException {
+    SetPropertyResult spr = new SetPropertyResult(val);
+
+    spr.status = HttpServletResponse.SC_NOT_IMPLEMENTED;
+    spr.message = "Unimplemented - setProperty";
+
+    return spr;
   }
 
   public Collection getChildren() throws WebdavException {

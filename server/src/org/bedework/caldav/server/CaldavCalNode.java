@@ -81,6 +81,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.w3c.dom.Element;
 
 /** Class to represent a calendar in caldav.
@@ -158,33 +160,52 @@ public class CaldavCalNode extends CaldavBwNode {
     return "W/\"" + val + "\"";
   }
 
-  public boolean removeProperty(Element val) throws WebdavException {
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#removeProperty(org.w3c.dom.Element)
+   */
+  public SetPropertyResult removeProperty(Element val) throws WebdavException {
     warn("Unimplemented - removeProperty");
-    return false;
+    SetPropertyResult spr = new SetPropertyResult(val);
+    spr.status = HttpServletResponse.SC_NOT_IMPLEMENTED;
+    spr.message = "Unimplemented - removeProperty";
+
+    return spr;
   }
 
-  public boolean setProperty(Element val) throws WebdavException {
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#setProperty(org.w3c.dom.Element)
+   */
+  public SetPropertyResult setProperty(Element val) throws WebdavException {
+    SetPropertyResult spr = new SetPropertyResult(val);
+
     BwCalendar cal = getCDURI().getCal();
     if (cal == null) {
-      return false;
+      spr.status = HttpServletResponse.SC_NOT_FOUND;
+      spr.message = "Not found";
+      return spr;
     }
 
     try {
-      String str = XmlUtil.getElementContent(val);
-
       if (WebdavTags.description.nodeMatches(val)) {
-        cal.setDescription(str);
+        cal.setDescription(XmlUtil.getElementContent(val));
+      } else if (CaldavTags.calendarDescription.nodeMatches(val)) {
+        cal.setDescription(XmlUtil.getElementContent(val));
       } else if (WebdavTags.displayname.nodeMatches(val)) {
-        cal.setSummary(str);
+        cal.setSummary(XmlUtil.getElementContent(val));
       } else if (CaldavTags.calendarFreeBusySet.nodeMatches(val)) {
         // Only valid for inbox
         if (cal.getCalType() != BwCalendar.calTypeInbox) {
           throw new WebdavForbidden("Not on inbox");
         }
 
-        warn("Unimplemented - calendarFreeBusySet: got " + str);
+        spr.status = HttpServletResponse.SC_NOT_IMPLEMENTED;
+        spr.message = "Unimplemented - calendarFreeBusySet";
+        warn("Unimplemented - calendarFreeBusySet");
+      } else {
+        spr.status = HttpServletResponse.SC_NOT_IMPLEMENTED;
       }
-      return false;
+
+      return spr;
     } catch (WebdavException wde) {
       throw wde;
     } catch (Throwable t) {

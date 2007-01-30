@@ -55,22 +55,16 @@
 package org.bedework.caldav.server;
 
 import org.bedework.davdefs.CaldavTags;
-import org.bedework.davdefs.WebdavTags;
 
 import edu.rpi.cct.webdav.servlet.common.PropPatchMethod;
-import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
-
-import java.util.Collection;
-import java.util.Iterator;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 /** Class called to handle MKCOL
  *
@@ -95,67 +89,21 @@ public class MkcalendarMethod extends PropPatchMethod {
     /* Create the node */
     String resourceUri = getResourceUri(req);
 
-    if (doc != null) {
-      processDoc(req, doc);
-    }
-
     WebdavNsNode node = getNsIntf().getNode(resourceUri,
                                  WebdavNsIntf.existanceNot,
                                  WebdavNsIntf.nodeTypeCollection);
 
+    boolean success = true;
+
+    if (doc != null) {
+      success = processDoc(req, resp, doc, node, CaldavTags.mkcalendar, true);
+    }
+
     // XXX Make calendar using properties sent in request
-    getNsIntf().makeCollection(req, node);
+    if (success) {
+      getNsIntf().makeCollection(req, node);
 
-    resp.setStatus(HttpServletResponse.SC_CREATED);
-  }
-
-  /* ====================================================================
-   *                   Protected methods
-   * ==================================================================== */
-
-  protected void processDoc(HttpServletRequest req,
-                            Document doc) throws WebdavException {
-    try {
-      Element root = doc.getDocumentElement();
-
-      if (!nodeMatches(root, CaldavTags.mkcalendar)) {
-        throw new WebdavBadRequest();
-      }
-
-      Collection setRemoveList = processUpdate(root);
-
-      Iterator it = setRemoveList.iterator();
-      while (it.hasNext()) {
-        Collection sr = (Collection)it.next();
-
-        if (!(sr instanceof PropPatchMethod.PropertySetList)) {
-          throw new WebdavBadRequest();
-        }
-
-        Iterator pit = sr.iterator();
-        while (pit.hasNext()) {
-          Element prop = (Element)pit.next();
-
-          if (CaldavTags.calendarDescription.nodeMatches(prop)) {
-            // XXX Some way to set description
-          } else if (CaldavTags.supportedCalendarComponentSet.nodeMatches(prop)) {
-            // XXX Need to do something
-          } else if (CaldavTags.calendarTimezone.nodeMatches(prop)) {
-            // XXX Need to do something
-          } else if (WebdavTags.displayname.nodeMatches(prop)) {
-            // XXX Need to do something
-          }
-        }
-      }
-    } catch (WebdavException wde) {
-      throw wde;
-    } catch (Throwable t) {
-      System.err.println(t.getMessage());
-      if (debug) {
-        t.printStackTrace();
-      }
-
-      throw new WebdavException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+      resp.setStatus(HttpServletResponse.SC_CREATED);
     }
   }
 }
