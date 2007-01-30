@@ -177,6 +177,13 @@ public class GoogleSysIntfImpl implements SysIntf {
     return caladdr;
   }
 
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#userToCaladdr(java.lang.String)
+   */
+  public String userToCaladdr(String account) throws WebdavException {
+    return account;
+  }
+
   public CalUserInfo getCalUserInfo(String caladdr) throws WebdavException {
     return new CalUserInfo(caladdrToUser(caladdr),
                            null, null, null, null);
@@ -243,6 +250,10 @@ public class GoogleSysIntfImpl implements SysIntf {
   }
 
   public void deleteCalendar(BwCalendar cal) throws WebdavException {
+    throw new WebdavException("unimplemented");
+  }
+
+  public ScheduleResult requestFreeBusy(BwFreeBusy val) throws WebdavException {
     throw new WebdavException("unimplemented");
   }
 

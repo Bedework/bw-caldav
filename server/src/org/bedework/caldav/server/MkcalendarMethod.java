@@ -55,6 +55,7 @@
 package org.bedework.caldav.server;
 
 import org.bedework.davdefs.CaldavTags;
+import org.bedework.davdefs.WebdavTags;
 
 import edu.rpi.cct.webdav.servlet.common.PropPatchMethod;
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
@@ -135,8 +136,14 @@ public class MkcalendarMethod extends PropPatchMethod {
         while (pit.hasNext()) {
           Element prop = (Element)pit.next();
 
-          if (nodeMatches(prop, CaldavTags.calendarDescription)) {
-            // Some way to set description
+          if (CaldavTags.calendarDescription.nodeMatches(prop)) {
+            // XXX Some way to set description
+          } else if (CaldavTags.supportedCalendarComponentSet.nodeMatches(prop)) {
+            // XXX Need to do something
+          } else if (CaldavTags.calendarTimezone.nodeMatches(prop)) {
+            // XXX Need to do something
+          } else if (WebdavTags.displayname.nodeMatches(prop)) {
+            // XXX Need to do something
           }
         }
       }

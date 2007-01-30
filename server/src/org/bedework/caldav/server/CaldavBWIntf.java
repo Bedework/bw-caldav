@@ -1377,7 +1377,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
           throw new WebdavNotFound(uri);
         }
 
-        return new CaldavURI(account, prefix, !group);
+        return new CaldavURI(sysi.userToCaladdr(account), prefix, !group);
       }
 
       if (existance == WebdavNsIntf.existanceDoesExist) {

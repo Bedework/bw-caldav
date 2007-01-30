@@ -166,6 +166,14 @@ public interface SysIntf {
    */
   public String caladdrToUser(String caladdr) throws WebdavException;
 
+  /** The inverse of caladdrToUser
+   *
+   * @param account
+   * @return String calendar user address
+   * @throws WebdavException
+   */
+  public String userToCaladdr(String account) throws WebdavException;
+
   /**
    * @author Mike Douglass
    */
@@ -354,6 +362,17 @@ public interface SysIntf {
    * @throws WebdavException
    */
   public void deleteCalendar(BwCalendar cal) throws WebdavException;
+
+  /** Get the free busy for one or more principals based on the given VFREEBUSY
+   * request.
+   *
+   * @param val    A representation of a scheduling freebusy request to be
+   *               acted upon.
+   * @return ScheduleResult
+   * @throws WebdavException
+   */
+  public ScheduleResult requestFreeBusy(BwFreeBusy val)
+          throws WebdavException;
 
   /**
    * @param cal

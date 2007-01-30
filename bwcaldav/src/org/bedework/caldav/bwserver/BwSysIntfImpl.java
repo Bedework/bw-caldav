@@ -25,7 +25,6 @@
 */
 package org.bedework.caldav.bwserver;
 
-import org.apache.log4j.Logger;
 import org.bedework.caldav.server.SysIntf;
 import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwDateTime;
@@ -39,6 +38,7 @@ import org.bedework.calfacade.ScheduleResult;
 import org.bedework.calfacade.base.BwShareableDbentity;
 import org.bedework.calfacade.exc.CalFacadeAccessException;
 import org.bedework.calfacade.exc.CalFacadeException;
+import org.bedework.calfacade.exc.CalFacadeStaleStateException;
 import org.bedework.calfacade.filter.BwEntityTypeFilter;
 import org.bedework.calfacade.filter.BwFilter;
 import org.bedework.calfacade.filter.BwOrFilter;
@@ -68,11 +68,14 @@ import edu.rpi.sss.util.xml.XmlUtil;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.TimeZone;
 
+import org.apache.log4j.Logger;
+
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /** Bedework implementation of SysIntf.
  *
@@ -215,9 +218,25 @@ public class BwSysIntfImpl implements SysIntf {
     }
   }
 
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#caladdrToUser(java.lang.String)
+   */
   public String caladdrToUser(String caladdr) throws WebdavException {
     try {
       return getSvci().caladdrToUser(caladdr);
+    } catch (CalFacadeException cfe) {
+      throw new WebdavException(cfe);
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
+  }
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#userToCaladdr(java.lang.String)
+   */
+  public String userToCaladdr(String account) throws WebdavException {
+    try {
+      return getSvci().userToCaladdr(account);
     } catch (CalFacadeException cfe) {
       throw new WebdavException(cfe);
     } catch (Throwable t) {
@@ -436,6 +455,16 @@ public class BwSysIntfImpl implements SysIntf {
   public void deleteCalendar(BwCalendar cal) throws WebdavException {
     try {
       getSvci().deleteCalendar(cal);
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
+  }
+
+  public ScheduleResult requestFreeBusy(BwFreeBusy val) throws WebdavException {
+    try {
+      return getSvci().requestFreeBusy(val);
+    } catch (CalFacadeException cfe) {
+      throw new WebdavException(cfe);
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
@@ -734,6 +763,10 @@ public class BwSysIntfImpl implements SysIntf {
       } catch (Throwable t1) {
       }
       svci = null;
+      if (t instanceof CalFacadeStaleStateException) {
+        throw new WebdavException(HttpServletResponse.SC_CONFLICT);
+      }
+
       throw new WebdavException(t);
     }
 
