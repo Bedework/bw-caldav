@@ -16,6 +16,11 @@
     <listener-class>edu.rpi.sss.util.jsp.SessionListener</listener-class>
   </listener>
 
+  <!-- Need this to fush a static table maintained by the servlet -->
+  <listener>
+    <listener-class>org.bedework.caldav.server.CaldavBWServlet</listener-class>
+  </listener>
+
   <servlet>
     <servlet-name>action</servlet-name>
     <servlet-class>
