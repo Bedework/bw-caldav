@@ -376,8 +376,8 @@ public class Filter {
    * @return Collection of filtered nodes (empty for no result)
    * @throws WebdavException
    */
-  public Collection<? extends WebdavNsNode> postFilter(
-                   Collection<CaldavBwNode> nodes) throws WebdavException {
+  public Collection<WebdavNsNode> postFilter(
+                   Collection<WebdavNsNode> nodes) throws WebdavException {
     if (!postFilterNeeded) {
       return nodes;
     }
@@ -390,10 +390,10 @@ public class Filter {
 
     // Currently only handle VCALENDAR for top level.
     if (!"VCALENDAR".equals(cfltr.getName())) {
-      return new ArrayList<CaldavComponentNode>();
+      return new ArrayList<WebdavNsNode>();
     }
 
-    ArrayList<CaldavComponentNode> filtered = new ArrayList<CaldavComponentNode>();
+    ArrayList<WebdavNsNode> filtered = new ArrayList<WebdavNsNode>();
     Iterator it = nodes.iterator();
     while (it.hasNext()) {
       Object node = it.next();

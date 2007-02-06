@@ -388,7 +388,7 @@ public class CaldavReportMethod extends ReportMethod {
     flush();
   }
 
-  private Collection<? extends WebdavNsNode> getNodes(WebdavNsNode node)
+  private Collection<WebdavNsNode> getNodes(WebdavNsNode node)
           throws WebdavException {
     try {
       if (debug) {
@@ -423,7 +423,7 @@ public class CaldavReportMethod extends ReportMethod {
     }
   }
 
-  private Collection<? extends WebdavNsNode> doNodeAndChildren(WebdavNsNode node,
+  private Collection<WebdavNsNode> doNodeAndChildren(WebdavNsNode node,
                                        int curDepth,
                                        int maxDepth) throws WebdavException {
     if (!(node instanceof CaldavCalNode)) {

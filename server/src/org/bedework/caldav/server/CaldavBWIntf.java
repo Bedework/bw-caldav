@@ -1144,7 +1144,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
    * @return Collection of result nodes (empty for no result)
    * @throws WebdavException
    */
-  public Collection<? extends WebdavNsNode> query(WebdavNsNode wdnode,
+  public Collection<WebdavNsNode> query(WebdavNsNode wdnode,
                                                   RecurringRetrievalMode retrieveRecur,
                                                   Filter fltr) throws WebdavException {
     CaldavBwNode node = getBwnode(wdnode);
@@ -1160,7 +1160,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
        If there is no calendar name for the event we just give it the default.
      */
 
-    Collection<CaldavBwNode> evnodes = new ArrayList<CaldavBwNode>();
+    Collection<WebdavNsNode> evnodes = new ArrayList<WebdavNsNode>();
     //HashMap evnodeMap = new HashMap();
 
     try {
