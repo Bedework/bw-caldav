@@ -488,7 +488,7 @@ public class GoogleSysIntfImpl implements SysIntf {
   private DateTime makeDateTime(BwDateTime dt) throws WebdavException {
     try {
       TimeZone tz = getTimezones().getTimeZone(dt.getTzid());
-      long millis = dt.makeDate().getTime();
+      long millis = dt.makeDate(timezones).getTime();
       return new DateTime(millis, tz.getOffset(millis) / 60000);
     } catch (Throwable t) {
       throw new WebdavException(t);

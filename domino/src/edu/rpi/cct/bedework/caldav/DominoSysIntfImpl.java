@@ -420,7 +420,7 @@ public class DominoSysIntfImpl implements SysIntf {
 
       /* Fill in the gaps between the free periods with busy time. */
 
-      DateTime bstart = (DateTime)start.makeDate();
+      DateTime bstart = (DateTime)start.makeDate(timezones);
 
       Iterator pit = periods.iterator();
       while (pit.hasNext()) {
@@ -436,7 +436,7 @@ public class DominoSysIntfImpl implements SysIntf {
       }
 
       /* Fill in to end of requested period */
-      DateTime bend = (DateTime)end.makeDate();
+      DateTime bend = (DateTime)end.makeDate(timezones);
 
       if (!bstart.equals(bend)) {
         Period busyp = new Period(bstart, bend);
