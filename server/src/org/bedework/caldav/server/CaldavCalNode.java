@@ -492,6 +492,25 @@ public class CaldavCalNode extends CaldavBwNode {
     return res;
   }
 
+  /** Return a set of Qname defining reports this node supports.
+   *
+   * @return Collection of QName
+   * @throws WebdavException
+   */
+  public Collection<QName> getSupportedReports() throws WebdavException {
+    Collection<QName> res = new ArrayList<QName>();
+    res.addAll(super.getSupportedReports());
+
+    /* Cannot do free-busy on in and outbox */
+    BwCalendar cal = cdURI.getCal();
+    if ((cal.getCalType() == BwCalendar.calTypeCollection) ||
+        (cal.getCalType() == BwCalendar.calTypeFolder)) {
+      res.add(CaldavTags.freeBusyQuery);    // Calendar access
+    }
+
+    return res;
+  }
+
   /* ====================================================================
    *                   Object methods
    * ==================================================================== */

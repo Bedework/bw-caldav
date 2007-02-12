@@ -53,9 +53,11 @@
 */
 package org.bedework.caldav.server;
 
+import org.bedework.caldav.server.SysIntf.CalUserInfo;
 import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.BwFreeBusy;
+import org.bedework.calfacade.BwOrganizer;
 import org.bedework.calfacade.ScheduleResult;
 import org.bedework.calfacade.ScheduleResult.ScheduleRecipientResult;
 import org.bedework.davdefs.CaldavTags;
@@ -237,7 +239,42 @@ public class PostMethod extends MethodBase {
       /* Do the stuff we deferred above */
 
       /* (CALDAV:valid-scheduling-message) -- later */
-      /* (CALDAV:organizer-allowed) -- later */
+
+      /* (CALDAV:organizer-allowed) */
+      /* There must be a valid organizer with an outbox. */
+      BwOrganizer organizer = pars.ic.getOrganizer();
+
+      if (organizer == null) {
+        throw new WebdavForbidden("No access for scheduling");
+      }
+
+      /* See if it's a valid calendar user. */
+      SysIntf sysi = intf.getSysi();
+      String cn = organizer.getCn();
+      CalUserInfo organizerInfo = sysi.getCalUserInfo(sysi.caladdrToUser(cn));
+
+      if (debug) {
+        if (organizerInfo == null) {
+          trace("organizerInfo for " + cn + " is NULL");
+        } else {
+          trace("organizer cn = " + cn +
+                ", reqPath = " + req.getPathTranslated() +
+                ", outBoxPath = " + organizerInfo.outboxPath);
+        }
+      }
+
+      if (organizerInfo == null) {
+        throw new WebdavForbidden("No access for scheduling");
+      }
+
+      if (pars.ic.requestMethodType()) {
+        /* This must be targetted at the organizers outbox. */
+        if (!req.getPathTranslated().equals(organizerInfo.outboxPath)) {
+          throw new WebdavForbidden("No access for scheduling");
+        }
+      } else {
+        /* This must have only one attendee - request must be targetted at attendees outbox*/
+      }
 
       startEmit(resp);
 

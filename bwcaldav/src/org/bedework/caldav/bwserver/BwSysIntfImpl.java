@@ -93,7 +93,9 @@ public class BwSysIntfImpl implements SysIntf {
 
   private String hostPortContext;
 
-  private String principalCollectionSetUri;
+  //private String principalCollectionSetUri;
+  private String userPrincipalCollectionSetUri;
+  private String groupPrincipalCollectionSetUri;
 
   /* These two set after a call to getSvci()
    */
@@ -127,10 +129,14 @@ public class BwSysIntfImpl implements SysIntf {
 
       hostPortContext = sb.toString();
 
-      BwSystem sys = getSvci().getSyspars();
-      String userRootPath = sys.getUserCalendarRoot();
+      //BwSystem sys = getSvci().getSyspars();
+      //String userRootPath = sys.getUserCalendarRoot();
 
-      principalCollectionSetUri = "/" + userRootPath + "/";
+      //principalCollectionSetUri = "/" + userRootPath + "/";
+      userPrincipalCollectionSetUri = hostPortContext + getUserPrincipalRoot() +
+                                      "/";
+      groupPrincipalCollectionSetUri = hostPortContext + getGroupPrincipalRoot() +
+                                       "/";
       urlPrefix = WebdavUtils.getUrlPrefix(req);
     } catch (Throwable t) {
       throw new WebdavException(t);
@@ -269,14 +275,10 @@ public class BwSysIntfImpl implements SysIntf {
   public Collection<String> getPrincipalCollectionSet(String resourceUri)
           throws WebdavException {
     try {
-      StringBuffer sb = new StringBuffer();
-
-      sb.append(hostPortContext);
-      sb.append(principalCollectionSetUri);
-
       ArrayList<String> al = new ArrayList<String>();
 
-      al.add(sb.toString());
+      al.add(userPrincipalCollectionSetUri);
+      al.add(groupPrincipalCollectionSetUri);
 
       return al;
     } catch (Throwable t) {
@@ -297,7 +299,7 @@ public class BwSysIntfImpl implements SysIntf {
 
     ArrayList<CalUserInfo> principals = new ArrayList<CalUserInfo>();
 
-    if (!resourceUri.equals(principalCollectionSetUri)) {
+    if (!resourceUri.equals(userPrincipalCollectionSetUri)) {
       return principals;
     }
 

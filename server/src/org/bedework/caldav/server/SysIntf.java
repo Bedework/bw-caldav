@@ -216,7 +216,7 @@ public interface SysIntf {
     }
   }
 
-  /** Given a calendar address return the associated calendar user information
+  /** Given a valid user account return the associated calendar user information
    * needed for caldav interactions.
    *
    * @param account     as returned by caladdrToUser

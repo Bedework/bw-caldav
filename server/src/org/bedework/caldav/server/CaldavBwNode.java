@@ -66,6 +66,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.bedework.davdefs.CaldavTags;
 import org.bedework.davdefs.WebdavTags;
 
 /** Class to represent a caldav node.
@@ -74,6 +75,13 @@ import org.bedework.davdefs.WebdavTags;
  */
 public abstract class CaldavBwNode extends WebdavNsNode {
   protected CaldavURI cdURI;
+
+  private final static Collection<QName> supportedReports = new ArrayList<QName>();
+
+  static {
+    supportedReports.add(CaldavTags.calendarMultiget); // Calendar access
+    supportedReports.add(CaldavTags.calendarQuery);    // Calendar access
+  }
 
   /* for accessing calendars */
   private SysIntf sysi;
@@ -200,6 +208,19 @@ public abstract class CaldavBwNode extends WebdavNsNode {
    */
   public SysIntf getSysi() {
     return sysi;
+  }
+
+  /** Return a set of Qname defining reports this node supports.
+   *
+   * @return Collection of QName
+   * @throws WebdavException
+   */
+  public Collection<QName> getSupportedReports() throws WebdavException {
+    Collection<QName> res = new ArrayList<QName>();
+    res.addAll(super.getSupportedReports());
+    res.addAll(supportedReports);
+
+    return res;
   }
 
   /* ====================================================================
