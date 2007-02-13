@@ -109,7 +109,8 @@ public class CalDavParseUtil {
                                           false,
                                           true,
                                           false,
-                                          null,
+                                          null,   // tzid
+                                          null,   // tzowner
                                           timezones);
       }
 
@@ -121,7 +122,8 @@ public class CalDavParseUtil {
                                         false,
                                         true,
                                         false,
-                                        null,
+                                        null,   // tzid
+                                        null,   // tzowner
                                         timezones);
       }
     } catch (Throwable t) {
