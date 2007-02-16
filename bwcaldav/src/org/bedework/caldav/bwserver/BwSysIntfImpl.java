@@ -36,6 +36,8 @@ import org.bedework.calfacade.BwUser;
 import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.ScheduleResult;
 import org.bedework.calfacade.base.BwShareableDbentity;
+import org.bedework.calfacade.env.CalEnvFactory;
+import org.bedework.calfacade.env.CalEnvI;
 import org.bedework.calfacade.exc.CalFacadeAccessException;
 import org.bedework.calfacade.exc.CalFacadeException;
 import org.bedework.calfacade.exc.CalFacadeStaleStateException;
@@ -88,6 +90,8 @@ public class BwSysIntfImpl implements SysIntf {
 
   /* Prefix for our properties */
   private String envPrefix;
+
+  private CalEnvI env;
 
   private String account;
 
@@ -725,12 +729,18 @@ public class BwSysIntfImpl implements SysIntf {
     }
 
     try {
+      String runAsUser = account;
+
+      if (account == null) {
+        runAsUser = getEnv().getAppProperty("run.as.user");
+      }
+
       /* account is what we authenticated with.
        * user, if non-null, is the user calendar we want to access.
        */
       CalSvcIPars pars = new CalSvcIPars(account,
-                                         account,
-                                         null,
+                                         runAsUser,
+                                         null,    // calsuite
                                          envPrefix,
                                          false,   // publicAdmin
                                          false,  // adminCanEditAllPublicCategories
@@ -745,11 +755,26 @@ public class BwSysIntfImpl implements SysIntf {
       svci.beginTransaction();
 
       trans = new IcalTranslator(svci.getIcalCallback(), debug);
+    } catch (WebdavException wde) {
+      throw wde;
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
 
     return svci;
+  }
+
+  private CalEnvI getEnv() throws WebdavException {
+    try {
+      if (env != null) {
+        return env;
+      }
+
+      env = CalEnvFactory.getEnv(envPrefix, debug);
+      return env;
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
   }
 
   private void close(CalSvcI svci) throws WebdavException {
