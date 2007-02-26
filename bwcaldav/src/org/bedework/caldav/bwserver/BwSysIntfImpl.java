@@ -562,6 +562,66 @@ public class BwSysIntfImpl implements SysIntf {
     }
   }
 
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#copyMove(org.bedework.calfacade.BwCalendar, org.bedework.calfacade.BwCalendar, boolean)
+   */
+  public void copyMove(BwCalendar from,
+                       BwCalendar to,
+                       boolean copy,
+                       boolean overwrite) throws WebdavException {
+    throw new WebdavException("unimplemented");
+  }
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#copyMove(org.bedework.calfacade.BwEvent, org.bedework.calfacade.BwCalendar, java.lang.String, boolean)
+   */
+  public void copyMove(BwEvent from, Collection<BwEventProxy>overrides,
+                       BwCalendar to,
+                       String name,
+                       boolean copy,
+                       boolean overwrite) throws WebdavException {
+    try {
+      if (!overwrite) {
+        BwEvent newEvent = (BwEvent)from.clone();
+
+        newEvent.setCalendar(to);
+        newEvent.setName(name);
+
+        getSvci().addEvent(to, newEvent, overrides, true);
+      } else {
+        /* Should do update
+        RecurringRetrievalMode rrm =
+          new RecurringRetrievalMode(Rmode.overrides);
+        Collection<EventInfo> eis = getSvci().getEvent(null, from.getCalendar(),
+                                                       from.getUid(),
+                                                       from.getRecurrenceId(),
+                                                       rrm);
+        if (eis.size() != 1) {
+          throw new WebdavForbidden();
+        }
+
+        EventInfo ei = eis.iterator().next();
+
+        // Now I have to effectively replace
+        BwEvent ...
+        */
+        getSvci().deleteEvent(from, true);
+        BwEvent newEvent = (BwEvent)from.clone();
+
+        newEvent.setCalendar(to);
+        newEvent.setName(name);
+
+        getSvci().addEvent(to, newEvent, overrides, true);
+      }
+    } catch (CalFacadeAccessException cfae) {
+      throw new WebdavForbidden();
+    } catch (CalFacadeException cfe) {
+      throw new WebdavException(cfe);
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
+  }
+
   public BwCalendar getCalendar(String path) throws WebdavException {
     try {
       return getSvci().getCalendar(path);

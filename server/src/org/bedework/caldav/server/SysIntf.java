@@ -427,6 +427,37 @@ public interface SysIntf {
   public int makeCollection(String name, boolean calendarCollection,
                             String parentPath) throws WebdavException;
 
+  /** Copy or move the collection to another location.
+   * Status is set on return
+   *
+   * @param from      Source calendar
+   * @param to        Destination calendar
+   * @param copy      true for copying
+   * @param overwrite destination exists
+   * @throws WebdavException
+   */
+  public void copyMove(BwCalendar from,
+                       BwCalendar to,
+                       boolean copy,
+                       boolean overwrite) throws WebdavException;
+
+  /** Copy or move the given entity to the destination calendar with the given name.
+   * Status is set on return
+   *
+   * @param from      Source entity
+   * @param overrides Associated event overrides.
+   * @param to        Destination calendar
+   * @param name      String name of new entity
+   * @param copy      true for copying
+   * @param overwrite destination exists
+   * @throws WebdavException
+   */
+  public void copyMove(BwEvent from, Collection<BwEventProxy>overrides,
+                       BwCalendar to,
+                       String name,
+                       boolean copy,
+                       boolean overwrite) throws WebdavException;
+
   /** Get a calendar given the path
    *
    * @param  path     String path of calendar

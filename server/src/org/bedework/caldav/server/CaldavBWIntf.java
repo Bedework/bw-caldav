@@ -70,6 +70,7 @@ import org.bedework.davdefs.CaldavTags;
 import org.bedework.davdefs.WebdavTags;
 import org.bedework.icalendar.Icalendar;
 
+import edu.rpi.cct.webdav.servlet.common.Headers;
 import edu.rpi.cct.webdav.servlet.common.MethodBase;
 import edu.rpi.cct.webdav.servlet.common.PrincipalMatchReport;
 import edu.rpi.cct.webdav.servlet.common.WebdavServlet;
@@ -717,6 +718,75 @@ public class CaldavBWIntf extends WebdavNsIntf {
       throw we;
     } catch (Throwable t) {
       throw new WebdavException(t);
+    }
+  }
+
+  public void copyMove(HttpServletRequest req,
+                       HttpServletResponse resp,
+                       WebdavNsNode from,
+                       WebdavNsNode to,
+                       boolean copy,
+                       boolean overwrite,
+                       int depth) throws WebdavException {
+    if (from instanceof CaldavCalNode) {
+      if (!(to instanceof CaldavCalNode)) {
+        throw new WebdavBadRequest();
+      }
+
+      // Copy folder
+      if ((depth != Headers.depthNone) && (depth != Headers.depthInfinity)) {
+        throw new WebdavBadRequest();
+      }
+
+      CaldavCalNode fromCalNode = (CaldavCalNode)from;
+      CaldavCalNode toCalNode = (CaldavCalNode)to;
+
+      if (toCalNode.getExists() && !overwrite) {
+        resp.setStatus(HttpServletResponse.SC_PRECONDITION_FAILED);
+      }
+
+      BwCalendar fromCal = fromCalNode.cdURI.getCal();
+      BwCalendar toCal = toCalNode.cdURI.getCal();
+
+      getSysi().copyMove(fromCal, toCal, copy, overwrite);
+      if (toCalNode.getExists()) {
+        resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
+      } else {
+        resp.setStatus(HttpServletResponse.SC_CREATED);
+      }
+
+      return;
+    }
+
+    if (!(from instanceof CaldavComponentNode)) {
+      throw new WebdavBadRequest();
+    }
+
+    if (!(to instanceof CaldavComponentNode)) {
+      throw new WebdavBadRequest();
+    }
+
+    // Copy entity
+    if ((depth != Headers.depthNone) && (depth != 0)) {
+      throw new WebdavBadRequest();
+    }
+
+    CaldavComponentNode fromNode = (CaldavComponentNode)from;
+    CaldavComponentNode toNode = (CaldavComponentNode)to;
+
+    if (toNode.getExists() && !overwrite) {
+      resp.setStatus(HttpServletResponse.SC_PRECONDITION_FAILED);
+    }
+
+    EventInfo fromEi = fromNode.getEventInfo();
+    BwCalendar toCal = toNode.cdURI.getCal();
+
+    getSysi().copyMove(fromEi.getEvent(), fromEi.getOverrideProxies(), toCal,
+                       toNode.getCDURI().getEntityName(), copy, overwrite);
+    if (toNode.getExists()) {
+      resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
+    } else {
+      resp.setStatus(HttpServletResponse.SC_CREATED);
     }
   }
 

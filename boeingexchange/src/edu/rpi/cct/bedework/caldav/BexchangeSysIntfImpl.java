@@ -439,8 +439,32 @@ public class BexchangeSysIntfImpl implements SysIntf {
     throw new WebdavException("unimplemented");
   }
 
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#makeCollection(java.lang.String, boolean, java.lang.String)
+   */
   public int makeCollection(String name, boolean calendarCollection,
                             String parentPath) throws WebdavException {
+    throw new WebdavException("unimplemented");
+  }
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#copyMove(org.bedework.calfacade.BwCalendar, org.bedework.calfacade.BwCalendar, boolean)
+   */
+  public void copyMove(BwCalendar from,
+                       BwCalendar to,
+                       boolean copy,
+                       boolean overwrite) throws WebdavException {
+    throw new WebdavException("unimplemented");
+  }
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#copyMove(org.bedework.calfacade.BwEvent, org.bedework.calfacade.BwCalendar, java.lang.String, boolean)
+   */
+  public void copyMove(BwEvent from, Collection<BwEventProxy>overrides,
+                       BwCalendar to,
+                       String name,
+                       boolean copy,
+                       boolean overwrite) throws WebdavException {
     throw new WebdavException("unimplemented");
   }
 

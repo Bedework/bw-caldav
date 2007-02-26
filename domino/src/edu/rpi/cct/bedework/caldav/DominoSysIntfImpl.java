@@ -473,6 +473,27 @@ public class DominoSysIntfImpl implements SysIntf {
     throw new WebdavException("unimplemented");
   }
 
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#copyMove(org.bedework.calfacade.BwCalendar, org.bedework.calfacade.BwCalendar, boolean)
+   */
+  public void copyMove(BwCalendar from,
+                       BwCalendar to,
+                       boolean copy,
+                       boolean overwrite) throws WebdavException {
+    throw new WebdavException("unimplemented");
+  }
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#copyMove(org.bedework.calfacade.BwEvent, org.bedework.calfacade.BwCalendar, java.lang.String, boolean)
+   */
+  public void copyMove(BwEvent from, Collection<BwEventProxy>overrides,
+                       BwCalendar to,
+                       String name,
+                       boolean copy,
+                       boolean overwrite) throws WebdavException {
+    throw new WebdavException("unimplemented");
+  }
+
   public BwCalendar getCalendar(String path) throws WebdavException {
     // XXX Just fake it up for the moment.
     /* The path should always start with /server-name/user
