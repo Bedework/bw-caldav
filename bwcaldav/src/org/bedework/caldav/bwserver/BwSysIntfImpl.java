@@ -95,8 +95,6 @@ public class BwSysIntfImpl implements SysIntf {
 
   private String account;
 
-  private String hostPortContext;
-
   //private String principalCollectionSetUri;
   private String userPrincipalCollectionSetUri;
   private String groupPrincipalCollectionSetUri;
@@ -129,7 +127,8 @@ public class BwSysIntfImpl implements SysIntf {
       }
 
       sb.append(req.getContextPath());
-      sb.append("/");
+
+      String hostPortContext;
 
       hostPortContext = sb.toString();
 
@@ -540,7 +539,7 @@ public class BwSysIntfImpl implements SysIntf {
     }
   }
 
-  public void makeCollection(String name, boolean calendarCollection,
+  public int makeCollection(String name, boolean calendarCollection,
                              String parentPath) throws WebdavException {
     BwCalendar newcal = new BwCalendar();
 
@@ -549,9 +548,14 @@ public class BwSysIntfImpl implements SysIntf {
 
     try {
       getSvci().addCalendar(newcal, parentPath);
+      return HttpServletResponse.SC_CREATED;
     } catch (CalFacadeAccessException cfae) {
-      throw new WebdavForbidden();
+      return HttpServletResponse.SC_FORBIDDEN;
     } catch (CalFacadeException cfe) {
+      String msg = cfe.getMessage();
+      if (CalFacadeException.duplicateCalendar.equals(msg)) {
+        return HttpServletResponse.SC_METHOD_NOT_ALLOWED;
+      }
       throw new WebdavException(cfe);
     } catch (Throwable t) {
       throw new WebdavException(t);

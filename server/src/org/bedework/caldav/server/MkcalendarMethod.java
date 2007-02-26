@@ -101,9 +101,7 @@ public class MkcalendarMethod extends PropPatchMethod {
 
     // XXX Make calendar using properties sent in request
     if (success) {
-      getNsIntf().makeCollection(req, node);
-
-      resp.setStatus(HttpServletResponse.SC_CREATED);
+      getNsIntf().makeCollection(req, resp, node);
     }
   }
 }

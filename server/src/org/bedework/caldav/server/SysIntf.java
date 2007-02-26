@@ -421,10 +421,11 @@ public interface SysIntf {
    * @param name
    * @param calendarCollection
    * @param parentPath
+   * @return int status
    * @throws WebdavException
    */
-  public void makeCollection(String name, boolean calendarCollection,
-                             String parentPath) throws WebdavException;
+  public int makeCollection(String name, boolean calendarCollection,
+                            String parentPath) throws WebdavException;
 
   /** Get a calendar given the path
    *

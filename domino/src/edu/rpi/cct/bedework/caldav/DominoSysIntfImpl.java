@@ -468,8 +468,8 @@ public class DominoSysIntfImpl implements SysIntf {
     throw new WebdavException("unimplemented");
   }
 
-  public void makeCollection(String name, boolean calendarCollection,
-                             String parentPath) throws WebdavException {
+  public int makeCollection(String name, boolean calendarCollection,
+                            String parentPath) throws WebdavException {
     throw new WebdavException("unimplemented");
   }
 

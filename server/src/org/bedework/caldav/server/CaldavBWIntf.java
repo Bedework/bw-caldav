@@ -684,7 +684,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
    * @param node             node to create
    * @throws WebdavException
    */
-  public void makeCollection(HttpServletRequest req, WebdavNsNode node) throws WebdavException {
+  public void makeCollection(HttpServletRequest req,
+                             HttpServletResponse resp,
+                             WebdavNsNode node) throws WebdavException {
     try {
       CaldavBwNode bwnode = getBwnode(node);
       CaldavURI cdUri = bwnode.getCDURI();
@@ -698,7 +700,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
       BwCalendar newCal = cdUri.getCal();
       BwCalendar parent = newCal.getCalendar();
       if (parent.getCalendarCollection()) {
-        throw new WebdavForbidden("Forbidden: Calendar collection as parent");
+        resp.setStatus(HttpServletResponse.SC_FORBIDDEN /*,
+                       "Forbidden: Calendar collection as parent" */);
       }
 
       String name = newCal.getName();
@@ -706,9 +709,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
         throw new WebdavForbidden("Forbidden: Null name");
       }
 
-      sysi.makeCollection(name,
-                          "MKCALENDAR".equalsIgnoreCase(req.getMethod()),
-                          parent.getPath());
+      resp.setStatus(sysi.makeCollection(name,
+                                         "MKCALENDAR".equalsIgnoreCase(req.getMethod()),
+                                         parent.getPath()));
     } catch (WebdavException we) {
       throw we;
     } catch (Throwable t) {
@@ -803,6 +806,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
     String who;
 
     ArrayList<Ace> aces = new ArrayList<Ace>();
+
+    Ace curAce;
   }
 
   /* (non-Javadoc)
@@ -819,7 +824,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#parseAcePrincipal(edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf.AclInfo, org.w3c.dom.Node, boolean)
    */
-  public void parseAcePrincipal(AclInfo ainfo, Node nd,
+  public boolean parseAcePrincipal(AclInfo ainfo, Node nd,
                                 boolean inverted) throws WebdavException {
     CdAclInfo info = (CdAclInfo)ainfo;
 
@@ -837,6 +842,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
         throw new WebdavBadRequest("Missing href");
       }
       info.pi = getPrincipalInfo(info.pi, href);
+      if (info.pi == null) {
+        info.errorTag = WebdavTags.recognizedPrincipal;
+        return false;
+      }
       info.whoType = info.pi.whoType;
       info.who = info.pi.who;
     } else if (MethodBase.nodeMatches(el, WebdavTags.all)) {
@@ -859,29 +868,33 @@ public class CaldavBWIntf extends WebdavNsIntf {
       throw new WebdavBadRequest("Bad WHO");
     }
 
+    info.curAce = null;
+
     if (debug) {
       debugMsg("Parsed ace/principal whoType=" + info.whoType +
                " who=\"" + info.who + "\"");
     }
+
+    return true;
   }
 
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#parsePrivilege(edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf.AclInfo, org.w3c.dom.Node, boolean)
    */
   public void parsePrivilege(AclInfo ainfo, Node nd,
-                             boolean grant) throws WebdavException {
+                             boolean denial) throws WebdavException {
     CdAclInfo info = (CdAclInfo)ainfo;
-
-    if (!grant) {
-      // There's probably a way to block this
-      throw new WebdavBadRequest("Only allow grant");
-    }
 
     Element el = getOnlyChild(nd);
 
     int priv;
 
     QName[] privTags = emitAccess.getPrivTags();
+
+    if (info.curAce == null) {
+      info.curAce = new Ace(info.who, info.notWho, info.whoType);
+      info.aces.add(info.curAce);
+    }
 
     findPriv: {
       // ENUM
@@ -893,8 +906,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
       throw new WebdavBadRequest("Bad privilege");
     }
 
-    info.aces.add(new Ace(info.who, info.notWho, info.whoType,
-                          Privileges.makePriv(priv)));
+    info.curAce.addPriv(Privileges.makePriv(priv, denial));
+
   }
 
   /* (non-Javadoc)
@@ -955,8 +968,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
   /** This class is the result of interpreting a principal url
    */
   public static class PrincipalInfo {
-    int whoType;  // from access.Ace user, group etc
-    String who;   // id of user group etc.
+    int whoType;   // from access.Ace user, group etc
+    String who;    // id of user group etc.
+    String prefix; // prefix of hierarchy e.g. /principals/users
   }
 
   private PrincipalInfo getPrincipalInfo(PrincipalInfo pi, String href)
@@ -966,9 +980,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
 
     try {
-      URI uri = new URI(href);
+      String uri = new URI(href).getPath();
 
-      String[] segs = uri.getPath().split("/");
+      /*
+      String[] segs = uri.split("/");
 
       // First element should be empty, second = "users" or "groups"
       // third is id.
@@ -990,6 +1005,48 @@ public class CaldavBWIntf extends WebdavNsIntf {
       }
 
       pi.who = segs[2];
+      */
+      if (!uri.startsWith(getPrincipalPrefix())) {
+        return null;
+      }
+
+      int start;
+
+      int end = uri.length();
+      if (uri.endsWith("/")) {
+        end--;
+      }
+
+      String groupRoot = getSysi().getGroupPrincipalRoot();
+      String userRoot = getSysi().getUserPrincipalRoot();
+
+      if (uri.startsWith(userRoot)) {
+        start = userRoot.length();
+        pi.prefix = userRoot;
+        pi.whoType = Ace.whoTypeUser;
+      } else if (uri.startsWith(groupRoot)) {
+        start = groupRoot.length();
+        pi.prefix = groupRoot;
+        pi.whoType = Ace.whoTypeGroup;
+      } else {
+        throw new WebdavNotFound(uri);
+      }
+
+      if (start == end) {
+        // Trying to browse user principals?
+        pi.who = null;
+      } else if (uri.charAt(start) != '/') {
+        throw new WebdavNotFound(uri);
+      } else {
+        pi.who = uri.substring(start + 1, end);
+      }
+
+      if (debug) {
+        debugMsg("getPrincipalInfo \"" + pi.who +
+                 "\" group=" + (pi.whoType == Ace.whoTypeGroup) +
+                 " principalUri=\"" + uri + "\"");
+      }
+
       return pi;
     } catch (Throwable t) {
       if (debug) {
@@ -1330,6 +1387,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
       }
 
       if (uri.startsWith(getPrincipalPrefix())) {
+        PrincipalInfo pi = getPrincipalInfo(null, uri);
+
+        /*
         boolean group;
         int start;
 
@@ -1369,16 +1429,18 @@ public class CaldavBWIntf extends WebdavNsIntf {
                    "\" group=" + group +
                    " principalUri=\"" + uri + "\"");
         }
+        */
 
-        if (group) {
-          if (!sysi.validGroup(account)) {
+        if (pi.whoType == Ace.whoTypeGroup) {
+          if (!sysi.validGroup(pi.who)) {
             throw new WebdavNotFound(uri);
           }
-        } else if (!sysi.validUser(account)) {
+        } else if (!sysi.validUser(pi.who)) {
           throw new WebdavNotFound(uri);
         }
 
-        return new CaldavURI(sysi.userToCaladdr(account), prefix, !group);
+        return new CaldavURI(sysi.userToCaladdr(pi.who), pi.prefix,
+                             pi.whoType == Ace.whoTypeUser);
       }
 
       if (existance == WebdavNsIntf.existanceDoesExist) {
