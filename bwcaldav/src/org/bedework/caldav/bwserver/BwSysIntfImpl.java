@@ -580,7 +580,18 @@ public class BwSysIntfImpl implements SysIntf {
                        String name,
                        boolean copy,
                        boolean overwrite) throws WebdavException {
+    /* A move of an entity to the same calendar is essentially a rename.
+     */
     try {
+      boolean sameCal = from.getCalendar().equals(to);
+      boolean rename = sameCal && !copy && !overwrite;
+
+      if (rename) {
+        from.setName(name);
+        getSvci().updateEvent(from, overrides, null);
+        return;
+      }
+
       if (!overwrite) {
         BwEvent newEvent = (BwEvent)from.clone();
 
@@ -605,13 +616,17 @@ public class BwSysIntfImpl implements SysIntf {
         // Now I have to effectively replace
         BwEvent ...
         */
-        getSvci().deleteEvent(from, true);
         BwEvent newEvent = (BwEvent)from.clone();
 
         newEvent.setCalendar(to);
         newEvent.setName(name);
+        getSvci().deleteEvent(newEvent, true);
 
         getSvci().addEvent(to, newEvent, overrides, true);
+      }
+
+      if (!copy) {
+        getSvci().deleteEvent(from, true);
       }
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
