@@ -87,6 +87,7 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavServerError;
 import edu.rpi.cct.webdav.servlet.shared.WebdavUnauthorized;
 import edu.rpi.cct.webdav.servlet.shared.WebdavUnsupportedMediaType;
 import edu.rpi.cmt.access.Ace;
+import edu.rpi.cmt.access.AceWho;
 import edu.rpi.cmt.access.Acl;
 import edu.rpi.cmt.access.Privileges;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
@@ -892,8 +893,21 @@ public class CaldavBWIntf extends WebdavNsIntf {
     QName[] privTags = emitAccess.getPrivTags();
 
     if (info.curAce == null) {
-      info.curAce = new Ace(info.who, info.notWho, info.whoType);
-      info.aces.add(info.curAce);
+      /* Look for this 'who' in the list */
+      AceWho awho = new AceWho(info.who, info.whoType, info.notWho);
+      for (Ace ace: info.aces) {
+        if (ace.getWho().equals(awho)) {
+          info.curAce = ace;
+          break;
+        }
+      }
+
+      if (info.curAce == null) {
+        info.curAce = new Ace();
+        info.curAce.setWho(awho);
+
+        info.aces.add(info.curAce);
+      }
     }
 
     findPriv: {
@@ -950,7 +964,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       }
 
       if (acl != null) {
-        emitAccess.emitAcl(acl);
+        emitAccess.emitAcl(acl, true);
       }
     } catch (Throwable t) {
       throw new WebdavException(t);
