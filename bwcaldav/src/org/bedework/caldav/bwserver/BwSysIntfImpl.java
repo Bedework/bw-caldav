@@ -616,12 +616,13 @@ public class BwSysIntfImpl implements SysIntf {
         // Now I have to effectively replace
         BwEvent ...
         */
-        BwEvent newEvent = (BwEvent)from.clone();
+        BwEvent delEvent = (BwEvent)from.clone();
 
-        newEvent.setCalendar(to);
-        newEvent.setName(name);
-        getSvci().deleteEvent(newEvent, true);
+        delEvent.setCalendar(to);
+        delEvent.setName(name);
+        getSvci().deleteEvent(delEvent, true);
 
+        BwEvent newEvent = (BwEvent)delEvent.clone();
         getSvci().addEvent(to, newEvent, overrides, true);
       }
 
