@@ -251,7 +251,8 @@ public class PostMethod extends MethodBase {
       /* See if it's a valid calendar user. */
       SysIntf sysi = intf.getSysi();
       String cn = organizer.getCn();
-      CalUserInfo organizerInfo = sysi.getCalUserInfo(sysi.caladdrToUser(cn));
+      CalUserInfo organizerInfo = sysi.getCalUserInfo(sysi.caladdrToUser(cn),
+                                                      false);
 
       if (debug) {
         if (organizerInfo == null) {

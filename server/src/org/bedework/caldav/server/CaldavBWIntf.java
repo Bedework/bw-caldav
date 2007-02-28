@@ -87,10 +87,12 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavProperty;
 import edu.rpi.cct.webdav.servlet.shared.WebdavServerError;
 import edu.rpi.cct.webdav.servlet.shared.WebdavUnauthorized;
 import edu.rpi.cct.webdav.servlet.shared.WebdavUnsupportedMediaType;
+import edu.rpi.cmt.access.AccessException;
 import edu.rpi.cmt.access.Ace;
 import edu.rpi.cmt.access.AceWho;
 import edu.rpi.cmt.access.Acl;
 import edu.rpi.cmt.access.Privileges;
+import edu.rpi.cmt.access.WhoDefs;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
 import edu.rpi.sss.util.xml.QName;
 
@@ -106,6 +108,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Properties;
+import java.util.TreeSet;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -810,8 +813,13 @@ public class CaldavBWIntf extends WebdavNsIntf {
     Collection<WebdavNsNode> res = new ArrayList<WebdavNsNode>();
 
     if (pmatch.self) {
-      /* ResourceUri should be the principals root */
-      if (!resourceUri.equals(getPrincipalPrefix())) {
+      if (resourceUri.endsWith("/")) {
+        resourceUri = resourceUri.substring(0, resourceUri.length() - 1);
+      }
+
+      /* ResourceUri should be the principals root or user principal root */
+      if (!resourceUri.equals(getPrincipalPrefix()) &&
+          !resourceUri.equals(getSysi().getUserPrincipalRoot())) {
         return res;
       }
 
@@ -1137,6 +1145,31 @@ public class CaldavBWIntf extends WebdavNsIntf {
         error(t);
       }
       throw new WebdavBadRequest();
+    }
+  }
+  public Collection<String> getAclPrincipalInfo(WebdavNsNode node) throws WebdavException {
+    try {
+      TreeSet<String> hrefs = new TreeSet<String>();
+
+      CurrentAccess ca = node.getCurrentAccess();
+      if (ca != null) {
+        for (Ace ace: ca.acl.getAces()) {
+          AceWho who = ace.getWho();
+
+          if (who.getWhoType() == WhoDefs.whoTypeUser) {
+            hrefs.add(emitAccess.makeUserHref(who.getWho()));
+          } else if (who.getWhoType() == WhoDefs.whoTypeGroup) {
+            hrefs.add(emitAccess.makeGroupHref(who.getWho()));
+          }
+        }
+      }
+
+      return hrefs;
+    } catch (AccessException ae) {
+      if (debug) {
+        error(ae);
+      }
+      throw new WebdavServerError();
     }
   }
 
@@ -1470,7 +1503,13 @@ public class CaldavBWIntf extends WebdavNsIntf {
         return curi;
       }
 
-      if (uri.startsWith(getPrincipalPrefix())) {
+      boolean isPrincipal = uri.startsWith(getPrincipalPrefix());
+
+      if ((nodeType == WebdavNsIntf.nodeTypePrincipal) && !isPrincipal) {
+        throw new WebdavNotFound(uri);
+      }
+
+      if (isPrincipal) {
         PrincipalInfo pi = getPrincipalInfo(null, uri);
 
         /*

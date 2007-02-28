@@ -33,6 +33,7 @@ import org.bedework.calfacade.BwEventProxy;
 import org.bedework.calfacade.BwFreeBusy;
 import org.bedework.calfacade.BwSystem;
 import org.bedework.calfacade.BwUser;
+import org.bedework.calfacade.BwUserInfo;
 import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.ScheduleResult;
 import org.bedework.calfacade.base.BwShareableDbentity;
@@ -253,9 +254,12 @@ public class BwSysIntfImpl implements SysIntf {
     }
   }
 
-  public CalUserInfo getCalUserInfo(String caladdr) throws WebdavException {
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#getCalUserInfo(java.lang.String, boolean)
+   */
+  public CalUserInfo getCalUserInfo(String account,
+                                    boolean getDirInfo) throws WebdavException {
     try {
-      String account = caladdrToUser(caladdr);
       BwSystem sys = getSvci().getSyspars();
       String userHomePath = "/" + sys.getUserCalendarRoot() +
                             "/" + account + "/";
@@ -263,11 +267,18 @@ public class BwSysIntfImpl implements SysIntf {
       String inboxPath = userHomePath + sys.getUserInbox();
       String outboxPath = userHomePath + sys.getUserOutbox();
 
+      BwUserInfo dirInfo = null;
+
+      if (getDirInfo) {
+        dirInfo = getSvci().getDirInfo(account);
+      }
+
       return new CalUserInfo(account,
                              userHomePath,
                              defaultCalendarPath,
                              inboxPath,
-                             outboxPath);
+                             outboxPath,
+                             dirInfo);
     } catch (CalFacadeException cfe) {
       throw new WebdavException(cfe);
     } catch (Throwable t) {
@@ -292,15 +303,17 @@ public class BwSysIntfImpl implements SysIntf {
   public Collection<CalUserInfo> getPrincipals(String resourceUri,
                                                PrincipalPropertySearch pps)
           throws WebdavException {
+    ArrayList<CalUserInfo> principals = new ArrayList<CalUserInfo>();
+
     if (pps.applyToPrincipalCollectionSet) {
-      throw new WebdavException("unimplemented");
+      /* I believe it's valid (if unhelpful) to return nothing
+       */
+      return principals;
     }
 
     if (!resourceUri.endsWith("/")) {
       resourceUri += "/";
     }
-
-    ArrayList<CalUserInfo> principals = new ArrayList<CalUserInfo>();
 
     if (!resourceUri.equals(userPrincipalCollectionSetUri)) {
       return principals;
@@ -335,11 +348,7 @@ public class BwSysIntfImpl implements SysIntf {
       caladdr = mval;
     }
 
-    /* For the moment only support the above
-     */
-    CalUserInfo cui = getCalUserInfo(caladdr);
-
-    // XXX This needs to do a search of a system user directory - probably ldap
+    CalUserInfo cui = getCalUserInfo(caladdrToUser(caladdr), true);
 
     principals.add(cui);
 

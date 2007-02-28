@@ -101,7 +101,7 @@ public class CaldavUserNode extends CaldavBwNode {
     this.ui = ui;
 
     if (ui == null) {
-      this.ui = sysi.getCalUserInfo(cdURI.getEntityName());
+      this.ui = sysi.getCalUserInfo(cdURI.getEntityName(), false);
     }
     userPrincipal = true;
   }
@@ -150,6 +150,13 @@ public class CaldavUserNode extends CaldavBwNode {
     }
 
     return "W/\"" + val + "\"";
+  }
+
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#trailSlash()
+   */
+  public boolean trailSlash() {
+    return true;
   }
 
   /* ====================================================================

@@ -58,6 +58,7 @@ import org.bedework.calfacade.BwDateTime;
 import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.BwEventProxy;
 import org.bedework.calfacade.BwFreeBusy;
+import org.bedework.calfacade.BwUserInfo;
 import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.ScheduleResult;
 import org.bedework.calfacade.base.BwShareableDbentity;
@@ -198,21 +199,27 @@ public interface SysIntf {
      */
     public String outboxPath;
 
+    /** Some directory information for the user.
+     */
+    public BwUserInfo directoryInfo;
+
     /**
      * @param account
      * @param userHomePath
      * @param defaultCalendarPath
      * @param inboxPath
      * @param outboxPath
+     * @param directoryInfo
      */
     public CalUserInfo(String account, String userHomePath,
                        String defaultCalendarPath, String inboxPath,
-                       String outboxPath) {
+                       String outboxPath, BwUserInfo directoryInfo) {
       this.account = account;
       this.userHomePath = userHomePath;
       this.defaultCalendarPath = defaultCalendarPath;
       this.inboxPath = inboxPath;
       this.outboxPath = outboxPath;
+      this.directoryInfo = directoryInfo;
     }
   }
 
@@ -220,10 +227,12 @@ public interface SysIntf {
    * needed for caldav interactions.
    *
    * @param account     as returned by caladdrToUser
+   * @param getDirInfo  get directory info if true and available.
    * @return CalUserInfo or null if not caladdr for this system
    * @throws WebdavException  for errors
    */
-  public CalUserInfo getCalUserInfo(String account) throws WebdavException;
+  public CalUserInfo getCalUserInfo(String account,
+                                    boolean getDirInfo) throws WebdavException;
 
   /** Given a uri returns a Collection of uris that allow search operations on
    * principals for that resource.

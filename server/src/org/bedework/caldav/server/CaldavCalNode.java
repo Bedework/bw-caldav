@@ -384,6 +384,13 @@ public class CaldavCalNode extends CaldavBwNode {
     return currentAccess;
   }
 
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#trailSlash()
+   */
+  public boolean trailSlash() {
+    return true;
+  }
+
   /* ====================================================================
    *                   Property methods
    * ==================================================================== */

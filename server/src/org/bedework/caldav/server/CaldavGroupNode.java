@@ -82,10 +82,16 @@ public class CaldavGroupNode extends CaldavBwNode {
    *                   Abstract methods
    * ==================================================================== */
 
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getCurrentAccess()
+   */
   public CurrentAccess getCurrentAccess() throws WebdavException {
     return null;
   }
 
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getEtagValue(boolean)
+   */
   public String getEtagValue(boolean strong) throws WebdavException {
     String val = "1234567890";
 
@@ -94,6 +100,13 @@ public class CaldavGroupNode extends CaldavBwNode {
     }
 
     return "W/\"" + val + "\"";
+  }
+
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#trailSlash()
+   */
+  public boolean trailSlash() {
+    return true;
   }
 
   /* ====================================================================

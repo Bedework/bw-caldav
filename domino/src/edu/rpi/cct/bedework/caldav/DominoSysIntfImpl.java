@@ -266,9 +266,12 @@ public class DominoSysIntfImpl implements SysIntf {
     return account;
   }
 
-  public CalUserInfo getCalUserInfo(String caladdr) throws WebdavException {
-    return new CalUserInfo(caladdrToUser(caladdr),
-                           null, null, null, null);
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#getCalUserInfo(java.lang.String, boolean)
+   */
+  public CalUserInfo getCalUserInfo(String account,
+                                    boolean getDirInfo) throws WebdavException {
+    return new CalUserInfo(account, null, null, null, null, null);
   }
 
   public Collection<String> getPrincipalCollectionSet(String resourceUri)
