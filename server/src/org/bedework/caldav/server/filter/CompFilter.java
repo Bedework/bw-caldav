@@ -129,7 +129,7 @@ public class CompFilter {
   }
 
   /**
-   * @return Vector of comp filters
+   * @return Collection of comp filters
    */
   public Collection<CompFilter> getCompFilters() {
     if (compFilters == null) {

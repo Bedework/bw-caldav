@@ -294,12 +294,30 @@ public class Filter {
         Collection<CompFilter> subcfs = cfltr.getCompFilters();
         CompFilter subcf = subcfs.iterator().next();
 
+        boolean isNot = subcf.getIsNotDefined();
+
+        // XXX This is wrong????
         if ("VEVENT".equals(subcf.getName())) {
-          getEvents = true;
+          if (isNot) {
+            getTodos = true;
+            getJournals = true;
+          } else {
+            getEvents = true;
+          }
         } else if ("VTODO".equals(subcf.getName())) {
-          getTodos = true;
+          if (isNot) {
+            getEvents = true;
+            getJournals = true;
+          } else {
+            getTodos = true;
+          }
         } else if ("VJOURNAL".equals(subcf.getName())) {
-          getJournals = true;
+          if (isNot) {
+            getEvents = true;
+            getTodos = true;
+          } else {
+            getJournals = true;
+          }
         } else {
           /* Don't support anything else so just return an empty
              Collection
@@ -437,8 +455,8 @@ public class Filter {
     return filtered;
   }
 
-  /** We are given a Vector of com-filters which should all name VEVENT
-   * and provide conditions for the query.
+  /** We are given a Collection of comp-filters which should all name a calendar
+   * entity and provide conditions for the query.
    *
    * @param cfs    Collection
    * @param globaltr

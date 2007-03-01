@@ -430,9 +430,10 @@ public class BwSysIntfImpl implements SysIntf {
     try {
       BwSubscription sub = BwSubscription.makeSubscription(cal);
 
+      /*
       if ((startDate == null) && (endDate == null)) {
         return getSvci().getEvents(sub, recurRetrieval);
-      }
+      }*/
 
       BwFilter filter = makeFilter(getEvents, getTodos, getJournals);
       return getSvci().getEvents(sub, filter, startDate, endDate,
