@@ -237,19 +237,20 @@ public class CalendarData extends WebdavProperty {
      */
     NamedNodeMap nnm = nd.getAttributes();
 
-    if ((nnm != null) && (nnm.getLength() > 1)) {
-      throw new WebdavBadRequest();
-    }
-
     if (nnm != null) {
-      if (nnm.getLength() == 1) {
-        returnContentType = XmlUtil.getAttrVal(nnm, "return-content-type");
-        if (returnContentType == null) {
+      for (int nnmi = 0; nnmi < nnm.getLength(); nnmi++) {
+        Node attr = nnm.item(nnmi);
+
+        if (attr.getNodeName().equals("return-content-type")) {
+          returnContentType = attr.getNodeValue();
+          if (returnContentType == null) {
+            throw new WebdavBadRequest();
+          }
+        } else if (attr.getNodeName().equals("xmlns")) {
+        } else {
+          // Bad attribute(s)
           throw new WebdavBadRequest();
         }
-      } else if (nnm.getLength() > 0) {
-        // Bad attribute(s)
-        throw new WebdavBadRequest();
       }
     }
 

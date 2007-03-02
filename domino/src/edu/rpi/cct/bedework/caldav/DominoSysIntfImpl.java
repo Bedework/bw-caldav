@@ -64,6 +64,7 @@ import org.bedework.calfacade.BwUser;
 import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.ScheduleResult;
 import org.bedework.calfacade.base.BwShareableDbentity;
+import org.bedework.calfacade.filter.BwFilter;
 import org.bedework.calfacade.svc.EventInfo;
 import org.bedework.calfacade.timezones.CalTimezones;
 import org.bedework.calfacade.timezones.ResourceTimezones;
@@ -315,9 +316,7 @@ public class DominoSysIntfImpl implements SysIntf {
   }
 
   public Collection<EventInfo> getEvents(BwCalendar cal,
-                                         boolean getEvents,
-                                         boolean getTodos,
-                                         boolean getJournals,
+                                         BwFilter filter,
                                          BwDateTime startDate, BwDateTime endDate,
                                          RecurringRetrievalMode recurRetrieval)
           throws WebdavException {

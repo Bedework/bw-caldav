@@ -66,6 +66,7 @@ import org.bedework.davdefs.WebdavTags;
 
 import edu.rpi.cct.webdav.servlet.common.PropFindMethod;
 import edu.rpi.cct.webdav.servlet.common.ReportMethod;
+import edu.rpi.cct.webdav.servlet.common.PropFindMethod.PropRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
@@ -196,14 +197,8 @@ public class CaldavReportMethod extends ReportMethod {
       for (int i = 0; i < children.length; i++) {
         Element curnode = children[i];
 
-        /** The names come through looking something like A:allprop etc.
-         */
-
-        String nm = curnode.getLocalName();
-        String ns = curnode.getNamespaceURI();
-
         if (debug) {
-          trace("reqtype: " + nm + " ns: " + ns);
+          trace("reqtype: " + curnode.getNamespaceURI() + ":" + curnode.getLocalName());
         }
 
         if (reportType == reportTypeFreeBusy) {
@@ -283,7 +278,7 @@ public class CaldavReportMethod extends ReportMethod {
         }
       }
 
-      if (preq != null) {
+      if ((preq != null) && (preq.reqType == PropRequest.ReqType.prop)) {
         // Look for a calendar-data property
         for (WebdavProperty prop: preq.props) {
           if (prop instanceof CalendarData) {
@@ -312,11 +307,7 @@ public class CaldavReportMethod extends ReportMethod {
     } catch (WebdavException wde) {
       throw wde;
     } catch (Throwable t) {
-      System.err.println(t.getMessage());
-      if (debug) {
-        t.printStackTrace();
-      }
-
+      error(t);
       throw new WebdavException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
     }
   }

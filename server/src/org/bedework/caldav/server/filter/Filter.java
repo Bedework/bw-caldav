@@ -58,7 +58,10 @@ import org.bedework.caldav.server.CaldavBWIntf;
 import org.bedework.caldav.server.CaldavBwNode;
 import org.bedework.caldav.server.CaldavComponentNode;
 import org.bedework.caldav.server.TimeRange;
+import org.bedework.calfacade.BwDateTime;
+import org.bedework.calfacade.CalFacadeDefs;
 import org.bedework.calfacade.RecurringRetrievalMode;
+import org.bedework.calfacade.filter.BwFilter;
 import org.bedework.calfacade.svc.EventInfo;
 import org.bedework.davdefs.CaldavDefs;
 import org.bedework.davdefs.CaldavTags;
@@ -74,7 +77,6 @@ import edu.rpi.sss.util.xml.XmlUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import javax.servlet.http.HttpServletResponse;
 
 import net.fortuna.ical4j.model.Component;
@@ -176,19 +178,42 @@ public class Filter {
    */
   private CompFilter filter;
 
-  /** True if the filter contains elements we cannot handle in the initial
-   * query.
-   */
-  private boolean postFilterNeeded;
-
-  /** If none null this is a collection of PropFilter to be applied to
-   * retrieved event components
-   */
-  private Collection<PropFilter> eventFilters;
-
   /* Set by internal methods to indicate failure reason.
    */
   private int status;
+
+  static class EventQuery {
+    /** */
+    public BwFilter filter;
+
+    /** */
+    public TimeRange trange;
+
+    //Collection propFilters;
+
+    /* true if we have to postfilter the result obtained via a search
+     */
+    boolean postFilter;
+
+    /** If non-null apply to retrieved event components
+     */
+    public Collection<PropFilter> eventFilters;
+
+    /** If non-null apply to retrieved tod components
+     */
+    public Collection<PropFilter> todoFilters;
+
+    /** If non-null apply to retrieved journal components
+     */
+    public Collection<PropFilter> journalFilters;
+
+    /** If non-null apply to retrieved alarm components
+     */
+    public Collection<PropFilter> alarmFilters;
+  }
+
+  /* Query we executed */
+  private EventQuery eventq;
 
   /** Constructor
    *
@@ -243,107 +268,9 @@ public class Filter {
    */
   public Collection<EventInfo> query(CaldavBwNode wdnode,
                                      RecurringRetrievalMode retrieveRecur) throws WebdavException {
-    CompFilter cfltr = filter;
+    eventq = new EventQuery();
 
-    // Currently only accept VCALENDAR for top level.
-
-    if (!"VCALENDAR".equals(cfltr.getName())) {
-      return new ArrayList<EventInfo>();
-    }
-
-    boolean getEvents = false;
-    boolean getTodos = false;
-    boolean getJournals = false;
-
-    TimeRange calTimerange = null;
-
-    EventQuery eventq = null;
-
-    postFilterNeeded = false;
-
-    if (cfltr.matchAll()) {
-      // return everything
-      getEvents = true;
-      getTodos = true;
-      getJournals = true;
-      eventq = new EventQuery();
-    } else {
-      if (cfltr.hasPropFilters()) {
-        // This is almost certainly wrong. Just filter later?
-//        getLogger().error("prop-filters on VCALENDAR");
-//        throw new WebdavException(HttpServletResponse.SC_BAD_REQUEST);
-        postFilterNeeded = true;
-      }
-
-      // A global time-range
-      calTimerange = cfltr.getTimeRange();
-      if ((calTimerange != null) &&
-          (calTimerange.getStart().after(calTimerange.getEnd()))) {
-        return new ArrayList<EventInfo>();
-      }
-
-      /* Now look at named sub components. Because we AND the components I
-         don't believe these can refer to different vcalendar component
-         types.
-       */
-
-      if (!cfltr.hasCompFilters()) {
-        eventq = new EventQuery();
-        eventq.trange = calTimerange;
-      } else {
-        Collection<CompFilter> subcfs = cfltr.getCompFilters();
-        CompFilter subcf = subcfs.iterator().next();
-
-        boolean isNot = subcf.getIsNotDefined();
-
-        // XXX This is wrong????
-        if ("VEVENT".equals(subcf.getName())) {
-          if (isNot) {
-            getTodos = true;
-            getJournals = true;
-          } else {
-            getEvents = true;
-          }
-        } else if ("VTODO".equals(subcf.getName())) {
-          if (isNot) {
-            getEvents = true;
-            getJournals = true;
-          } else {
-            getTodos = true;
-          }
-        } else if ("VJOURNAL".equals(subcf.getName())) {
-          if (isNot) {
-            getEvents = true;
-            getTodos = true;
-          } else {
-            getJournals = true;
-          }
-        } else {
-          /* Don't support anything else so just return an empty
-             Collection
-           */
-          return new ArrayList<EventInfo>();
-        }
-
-        eventq = buildEventQuery(subcfs, calTimerange);
-
-        if (subcf.hasCompFilters()) {
-          postFilterNeeded = true;
-        }
-
-        if (subcf.hasPropFilters()) {
-          postFilterNeeded = true;
-          if (eventFilters == null) {
-            eventFilters = new ArrayList<PropFilter>();
-          }
-          eventFilters.addAll(subcf.getPropFilters());
-        }
-      }
-    }
-
-    if (eventq == null) {
-      return new ArrayList<EventInfo>();
-    }
+    eventq.filter = filter.getQuery(eventq, 0);
 
     if (debug) {
       if (eventq.trange == null) {
@@ -358,24 +285,16 @@ public class Filter {
     Collection<EventInfo> events;
 
     try {
-      if (eventq.trange == null) {
-        if (debug) {
-          debugMsg("SEARCH: Filter get all events");
-        }
-        events = wdnode.getSysi().getEvents(wdnode.getCDURI().getCal(),
-                                            getEvents, getTodos, getJournals,
-                                            null, null, retrieveRecur);
-      } else {
-        // fetch within time range
-        if (debug) {
-          debugMsg("SEARCH: Filter get events in time range");
-        }
-        events = wdnode.getSysi().getEvents(wdnode.getCDURI().getCal(),
-                                            getEvents, getTodos, getJournals,
-                                            eventq.trange.getStart(),
-                                            eventq.trange.getEnd(),
-                                            retrieveRecur);
+      BwDateTime start = null;
+      BwDateTime end = null;
+      if (eventq.trange != null) {
+        start = eventq.trange.getStart();
+        end = eventq.trange.getEnd();
       }
+
+      events = wdnode.getSysi().getEvents(wdnode.getCDURI().getCal(),
+                                          eventq.filter,
+                                          start, end, retrieveRecur);
     } catch (Throwable t) {
       error(t);
       throw new WebdavException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -396,7 +315,7 @@ public class Filter {
    */
   public Collection<WebdavNsNode> postFilter(
                    Collection<WebdavNsNode> nodes) throws WebdavException {
-    if (!postFilterNeeded) {
+    if (!eventq.postFilter) {
       return nodes;
     }
 
@@ -412,10 +331,8 @@ public class Filter {
     }
 
     ArrayList<WebdavNsNode> filtered = new ArrayList<WebdavNsNode>();
-    Iterator it = nodes.iterator();
-    while (it.hasNext()) {
-      Object node = it.next();
 
+    for (WebdavNsNode node: nodes) {
       CaldavComponentNode curnode = null;
 
       if (!(node instanceof CaldavComponentNode)) {
@@ -423,111 +340,34 @@ public class Filter {
       } else {
         curnode = (CaldavComponentNode)node;
 
-        if (cfltr.hasPropFilters()) {
-          //
-          //
-          // Do top level property filters here
-          // Set curnode to null to fail filter
-          //
-          //
+        int entityType = curnode.getEventInfo().getEvent().getEntityType();
+
+        Collection<PropFilter> pfs = null;
+
+        if (entityType == CalFacadeDefs.entityTypeEvent) {
+          pfs = eventq.eventFilters;
+        } else if (entityType == CalFacadeDefs.entityTypeTodo) {
+          pfs = eventq.todoFilters;
+        } else if (entityType == CalFacadeDefs.entityTypeJournal) {
+          pfs = eventq.journalFilters;
+        //} else if (entityType == CalFacadeDefs.entityTypeAlarm) {
+        //  pfs = addPropFilter(eq.alarmFilters, pf);
         }
 
-        if ((curnode != null) && !WebdavUtils.emptyCollection(eventFilters)) {
+        if (!WebdavUtils.emptyCollection(pfs)) {
           Component comp = curnode.getVevent();
 
-          Iterator efit = eventFilters.iterator();
-          while (efit.hasNext()) {
-            PropFilter pf = (PropFilter)efit.next();
-
-            if (!pf.filter(comp)) {
-              curnode = null;
+          for (PropFilter pf: pfs) {
+            if (pf.filter(comp)) {
+              filtered.add(curnode);
               break;
             }
           }
         }
       }
-
-      if (curnode != null) {
-        filtered.add(curnode);
-      }
     }
 
     return filtered;
-  }
-
-  /** We are given a Collection of comp-filters which should all name a calendar
-   * entity and provide conditions for the query.
-   *
-   * @param cfs    Collection
-   * @param globaltr
-   * @return EventQuery    defining query or null if nothing could be
-   *                       returned.
-   * @throws WebdavException
-   */
-  private EventQuery buildEventQuery(Collection cfs,
-                                     TimeRange globaltr) throws WebdavException {
-    Iterator it = cfs.iterator();
-    EventQuery eq = new EventQuery();
-    eq.trange = globaltr;
-
-    if (debug) {
-      trace("buildEventQuery ---- entry");
-    }
-
-    while (it.hasNext()) {
-      CompFilter cf = (CompFilter)it.next();
-
-      if (!"VEVENT".equals(cf.getName())) {
-        if (debug) {
-          trace("buildEventQuery - found cf.getName() - exiting");
-        }
-        return null;
-      }
-
-      if (debug) {
-        trace("buildEventQuery - process comp-filter");
-        cf.dump(getLogger(), "");
-      }
-
-      TimeRange tr = cf.getTimeRange();
-
-      if (tr != null) {
-        if (debug) {
-          trace("buildEventQuery - found timerange");
-        }
-        if (eq.trange == null) {
-          eq.trange = tr;
-        } else {
-          eq.trange.merge(tr);
-        }
-      }
-
-      if ((eq.trange != null) &&
-          (eq.trange.getStart().after(eq.trange.getEnd()))) {
-        return null;
-      }
-
-      Collection propFilters = cf.getPropFilters();
-
-      if (eq.propFilters == null) {
-        eq.propFilters = propFilters;
-        eq.postFilter = true;
-      } else {
-        // merge and make sure they don't mean no result
-      }
-    }
-
-    return eq;
-  }
-
-  private static class EventQuery {
-    TimeRange trange;
-
-    Collection propFilters;
-
-    /* true if we have to postfilter the result obtained via a search
-     */
-    boolean postFilter;
   }
 
   /** The given node must be a comp-filter element
@@ -543,7 +383,7 @@ public class Filter {
   private CompFilter parseCompFilter(Node nd) throws WebdavException {
     String name = getOnlyAttrVal(nd, "name");
     if (name == null) {
-      throw new WebdavBadRequest();
+      throw new WebdavBadRequest("Missing comp-filter name");
     }
 
     CompFilter cf = new CompFilter(name);
@@ -569,7 +409,7 @@ public class Filter {
 
         if (debug) {
           trace("compFilter element: " +
-              curnode.getNamespaceURI() + " " +
+              curnode.getNamespaceURI() + ":" +
               curnode.getLocalName());
         }
 

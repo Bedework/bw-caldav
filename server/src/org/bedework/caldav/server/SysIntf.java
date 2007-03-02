@@ -62,6 +62,7 @@ import org.bedework.calfacade.BwUserInfo;
 import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.ScheduleResult;
 import org.bedework.calfacade.base.BwShareableDbentity;
+import org.bedework.calfacade.filter.BwFilter;
 import org.bedework.calfacade.svc.EventInfo;
 import org.bedework.calfacade.timezones.CalTimezones;
 import org.bedework.calfacade.util.ChangeTable;
@@ -329,9 +330,7 @@ public interface SysIntf {
    * <p>We flag the desired entity types.
    *
    * @param cal
-   * @param getEvents
-   * @param getTodos
-   * @param getJournals
+   * @param filter - if non-null defines a search filter
    * @param startDate    BwDateTime start - may be null
    * @param endDate      BwDateTime end - may be null.
    * @param recurRetrieval How recurring event is returned.
@@ -339,9 +338,7 @@ public interface SysIntf {
    * @throws WebdavException
    */
   public Collection<EventInfo> getEvents(BwCalendar cal,
-                                         boolean getEvents,
-                                         boolean getTodos,
-                                         boolean getJournals,
+                                         BwFilter filter,
                                          BwDateTime startDate, BwDateTime endDate,
                                          RecurringRetrievalMode recurRetrieval)
           throws WebdavException;

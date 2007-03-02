@@ -55,6 +55,8 @@
 package org.bedework.caldav.server.filter;
 
 import edu.rpi.cct.webdav.servlet.common.WebdavUtils;
+import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
+import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -62,6 +64,15 @@ import java.util.Iterator;
 
 import org.apache.log4j.Logger;
 import org.bedework.caldav.server.TimeRange;
+import org.bedework.caldav.server.filter.Filter.EventQuery;
+import org.bedework.calfacade.CalFacadeDefs;
+import org.bedework.calfacade.filter.BwAndFilter;
+import org.bedework.calfacade.filter.BwEntityTypeFilter;
+import org.bedework.calfacade.filter.BwFilter;
+import org.bedework.calfacade.filter.BwObjectFilter;
+import org.bedework.calfacade.filter.BwOrFilter;
+import org.bedework.calfacade.util.PropertyIndex;
+import org.bedework.calfacade.util.PropertyIndex.PropertyInfo;
 
 /** Class to represent a calendar-query comp-filter
  *
@@ -187,6 +198,191 @@ public class CompFilter {
     return (timeRange == null)  &&
            WebdavUtils.emptyCollection(compFilters) &&
            WebdavUtils.emptyCollection(propFilters);
+  }
+
+  /** Returns a subtree of the filter used in querying
+   *
+   * @param eq - so we can update time range
+   * @param exprDepth - allows us to do validity checks
+   * @return BwFilter - null for no filtering
+   * @throws WebdavException
+   */
+  public BwFilter getQuery(EventQuery eq, int exprDepth) throws WebdavException {
+    BwFilter filter = null;
+
+    if (exprDepth == 0) {
+      if (!"VCALENDAR".equals(getName())) {
+        throw new WebdavBadRequest();
+      }
+
+      if (WebdavUtils.emptyCollection(compFilters)) {
+        return null;
+      }
+    } else if (exprDepth == 1) {
+      // Calendar components only
+
+      if ("VEVENT".equals(getName())) {
+        filter = BwEntityTypeFilter.eventFilter(null, isNotDefined);
+      }
+
+      if ("VTODO".equals(getName())) {
+        filter = BwEntityTypeFilter.todoFilter(null, isNotDefined);
+      }
+
+      if ("VJOURNAL".equals(getName())) {
+        filter = BwEntityTypeFilter.journalFilter(null, isNotDefined);
+      }
+
+      if (filter == null) {
+        throw new WebdavBadRequest();
+      }
+    } else if (exprDepth == 2) {
+      // Sub-components only
+
+      if ("VALARM".equals(getName())) {
+        filter = BwEntityTypeFilter.alarmFilter(null, isNotDefined);
+      }
+
+      if (filter == null) {
+        throw new WebdavBadRequest();
+      }
+    } else {
+      throw new WebdavBadRequest("expr too deep");
+    }
+
+    if ((filter != null) && isNotDefined) {
+      filter.setNot(true);
+    }
+
+    if (matchAll()) {
+      return filter;
+    }
+
+    if (timeRange != null) {
+      if (eq.trange == null) {
+        eq.trange = timeRange;
+      } else {
+        eq.trange.merge(timeRange);
+      }
+    }
+
+    if (exprDepth != 0) {
+      int entityType = ((BwEntityTypeFilter)filter).getEntity();
+      filter = addAndChild(filter, processPropFilters(eq, entityType));
+    }
+
+    if (!WebdavUtils.emptyCollection(compFilters)) {
+      BwFilter cfilters = null;
+      for (CompFilter cf: compFilters) {
+        cfilters = addOrChild(cfilters, cf.getQuery(eq, exprDepth + 1));
+      }
+
+      filter = addAndChild(filter, cfilters);
+    }
+
+    return filter;
+  }
+
+  private BwFilter processPropFilters(EventQuery eq, int entityType) throws WebdavException {
+    if (WebdavUtils.emptyCollection(propFilters)) {
+      return null;
+    }
+
+    BwFilter pfilters = null;
+
+    for (PropFilter pf: propFilters) {
+      String pname = pf.getName();
+      BwFilter filter = null;
+
+      PropertyInfo pi = PropertyIndex.propertyInfoByPname.get(pname);
+      if (pi == null) {
+        // Unknown property
+        throw new WebdavBadRequest("Unknown property " + pname);
+      }
+
+      if (pf.getIsNotDefined()) {
+        filter = BwObjectFilter.makeFilter(null, pi.getPindex());
+        ((BwObjectFilter)filter).setTestNotPresent();
+      }
+
+      if (filter == null) {
+        eq.postFilter = true;
+
+        // XXX This is wrong - if we postfilter we have to postfilter everything
+        // XXX because it's an OR
+
+        if (entityType == CalFacadeDefs.entityTypeEvent) {
+          eq.eventFilters = addPropFilter(eq.eventFilters, pf);
+        } else if (entityType == CalFacadeDefs.entityTypeTodo) {
+          eq.todoFilters = addPropFilter(eq.todoFilters, pf);
+        } else if (entityType == CalFacadeDefs.entityTypeJournal) {
+          eq.journalFilters = addPropFilter(eq.journalFilters, pf);
+        } else if (entityType == CalFacadeDefs.entityTypeAlarm) {
+          eq.alarmFilters = addPropFilter(eq.alarmFilters, pf);
+        }
+      } else {
+        addOrChild(pfilters, filter);
+      }
+    }
+
+    return pfilters;
+  }
+
+  private Collection<PropFilter> addPropFilter(Collection<PropFilter> pfs,
+                                               PropFilter val) {
+    if (pfs == null) {
+      pfs = new ArrayList<PropFilter>();
+    }
+
+    pfs.add(val);
+
+    return pfs;
+  }
+
+  private BwFilter addOrChild(BwFilter filter, BwFilter child) {
+    if (child == null) {
+      return filter;
+    }
+
+    if (filter == null) {
+      return child;
+    }
+
+    BwOrFilter orf;
+    if (filter instanceof BwOrFilter) {
+      orf = (BwOrFilter)filter;
+    } else {
+      orf = new BwOrFilter();
+      orf.addChild(filter);
+      filter = orf;
+    }
+
+    orf.addChild(child);
+
+    return orf;
+  }
+
+  private BwFilter addAndChild(BwFilter filter, BwFilter child) {
+    if (child == null) {
+      return filter;
+    }
+
+    if (filter == null) {
+      return child;
+    }
+
+    BwAndFilter andf;
+    if (filter instanceof BwAndFilter) {
+      andf = (BwAndFilter)filter;
+    } else {
+      andf = new BwAndFilter();
+      andf.addChild(filter);
+      filter = andf;
+    }
+
+    andf.addChild(child);
+
+    return andf;
   }
 
   /** Debug

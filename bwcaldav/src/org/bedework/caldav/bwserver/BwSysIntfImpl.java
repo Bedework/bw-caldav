@@ -42,9 +42,7 @@ import org.bedework.calfacade.env.CalEnvI;
 import org.bedework.calfacade.exc.CalFacadeAccessException;
 import org.bedework.calfacade.exc.CalFacadeException;
 import org.bedework.calfacade.exc.CalFacadeStaleStateException;
-import org.bedework.calfacade.filter.BwEntityTypeFilter;
 import org.bedework.calfacade.filter.BwFilter;
-import org.bedework.calfacade.filter.BwOrFilter;
 import org.bedework.calfacade.svc.BwSubscription;
 import org.bedework.calfacade.svc.EventInfo;
 import org.bedework.calfacade.timezones.CalTimezones;
@@ -421,9 +419,7 @@ public class BwSysIntfImpl implements SysIntf {
   }
 
   public Collection<EventInfo> getEvents(BwCalendar cal,
-                                         boolean getEvents,
-                                         boolean getTodos,
-                                         boolean getJournals,
+                                         BwFilter filter,
                                          BwDateTime startDate, BwDateTime endDate,
                                          RecurringRetrievalMode recurRetrieval)
           throws WebdavException {
@@ -435,7 +431,6 @@ public class BwSysIntfImpl implements SysIntf {
         return getSvci().getEvents(sub, recurRetrieval);
       }*/
 
-      BwFilter filter = makeFilter(getEvents, getTodos, getJournals);
       return getSvci().getEvents(sub, filter, startDate, endDate,
                                  recurRetrieval);
     } catch (CalFacadeAccessException cfae) {
@@ -738,67 +733,6 @@ public class BwSysIntfImpl implements SysIntf {
   /* ====================================================================
    *                         Private methods
    * ==================================================================== */
-
-  private BwFilter makeFilter(boolean getEvents,
-                              boolean getTodos,
-                              boolean getJournals) throws WebdavException {
-    int numTypes = 0;
-
-    if (getEvents) {
-      numTypes++;
-    }
-
-    if (getTodos) {
-      numTypes++;
-    }
-
-    if (getJournals) {
-      numTypes++;
-    }
-
-    if (numTypes == 0) {
-      throw new WebdavBadRequest("org.bedework.caldav.noentitytypespecified");
-    }
-
-    if (numTypes == 3) {
-      // No filter
-      return null;
-    }
-
-    BwFilter filter = null;
-    BwOrFilter orFilter = null;
-
-    if (numTypes > 1) {
-      orFilter = new BwOrFilter();
-    }
-
-    if (getEvents) {
-      filter = BwEntityTypeFilter.eventFilter(null);
-      if (numTypes > 1) {
-        orFilter.addChild(filter);
-      }
-    }
-
-    if (getTodos) {
-      filter = BwEntityTypeFilter.todoFilter(null);
-      if (numTypes > 1) {
-        orFilter.addChild(filter);
-      }
-    }
-
-    if (getJournals) {
-      filter = BwEntityTypeFilter.journalFilter(null);
-      if (numTypes > 1) {
-        orFilter.addChild(filter);
-      }
-    }
-
-    if (numTypes > 1) {
-      return orFilter;
-    }
-
-    return filter;
-  }
 
   /**
    * @return CalSvcI
