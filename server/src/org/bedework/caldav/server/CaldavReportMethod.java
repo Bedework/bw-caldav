@@ -381,37 +381,33 @@ public class CaldavReportMethod extends ReportMethod {
 
   private Collection<WebdavNsNode> getNodes(WebdavNsNode node)
           throws WebdavException {
-    try {
-      if (debug) {
-        trace("getNodes: " + node.getUri());
-      }
-
-      CaldavBWIntf intf = (CaldavBWIntf)getNsIntf();
-
-      RecurringRetrievalMode rrm;
-
-      if (caldata == null) {
-        rrm = new RecurringRetrievalMode(Rmode.overrides);
-      } else if (caldata.getErs() != null) {
-        /* expand with time range */
-        ExpandRecurrenceSet ers = caldata.getErs();
-
-        rrm = new RecurringRetrievalMode(Rmode.expanded,
-                                         ers.getStart(), ers.getEnd());
-      } else if (caldata.getLrs() != null) {
-        /* Only return master event and overrides in range */
-        LimitRecurrenceSet lrs = caldata.getLrs();
-        rrm = new RecurringRetrievalMode(Rmode.overrides,
-                                         lrs.getStart(), lrs.getEnd());
-      } else {
-        /* Return master + overrides */
-        rrm = new RecurringRetrievalMode(Rmode.overrides);
-      }
-
-      return intf.query(node, rrm, filter);
-    } catch (WebdavException wde) {
-      throw new WebdavException(wde.getStatusCode());
+    if (debug) {
+      trace("getNodes: " + node.getUri());
     }
+
+    CaldavBWIntf intf = (CaldavBWIntf)getNsIntf();
+
+    RecurringRetrievalMode rrm;
+
+    if (caldata == null) {
+      rrm = new RecurringRetrievalMode(Rmode.overrides);
+    } else if (caldata.getErs() != null) {
+      /* expand with time range */
+      ExpandRecurrenceSet ers = caldata.getErs();
+
+      rrm = new RecurringRetrievalMode(Rmode.expanded,
+                                       ers.getStart(), ers.getEnd());
+    } else if (caldata.getLrs() != null) {
+      /* Only return master event and overrides in range */
+      LimitRecurrenceSet lrs = caldata.getLrs();
+      rrm = new RecurringRetrievalMode(Rmode.overrides,
+                                       lrs.getStart(), lrs.getEnd());
+    } else {
+      /* Return master + overrides */
+      rrm = new RecurringRetrievalMode(Rmode.overrides);
+    }
+
+    return intf.query(node, rrm, filter);
   }
 
   private Collection<WebdavNsNode> doNodeAndChildren(WebdavNsNode node,

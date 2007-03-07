@@ -355,7 +355,7 @@ public class Filter {
         }
 
         if (!WebdavUtils.emptyCollection(pfs)) {
-          Component comp = curnode.getVevent();
+          Component comp = curnode.getComponent();
 
           for (PropFilter pf: pfs) {
             if (pf.filter(comp)) {

@@ -302,7 +302,18 @@ public class CompFilter {
 
       if (pf.getIsNotDefined()) {
         filter = BwObjectFilter.makeFilter(null, pi.getPindex());
-        ((BwObjectFilter)filter).setTestNotPresent();
+        if (filter != null) {
+          ((BwObjectFilter)filter).setTestNotPresent();
+        }
+      }
+
+      if ((pf.getTimeRange() == null) &&
+          (WebdavUtils.emptyCollection(pf.getParamFilters()))) {
+        // Presence check
+        filter = BwObjectFilter.makeFilter(null, pi.getPindex());
+        if (filter != null) {
+          ((BwObjectFilter)filter).setTestPresent();
+        }
       }
 
       if (filter == null) {

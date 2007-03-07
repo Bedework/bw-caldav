@@ -72,7 +72,7 @@ import edu.rpi.sss.util.xml.XmlEmit;
 
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
-import net.fortuna.ical4j.model.component.VEvent;
+import net.fortuna.ical4j.model.ComponentList;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -93,14 +93,15 @@ public class CaldavComponentNode extends CaldavBwNode {
 
   private boolean isTimezone;
 
-  /** The Component object
-   */
-  private VEvent vevent;
   private Calendar ical;
 
-  private String veventString;
+  /** The event Component object
+   */
+  private Component comp;
+  private ComponentWrapper compw;
 
-  private ComponentWrapper comp;
+  private String compString;
+
 
   private final static HashMap<QName, PropertyTagEntry> propertyNames =
     new HashMap<QName, PropertyTagEntry>();
@@ -202,35 +203,36 @@ public class CaldavComponentNode extends CaldavBwNode {
     return spr;
   }
 
-  /** Get a vevent form of the only or master event. Mainly for property
+  /** Get a Component form of the only or master event. Mainly for property
    * filters.
    *
    * @return Component
    * @throws WebdavException
    */
-  public Component getVevent() throws WebdavException {
+  public Component getComponent() throws WebdavException {
     init(true);
 
     try {
-      if ((eventInfo != null) && (vevent == null)) {
-        ical = getSysi().toCalendar(eventInfo);
-        vevent = (VEvent)ical.getComponents().getComponent(Component.VEVENT);
+      if ((eventInfo != null) && (comp == null)) {
+        if (ical == null) {
+          ical = getSysi().toCalendar(eventInfo);
+        }
+        ComponentList cl = ical.getComponents();
 
-        /*
-         vevent = trans.toIcalEvent(event);
-         ical = trans.newIcal();
-         IcalUtil.addComponent(ical, vevent);
-         */
+        if ((cl == null) || (cl.isEmpty())) {
+          return null;
+        }
 
-        // XXX Add the timezones if needed
+        // XXX Wrong - should just use the BwEvent + overrides?
+        comp = (Component)cl.get(0);
 
-        comp = new ComponentWrapper(vevent);
+        compw = new ComponentWrapper(comp);
       }
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
 
-    return vevent;
+    return comp;
   }
 
   /* (non-Javadoc)
@@ -619,8 +621,8 @@ public boolean generatePropertyValue(QName tag,
       if (ical == null) {
         ical = getSysi().toCalendar(eventInfo);
       }
-      if ((veventString == null)) {
-        veventString = ical.toString();
+      if ((compString == null)) {
+        compString = ical.toString();
       }
     } catch (Throwable t) {
       throw new WebdavException(t);
@@ -633,23 +635,23 @@ public boolean generatePropertyValue(QName tag,
     init(true);
     ArrayList<WebdavProperty> al = new ArrayList<WebdavProperty>();
 
-    getVevent(); // init comp
+    getComponent(); // init comp
     if (comp == null) {
       throw new WebdavException("getProperties, comp == null");
     }
 
-    addProp(al, ICalTags.summary, comp.getSummary());
-    addProp(al, ICalTags.dtstart, comp.getDtstart());
-    addProp(al, ICalTags.dtend, comp.getDtend());
-    addProp(al, ICalTags.duration, comp.getDuration());
-    addProp(al, ICalTags.transp, comp.getTransp());
-    addProp(al, ICalTags.due, comp.getDue());
+    addProp(al, ICalTags.summary, compw.getSummary());
+    addProp(al, ICalTags.dtstart, compw.getDtstart());
+    addProp(al, ICalTags.dtend, compw.getDtend());
+    addProp(al, ICalTags.duration, compw.getDuration());
+    addProp(al, ICalTags.transp, compw.getTransp());
+    addProp(al, ICalTags.due, compw.getDue());
 //    addProp(v, ICalTags.completed,        | date-time from RFC2518
-    addProp(al, ICalTags.status, comp.getStatus());
+    addProp(al, ICalTags.status, compw.getStatus());
 //    addProp(v, ICalTags.priority,         | integer
 //    addProp(v, ICalTags.percentComplete, | integer
-    addProp(al, ICalTags.uid, comp.getUid());
-    addProp(al, ICalTags.sequence, comp.getSequence());
+    addProp(al, ICalTags.uid, compw.getUid());
+    addProp(al, ICalTags.sequence, compw.getSequence());
 //    addProp(v, ICalTags.recurrenceId,    | date-time from RFC2518
 //    addProp(v, ICalTags.trigger,          | see below TODO
 
@@ -667,7 +669,7 @@ public boolean generatePropertyValue(QName tag,
   public String getContentString() throws WebdavException {
     getIcal(); // init content
 
-    return veventString;
+    return compString;
   }
 
   /* ====================================================================
@@ -725,8 +727,8 @@ public boolean generatePropertyValue(QName tag,
    */
   public int getContentLen() throws WebdavException {
     getIcal(); // init length
-    if (veventString != null) {
-      return veventString.length();
+    if (compString != null) {
+      return compString.length();
     }
     return 0;
   }
