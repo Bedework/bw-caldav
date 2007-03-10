@@ -1,33 +1,5 @@
-/*
- Copyright (c) 2000-2005 University of Washington.  All rights reserved.
-
- Redistribution and use of this distribution in source and binary forms,
- with or without modification, are permitted provided that:
-
-   The above copyright notice and this permission notice appear in
-   all copies and supporting documentation;
-
-   The name, identifiers, and trademarks of the University of Washington
-   are not used in advertising or publicity without the express prior
-   written permission of the University of Washington;
-
-   Recipients acknowledge that this distribution is made available as a
-   research courtesy, "as is", potentially with defects, without
-   any obligation on the part of the University of Washington to
-   provide support, services, or repair;
-
-   THE UNIVERSITY OF WASHINGTON DISCLAIMS ALL WARRANTIES, EXPRESS OR
-   IMPLIED, WITH REGARD TO THIS SOFTWARE, INCLUDING WITHOUT LIMITATION
-   ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
-   PARTICULAR PURPOSE, AND IN NO EVENT SHALL THE UNIVERSITY OF
-   WASHINGTON BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL
-   DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
-   PROFITS, WHETHER IN AN ACTION OF CONTRACT, TORT (INCLUDING
-   NEGLIGENCE) OR STRICT LIABILITY, ARISING OUT OF OR IN CONNECTION WITH
-   THE USE OR PERFORMANCE OF THIS SOFTWARE.
- */
 /* **********************************************************************
-    Copyright 2005 Rensselaer Polytechnic Institute. All worldwide rights reserved.
+    Copyright 2007 Rensselaer Polytechnic Institute. All worldwide rights reserved.
 
     Redistribution and use of this distribution in source and binary forms,
     with or without modification, are permitted provided that:
@@ -51,7 +23,6 @@
     special, consequential, or incidental damages related to the software,
     to the maximum extent the law permits.
 */
-
 package org.bedework.caldav.server.filter;
 
 import edu.rpi.cct.webdav.servlet.common.WebdavUtils;
@@ -63,8 +34,8 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import org.apache.log4j.Logger;
-import org.bedework.caldav.server.TimeRange;
 import org.bedework.caldav.server.filter.Filter.EventQuery;
+import org.bedework.calfacade.base.TimeRange;
 import org.bedework.calfacade.CalFacadeDefs;
 import org.bedework.calfacade.filter.BwAndFilter;
 import org.bedework.calfacade.filter.BwEntityTypeFilter;
@@ -305,23 +276,28 @@ public class CompFilter {
         if (filter != null) {
           ((BwObjectFilter)filter).setTestNotPresent();
         }
-      }
-
-      if ((pf.getTimeRange() == null) &&
+      } else if ((pf.getTimeRange() == null) &&
           (WebdavUtils.emptyCollection(pf.getParamFilters()))) {
         // Presence check
         filter = BwObjectFilter.makeFilter(null, pi.getPindex());
         if (filter != null) {
           ((BwObjectFilter)filter).setTestPresent();
         }
+      } else if (pf.getTimeRange() != null) {
+        filter = BwObjectFilter.makeFilter(null, pi.getPindex(),
+                                           pf.getTimeRange());
       }
 
-      if (filter == null) {
+      if (filter != null) {
+        addOrChild(pfilters, filter);
+      } else {
         eq.postFilter = true;
 
         // XXX This is wrong - if we postfilter we have to postfilter everything
         // XXX because it's an OR
 
+        /** Add the propfilter to the post filter collection
+         */
         if (entityType == CalFacadeDefs.entityTypeEvent) {
           eq.eventFilters = addPropFilter(eq.eventFilters, pf);
         } else if (entityType == CalFacadeDefs.entityTypeTodo) {
@@ -331,8 +307,6 @@ public class CompFilter {
         } else if (entityType == CalFacadeDefs.entityTypeAlarm) {
           eq.alarmFilters = addPropFilter(eq.alarmFilters, pf);
         }
-      } else {
-        addOrChild(pfilters, filter);
       }
     }
 
