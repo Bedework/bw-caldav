@@ -50,6 +50,7 @@ import org.bedework.calfacade.util.ChangeTable;
 import org.bedework.calsvci.CalSvcFactoryDefault;
 import org.bedework.calsvci.CalSvcI;
 import org.bedework.calsvci.CalSvcIPars;
+import org.bedework.calsvci.CalSvcI.CopyMoveStatus;
 import org.bedework.davdefs.CaldavTags;
 import org.bedework.icalendar.IcalMalformedException;
 import org.bedework.icalendar.IcalTranslator;
@@ -580,60 +581,15 @@ public class BwSysIntfImpl implements SysIntf {
   /* (non-Javadoc)
    * @see org.bedework.caldav.server.SysIntf#copyMove(org.bedework.calfacade.BwEvent, org.bedework.calfacade.BwCalendar, java.lang.String, boolean)
    */
-  public void copyMove(BwEvent from, Collection<BwEventProxy>overrides,
-                       BwCalendar to,
-                       String name,
-                       boolean copy,
-                       boolean overwrite) throws WebdavException {
-    /* A move of an entity to the same calendar is essentially a rename.
-     */
+  public boolean copyMove(BwEvent from, Collection<BwEventProxy>overrides,
+                          BwCalendar to,
+                          String name,
+                          boolean copy,
+                          boolean overwrite) throws WebdavException {
+    CopyMoveStatus cms;
     try {
-      boolean sameCal = from.getCalendar().equals(to);
-      boolean rename = sameCal && !copy && !overwrite;
-
-      if (rename) {
-        from.setName(name);
-        getSvci().updateEvent(from, overrides, null);
-        return;
-      }
-
-      if (!overwrite) {
-        BwEvent newEvent = (BwEvent)from.clone();
-
-        newEvent.setCalendar(to);
-        newEvent.setName(name);
-
-        getSvci().addEvent(to, newEvent, overrides, true);
-      } else {
-        /* Should do update
-        RecurringRetrievalMode rrm =
-          new RecurringRetrievalMode(Rmode.overrides);
-        Collection<EventInfo> eis = getSvci().getEvent(null, from.getCalendar(),
-                                                       from.getUid(),
-                                                       from.getRecurrenceId(),
-                                                       rrm);
-        if (eis.size() != 1) {
-          throw new WebdavForbidden();
-        }
-
-        EventInfo ei = eis.iterator().next();
-
-        // Now I have to effectively replace
-        BwEvent ...
-        */
-        BwEvent delEvent = (BwEvent)from.clone();
-
-        delEvent.setCalendar(to);
-        delEvent.setName(name);
-        getSvci().deleteEvent(delEvent, true);
-
-        BwEvent newEvent = (BwEvent)delEvent.clone();
-        getSvci().addEvent(to, newEvent, overrides, true);
-      }
-
-      if (!copy) {
-        getSvci().deleteEvent(from, true);
-      }
+      cms = getSvci().copyMoveNamed(from, overrides, to, name,
+                                    copy, overwrite);
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
@@ -641,6 +597,31 @@ public class BwSysIntfImpl implements SysIntf {
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
+
+    if (cms == CopyMoveStatus.changedUid) {
+      throw new WebdavForbidden("Cannot change uid");
+    }
+
+    if (cms == CopyMoveStatus.duplicateUid) {
+      throw new WebdavForbidden("duplicate uid");
+    }
+
+    if (cms == CopyMoveStatus.destinationExists) {
+      if (name == null) {
+        name = from.getName();
+      }
+      throw new WebdavForbidden("Destination exists: " + name);
+    }
+
+    if (cms == CopyMoveStatus.ok) {
+      return false;
+    }
+
+    if (cms == CopyMoveStatus.created) {
+      return true;
+    }
+
+    throw new WebdavException("Unexpected response from copymove");
   }
 
   public BwCalendar getCalendar(String path) throws WebdavException {

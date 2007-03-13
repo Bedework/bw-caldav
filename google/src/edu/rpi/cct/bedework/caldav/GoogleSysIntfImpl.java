@@ -418,11 +418,11 @@ public class GoogleSysIntfImpl implements SysIntf {
   /* (non-Javadoc)
    * @see org.bedework.caldav.server.SysIntf#copyMove(org.bedework.calfacade.BwEvent, org.bedework.calfacade.BwCalendar, java.lang.String, boolean)
    */
-  public void copyMove(BwEvent from, Collection<BwEventProxy>overrides,
-                       BwCalendar to,
-                       String name,
-                       boolean copy,
-                       boolean overwrite) throws WebdavException {
+  public boolean copyMove(BwEvent from, Collection<BwEventProxy>overrides,
+                          BwCalendar to,
+                          String name,
+                          boolean copy,
+                          boolean overwrite) throws WebdavException {
     throw new WebdavException("unimplemented");
   }
 

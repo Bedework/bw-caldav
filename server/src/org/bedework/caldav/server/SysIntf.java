@@ -456,13 +456,14 @@ public interface SysIntf {
    * @param name      String name of new entity
    * @param copy      true for copying
    * @param overwrite destination exists
+   * @return true if destination created (i.e. not updated)
    * @throws WebdavException
    */
-  public void copyMove(BwEvent from, Collection<BwEventProxy>overrides,
-                       BwCalendar to,
-                       String name,
-                       boolean copy,
-                       boolean overwrite) throws WebdavException;
+  public boolean copyMove(BwEvent from, Collection<BwEventProxy>overrides,
+                          BwCalendar to,
+                          String name,
+                          boolean copy,
+                          boolean overwrite) throws WebdavException;
 
   /** Get a calendar given the path
    *

@@ -784,9 +784,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
     EventInfo fromEi = fromNode.getEventInfo();
     BwCalendar toCal = toNode.cdURI.getCal();
 
-    getSysi().copyMove(fromEi.getEvent(), fromEi.getOverrideProxies(), toCal,
-                       toNode.getCDURI().getEntityName(), copy, overwrite);
-    if (toNode.getExists()) {
+    if (!getSysi().copyMove(fromEi.getEvent(), fromEi.getOverrideProxies(),
+                            toCal, toNode.getCDURI().getEntityName(), copy,
+                            overwrite)) {
       resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
     } else {
       resp.setStatus(HttpServletResponse.SC_CREATED);
