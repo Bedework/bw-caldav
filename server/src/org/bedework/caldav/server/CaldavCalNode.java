@@ -231,6 +231,8 @@ public class CaldavCalNode extends CaldavBwNode {
         spr.status = HttpServletResponse.SC_NOT_IMPLEMENTED;
         spr.message = "Unimplemented - calendarFreeBusySet";
         warn("Unimplemented - calendarFreeBusySet");
+      } else if (CaldavTags.calendarTimezone.nodeMatches(val)) {
+        warn("Unimplemented - calendarTimezone");
       } else {
         spr.status = HttpServletResponse.SC_NOT_IMPLEMENTED;
       }

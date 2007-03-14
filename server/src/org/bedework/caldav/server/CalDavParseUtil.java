@@ -33,6 +33,8 @@ import org.bedework.calfacade.util.CalFacadeUtil;
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 
+import net.fortuna.ical4j.model.TimeZone;
+
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
@@ -51,11 +53,14 @@ public class CalDavParseUtil {
    *                           end="20040902T235959Z"/>
    *
    * @param nd
+   * @param tz - timezone to use if specified
    * @param timezones
    * @return TimeRange
    * @throws WebdavException
    */
-  public static TimeRange parseTimeRange(Node nd, CalTimezones timezones) throws WebdavException {
+  public static TimeRange parseTimeRange(Node nd,
+                                         TimeZone tz,
+                                         CalTimezones timezones) throws WebdavException {
     BwDateTime start = null;
     BwDateTime end = null;
 
@@ -70,6 +75,10 @@ public class CalDavParseUtil {
     }
 
     int attrCt = nnm.getLength();
+    String tzid = null;
+    if (tz != null) {
+      tzid = tz.getID();
+    }
 
     try {
       Node nmAttr = nnm.getNamedItem("start");
@@ -78,9 +87,10 @@ public class CalDavParseUtil {
         attrCt--;
         start = CalFacadeUtil.getDateTime(nmAttr.getNodeValue(),
                                           false,
-                                          true,
+                                          true,   // utc
                                           false,
-                                          null,   // tzid
+                                          tzid,
+                                          tz,
                                           null,   // tzowner
                                           timezones);
       }
@@ -91,9 +101,10 @@ public class CalDavParseUtil {
         attrCt--;
         end = CalFacadeUtil.getDateTime(nmAttr.getNodeValue(),
                                         false,
-                                        true,
+                                        true,   // utc
                                         false,
-                                        null,   // tzid
+                                        tzid,
+                                        tz,
                                         null,   // tzowner
                                         timezones);
       }

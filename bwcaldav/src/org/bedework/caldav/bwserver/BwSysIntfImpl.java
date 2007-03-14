@@ -562,6 +562,9 @@ public class BwSysIntfImpl implements SysIntf {
       if (CalFacadeException.duplicateCalendar.equals(msg)) {
         return HttpServletResponse.SC_METHOD_NOT_ALLOWED;
       }
+      if (CalFacadeException.illegalCalendarCreation.equals(msg)) {
+        return HttpServletResponse.SC_FORBIDDEN;
+      }
       throw new WebdavException(cfe);
     } catch (Throwable t) {
       throw new WebdavException(t);

@@ -52,6 +52,7 @@ import java.util.Collection;
 import javax.servlet.http.HttpServletResponse;
 
 import net.fortuna.ical4j.model.Component;
+import net.fortuna.ical4j.model.TimeZone;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
@@ -144,6 +145,8 @@ public class Filter {
 
   private CaldavBWIntf intf;
 
+  private TimeZone tz;
+
   protected transient Logger log;
 
   /** The root element.
@@ -200,11 +203,15 @@ public class Filter {
   /** The given node must be the Filter element
    *
    * @param nd
+   * @param tz timezone from request
    * @return int     htp status
    * @throws WebdavException
    */
-  public int parse(Node nd) throws WebdavException {
+  public int parse(Node nd,
+                   TimeZone tz) throws WebdavException {
     try {
+      this.tz = tz;
+
       /* We expect exactly one comp-filter child. */
 
       Element[] children = getChildren(nd);
@@ -390,7 +397,7 @@ public class Filter {
         if (MethodBase.nodeMatches(curnode, isDefined)) {
           // Probably out of date evolution - ignore it
         } else if (MethodBase.nodeMatches(curnode, CaldavTags.timeRange)) {
-          cf.setTimeRange(CalDavParseUtil.parseTimeRange(curnode,
+          cf.setTimeRange(CalDavParseUtil.parseTimeRange(curnode, tz,
                           intf.getSysi().getTimezones()));
 
           if (cf.getTimeRange() == null) {
@@ -474,7 +481,7 @@ public class Filter {
           if (MethodBase.nodeMatches(curnode, CaldavTags.isNotDefined)) {
             pf.setIsNotDefined(true);
           } else if (MethodBase.nodeMatches(curnode, CaldavTags.timeRange)) {
-            pf.setTimeRange(CalDavParseUtil.parseTimeRange(curnode,
+            pf.setTimeRange(CalDavParseUtil.parseTimeRange(curnode, tz,
                                                intf.getSysi().getTimezones()));
           } else if (MethodBase.nodeMatches(curnode, CaldavTags.textMatch)) {
             pf.setMatch(parseTextMatch(curnode));

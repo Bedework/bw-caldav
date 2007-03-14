@@ -65,7 +65,6 @@ import org.bedework.icalendar.Icalendar;
 import org.bedework.icalendar.VFreeUtil;
 
 import edu.rpi.cct.webdav.servlet.common.MethodBase;
-import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavForbidden;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNotFound;
@@ -159,7 +158,7 @@ public class PostMethod extends MethodBase {
         if (debug) {
           debugMsg("Not targetted at Outbox");
         }
-        throw new WebdavForbidden();
+        throw new WebdavForbidden("Not targetted at Outbox");
       }
 
       /* (CALDAV:supported-calendar-data) */
@@ -167,7 +166,7 @@ public class PostMethod extends MethodBase {
         if (debug) {
           debugMsg("Bad content type: " + req.getContentType());
         }
-        throw new WebdavBadRequest("Bad content type: " + req.getContentType());
+        throw new WebdavForbidden("Bad content type: " + req.getContentType());
       }
 
       /* (CALDAV:valid-calendar-data) -- later */
@@ -225,15 +224,15 @@ public class PostMethod extends MethodBase {
         if (debug) {
           debugMsg("Not icalendar");
         }
-        throw new WebdavBadRequest("Not icalendar");
+        throw new WebdavForbidden("Not icalendar");
       }
 
       if (!pars.ic.validItipMethodType()) {
         if (debug) {
           debugMsg("Bad method: " + String.valueOf(pars.ic.getMethodType()));
         }
-        throw new WebdavBadRequest("Bad method: " +
-                                   String.valueOf(pars.ic.getMethodType()));
+        throw new WebdavForbidden("Bad method: " +
+                                  String.valueOf(pars.ic.getMethodType()));
       }
 
       /* Do the stuff we deferred above */
@@ -292,8 +291,8 @@ public class PostMethod extends MethodBase {
         if (debug) {
           debugMsg("Unsupported component type: " + pars.ic.getComponentType());
         }
-        throw new WebdavBadRequest("org.bedework.caldav.unsupported.component " +
-                                   pars.ic.getComponentType());
+        throw new WebdavForbidden("org.bedework.caldav.unsupported.component " +
+                                  pars.ic.getComponentType());
       }
 
       closeTag(CaldavTags.scheduleResponse);

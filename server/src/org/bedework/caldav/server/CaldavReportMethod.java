@@ -63,8 +63,8 @@ import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.RecurringRetrievalMode.Rmode;
 import org.bedework.davdefs.CaldavTags;
 import org.bedework.davdefs.WebdavTags;
+import org.bedework.icalendar.Icalendar;
 
-import edu.rpi.cct.webdav.servlet.common.PropFindMethod;
 import edu.rpi.cct.webdav.servlet.common.ReportMethod;
 import edu.rpi.cct.webdav.servlet.common.PropFindMethod.PropRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
@@ -75,10 +75,13 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavProperty;
 import edu.rpi.cct.webdav.servlet.shared.WebdavStatusCode;
 import edu.rpi.sss.util.xml.XmlUtil;
 
+import net.fortuna.ical4j.model.TimeZone;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import java.io.Reader;
+import java.io.StringReader;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -188,24 +191,25 @@ public class CaldavReportMethod extends ReportMethod {
    */
   private void processDoc(Document doc) throws WebdavException {
     try {
-      WebdavNsIntf intf = getNsIntf();
+      CaldavBWIntf intf = (CaldavBWIntf)getNsIntf();
 
       Element root = doc.getDocumentElement();
 
-      Element[] children = getChildren(root);
-
-      for (int i = 0; i < children.length; i++) {
-        Element curnode = children[i];
-
+      if (reportType == reportTypeFreeBusy) {
+        /* Expect exactly one time-range */
+        freeBusy = new FreeBusyQuery(intf, debug);
+        freeBusy.parse(getOnlyChild(root));
         if (debug) {
-          trace("reqtype: " + curnode.getNamespaceURI() + ":" + curnode.getLocalName());
+          trace("REPORT: free-busy");
+          freeBusy.dump();
         }
 
-        if (reportType == reportTypeFreeBusy) {
-          freeBusy = new FreeBusyQuery(intf, debug);
-          freeBusy.parse(curnode);
-        } else {
-          /* Two possibilities:
+        return;
+      }
+
+      Collection<Element> children = getChildren(root);
+
+      /* Two possibilities:
                <!ELEMENT calendar-multiget ((DAV:allprop |
                                       DAV:propname |
                                       DAV:prop)?, DAV:href+)>
@@ -213,97 +217,135 @@ public class CaldavReportMethod extends ReportMethod {
                <!ELEMENT calendar-query ((DAV:allprop |
                                     DAV:propname |
                                     DAV:prop)?, filter, timezone?)>
-           */
+       */
 
-          /* First try for a property request */
-          PropFindMethod.PropRequest pr = pm.tryPropRequest(curnode);
+      if (children.isEmpty()) {
+        throw new WebdavBadRequest();
+      }
 
-          if (pr != null) {
-            if (preq != null) {
-              if (debug) {
-                trace("REPORT: preq not null");
-              }
-              throw new WebdavBadRequest();
+      Iterator<Element> chiter = children.iterator();
+
+      /* First try for a property request */
+      preq = pm.tryPropRequest(chiter.next());
+
+      if (preq != null) {
+        if (debug) {
+          trace("REPORT: preq not null");
+        }
+
+        if (preq.reqType == PropRequest.ReqType.prop) {
+          // Look for a calendar-data property
+          for (WebdavProperty prop: preq.props) {
+            if (prop instanceof CalendarData) {
+              caldata = (CalendarData)prop;
             }
-            preq = pr;
-          } else if ((reportType == reportTypeQuery) &&
-                     nodeMatches(curnode, CaldavTags.filter)) {
-            if (filter != null) {
-              if (debug) {
-                trace("REPORT: filter not null");
-              }
-              throw new WebdavBadRequest();
-            }
-
-            filter = new Filter(intf, debug);
-            int st = filter.parse(curnode);
-
-            if (st != HttpServletResponse.SC_OK) {
-              throw new WebdavException(st);
-            }
-          } else if ((reportType == reportTypeMultiGet) &&
-              WebdavTags.href.nodeMatches(curnode)) {
-            String href = XmlUtil.getElementContent(curnode);
-
-            if ((href == null) || (href.length() == 0)) {
-              throw new WebdavBadRequest();
-            }
-
-            if (hrefs == null) {
-              hrefs = new ArrayList<String>();
-            }
-
-            hrefs.add(href);
-          } else {
-            if (debug) {
-              trace("REPORT: unexpected element " + curnode.getNodeName() +
-                    " with type " + curnode.getNodeType());
-            }
-            throw new WebdavBadRequest("REPORT: unexpected element " + curnode.getNodeName() +
-                                       " with type " + curnode.getNodeType());
           }
         }
       }
 
-      // Final validation
+      if (!chiter.hasNext()) {
+        throw new WebdavBadRequest();
+      }
+
+      Element curnode = chiter.next();
+
+      if (reportType == reportTypeQuery) {
+        // Filter required next
+
+        if (!nodeMatches(curnode, CaldavTags.filter)) {
+          throw new WebdavBadRequest("Expected filter");
+        }
+
+        // Delay parsing until we see if we have a timezone
+        Element filterNode = curnode;
+        TimeZone tz = null;
+
+        if (chiter.hasNext()) {
+          // Only timezone allowed
+          curnode = chiter.next();
+
+          if (!nodeMatches(curnode, CaldavTags.timezone)) {
+            throw new WebdavBadRequest("Expected timezone");
+          }
+
+          // Node content should be a timezone def
+          String tzdef = getElementContent(curnode);
+          Icalendar ical = intf.getSysi().fromIcal(null,
+                                                   new StringReader(tzdef));
+          Collection<TimeZone> tzs = ical.getTimeZones();
+          if (tzs.isEmpty()) {
+            throw new WebdavBadRequest("Expected timezone");
+          }
+
+          if (tzs.size() > 1) {
+            throw new WebdavBadRequest("Expected one timezone");
+          }
+
+          tz = tzs.iterator().next();
+        }
+
+        filter = new Filter(intf, debug);
+        int st = filter.parse(filterNode, tz);
+
+        if (st != HttpServletResponse.SC_OK) {
+          throw new WebdavException(st);
+        }
+
+        if (debug) {
+          trace("REPORT: query");
+          filter.dump();
+        }
+
+        return;
+      }
+
       if (reportType == reportTypeMultiGet) {
+        // One or more hrefs
+
+        for (;;) {
+          if (!WebdavTags.href.nodeMatches(curnode)) {
+            throw new WebdavBadRequest("Expected href");
+          }
+
+          String href = XmlUtil.getElementContent(curnode);
+
+          if ((href == null) || (href.length() == 0)) {
+            throw new WebdavBadRequest("Bad href");
+          }
+
+          if (hrefs == null) {
+            hrefs = new ArrayList<String>();
+          }
+
+          hrefs.add(href);
+          if (!chiter.hasNext()) {
+            break;
+          }
+          curnode = chiter.next();
+        }
+
         if (hrefs == null) {
           // need at least 1
-          throw new WebdavBadRequest();
+          throw new WebdavBadRequest("Expected href");
         }
-      } else if (reportType == reportTypeQuery) {
-        if (filter == null) {
-          // filter required
-          throw new WebdavBadRequest();
-        }
-      }
 
-      if ((preq != null) && (preq.reqType == PropRequest.ReqType.prop)) {
-        // Look for a calendar-data property
-        for (WebdavProperty prop: preq.props) {
-          if (prop instanceof CalendarData) {
-            caldata = (CalendarData)prop;
-          }
-        }
-      }
-
-      if (debug) {
-        trace("REPORT: ");
-        if (reportType == reportTypeFreeBusy) {
-          trace("free-busy");
-          freeBusy.dump();
-        } else if (reportType == reportTypeQuery) {
-          // Query - optional props + filter
-          filter.dump();
-        } else if (reportType == reportTypeMultiGet) {
-          // Multi-get - optional props + one or more hrefs
+        if (debug) {
+          trace("REPORT: multi-get");
 
           for (String href: hrefs) {
             trace("    <DAV:href>" + href + "</DAV:href>");
           }
-        } else {
         }
+
+        return;
       }
+
+      if (debug) {
+        trace("REPORT: unexpected element " + curnode.getNodeName() +
+              " with type " + curnode.getNodeType());
+      }
+      throw new WebdavBadRequest("REPORT: unexpected element " + curnode.getNodeName() +
+                                 " with type " + curnode.getNodeType());
     } catch (WebdavException wde) {
       throw wde;
     } catch (Throwable t) {

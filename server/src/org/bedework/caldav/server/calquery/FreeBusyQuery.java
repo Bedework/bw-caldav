@@ -79,7 +79,8 @@ public class FreeBusyQuery {
         throw new WebdavBadRequest();
       }
 
-      timeRange = CalDavParseUtil.parseTimeRange(nd, intf.getSysi().getTimezones());
+      timeRange = CalDavParseUtil.parseTimeRange(nd, null,
+                                                 intf.getSysi().getTimezones());
 
       if (debug) {
         trace("Parsed time range " + timeRange);
