@@ -55,7 +55,9 @@
 package org.bedework.caldav.server;
 
 import org.bedework.caldav.server.calquery.CalendarData;
+import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwEvent;
+import org.bedework.calfacade.BwUser;
 import org.bedework.calfacade.svc.EventInfo;
 
 import org.bedework.davdefs.CaldavTags;
@@ -89,11 +91,17 @@ public class CaldavComponentNode extends CaldavBwNode {
   /* The event if this component is an event */
   private EventInfo eventInfo;
 
+  private BwUser owner;
+
+  private String entityName;
+
   // We also need a todo object and maybe a journal, freebusy and a timezone
 
   private boolean isTimezone;
 
   private Calendar ical;
+
+  private BwCalendar cal;
 
   /** The event Component object
    */
@@ -173,10 +181,58 @@ public class CaldavComponentNode extends CaldavBwNode {
                              SysIntf sysi, boolean debug) throws WebdavException {
     super(cdURI, sysi, debug);
 
+    cal = cdURI.getCal();
     collection = false;
     allowsGet = true;
+    entityName = cdURI.getEntityName();
 
     eventInfo = cdURI.getEntity();
+  }
+
+  public void init(boolean content) throws WebdavException {
+    if (!content) {
+      return;
+    }
+
+    try {
+      if ((eventInfo == null) && exists) {
+        if (entityName == null) {
+          exists = false;
+          return;
+        }
+      }
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
+  }
+
+  /**
+   * @return BwCalendar containing this entity
+   */
+  public BwCalendar getCalendar() {
+    return cal;
+  }
+
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getOwner()
+   */
+  public String getOwner() throws WebdavException {
+    if (owner == null) {
+      if (eventInfo == null) {
+        return null;
+      }
+
+      BwEvent ev = eventInfo.getEvent();
+      if (ev != null) {
+        owner = ev.getOwner();
+      }
+    }
+
+    if (owner != null) {
+      return owner.getAccount();
+    }
+
+    return null;
   }
 
   /* (non-Javadoc)
@@ -233,6 +289,13 @@ public class CaldavComponentNode extends CaldavBwNode {
     }
 
     return comp;
+  }
+
+  /**
+   * @return String
+   */
+  public String getEntityName() {
+    return entityName;
   }
 
   /* (non-Javadoc)
@@ -561,25 +624,6 @@ public boolean generatePropertyValue(QName tag,
     }
   }
 
-  public void init(boolean content) throws WebdavException {
-    if (!content) {
-      return;
-    }
-
-    try {
-      if ((eventInfo == null) && exists) {
-        String entityName = cdURI.getEntityName();
-
-        if (entityName == null) {
-          exists = false;
-          return;
-        }
-      }
-    } catch (Throwable t) {
-      throw new WebdavException(t);
-    }
-  }
-
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getPropertyNames()
    */
@@ -704,8 +748,11 @@ public boolean generatePropertyValue(QName tag,
   public String toString() {
     StringBuffer sb = new StringBuffer();
 
-    sb.append("CaldavComponentNode{cduri=");
-    sb.append(getCDURI());
+    sb.append("CaldavComponentNode{");
+    sb.append("path=");
+    sb.append(getPath());
+    sb.append(", entityName=");
+    sb.append(String.valueOf(entityName));
     sb.append("}");
 
     return sb.toString();
@@ -757,11 +804,7 @@ public boolean generatePropertyValue(QName tag,
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getDisplayname()
    */
   public String getDisplayname() throws WebdavException {
-    if (cdURI == null) {
-      return null;
-    }
-
-    return cdURI.getEntityName();
+    return getEntityName();
   }
 
   /* (non-Javadoc)

@@ -58,50 +58,75 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
 import edu.rpi.sss.util.xml.QName;
-import edu.rpi.sss.util.xml.XmlEmit;
 
+import org.bedework.calfacade.BwCalendar;
 import org.bedework.davdefs.CaldavDefs;
-import org.bedework.davdefs.CaldavTags;
+import org.w3c.dom.Element;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 
-/** Class to represent a user in caldav.
+import javax.servlet.http.HttpServletResponse;
+
+/** Class to represent a principal in caldav.
  *
  *
  *   @author Mike Douglass   douglm@rpi.edu
  */
-public class CaldavUserNode extends CaldavPrincipalNode {
-  private SysIntf.CalUserInfo ui;
-
-  private final static HashMap<QName, PropertyTagEntry> propertyNames =
-    new HashMap<QName, PropertyTagEntry>();
-
-  static {
-    addPropEntry(propertyNames, CaldavTags.calendarHomeSet);
-    addPropEntry(propertyNames, CaldavTags.calendarHomeURL);
-    addPropEntry(propertyNames, CaldavTags.scheduleInboxURL);
-    addPropEntry(propertyNames, CaldavTags.scheduleOutboxURL);
-  }
+public class CaldavPrincipalNode extends CaldavBwNode {
+  private String displayName;
 
   /**
    * @param cdURI
    * @param sysi
-   * @param ui    User Info
    * @param debug
    * @throws WebdavException
    */
-  public CaldavUserNode(CaldavURI cdURI, SysIntf sysi,
-                        SysIntf.CalUserInfo ui,
-                        boolean debug) throws WebdavException {
+  public CaldavPrincipalNode(CaldavURI cdURI, SysIntf sysi,
+                             boolean debug) throws WebdavException {
     super(cdURI, sysi, debug);
-    this.ui = ui;
+    displayName = cdURI.getEntityName();
+  }
 
-    if (ui == null) {
-      this.ui = sysi.getCalUserInfo(cdURI.getEntityName(), false);
-    }
-    userPrincipal = true;
+  /**
+   * @return BwCalendar containing this entity
+   */
+  public BwCalendar getCalendar() {
+    return null;
+  }
+
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getOwner()
+   */
+  public String getOwner() throws WebdavException {
+    return displayName;
+  }
+
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#removeProperty(org.w3c.dom.Element)
+   */
+  public SetPropertyResult removeProperty(Element val) throws WebdavException {
+    warn("Unimplemented - removeProperty");
+    SetPropertyResult spr = new SetPropertyResult(val);
+    spr.status = HttpServletResponse.SC_NOT_IMPLEMENTED;
+    spr.message = "Unimplemented - removeProperty";
+
+    return spr;
+  }
+
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#setProperty(org.w3c.dom.Element)
+   */
+  public SetPropertyResult setProperty(Element val) throws WebdavException {
+    SetPropertyResult spr = new SetPropertyResult(val);
+
+    spr.status = HttpServletResponse.SC_NOT_IMPLEMENTED;
+    spr.message = "Unimplemented - setProperty";
+
+    return spr;
+  }
+
+  public Collection getChildren() throws WebdavException {
+    return null;
   }
 
   /* ====================================================================
@@ -162,6 +187,13 @@ public class CaldavUserNode extends CaldavPrincipalNode {
   }
 
   /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getDisplayname()
+   */
+  public String getDisplayname() throws WebdavException {
+    return displayName;
+  }
+
+  /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getLastmodDate()
    */
   public String getLastmodDate() throws WebdavException {
@@ -179,7 +211,6 @@ public class CaldavUserNode extends CaldavPrincipalNode {
                                        WebdavNsIntf intf,
                                        boolean allProp) throws WebdavException {
     String ns = tag.getNamespaceURI();
-    XmlEmit xml = intf.getXmlEmit();
 
     /* Deal with webdav properties */
     if (!ns.equals(CaldavDefs.caldavNamespace)) {
@@ -188,47 +219,11 @@ public class CaldavUserNode extends CaldavPrincipalNode {
     }
 
     try {
-      if (tag.equals(CaldavTags.calendarHomeSet)) {
-        xml.openTag(tag);
-        generateHref(xml, ui.userHomePath);
-        xml.closeTag(tag);
-
-        return true;
-      }
-
-      if (tag.equals(CaldavTags.calendarHomeURL)) {
-        generateUrl(xml, tag, ui.userHomePath);
-
-        return true;
-      }
-
-      if (tag.equals(CaldavTags.scheduleInboxURL)) {
-        generateUrl(xml, tag, ui.inboxPath);
-        return true;
-      }
-
-      if (tag.equals(CaldavTags.scheduleOutboxURL)) {
-        generateUrl(xml, tag, ui.outboxPath);
-        return true;
-      }
-
-      // Not known
-      return false;
+      // Not known - try higher
+      return super.generatePropertyValue(tag, intf, allProp);
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
-  }
-
-  /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getPropertyNames()
-   */
-  public Collection<PropertyTagEntry> getPropertyNames()throws WebdavException {
-    Collection<PropertyTagEntry> res = new ArrayList<PropertyTagEntry>();
-
-    res.addAll(super.getPropertyNames());
-    res.addAll(propertyNames.values());
-
-    return res;
   }
 
   /* ====================================================================

@@ -308,7 +308,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
         nd = new CaldavUserNode(wi, sysi, null, debug);
       } else if (wi.isGroup()) {
         nd = new CaldavGroupNode(wi, sysi, debug);
-      } else if (wi.isCalendar()) {
+      } else if (wi.isCollection()) {
         nd = new CaldavCalNode(wi, sysi, debug);
       } else {
         nd = new CaldavComponentNode(wi, sysi, debug);
@@ -352,7 +352,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
         CaldavCalNode cnode = (CaldavCalNode)uwnode;
 
-        BwCalendar cal = cnode.getCDURI().getCal();
+        BwCalendar cal = cnode.getCalendar();
 
         sysi.deleteCalendar(cal);
       }
@@ -365,22 +365,22 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
   public Iterator<WebdavNsNode> getChildren(WebdavNsNode node) throws WebdavException {
     try {
-      CaldavBwNode uwnode = getBwnode(node);
+      CaldavBwNode wdnode = getBwnode(node);
 
       ArrayList<WebdavNsNode> al = new ArrayList<WebdavNsNode>();
 
-      if (!uwnode.getCollection()) {
+      if (!wdnode.isCollection()) {
         // Don't think we should have been called
         return al.iterator();
       }
 
       if (debug) {
-        debugMsg("About to get children for " + uwnode.getUri());
+        debugMsg("About to get children for " + wdnode.getUri());
       }
 
-      Collection children = uwnode.getChildren();
-      String uri = uwnode.getUri();
-      BwCalendar parent = uwnode.getCDURI().getCal();
+      Collection children = wdnode.getChildren();
+      String uri = wdnode.getUri();
+      BwCalendar parent = wdnode.getCalendar();
 
       Iterator it = children.iterator();
 
@@ -411,7 +411,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
                                WebdavNsIntf.existanceDoesExist,
                                nodeType, true, cal, ei);
 
-        if (wi.isCalendar()) {
+        if (wi.isCollection()) {
           if (debug) {
             debugMsg("Add child as calendar");
           }
@@ -560,17 +560,15 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
   public PutContentResult putContent(WebdavNsNode node,
                                      Reader contentRdr,
-                                     boolean create)
-      throws WebdavException {
+                                     boolean create) throws WebdavException {
     try {
       PutContentResult pcr = new PutContentResult();
       pcr.node = node;
       pcr.created = create;
 
       CaldavComponentNode bwnode = (CaldavComponentNode)getBwnode(node);
-      CaldavURI cdUri = bwnode.getCDURI();
-      String entityName = cdUri.getEntityName();
-      BwCalendar cal = cdUri.getCal();
+      String entityName = bwnode.getEntityName();
+      BwCalendar cal = bwnode.getCalendar();
 
       Icalendar ic = sysi.fromIcal(cal, new MyReader(contentRdr));
 
@@ -609,12 +607,12 @@ public class CaldavBWIntf extends WebdavNsIntf {
             /* Collection<BwEventProxy>failedOverrides = */
               sysi.addEvent(cal, ev, evinfo.getOverrideProxies(), true);
 
-            StringBuffer sb = new StringBuffer(cdUri.getPath());
+            /*StringBuffer sb = new StringBuffer(cdUri.getPath());
             sb.append("/");
             sb.append(entityName);
             if (!entityName.toLowerCase().endsWith(".ics")) {
               sb.append(".ics");
-            }
+            }*/
 
             bwnode.setEventInfo(evinfo);
           } else {
@@ -694,7 +692,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
                              WebdavNsNode node) throws WebdavException {
     try {
       CaldavBwNode bwnode = getBwnode(node);
-      CaldavURI cdUri = bwnode.getCDURI();
 
       /* The uri should have an entity name representing the new collection
        * and a calendar object representing the parent.
@@ -702,7 +699,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
        * A namepart of null means that the path already exists
        */
 
-      BwCalendar newCal = cdUri.getCal();
+      BwCalendar newCal = bwnode.getCalendar();
       BwCalendar parent = newCal.getCalendar();
       if (parent.getCalendarCollection()) {
         resp.setStatus(HttpServletResponse.SC_FORBIDDEN /*,
@@ -748,8 +745,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
         resp.setStatus(HttpServletResponse.SC_PRECONDITION_FAILED);
       }
 
-      BwCalendar fromCal = fromCalNode.cdURI.getCal();
-      BwCalendar toCal = toCalNode.cdURI.getCal();
+      BwCalendar fromCal = fromCalNode.getCalendar();
+      BwCalendar toCal = toCalNode.getCalendar();
 
       getSysi().copyMove(fromCal, toCal, copy, overwrite);
       if (toCalNode.getExists()) {
@@ -782,10 +779,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
 
     EventInfo fromEi = fromNode.getEventInfo();
-    BwCalendar toCal = toNode.cdURI.getCal();
+    BwCalendar toCal = toNode.getCalendar();
 
     if (!getSysi().copyMove(fromEi.getEvent(), fromEi.getOverrideProxies(),
-                            toCal, toNode.getCDURI().getEntityName(), copy,
+                            toCal, toNode.getEntityName(), copy,
                             overwrite)) {
       resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
     } else {
@@ -1013,11 +1010,14 @@ public class CaldavBWIntf extends WebdavNsIntf {
                                               WebdavNsIntf.nodeTypeUnknown);
 
     try {
-      if (node.isCollection()) {
-        sysi.updateAccess(node.getCDURI().getCal(), info.aces);
-      } else {
+      // May need a real principal hierarchy
+      if (node instanceof CaldavCalNode) {
+        sysi.updateAccess(((CaldavCalNode)node).getCalendar(), info.aces);
+      } else if (node instanceof CaldavComponentNode) {
         sysi.updateAccess(((CaldavComponentNode)node).getEventInfo().getEvent(),
                           info.aces);
+      } else {
+        throw new WebdavException(HttpServletResponse.SC_NOT_IMPLEMENTED);
       }
     } catch (WebdavException wi) {
       throw wi;
@@ -1027,12 +1027,11 @@ public class CaldavBWIntf extends WebdavNsIntf {
   }
 
   public void emitAcl(WebdavNsNode node) throws WebdavException {
-    CaldavBwNode uwnode = getBwnode(node);
-    CaldavURI cdUri = uwnode.getCDURI();
+    CaldavBwNode cdnode = getBwnode(node);
     Acl acl = null;
 
     try {
-      if (cdUri.isCalendar()) {
+      if (cdnode.isCollection()) {
         CurrentAccess ca = node.getCurrentAccess();
         if (ca != null) {
           acl = ca.acl;
@@ -1406,10 +1405,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
   public void getFreeBusy(CaldavCalNode cnode,
                           FreeBusyQuery freeBusy) throws WebdavException {
     try {
-      String user = cnode.getCDURI().getOwner();
-
-      BwFreeBusy fb = freeBusy.getFreeBusy(sysi, cnode.getCDURI().getCal(),
-                                           user);
+      BwFreeBusy fb = freeBusy.getFreeBusy(sysi, cnode.getCalendar(),
+                                           cnode.getOwner());
 
       cnode.setFreeBusy(fb);
     } catch (WebdavException we) {
@@ -1562,7 +1559,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
           throw new WebdavNotFound(uri);
         }
 
-        return new CaldavURI(sysi.userToCaladdr(pi.who), pi.prefix,
+        return new CaldavURI(/*sysi.userToCaladdr(pi.who)*/pi.who, pi.prefix,
                              pi.whoType == Ace.whoTypeUser);
       }
 

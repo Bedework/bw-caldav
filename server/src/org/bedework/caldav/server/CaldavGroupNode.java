@@ -30,48 +30,22 @@ import edu.rpi.cmt.access.Acl.CurrentAccess;
 
 import java.util.Collection;
 
-import javax.servlet.http.HttpServletResponse;
-
-import org.w3c.dom.Element;
-
 /** Class to represent a user in caldav. Should only be created in
    response to an incoming url which references principals.
  *
  *   @author Mike Douglass   douglm@rpi.edu
  */
-public class CaldavGroupNode extends CaldavBwNode {
+public class CaldavGroupNode extends CaldavPrincipalNode {
   /**
    * @param cdURI
    * @param sysi
    * @param debug
+   * @throws WebdavException
    */
-  public CaldavGroupNode(CaldavURI cdURI, SysIntf sysi, boolean debug) {
+  public CaldavGroupNode(CaldavURI cdURI, SysIntf sysi,
+                         boolean debug) throws WebdavException {
     super(cdURI, sysi, debug);
     groupPrincipal = true;
-  }
-
-  /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#removeProperty(org.w3c.dom.Element)
-   */
-  public SetPropertyResult removeProperty(Element val) throws WebdavException {
-    warn("Unimplemented - removeProperty");
-    SetPropertyResult spr = new SetPropertyResult(val);
-    spr.status = HttpServletResponse.SC_NOT_IMPLEMENTED;
-    spr.message = "Unimplemented - removeProperty";
-
-    return spr;
-  }
-
-  /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#setProperty(org.w3c.dom.Element)
-   */
-  public SetPropertyResult setProperty(Element val) throws WebdavException {
-    SetPropertyResult spr = new SetPropertyResult(val);
-
-    spr.status = HttpServletResponse.SC_NOT_IMPLEMENTED;
-    spr.message = "Unimplemented - setProperty";
-
-    return spr;
   }
 
   public Collection getChildren() throws WebdavException {
@@ -139,17 +113,6 @@ public class CaldavGroupNode extends CaldavBwNode {
    */
   public String getCreDate() throws WebdavException {
     return null;
-  }
-
-  /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getDisplayname()
-   */
-  public String getDisplayname() throws WebdavException {
-    if (cdURI == null) {
-      return null;
-    }
-
-    return cdURI.getEntityName();
   }
 
   /* (non-Javadoc)

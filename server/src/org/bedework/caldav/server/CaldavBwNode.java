@@ -1,31 +1,3 @@
-/*
- Copyright (c) 2000-2005 University of Washington.  All rights reserved.
-
- Redistribution and use of this distribution in source and binary forms,
- with or without modification, are permitted provided that:
-
-   The above copyright notice and this permission notice appear in
-   all copies and supporting documentation;
-
-   The name, identifiers, and trademarks of the University of Washington
-   are not used in advertising or publicity without the express prior
-   written permission of the University of Washington;
-
-   Recipients acknowledge that this distribution is made available as a
-   research courtesy, "as is", potentially with defects, without
-   any obligation on the part of the University of Washington to
-   provide support, services, or repair;
-
-   THE UNIVERSITY OF WASHINGTON DISCLAIMS ALL WARRANTIES, EXPRESS OR
-   IMPLIED, WITH REGARD TO THIS SOFTWARE, INCLUDING WITHOUT LIMITATION
-   ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
-   PARTICULAR PURPOSE, AND IN NO EVENT SHALL THE UNIVERSITY OF
-   WASHINGTON BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL
-   DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
-   PROFITS, WHETHER IN AN ACTION OF CONTRACT, TORT (INCLUDING
-   NEGLIGENCE) OR STRICT LIABILITY, ARISING OUT OF OR IN CONNECTION WITH
-   THE USE OR PERFORMANCE OF THIS SOFTWARE.
- */
 /* **********************************************************************
     Copyright 2005 Rensselaer Polytechnic Institute. All worldwide rights reserved.
 
@@ -51,30 +23,24 @@
     special, consequential, or incidental damages related to the software,
     to the maximum extent the law permits.
 */
-
 package org.bedework.caldav.server;
+
+import org.bedework.calfacade.BwCalendar;
+import org.bedework.davdefs.CaldavTags;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
-import edu.rpi.cct.webdav.servlet.shared.WebdavProperty;
 import edu.rpi.sss.util.xml.QName;
-import edu.rpi.sss.util.xml.XmlEmit;
 
-import java.io.StringReader;
-import java.io.Reader;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
-
-import org.bedework.davdefs.CaldavTags;
-import org.bedework.davdefs.WebdavTags;
 
 /** Class to represent a caldav node.
  *
  *   @author Mike Douglass   douglm - rpi.edu
  */
 public abstract class CaldavBwNode extends WebdavNsNode {
-  protected CaldavURI cdURI;
+//  protected CaldavURI cdURI;
 
   private final static Collection<QName> supportedReports = new ArrayList<QName>();
 
@@ -87,46 +53,13 @@ public abstract class CaldavBwNode extends WebdavNsNode {
   private SysIntf sysi;
 
   CaldavBwNode(CaldavURI cdURI, SysIntf sysi, boolean debug) {
-    super(debug);
+    super(sysi.getUrlPrefix(), cdURI.getPath(), cdURI.isCollection(), debug);
 
-    this.cdURI = cdURI;
+    //this.cdURI = cdURI;
     this.sysi = sysi;
 
     if (cdURI != null) {
       uri = cdURI.getUri();
-    }
-  }
-
-  protected void generateHref(XmlEmit xml) throws WebdavException {
-    try {
-      String url = sysi.getUrlPrefix() + new URI(getEncodedUri()).toASCIIString();
-      xml.property(WebdavTags.href, url);
-    } catch (WebdavException wde) {
-      throw wde;
-    } catch (Throwable t) {
-      throw new WebdavException(t);
-    }
-  }
-
-  protected void generateHref(XmlEmit xml, String uri) throws WebdavException {
-    generateUrl(xml, WebdavTags.href, uri);
-  }
-
-  protected void generateUrl(XmlEmit xml, QName tag, String uri) throws WebdavException {
-    try {
-      String enc = new URI(null, null, uri, null).toString();
-      enc = new URI(enc).toASCIIString();  // XXX ???????
-
-      StringBuffer sb = new StringBuffer(sysi.getUrlPrefix());
-
-      if (!enc.startsWith("/")) {
-        sb.append("/");
-      }
-
-      sb.append(enc);
-      xml.property(tag, sb.toString());
-    } catch (Throwable t) {
-      throw new WebdavException(t);
     }
   }
 
@@ -135,24 +68,16 @@ public abstract class CaldavBwNode extends WebdavNsNode {
    * ==================================================================== */
 
   /**
-   * @return boolean if this is a calendar (as against an entity)
+   * @return BwCalendar containing or represented by this entity
    */
-  public boolean isCollection() {
-    return cdURI.isCalendar();
-  }
+  public abstract BwCalendar getCalendar();
 
   /**
    * @return boolean if this is a calendar
+   * @throws WebdavException
    */
-  public boolean isCalendarCollection() {
-    return (cdURI.isCalendar() && cdURI.getCal().getCalendarCollection());
-  }
-
-  /**
-   * @return CaldavURI
-   */
-  public CaldavURI getCDURI() {
-    return cdURI;
+  public boolean isCalendarCollection() throws WebdavException {
+    return (isCollection() && getCalendar().getCalendarCollection());
   }
 
   /** Return a collection of children objects. These will all be calendar
@@ -164,42 +89,6 @@ public abstract class CaldavBwNode extends WebdavNsNode {
    * @throws WebdavException
    */
   public Collection getChildren() throws WebdavException {
-    return null;
-  }
-
-  /** Return a collection of property objects
-   *
-   * <p>Default is to return an empty Collection
-   *
-   * @param ns      String interface namespace.
-   * @return Collection (possibly empty) of WebdavProperty objects
-   * @throws WebdavException
-   */
-  public Collection<WebdavProperty> getProperties(String ns) throws WebdavException {
-    return new ArrayList<WebdavProperty>();
-  }
-
-  /** Returns an InputStream for the content.
-   *
-   * @return Reader       A reader for the content.
-   * @throws WebdavException
-   */
-  public Reader getContent() throws WebdavException {
-    String cont = getContentString();
-
-    if (cont == null) {
-      return null;
-    }
-
-    return new StringReader(cont);
-  }
-
-  /** Return string content
-   *
-   * @return String       content.
-   * @throws WebdavException
-   */
-  public String getContentString() throws WebdavException {
     return null;
   }
 
@@ -227,17 +116,6 @@ public abstract class CaldavBwNode extends WebdavNsNode {
    *                   Required webdav properties
    * ==================================================================== */
 
-  /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getOwner()
-   */
-  public String getOwner() throws WebdavException {
-    if (cdURI != null) {
-      return cdURI.getOwner();
-    }
-
-    return null;
-  }
-
   /* ====================================================================
    *                   Object methods
    * ==================================================================== */
@@ -246,8 +124,8 @@ public abstract class CaldavBwNode extends WebdavNsNode {
     StringBuffer sb = new StringBuffer(this.getClass().getName());
 
     sb.append("{");
-    sb.append("cdURI=");
-    sb.append(cdURI.toString());
+    sb.append("path=");
+    sb.append(getPath());
     sb.append("}");
 
     return sb.toString();

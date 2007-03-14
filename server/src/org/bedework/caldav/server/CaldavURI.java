@@ -55,6 +55,7 @@
 package org.bedework.caldav.server;
 
 import org.bedework.calfacade.BwCalendar;
+import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.svc.EventInfo;
 
 /** We map uris onto an object which may be a calendar or an
@@ -137,7 +138,17 @@ public class CaldavURI {
     if (userUri || groupUri){
       return entityName;
     }
-    return cal.getOwner().getAccount();
+
+    if (entity != null) {
+      BwEvent ev = entity.getEvent();
+      if (ev != null) {
+        return ev.getOwner().getAccount();
+      }
+    } else if (cal != null) {
+      return cal.getOwner().getAccount();
+    }
+
+    return null;
   }
 
   /**
@@ -168,7 +179,7 @@ public class CaldavURI {
   /**
    * @return true if this represents a calendar
    */
-  public boolean isCalendar() {
+  public boolean isCollection() {
     return entityName == null;
   }
 

@@ -264,7 +264,7 @@ public class Filter {
         end = eventq.trange.getEnd();
       }
 
-      events = wdnode.getSysi().getEvents(wdnode.getCDURI().getCal(),
+      events = wdnode.getSysi().getEvents(wdnode.getCalendar(),
                                           eventq.filter,
                                           start, end, retrieveRecur);
     } catch (Throwable t) {

@@ -56,6 +56,7 @@ package org.bedework.caldav.server;
 
 import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwFreeBusy;
+import org.bedework.calfacade.BwUser;
 import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.RecurringRetrievalMode.Rmode;
 import org.bedework.davdefs.CaldavDefs;
@@ -91,6 +92,10 @@ import org.w3c.dom.Element;
  */
 public class CaldavCalNode extends CaldavBwNode {
   private Calendar ical;
+
+  private BwCalendar cal;
+
+  private BwUser owner;
 
   private String vfreeBusyString;
 
@@ -131,12 +136,39 @@ public class CaldavCalNode extends CaldavBwNode {
   public CaldavCalNode(CaldavURI cdURI, SysIntf sysi, boolean debug) {
     super(cdURI, sysi, debug);
 
+    cal = cdURI.getCal();
     collection = true;
     allowsGet = false;
 
     if (!uri.endsWith("/")) {
       uri += "/";
     }
+  }
+
+  /**
+   * @return BwCalendar this node represents
+   */
+  public BwCalendar getCalendar() {
+    return cal;
+  }
+
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getOwner()
+   */
+  public String getOwner() throws WebdavException {
+    if (owner == null) {
+      if (cal == null) {
+        return null;
+      }
+
+      owner = cal.getOwner();
+    }
+
+    if (owner != null) {
+      return owner.getAccount();
+    }
+
+    return null;
   }
 
   public void init(boolean content) throws WebdavException {
@@ -146,7 +178,6 @@ public class CaldavCalNode extends CaldavBwNode {
   }
 
   public String getEtagValue(boolean strong) throws WebdavException {
-    BwCalendar cal = getCDURI().getCal();
     if (cal == null) {
       return null;
     }
@@ -178,7 +209,6 @@ public class CaldavCalNode extends CaldavBwNode {
   public SetPropertyResult setProperty(Element val) throws WebdavException {
     SetPropertyResult spr = new SetPropertyResult(val);
 
-    BwCalendar cal = getCDURI().getCal();
     if (cal == null) {
       spr.status = HttpServletResponse.SC_NOT_FOUND;
       spr.message = "Not found";
@@ -218,7 +248,6 @@ public class CaldavCalNode extends CaldavBwNode {
    * @throws WebdavException
    */
   public boolean getSchedulingAllowed() throws WebdavException {
-    BwCalendar cal = getCDURI().getCal();
     if (cal == null) {
       return false;
     }
@@ -242,8 +271,6 @@ public class CaldavCalNode extends CaldavBwNode {
        */
 
     try {
-      BwCalendar cal = cdURI.getCal();
-
       if (cal.hasChildren()) {
         if (debug) {
           debugMsg("POSSIBLE SEARCH: getChildren for cal " + cal.getId());
@@ -341,11 +368,11 @@ public class CaldavCalNode extends CaldavBwNode {
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getDisplayname()
    */
   public String getDisplayname() throws WebdavException {
-    if (cdURI == null) {
+    if (cal == null) {
       return null;
     }
 
-    return cdURI.getCalName();
+    return cal.getName();
   }
 
   /* (non-Javadoc)
@@ -353,7 +380,6 @@ public class CaldavCalNode extends CaldavBwNode {
    */
   public String getLastmodDate() throws WebdavException {
     init(false);
-    BwCalendar cal = getCDURI().getCal();
     if (cal == null) {
       return null;
     }
@@ -370,7 +396,6 @@ public class CaldavCalNode extends CaldavBwNode {
       return currentAccess;
     }
 
-    BwCalendar cal = getCDURI().getCal();
     if (cal == null) {
       return null;
     }
@@ -403,8 +428,6 @@ public class CaldavCalNode extends CaldavBwNode {
                                        boolean allProp) throws WebdavException {
     String ns = tag.getNamespaceURI();
     XmlEmit xml = intf.getXmlEmit();
-
-    BwCalendar cal = getCDURI().getCal();
 
     try {
       if (tag.equals(WebdavTags.resourcetype)) {
@@ -509,7 +532,6 @@ public class CaldavCalNode extends CaldavBwNode {
     res.addAll(super.getSupportedReports());
 
     /* Cannot do free-busy on in and outbox */
-    BwCalendar cal = cdURI.getCal();
     if ((cal.getCalType() == BwCalendar.calTypeCollection) ||
         (cal.getCalType() == BwCalendar.calTypeFolder)) {
       res.add(CaldavTags.freeBusyQuery);    // Calendar access
@@ -526,16 +548,17 @@ public class CaldavCalNode extends CaldavBwNode {
     StringBuffer sb = new StringBuffer();
 
     sb.append("CaldavCalNode{cduri=");
-    sb.append(getCDURI());
-    sb.append(", isCalendar()=");
-    sb.append(isCollection());
+    sb.append("path=");
+    sb.append(getPath());
+    sb.append(", isCalendarCollection()=");
+    try {
+      sb.append(isCalendarCollection());
+    } catch (Throwable t) {
+      sb.append("exception(" + t.getMessage() + ")");
+    }
     sb.append("}");
 
     return sb.toString();
-  }
-
-  public Object clone() {
-    return new CaldavCalNode(getCDURI(), getSysi(), debug);
   }
 
   /* ====================================================================
