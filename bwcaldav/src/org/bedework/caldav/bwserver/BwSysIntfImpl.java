@@ -465,7 +465,7 @@ public class BwSysIntfImpl implements SysIntf {
 
   public void deleteCalendar(BwCalendar cal) throws WebdavException {
     try {
-      getSvci().deleteCalendar(cal);
+      getSvci().deleteCalendar(cal, true);
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
