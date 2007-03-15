@@ -87,7 +87,7 @@ public class CalDavParseUtil {
         attrCt--;
         start = CalFacadeUtil.getDateTime(nmAttr.getNodeValue(),
                                           false,
-                                          true,   // utc
+                                          tz == null,   // utc
                                           false,
                                           tzid,
                                           tz,
@@ -101,7 +101,7 @@ public class CalDavParseUtil {
         attrCt--;
         end = CalFacadeUtil.getDateTime(nmAttr.getNodeValue(),
                                         false,
-                                        true,   // utc
+                                        tz == null,   // utc
                                         false,
                                         tzid,
                                         tz,

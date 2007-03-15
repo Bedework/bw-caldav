@@ -166,7 +166,8 @@ public class PostMethod extends MethodBase {
         if (debug) {
           debugMsg("Bad content type: " + req.getContentType());
         }
-        throw new WebdavForbidden("Bad content type: " + req.getContentType());
+        throw new WebdavForbidden(CaldavTags.supportedCalendarData,
+                                  "Bad content type: " + req.getContentType());
       }
 
       /* (CALDAV:valid-calendar-data) -- later */
@@ -178,7 +179,8 @@ public class PostMethod extends MethodBase {
         if (debug) {
           debugMsg("No originator");
         }
-        throw new WebdavNotFound("No originator");
+        throw new WebdavNotFound(CaldavTags.originatorSpecified,
+                                 "No originator");
       }
 
       /* (CALDAV:originator-allowed)
@@ -191,7 +193,8 @@ public class PostMethod extends MethodBase {
         if (debug) {
           debugMsg("No access for scheduling");
         }
-        throw new WebdavForbidden("No access for scheduling");
+        throw new WebdavForbidden(CaldavTags.originatorAllowed,
+                                  "No access for scheduling");
       }
 
       /* (CALDAV:organizer-allowed) -- later */
@@ -203,7 +206,8 @@ public class PostMethod extends MethodBase {
         if (debug) {
           debugMsg("No recipient(s)");
         }
-        throw new WebdavNotFound("No recipient(s)");
+        throw new WebdavNotFound(CaldavTags.recipientSpecified,
+                                 "No recipient(s)");
       } else {
         while (rs.hasMoreElements()) {
           pars.recipients.add((String)rs.nextElement());
@@ -219,12 +223,11 @@ public class PostMethod extends MethodBase {
       }
 
       /* (CALDAV:valid-calendar-data) -- exception above means invalid */
-      if ((pars.ic == null) ||
-          (pars.ic.size() != 1)) {
+      if ((pars.ic == null) || (pars.ic.size() != 1)) {
         if (debug) {
           debugMsg("Not icalendar");
         }
-        throw new WebdavForbidden("Not icalendar");
+        throw new WebdavForbidden(CaldavTags.validCalendarData, "Not icalendar");
       }
 
       if (!pars.ic.validItipMethodType()) {
@@ -244,7 +247,8 @@ public class PostMethod extends MethodBase {
       BwOrganizer organizer = pars.ic.getOrganizer();
 
       if (organizer == null) {
-        throw new WebdavForbidden("No access for scheduling");
+        throw new WebdavForbidden(CaldavTags.organizerAllowed,
+                                  "No access for scheduling");
       }
 
       /* See if it's a valid calendar user. */
@@ -264,13 +268,15 @@ public class PostMethod extends MethodBase {
       }
 
       if (organizerInfo == null) {
-        throw new WebdavForbidden("No access for scheduling");
+        throw new WebdavForbidden(CaldavTags.organizerAllowed,
+                                  "No access for scheduling");
       }
 
       if (pars.ic.requestMethodType()) {
         /* This must be targetted at the organizers outbox. */
         if (!req.getPathTranslated().equals(organizerInfo.outboxPath)) {
-          throw new WebdavForbidden("No access for scheduling");
+          throw new WebdavForbidden(CaldavTags.organizerAllowed,
+                                    "No access for scheduling");
         }
       } else {
         /* This must have only one attendee - request must be targetted at attendees outbox*/

@@ -363,7 +363,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
   }
 
-  public Iterator<WebdavNsNode> getChildren(WebdavNsNode node) throws WebdavException {
+  public Collection<WebdavNsNode> getChildren(WebdavNsNode node) throws WebdavException {
     try {
       CaldavBwNode wdnode = getBwnode(node);
 
@@ -371,7 +371,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       if (!wdnode.isCollection()) {
         // Don't think we should have been called
-        return al.iterator();
+        return al;
       }
 
       if (debug) {
@@ -427,7 +427,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
         }
       }
 
-      return al.iterator();
+      return al;
     } catch (WebdavException we) {
       throw we;
     } catch (Throwable t) {

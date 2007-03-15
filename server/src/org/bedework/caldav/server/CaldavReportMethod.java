@@ -474,15 +474,11 @@ public class CaldavReportMethod extends ReportMethod {
 
     curDepth++;
 
-    if (curDepth >= maxDepth) {
+    if (curDepth > maxDepth) {
       return nodes;
     }
 
-    Iterator children = getNsIntf().getChildren(node);
-
-    while (children.hasNext()) {
-      WebdavNsNode child = (WebdavNsNode)children.next();
-
+    for (WebdavNsNode child: getNsIntf().getChildren(node)) {
       nodes.addAll(doNodeAndChildren(child, curDepth, maxDepth));
     }
 
