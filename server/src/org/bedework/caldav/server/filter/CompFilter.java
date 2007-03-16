@@ -25,26 +25,23 @@
 */
 package org.bedework.caldav.server.filter;
 
+import org.bedework.caldav.server.filter.Filter.EventQuery;
+import org.bedework.calfacade.base.TimeRange;
+import org.bedework.calfacade.CalFacadeDefs;
+import org.bedework.calfacade.filter.BwEntityTypeFilter;
+import org.bedework.calfacade.filter.BwFilter;
+import org.bedework.calfacade.filter.BwObjectFilter;
+import org.bedework.calfacade.util.PropertyIndex;
+import org.bedework.calfacade.util.PropertyIndex.PropertyInfo;
+
 import edu.rpi.cct.webdav.servlet.common.WebdavUtils;
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 
 import org.apache.log4j.Logger;
-import org.bedework.caldav.server.filter.Filter.EventQuery;
-import org.bedework.calfacade.base.TimeRange;
-import org.bedework.calfacade.CalFacadeDefs;
-import org.bedework.calfacade.filter.BwAndFilter;
-import org.bedework.calfacade.filter.BwEntityTypeFilter;
-import org.bedework.calfacade.filter.BwFilter;
-import org.bedework.calfacade.filter.BwObjectFilter;
-import org.bedework.calfacade.filter.BwOrFilter;
-import org.bedework.calfacade.util.PropertyIndex;
-import org.bedework.calfacade.util.PropertyIndex.PropertyInfo;
-
 /** Class to represent a calendar-query comp-filter
  *
  *   @author Mike Douglass   douglm@rpi.edu
@@ -204,6 +201,10 @@ public class CompFilter {
         filter = BwEntityTypeFilter.journalFilter(null, isNotDefined);
       }
 
+      if ("VFREEBUSY".equals(getName())) {
+        filter = BwEntityTypeFilter.freebusyFilter(null, isNotDefined);
+      }
+
       if (filter == null) {
         throw new WebdavBadRequest();
       }
@@ -238,17 +239,21 @@ public class CompFilter {
     }
 
     if (exprDepth != 0) {
+      /* We are at a component level, event, todo etc.
+       * If there are property filters turn this into an and of the current
+       * filter with the or'd prop filters
+       */
       int entityType = ((BwEntityTypeFilter)filter).getEntity();
-      filter = addAndChild(filter, processPropFilters(eq, entityType));
+      filter = BwFilter.addAndChild(filter, processPropFilters(eq, entityType));
     }
 
     if (!WebdavUtils.emptyCollection(compFilters)) {
       BwFilter cfilters = null;
       for (CompFilter cf: compFilters) {
-        cfilters = addOrChild(cfilters, cf.getQuery(eq, exprDepth + 1));
+        cfilters = BwFilter.addOrChild(cfilters, cf.getQuery(eq, exprDepth + 1));
       }
 
-      filter = addAndChild(filter, cfilters);
+      filter = BwFilter.addAndChild(filter, cfilters);
     }
 
     return filter;
@@ -289,7 +294,7 @@ public class CompFilter {
       }
 
       if (filter != null) {
-        addOrChild(pfilters, filter);
+        pfilters = BwFilter.addOrChild(pfilters, filter);
       } else {
         eq.postFilter = true;
 
@@ -324,52 +329,6 @@ public class CompFilter {
     return pfs;
   }
 
-  private BwFilter addOrChild(BwFilter filter, BwFilter child) {
-    if (child == null) {
-      return filter;
-    }
-
-    if (filter == null) {
-      return child;
-    }
-
-    BwOrFilter orf;
-    if (filter instanceof BwOrFilter) {
-      orf = (BwOrFilter)filter;
-    } else {
-      orf = new BwOrFilter();
-      orf.addChild(filter);
-      filter = orf;
-    }
-
-    orf.addChild(child);
-
-    return orf;
-  }
-
-  private BwFilter addAndChild(BwFilter filter, BwFilter child) {
-    if (child == null) {
-      return filter;
-    }
-
-    if (filter == null) {
-      return child;
-    }
-
-    BwAndFilter andf;
-    if (filter instanceof BwAndFilter) {
-      andf = (BwAndFilter)filter;
-    } else {
-      andf = new BwAndFilter();
-      andf.addChild(filter);
-      filter = andf;
-    }
-
-    andf.addChild(child);
-
-    return andf;
-  }
-
   /** Debug
    *
    * @param log
@@ -390,19 +349,13 @@ public class CompFilter {
     }
 
     if (compFilters != null) {
-      Iterator it = compFilters.iterator();
-
-      while (it.hasNext()) {
-        CompFilter cf = (CompFilter)it.next();
+      for (CompFilter cf: compFilters) {
         cf.dump(log, indent + "  ");
       }
     }
 
     if (propFilters != null) {
-      Iterator it = propFilters.iterator();
-
-      while (it.hasNext()) {
-        PropFilter pf = (PropFilter)it.next();
+      for (PropFilter pf: propFilters) {
         pf.dump(log, indent + "  ");
       }
     }
