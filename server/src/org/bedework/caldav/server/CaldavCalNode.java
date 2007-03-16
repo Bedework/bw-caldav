@@ -118,12 +118,13 @@ public class CaldavCalNode extends CaldavBwNode {
 
   /** Place holder for status
    *
+   * @param sysi
    * @param status
    * @param uri
    * @param debug
    */
-  public CaldavCalNode(int status, String uri, boolean debug) {
-    super(null, null, debug);
+  public CaldavCalNode(SysIntf sysi, int status, String uri, boolean debug) {
+    super(true, sysi, debug);
     setStatus(status);
     this.uri = uri;
   }

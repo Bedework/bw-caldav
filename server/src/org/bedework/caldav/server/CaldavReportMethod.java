@@ -393,7 +393,8 @@ public class CaldavReportMethod extends ReportMethod {
                                    WebdavNsIntf.existanceMust,
                                    WebdavNsIntf.nodeTypeUnknown));
           } catch (WebdavException we) {
-            nodes.add((WebdavNsNode)new CaldavCalNode(we.getStatusCode(),
+            nodes.add((WebdavNsNode)new CaldavCalNode(intf.getSysi(),
+                                                      we.getStatusCode(),
                                                       intf.getUri(hr), debug));
           }
         }

@@ -63,6 +63,13 @@ public abstract class CaldavBwNode extends WebdavNsNode {
     }
   }
 
+  CaldavBwNode(boolean collection, SysIntf sysi, boolean debug) {
+    super(sysi.getUrlPrefix(), null, collection, debug);
+
+    //this.cdURI = cdURI;
+    this.sysi = sysi;
+  }
+
   /* ====================================================================
    *                         Public methods
    * ==================================================================== */

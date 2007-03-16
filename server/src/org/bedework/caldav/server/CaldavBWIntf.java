@@ -95,6 +95,7 @@ import edu.rpi.cmt.access.Privileges;
 import edu.rpi.cmt.access.WhoDefs;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
 import edu.rpi.sss.util.xml.QName;
+import edu.rpi.sss.util.xml.XmlEmit;
 
 import net.fortuna.ical4j.model.TimeZone;
 
@@ -254,8 +255,11 @@ public class CaldavBWIntf extends WebdavNsIntf {
     return true;
   }
 
-  public void addNamespace() throws WebdavException {
-    super.addNamespace();
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#addNamespace(edu.rpi.sss.util.xml.XmlEmit)
+   */
+  public void addNamespace(XmlEmit xml) throws WebdavException {
+    super.addNamespace(xml);
 
     try {
       xml.addNs(CaldavDefs.caldavNamespace);
@@ -567,67 +571,24 @@ public class CaldavBWIntf extends WebdavNsIntf {
       pcr.created = create;
 
       CaldavComponentNode bwnode = (CaldavComponentNode)getBwnode(node);
-      String entityName = bwnode.getEntityName();
       BwCalendar cal = bwnode.getCalendar();
 
       Icalendar ic = sysi.fromIcal(cal, new MyReader(contentRdr));
 
       /** We can only put a single resource - that resource will be an ics file
-       * containing an event and possible overrides. The calendar may contain
-       * timezones which we can ignore.
+       * containing freebusy information or an event or todo and possible overrides.
+       * The calendar may contain timezones which we can ignore.
        */
 
       Iterator it = ic.iterator();
-      String guid = null;
       boolean fail = false;
 
       while (it.hasNext()) {
         Object o = it.next();
 
         if (o instanceof EventInfo) {
-          EventInfo evinfo = (EventInfo)o;
-          BwEvent ev = evinfo.getEvent();
-
-          if (guid == null) {
-            guid = ev.getUid();
-          } else if (!guid.equals(ev.getUid())) {
-            fail = true;
-            break;
-          }
-
-          if (debug) {
-            debugMsg("putContent: intf has event with name " + entityName +
-                     " and summary " + ev.getSummary());
-          }
-
-          if (evinfo.getNewEvent()) {
-            pcr.created = true;
-            ev.setName(entityName);
-
-            /* Collection<BwEventProxy>failedOverrides = */
-              sysi.addEvent(cal, ev, evinfo.getOverrideProxies(), true);
-
-            /*StringBuffer sb = new StringBuffer(cdUri.getPath());
-            sb.append("/");
-            sb.append(entityName);
-            if (!entityName.toLowerCase().endsWith(".ics")) {
-              sb.append(".ics");
-            }*/
-
-            bwnode.setEventInfo(evinfo);
-          } else {
-            if (!entityName.equals(ev.getName())) {
-              throw new WebdavBadRequest("Mismatched names");
-            }
-
-            /* XXX check calendar not changed */
-
-            if (debug) {
-              debugMsg("putContent: update event " + ev);
-            }
-            sysi.updateEvent(ev, evinfo.getOverrideProxies(),
-                             evinfo.getChangeset());
-          }
+          pcr.created = putEvent(bwnode, (EventInfo)o);
+        } else if (o instanceof BwFreeBusy) {
         } else {
           fail = true;
           break;
@@ -646,6 +607,49 @@ public class CaldavBWIntf extends WebdavNsIntf {
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
+  }
+
+  private boolean putEvent(CaldavComponentNode bwnode,
+                           EventInfo evinfo) throws WebdavException {
+    BwEvent ev = evinfo.getEvent();
+    String entityName = bwnode.getEntityName();
+    BwCalendar cal = bwnode.getCalendar();
+    boolean created = false;
+
+    if (debug) {
+      debugMsg("putContent: intf has event with name " + entityName +
+               " and summary " + ev.getSummary());
+    }
+
+    if (evinfo.getNewEvent()) {
+      created = true;
+      ev.setName(entityName);
+
+      /* Collection<BwEventProxy>failedOverrides = */
+        sysi.addEvent(cal, ev, evinfo.getOverrideProxies(), true);
+
+      /*StringBuffer sb = new StringBuffer(cdUri.getPath());
+      sb.append("/");
+      sb.append(entityName);
+      if (!entityName.toLowerCase().endsWith(".ics")) {
+        sb.append(".ics");
+      }*/
+
+      bwnode.setEventInfo(evinfo);
+    } else {
+      if (!entityName.equals(ev.getName())) {
+        throw new WebdavBadRequest("Mismatched names");
+      }
+
+      /* XXX check calendar not changed */
+
+      if (debug) {
+        debugMsg("putContent: update event " + ev);
+      }
+      sysi.updateEvent(ev, evinfo.getOverrideProxies(), evinfo.getChangeset());
+    }
+
+    return created;
   }
 
   /* (non-Javadoc)

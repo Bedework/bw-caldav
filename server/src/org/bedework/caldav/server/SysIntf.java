@@ -325,7 +325,8 @@ public interface SysIntf {
                           ChangeTable changes) throws WebdavException;
 
   /** Return the events for the current user in the given calendar within the
-   * given date and time range.
+   * given date and time range. Stored freebusy objects are returned as BwEvent
+   * objects with the appropriate entity type.
    *
    * <p>We flag the desired entity types.
    *
@@ -380,7 +381,9 @@ public interface SysIntf {
   public ScheduleResult requestFreeBusy(BwFreeBusy val)
           throws WebdavException;
 
-  /**
+  /** Generate a free busy object for the given time period which reflects
+   * the state of the given calendar.
+   *
    * @param cal
    * @param account
    * @param start
