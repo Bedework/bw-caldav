@@ -706,8 +706,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       BwCalendar newCal = bwnode.getCalendar();
       BwCalendar parent = newCal.getCalendar();
       if (parent.getCalendarCollection()) {
-        resp.setStatus(HttpServletResponse.SC_FORBIDDEN /*,
-                       "Forbidden: Calendar collection as parent" */);
+        throw new WebdavForbidden(CaldavTags.calendarCollectionLocationOk);
       }
 
       String name = newCal.getName();

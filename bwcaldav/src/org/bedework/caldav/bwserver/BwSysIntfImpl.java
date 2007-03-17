@@ -52,6 +52,7 @@ import org.bedework.calsvci.CalSvcI;
 import org.bedework.calsvci.CalSvcIPars;
 import org.bedework.calsvci.CalSvcI.CopyMoveStatus;
 import org.bedework.davdefs.CaldavTags;
+import org.bedework.davdefs.WebdavTags;
 import org.bedework.icalendar.IcalMalformedException;
 import org.bedework.icalendar.IcalTranslator;
 import org.bedework.icalendar.Icalendar;
@@ -556,14 +557,14 @@ public class BwSysIntfImpl implements SysIntf {
       getSvci().addCalendar(newcal, parentPath);
       return HttpServletResponse.SC_CREATED;
     } catch (CalFacadeAccessException cfae) {
-      return HttpServletResponse.SC_FORBIDDEN;
+      throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
       String msg = cfe.getMessage();
       if (CalFacadeException.duplicateCalendar.equals(msg)) {
-        return HttpServletResponse.SC_METHOD_NOT_ALLOWED;
+        throw new WebdavForbidden(WebdavTags.resourceMustBeNull);
       }
       if (CalFacadeException.illegalCalendarCreation.equals(msg)) {
-        return HttpServletResponse.SC_FORBIDDEN;
+        throw new WebdavForbidden();
       }
       throw new WebdavException(cfe);
     } catch (Throwable t) {
