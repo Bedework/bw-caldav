@@ -209,7 +209,13 @@ public class PostMethod extends MethodBase {
                                   "No recipient(s)");
       } else {
         while (rs.hasMoreElements()) {
-          pars.recipients.add((String)rs.nextElement());
+          String[] rlist = ((String)rs.nextElement()).split(",");
+
+          if (rlist != null) {
+            for (String r: rlist) {
+              pars.recipients.add(r.trim());
+            }
+          }
         }
       }
 
@@ -253,7 +259,7 @@ public class PostMethod extends MethodBase {
 
       /* See if it's a valid calendar user. */
       SysIntf sysi = intf.getSysi();
-      String cn = organizer.getCn();
+      String cn = organizer.getOrganizerUri();
       CalUserInfo organizerInfo = sysi.getCalUserInfo(sysi.caladdrToUser(cn),
                                                       false);
 

@@ -260,12 +260,16 @@ public class BwSysIntfImpl implements SysIntf {
   public CalUserInfo getCalUserInfo(String account,
                                     boolean getDirInfo) throws WebdavException {
     try {
+      if (account == null) {
+        return null;
+      }
+
       BwSystem sys = getSvci().getSyspars();
       String userHomePath = "/" + sys.getUserCalendarRoot() +
                             "/" + account + "/";
       String defaultCalendarPath = userHomePath + sys.getUserDefaultCalendar();
-      String inboxPath = userHomePath + sys.getUserInbox();
-      String outboxPath = userHomePath + sys.getUserOutbox();
+      String inboxPath = userHomePath + sys.getUserInbox() + "/";
+      String outboxPath = userHomePath + sys.getUserOutbox() + "/";
 
       BwUserInfo dirInfo = null;
 
