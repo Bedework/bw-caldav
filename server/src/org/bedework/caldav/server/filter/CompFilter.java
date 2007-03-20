@@ -31,6 +31,7 @@ import org.bedework.calfacade.CalFacadeDefs;
 import org.bedework.calfacade.filter.BwEntityTypeFilter;
 import org.bedework.calfacade.filter.BwFilter;
 import org.bedework.calfacade.filter.BwObjectFilter;
+import org.bedework.calfacade.filter.BwPresenceFilter;
 import org.bedework.calfacade.util.PropertyIndex;
 import org.bedework.calfacade.util.PropertyIndex.PropertyInfo;
 
@@ -177,6 +178,7 @@ public class CompFilter {
    */
   public BwFilter getQuery(EventQuery eq, int exprDepth) throws WebdavException {
     BwFilter filter = null;
+    int entityType = CalFacadeDefs.entityTypeEvent;
 
     if (exprDepth == 0) {
       if (!"VCALENDAR".equals(getName())) {
@@ -191,18 +193,22 @@ public class CompFilter {
 
       if ("VEVENT".equals(getName())) {
         filter = BwEntityTypeFilter.eventFilter(null, isNotDefined);
+        entityType = CalFacadeDefs.entityTypeEvent;
       }
 
       if ("VTODO".equals(getName())) {
         filter = BwEntityTypeFilter.todoFilter(null, isNotDefined);
+        entityType = CalFacadeDefs.entityTypeTodo;
       }
 
       if ("VJOURNAL".equals(getName())) {
         filter = BwEntityTypeFilter.journalFilter(null, isNotDefined);
+        entityType = CalFacadeDefs.entityTypeJournal;
       }
 
       if ("VFREEBUSY".equals(getName())) {
         filter = BwEntityTypeFilter.freebusyFilter(null, isNotDefined);
+        entityType = CalFacadeDefs.entityTypeFreeAndBusy;
       }
 
       if (filter == null) {
@@ -211,9 +217,15 @@ public class CompFilter {
     } else if (exprDepth == 2) {
       // Sub-components only
 
-      if ("VALARM".equals(getName())) {
-        filter = BwEntityTypeFilter.alarmFilter(null, isNotDefined);
+      // XXX
+      entityType = CalFacadeDefs.entityTypeAlarm;
+      PropertyInfo pi = PropertyIndex.propertyInfoByPname.get(getName());
+      if (pi == null) {
+        // Unknown property
+        throw new WebdavBadRequest("Unknown property " + getName());
       }
+
+      filter = makeFilter(pi, isNotDefined, matchAll(), timeRange, null);
 
       if (filter == null) {
         throw new WebdavBadRequest();
@@ -230,20 +242,24 @@ public class CompFilter {
       return filter;
     }
 
-    if (timeRange != null) {
-      if (eq.trange == null) {
-        eq.trange = timeRange;
-      } else {
-        eq.trange.merge(timeRange);
+    if (exprDepth == 1) {
+      /* XXX This is wrong - if filters handle time ranges OK we should remove
+       * this merge which was here so post-processing could handle it.
+       */
+      if (timeRange != null) {
+        if (eq.trange == null) {
+          eq.trange = timeRange;
+        } else {
+          eq.trange.merge(timeRange);
+        }
       }
     }
 
-    if (exprDepth != 0) {
+    if (exprDepth > 0) {
       /* We are at a component level, event, todo etc.
        * If there are property filters turn this into an and of the current
        * filter with the or'd prop filters
        */
-      int entityType = ((BwEntityTypeFilter)filter).getEntity();
       filter = BwFilter.addAndChild(filter, processPropFilters(eq, entityType));
     }
 
@@ -259,7 +275,8 @@ public class CompFilter {
     return filter;
   }
 
-  private BwFilter processPropFilters(EventQuery eq, int entityType) throws WebdavException {
+  private BwFilter processPropFilters(EventQuery eq,
+                                      int entityType) throws WebdavException {
     if (WebdavUtils.emptyCollection(propFilters)) {
       return null;
     }
@@ -268,7 +285,6 @@ public class CompFilter {
 
     for (PropFilter pf: propFilters) {
       String pname = pf.getName();
-      BwFilter filter = null;
 
       PropertyInfo pi = PropertyIndex.propertyInfoByPname.get(pname);
       if (pi == null) {
@@ -276,22 +292,11 @@ public class CompFilter {
         throw new WebdavBadRequest("Unknown property " + pname);
       }
 
-      if (pf.getIsNotDefined()) {
-        filter = BwObjectFilter.makeFilter(null, pi.getPindex());
-        if (filter != null) {
-          ((BwObjectFilter)filter).setTestNotPresent();
-        }
-      } else if ((pf.getTimeRange() == null) &&
-          (WebdavUtils.emptyCollection(pf.getParamFilters()))) {
-        // Presence check
-        filter = BwObjectFilter.makeFilter(null, pi.getPindex());
-        if (filter != null) {
-          ((BwObjectFilter)filter).setTestPresent();
-        }
-      } else if (pf.getTimeRange() != null) {
-        filter = BwObjectFilter.makeFilter(null, pi.getPindex(),
-                                           pf.getTimeRange());
-      }
+      TimeRange tr = pf.getTimeRange();
+      TextMatch tm = pf.getMatch();
+      boolean testPresent = (tr == null) && (tm == null) &&
+                            (WebdavUtils.emptyCollection(pf.getParamFilters()));
+      BwFilter filter = makeFilter(pi, pf.getIsNotDefined(), testPresent, tr, tm);
 
       if (filter != null) {
         pfilters = BwFilter.addOrChild(pfilters, filter);
@@ -316,6 +321,29 @@ public class CompFilter {
     }
 
     return pfilters;
+  }
+
+  private BwFilter makeFilter(PropertyInfo pi, boolean testNotDefined,
+                              boolean testPresent,
+                              TimeRange timeRange,
+                              TextMatch match) throws WebdavException {
+    BwFilter filter = null;
+
+    if (testNotDefined) {
+      filter = new BwPresenceFilter(null, pi.getPindex(), false);
+    } else if (testPresent) {
+      // Presence check
+      filter = new BwPresenceFilter(null, pi.getPindex(), true);
+    } else if (timeRange != null) {
+      filter = BwObjectFilter.makeFilter(null, pi.getPindex(), timeRange);
+    } else if (match != null) {
+      BwObjectFilter<String> f = new BwObjectFilter<String>(null, pi.getPindex());
+      f.setEntity(match.getVal());
+      f.setExact(false);
+      filter = f;
+    }
+
+    return filter;
   }
 
   private Collection<PropFilter> addPropFilter(Collection<PropFilter> pfs,
