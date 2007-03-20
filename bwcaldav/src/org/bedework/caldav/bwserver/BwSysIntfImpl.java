@@ -372,6 +372,10 @@ public class BwSysIntfImpl implements SysIntf {
   public ScheduleResult schedule(BwEvent event) throws WebdavException {
     try {
       event.setOwner(svci.findUser(account, false));
+      if (Icalendar.itipReplyMethodType(event.getScheduleMethod())) {
+        return getSvci().scheduleResponse(event);
+      }
+
       return getSvci().schedule(event);
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
