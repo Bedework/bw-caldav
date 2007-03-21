@@ -69,7 +69,6 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavForbidden;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
-import edu.rpi.cmt.access.PrivilegeDefs;
 
 import net.fortuna.ical4j.model.component.VFreeBusy;
 
@@ -183,12 +182,11 @@ public class PostMethod extends MethodBase {
       }
 
       /* (CALDAV:originator-allowed)
-       * The authenticated user is the originator so we just check the current
-       * user has schedule acess to the outbox.
+       * Ensure the originator is a real calendar user
        */
-      if (intf.getSysi().checkAccess(pars.cal,
-                                     PrivilegeDefs.privSchedule,
-                                     true) == null) {
+      String originatorAccount = intf.getSysi().caladdrToUser(pars.originator);
+      if ((originatorAccount == null) ||
+          !intf.getSysi().validUser(originatorAccount)) {
         if (debug) {
           debugMsg("No access for scheduling");
         }
@@ -313,6 +311,7 @@ public class PostMethod extends MethodBase {
                            HttpServletResponse resp) throws WebdavException {
     BwEvent event = pars.ic.getEvent();
     event.setRecipients(pars.recipients);
+    event.setOriginator(pars.originator);
     event.setScheduleMethod(pars.ic.getMethodType());
 
     ScheduleResult sr = intf.getSysi().schedule(event);
@@ -342,6 +341,7 @@ public class PostMethod extends MethodBase {
                               HttpServletResponse resp) throws WebdavException {
     BwFreeBusy fb = pars.ic.getFreeBusy();
     fb.setRecipients(pars.recipients);
+    fb.setOriginator(pars.originator);
     fb.setScheduleMethod(pars.ic.getMethodType());
 
     ScheduleResult sr = intf.getSysi().requestFreeBusy(fb);

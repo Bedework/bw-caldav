@@ -360,8 +360,11 @@ public class BwSysIntfImpl implements SysIntf {
   }
 
   public boolean validUser(String account) throws WebdavException {
-    // XXX do this
-    return true;
+    try {
+      return getSvci().validUser(account);
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
   }
 
   public boolean validGroup(String account) throws WebdavException {
