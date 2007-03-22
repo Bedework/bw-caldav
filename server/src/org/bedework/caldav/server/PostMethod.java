@@ -108,6 +108,8 @@ public class PostMethod extends MethodBase {
 
     try {
       CaldavBWIntf intf = (CaldavBWIntf)getNsIntf();
+      SysIntf sysi = intf.getSysi();
+
       WebdavNsNode node = intf.getNode(getResourceUri(req),
                                        WebdavNsIntf.existanceMust,
                                        WebdavNsIntf.nodeTypeCollection);
@@ -181,12 +183,24 @@ public class PostMethod extends MethodBase {
                                   "No originator");
       }
 
+      pars.originator = adjustPrincipal(pars.originator, sysi);
+
       /* (CALDAV:originator-allowed)
+       *
+       * Every POST request MUST include an Originator request header that
+       * specifies the calendar user address of the originator of a given
+       * scheduling message.  The value specified in this request header MUST
+       * be a calendar user address specified in the CALDAV:calendar-user-
+       * address-set property defined on the principal resource of the
+       * currently authenticated user.  Also, the currently authenticated user
+       * MUST have the CALDAV:schedule privilege or a suitable sub-privilege
+       * granted on the targeted scheduling Outbox collection.
+       *
        * Ensure the originator is a real calendar user
        */
-      String originatorAccount = intf.getSysi().caladdrToUser(pars.originator);
+      String originatorAccount = sysi.caladdrToUser(pars.originator);
       if ((originatorAccount == null) ||
-          !intf.getSysi().validUser(originatorAccount)) {
+          !sysi.validUser(originatorAccount)) {
         if (debug) {
           debugMsg("No access for scheduling");
         }
@@ -211,7 +225,7 @@ public class PostMethod extends MethodBase {
 
           if (rlist != null) {
             for (String r: rlist) {
-              pars.recipients.add(r.trim());
+              pars.recipients.add(adjustPrincipal(r.trim(), sysi));
             }
           }
         }
@@ -256,7 +270,6 @@ public class PostMethod extends MethodBase {
       }
 
       /* See if it's a valid calendar user. */
-      SysIntf sysi = intf.getSysi();
       String cn = organizer.getOrganizerUri();
       CalUserInfo organizerInfo = sysi.getCalUserInfo(sysi.caladdrToUser(cn),
                                                       false);
@@ -305,6 +318,20 @@ public class PostMethod extends MethodBase {
       throw new WebdavException(t);
     }
   }
+
+  /* We seem to be getting both absolute and relative principals as well as mailto
+   * forms of calendar user.
+   *
+   * If we get an absolute principal - turn it into a relative
+   */
+  private String adjustPrincipal(String val, SysIntf sysi) throws WebdavException {
+    if (val.startsWith(sysi.getUrlPrefix())) {
+      return val.substring(sysi.getUrlPrefix().length());
+    }
+
+    return val;
+  }
+
 
   private void handleEvent(CaldavBWIntf intf,
                            RequestPars pars,
