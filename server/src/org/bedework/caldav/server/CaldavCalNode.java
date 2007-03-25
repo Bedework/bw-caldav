@@ -193,60 +193,6 @@ public class CaldavCalNode extends CaldavBwNode {
     return "W/\"" + val + "\"";
   }
 
-  /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#removeProperty(org.w3c.dom.Element)
-   */
-  public SetPropertyResult removeProperty(Element val) throws WebdavException {
-    warn("Unimplemented - removeProperty");
-    SetPropertyResult spr = new SetPropertyResult(val);
-    spr.status = HttpServletResponse.SC_NOT_IMPLEMENTED;
-    spr.message = "Unimplemented - removeProperty";
-
-    return spr;
-  }
-
-  /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#setProperty(org.w3c.dom.Element)
-   */
-  public SetPropertyResult setProperty(Element val) throws WebdavException {
-    SetPropertyResult spr = new SetPropertyResult(val);
-
-    if (cal == null) {
-      spr.status = HttpServletResponse.SC_NOT_FOUND;
-      spr.message = "Not found";
-      return spr;
-    }
-
-    try {
-      if (WebdavTags.description.nodeMatches(val)) {
-        cal.setDescription(XmlUtil.getElementContent(val));
-      } else if (CaldavTags.calendarDescription.nodeMatches(val)) {
-        cal.setDescription(XmlUtil.getElementContent(val));
-      } else if (WebdavTags.displayname.nodeMatches(val)) {
-        cal.setSummary(XmlUtil.getElementContent(val));
-      } else if (CaldavTags.calendarFreeBusySet.nodeMatches(val)) {
-        // Only valid for inbox
-        if (cal.getCalType() != BwCalendar.calTypeInbox) {
-          throw new WebdavForbidden("Not on inbox");
-        }
-
-        spr.status = HttpServletResponse.SC_NOT_IMPLEMENTED;
-        spr.message = "Unimplemented - calendarFreeBusySet";
-        warn("Unimplemented - calendarFreeBusySet");
-      } else if (CaldavTags.calendarTimezone.nodeMatches(val)) {
-        warn("Unimplemented - calendarTimezone");
-      } else {
-        spr.status = HttpServletResponse.SC_NOT_IMPLEMENTED;
-      }
-
-      return spr;
-    } catch (WebdavException wde) {
-      throw wde;
-    } catch (Throwable t) {
-      throw new WebdavException(t);
-    }
-  }
-
   /**
    * @return true if scheduling allowed
    * @throws WebdavException
@@ -429,6 +375,72 @@ public class CaldavCalNode extends CaldavBwNode {
    * ==================================================================== */
 
   /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#removeProperty(org.w3c.dom.Element)
+   */
+  public boolean removeProperty(Element val,
+                                SetPropertyResult spr) throws WebdavException {
+    warn("Unimplemented - removeProperty");
+
+    return false;
+  }
+
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#setProperty(org.w3c.dom.Element)
+   */
+  public boolean setProperty(Element val,
+                             SetPropertyResult spr) throws WebdavException {
+    if (super.setProperty(val, spr)) {
+      return true;
+    }
+
+    try {
+      if (WebdavTags.description.nodeMatches(val)) {
+        if (checkCalForSetProp(spr)) {
+          cal.setDescription(XmlUtil.getElementContent(val));
+        }
+        return true;
+      }
+
+      if (CaldavTags.calendarDescription.nodeMatches(val)) {
+        if (checkCalForSetProp(spr)) {
+          cal.setDescription(XmlUtil.getElementContent(val));
+        }
+        return true;
+      }
+
+      if (WebdavTags.displayname.nodeMatches(val)) {
+        if (checkCalForSetProp(spr)) {
+          cal.setSummary(XmlUtil.getElementContent(val));
+        }
+        return true;
+      }
+
+      if (CaldavTags.calendarFreeBusySet.nodeMatches(val)) {
+        // Only valid for inbox
+        if (cal.getCalType() != BwCalendar.calTypeInbox) {
+          throw new WebdavForbidden("Not on inbox");
+        }
+
+        spr.status = HttpServletResponse.SC_NOT_IMPLEMENTED;
+        spr.message = "Unimplemented - calendarFreeBusySet";
+        warn("Unimplemented - calendarFreeBusySet");
+        return true;
+      }
+
+      if (CaldavTags.calendarTimezone.nodeMatches(val)) {
+        warn("Unimplemented - calendarTimezone");
+        return true;
+      }
+
+      return false;
+    } catch (WebdavException wde) {
+      throw wde;
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
+  }
+
+  /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#generatePropertyValue(edu.rpi.sss.util.xml.QName, edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf, boolean)
    */
   public boolean generatePropertyValue(QName tag,
@@ -572,4 +584,14 @@ public class CaldavCalNode extends CaldavBwNode {
   /* ====================================================================
    *                   Private methods
    * ==================================================================== */
+
+  private boolean checkCalForSetProp(SetPropertyResult spr) {
+    if (cal != null) {
+      return true;
+    }
+
+    spr.status = HttpServletResponse.SC_NOT_FOUND;
+    spr.message = "Not found";
+    return false;
+  }
 }

@@ -65,8 +65,6 @@ import org.w3c.dom.Element;
 
 import java.util.Collection;
 
-import javax.servlet.http.HttpServletResponse;
-
 /** Class to represent a principal in caldav.
  *
  *
@@ -99,30 +97,6 @@ public class CaldavPrincipalNode extends CaldavBwNode {
    */
   public String getOwner() throws WebdavException {
     return displayName;
-  }
-
-  /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#removeProperty(org.w3c.dom.Element)
-   */
-  public SetPropertyResult removeProperty(Element val) throws WebdavException {
-    warn("Unimplemented - removeProperty");
-    SetPropertyResult spr = new SetPropertyResult(val);
-    spr.status = HttpServletResponse.SC_NOT_IMPLEMENTED;
-    spr.message = "Unimplemented - removeProperty";
-
-    return spr;
-  }
-
-  /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#setProperty(org.w3c.dom.Element)
-   */
-  public SetPropertyResult setProperty(Element val) throws WebdavException {
-    SetPropertyResult spr = new SetPropertyResult(val);
-
-    spr.status = HttpServletResponse.SC_NOT_IMPLEMENTED;
-    spr.message = "Unimplemented - setProperty";
-
-    return spr;
   }
 
   public Collection getChildren() throws WebdavException {
@@ -203,6 +177,28 @@ public class CaldavPrincipalNode extends CaldavBwNode {
   /* ====================================================================
    *                   Property methods
    * ==================================================================== */
+
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#removeProperty(org.w3c.dom.Element)
+   */
+  public boolean removeProperty(Element val,
+                                SetPropertyResult spr) throws WebdavException {
+    warn("Unimplemented - removeProperty");
+
+    return false;
+  }
+
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#setProperty(org.w3c.dom.Element)
+   */
+  public boolean setProperty(Element val,
+                             SetPropertyResult spr) throws WebdavException {
+    if (super.setProperty(val, spr)) {
+      return true;
+    }
+
+    return false;
+  }
 
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#generatePropertyValue(edu.rpi.sss.util.xml.QName, edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf, boolean)
