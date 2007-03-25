@@ -59,6 +59,7 @@ import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.BwUser;
 import org.bedework.calfacade.svc.EventInfo;
+import org.bedework.calfacade.util.CalFacadeUtil;
 
 import org.bedework.davdefs.CaldavTags;
 import org.bedework.davdefs.WebdavTags;
@@ -817,7 +818,11 @@ public boolean generatePropertyValue(QName tag,
       return null;
     }
 
-    return ev.getLastmod();
+    try {
+      return CalFacadeUtil.fromISODateTimeUTCtoRfc822(ev.getLastmod());
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
   }
 
   /* ====================================================================

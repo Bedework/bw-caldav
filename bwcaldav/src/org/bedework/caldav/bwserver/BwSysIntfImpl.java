@@ -750,9 +750,12 @@ public class BwSysIntfImpl implements SysIntf {
 
     try {
       String runAsUser = account;
+      boolean superUser = false;
 
       if (account == null) {
         runAsUser = getEnv().getAppProperty("run.as.user");
+      } else if (account.equals("root")) {
+        superUser = true;
       }
 
       /* account is what we authenticated with.
@@ -770,6 +773,10 @@ public class BwSysIntfImpl implements SysIntf {
                                          null, // synchId
                                          debug);
       svci = new CalSvcFactoryDefault().getSvc(pars);
+
+      if (superUser) {
+        svci.setSuperUser(true);
+      }
 
       svci.open();
       svci.beginTransaction();

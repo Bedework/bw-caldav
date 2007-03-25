@@ -59,6 +59,7 @@ import org.bedework.calfacade.BwFreeBusy;
 import org.bedework.calfacade.BwUser;
 import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.RecurringRetrievalMode.Rmode;
+import org.bedework.calfacade.util.CalFacadeUtil;
 import org.bedework.davdefs.CaldavDefs;
 import org.bedework.davdefs.CaldavTags;
 import org.bedework.davdefs.WebdavTags;
@@ -387,7 +388,11 @@ public class CaldavCalNode extends CaldavBwNode {
       return null;
     }
 
-    return cal.getLastmod();
+    try {
+      return CalFacadeUtil.fromISODateTimeUTCtoRfc822(cal.getLastmod());
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
   }
 
   /* ====================================================================
