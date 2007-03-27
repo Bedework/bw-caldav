@@ -60,6 +60,7 @@ import org.apache.log4j.Logger;
  */
 public class TextMatch {
   private Boolean caseless; // null for defaulted
+  private boolean negated;
   private String val;
 
   private boolean upperMatch;
@@ -67,10 +68,12 @@ public class TextMatch {
   /** Constructor
    *
    * @param caseless
+   * @param negated
    * @param val
    */
-  public TextMatch(Boolean caseless, String val) {
+  public TextMatch(Boolean caseless, boolean negated, String val) {
     setCaseless(caseless);
+    setNegated(negated);
     setVal(val);
   }
 
@@ -112,6 +115,22 @@ public class TextMatch {
    */
   public Boolean getCaseless() {
     return caseless;
+  }
+
+  /** Set negated state
+   *
+   * @param val boolean
+   */
+  public void setNegated(boolean val) {
+    negated = val;
+  }
+
+  /** get negated state
+   *
+   * @return boolean
+   */
+  public boolean getNegated() {
+    return negated;
   }
 
   /**

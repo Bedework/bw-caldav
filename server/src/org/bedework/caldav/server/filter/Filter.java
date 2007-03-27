@@ -153,10 +153,6 @@ public class Filter {
    */
   private CompFilter filter;
 
-  /* Set by internal methods to indicate failure reason.
-   */
-  private int status;
-
   static class EventQuery {
     /** */
     public BwFilter filter;
@@ -226,14 +222,10 @@ public class Filter {
 
       filter = parseCompFilter((Node)children[0]);
 
-      if (filter == null) {
-        return status;
-      }
+      return HttpServletResponse.SC_OK;
     } catch (WebdavBadRequest wbr) {
       return wbr.getStatusCode();
     }
-
-    return HttpServletResponse.SC_OK;
   }
 
   /** Use the given query to return a collection of nodes. An exception will
@@ -360,12 +352,7 @@ public class Filter {
    * @throws WebdavException
    */
   private CompFilter parseCompFilter(Node nd) throws WebdavException {
-    String name = getOnlyAttrVal(nd, "name");
-    if (name == null) {
-      throw new WebdavBadRequest("Missing comp-filter name");
-    }
-
-    CompFilter cf = new CompFilter(name);
+    CompFilter cf = new CompFilter(getOnlyAttrVal(nd, "name"));
 
     Element[] children = getChildren(nd);
 
@@ -414,10 +401,6 @@ public class Filter {
         } else if (MethodBase.nodeMatches(curnode, CaldavTags.propFilter)) {
           PropFilter chpf = parsePropFilter(curnode);
 
-          if (chpf == null) {
-            return null;
-          }
-
           cf.addPropFilter(chpf);
         } else {
           throw new WebdavBadRequest();
@@ -439,13 +422,7 @@ public class Filter {
    *    <!ATTLIST prop-filter name CDATA #REQUIRED>
    */
   private PropFilter parsePropFilter(Node nd) throws WebdavException {
-    String name = getOnlyAttrVal(nd, "name");
-    if (name == null) {
-      status = HttpServletResponse.SC_BAD_REQUEST;
-      return null;
-    }
-
-    PropFilter pf = new PropFilter(name);
+    PropFilter pf = new PropFilter(getOnlyAttrVal(nd, "name"));
 
     Element[] children = getChildren(nd);
     boolean idTrTm = false; // flag is-defined | time-range | text-match
@@ -465,14 +442,9 @@ public class Filter {
           if (MethodBase.nodeMatches(curnode, CaldavTags.paramFilter)) {
             ParamFilter parf = parseParamFilter(curnode);
 
-            if (parf == null) {
-              return null;
-            }
-
             pf.addParamFilter(parf);
           } else {
-            status = HttpServletResponse.SC_BAD_REQUEST;
-            return null;
+            throw new WebdavBadRequest();
           }
         } else {
           idTrTm = true;
@@ -485,10 +457,6 @@ public class Filter {
                                                intf.getSysi().getTimezones()));
           } else if (MethodBase.nodeMatches(curnode, CaldavTags.textMatch)) {
             pf.setMatch(parseTextMatch(curnode));
-
-            if (pf.getMatch() == null) {
-              return null;
-            }
           } else {
           }
         }
@@ -509,10 +477,6 @@ public class Filter {
    */
   private ParamFilter parseParamFilter(Node nd) throws WebdavException {
     String name = getOnlyAttrVal(nd, "name");
-    if (name == null) {
-      status = HttpServletResponse.SC_BAD_REQUEST;
-      return null;
-    }
 
     // Only one child - either is-defined | text-match
     Element child = getOnlyChild(nd);
@@ -530,15 +494,10 @@ public class Filter {
     if (MethodBase.nodeMatches(child, CaldavTags.textMatch)) {
       TextMatch match = parseTextMatch(child);
 
-      if (match == null) {
-        return null;
-      }
-
       return new ParamFilter(name, match);
     }
 
-    status = HttpServletResponse.SC_BAD_REQUEST;
-    return null;
+    throw new WebdavBadRequest();
   }
 
   /* The given node must be a text-match element
@@ -547,22 +506,37 @@ public class Filter {
    *  <!ATTLIST text-match caseless (yes|no)>
    */
   private TextMatch parseTextMatch(Node nd) throws WebdavException {
-    int numAttrs = XmlUtil.numAttrs(nd);
+    //int numAttrs = XmlUtil.numAttrs(nd);
+    int numValid = 0;
 
     Boolean caseless = null;
-    if (numAttrs == 1) {
-      caseless = yesNoAttr(nd, "caseless");
+    caseless = yesNoAttr(nd, "caseless");
+    if (caseless != null) {
+      numValid++;
     }
 
+    Boolean tempBool = null;
+    boolean negated = false;
+    tempBool = yesNoAttr(nd, "negate-condition");
+    if (tempBool != null) {
+      numValid++;
+      negated = tempBool;
+    }
+
+    /*
+    if (numAttrs != numValid) {
+      throw new WebdavBadRequest();
+    }
+    */
+
     try {
-      return new TextMatch(caseless, XmlUtil.getReqOneNodeVal(nd));
+      return new TextMatch(caseless, negated, XmlUtil.getReqOneNodeVal(nd));
     } catch (Throwable t) {
-      status = HttpServletResponse.SC_BAD_REQUEST;
-      return null;
+      throw new WebdavBadRequest();
     }
   }
 
-  private Element[] getChildren(Node nd) {
+  private Element[] getChildren(Node nd) throws WebdavException {
     try {
       return XmlUtil.getElementsArray(nd);
     } catch (Throwable t) {
@@ -570,12 +544,11 @@ public class Filter {
         getLogger().error("<filter>: parse exception: ", t);
       }
 
-      status = HttpServletResponse.SC_BAD_REQUEST;
-      return null;
+      throw new WebdavBadRequest();
     }
   }
 
-  private Element getOnlyChild(Node nd) {
+  private Element getOnlyChild(Node nd) throws WebdavException {
     try {
       return XmlUtil.getOnlyElement(nd);
     } catch (Throwable t) {
@@ -583,60 +556,37 @@ public class Filter {
         getLogger().error("<filter>: parse exception: ", t);
       }
 
-      status = HttpServletResponse.SC_BAD_REQUEST;
-      return null;
+      throw new WebdavBadRequest();
     }
   }
 
-  /** Fetch required attribute. Return null for error
-   *
-   * @param nd
-   * @param name
-   * @return String
-   */
-  public String getOnlyAttrVal(Node nd, String name) {
+  private String getOnlyAttrVal(Node nd, String name) throws WebdavException {
     NamedNodeMap nnm = nd.getAttributes();
 
     if ((nnm == null) || (nnm.getLength() != 1)) {
-      status = HttpServletResponse.SC_BAD_REQUEST;
-      return null;
+      throw new WebdavBadRequest("Missing comp-filter name");
     }
 
     String res = XmlUtil.getAttrVal(nnm, name);
     if (res == null) {
-      status = HttpServletResponse.SC_BAD_REQUEST;
-      return null;
+      throw new WebdavBadRequest("Missing comp-filter name");
     }
 
     return res;
   }
 
-  /** Fetch required yes/no Return null for error
-   *
-   * @param nd
-   * @param name
-   * @return Boolean
-   */
-  public Boolean yesNoAttr(Node nd, String name) {
+  private Boolean yesNoAttr(Node nd, String name) throws WebdavException {
     NamedNodeMap nnm = nd.getAttributes();
 
     if ((nnm == null) || (nnm.getLength() == 0)) {
-      status = HttpServletResponse.SC_BAD_REQUEST;
       return null;
     }
-
-    Boolean res = null;
 
     try {
-      res = XmlUtil.getYesNoAttrVal(nnm, name);
-    } catch (Throwable t) {}
-
-    if (res == null) {
-      status = HttpServletResponse.SC_BAD_REQUEST;
-      return null;
+      return XmlUtil.getYesNoAttrVal(nnm, name);
+    } catch (Throwable t) {
+      throw new WebdavBadRequest(t.getMessage());
     }
-
-    return res;
   }
 
   /** ===================================================================

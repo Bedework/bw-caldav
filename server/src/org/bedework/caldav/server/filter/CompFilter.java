@@ -340,6 +340,7 @@ public class CompFilter {
       BwObjectFilter<String> f = new BwObjectFilter<String>(null, pi.getPindex());
       f.setEntity(match.getVal());
       f.setExact(false);
+      f.setNot(match.getNegated());
       filter = f;
     }
 
