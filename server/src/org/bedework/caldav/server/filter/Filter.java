@@ -422,52 +422,66 @@ public class Filter {
    *    <!ATTLIST prop-filter name CDATA #REQUIRED>
    */
   private PropFilter parsePropFilter(Node nd) throws WebdavException {
-    PropFilter pf = new PropFilter(getOnlyAttrVal(nd, "name"));
-
-    Element[] children = getChildren(nd);
-    boolean idTrTm = false; // flag is-defined | time-range | text-match
-
     try {
-      for (int i = 0; i < children.length; i++) {
-        Node curnode = children[i];
+      PropFilter pf = new PropFilter(getOnlyAttrVal(nd, "name"));
 
-        if (debug) {
-          trace("propFilter element: " +
+      Element[] children = getChildren(nd);
+
+      if (children.length == 0) {
+        // Presence filter
+        return pf;
+      }
+
+      int i = 0;
+      Node curnode = children[i];
+
+      if (MethodBase.nodeMatches(curnode, CaldavTags.isNotDefined)) {
+        pf.setIsNotDefined(true);
+        i++;
+      } else if (MethodBase.nodeMatches(curnode, CaldavTags.timeRange)) {
+        pf.setTimeRange(CalDavParseUtil.parseTimeRange(curnode, tz,
+                                           intf.getSysi().getTimezones()));
+        i++;
+      } else if (MethodBase.nodeMatches(curnode, CaldavTags.textMatch)) {
+        pf.setMatch(parseTextMatch(curnode));
+        i++;
+      }
+
+      if (debug) {
+        trace("propFilter element: " +
               curnode.getNamespaceURI() + " " +
               curnode.getLocalName());
-        }
-
-        if (idTrTm) {
-          // Only have param-filter*
-          if (MethodBase.nodeMatches(curnode, CaldavTags.paramFilter)) {
-            ParamFilter parf = parseParamFilter(curnode);
-
-            pf.addParamFilter(parf);
-          } else {
-            throw new WebdavBadRequest();
-          }
-        } else {
-          idTrTm = true;
-
-          // one of is-defined | time-range | text-match
-          if (MethodBase.nodeMatches(curnode, CaldavTags.isNotDefined)) {
-            pf.setIsNotDefined(true);
-          } else if (MethodBase.nodeMatches(curnode, CaldavTags.timeRange)) {
-            pf.setTimeRange(CalDavParseUtil.parseTimeRange(curnode, tz,
-                                               intf.getSysi().getTimezones()));
-          } else if (MethodBase.nodeMatches(curnode, CaldavTags.textMatch)) {
-            pf.setMatch(parseTextMatch(curnode));
-          } else {
-          }
-        }
       }
+
+      if (i == children.length) {
+        return pf;
+      }
+
+      curnode = children[i];
+      if (debug) {
+        trace("propFilter element: " +
+              curnode.getNamespaceURI() + " " +
+              curnode.getLocalName());
+      }
+
+      // Can only have param-filter*
+      if (MethodBase.nodeMatches(curnode, CaldavTags.paramFilter)) {
+        ParamFilter parf = parseParamFilter(curnode);
+
+        pf.addParamFilter(parf);
+        i++;
+      }
+
+      if (i == children.length) {
+        return pf;
+      }
+
+      throw new WebdavBadRequest();
     } catch (WebdavException we) {
       throw we;
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
-
-    return pf;
   }
 
   /* The given node must be a param-filter element

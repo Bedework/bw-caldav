@@ -32,6 +32,7 @@ import org.bedework.calfacade.filter.BwEntityTypeFilter;
 import org.bedework.calfacade.filter.BwFilter;
 import org.bedework.calfacade.filter.BwObjectFilter;
 import org.bedework.calfacade.filter.BwPresenceFilter;
+import org.bedework.calfacade.filter.BwPropertyFilter;
 import org.bedework.calfacade.util.PropertyIndex;
 import org.bedework.calfacade.util.PropertyIndex.PropertyInfo;
 
@@ -225,7 +226,8 @@ public class CompFilter {
         throw new WebdavBadRequest("Unknown property " + getName());
       }
 
-      filter = makeFilter(pi, isNotDefined, matchAll(), timeRange, null);
+      filter = makeFilter(pi, isNotDefined, matchAll(), timeRange, null,
+                          null);
 
       if (filter == null) {
         throw new WebdavBadRequest();
@@ -294,9 +296,11 @@ public class CompFilter {
 
       TimeRange tr = pf.getTimeRange();
       TextMatch tm = pf.getMatch();
-      boolean testPresent = (tr == null) && (tm == null) &&
+      boolean isNotDefined = pf.getIsNotDefined();
+      boolean testPresent = !isNotDefined && (tr == null) && (tm == null) &&
                             (WebdavUtils.emptyCollection(pf.getParamFilters()));
-      BwFilter filter = makeFilter(pi, pf.getIsNotDefined(), testPresent, tr, tm);
+      BwFilter filter = makeFilter(pi, isNotDefined, testPresent,
+                                   tr, tm, pf.getParamFilters());
 
       if (filter != null) {
         pfilters = BwFilter.addOrChild(pfilters, filter);
@@ -326,7 +330,8 @@ public class CompFilter {
   private BwFilter makeFilter(PropertyInfo pi, boolean testNotDefined,
                               boolean testPresent,
                               TimeRange timeRange,
-                              TextMatch match) throws WebdavException {
+                              TextMatch match,
+                              Collection<ParamFilter> paramFilters) throws WebdavException {
     BwFilter filter = null;
 
     if (testNotDefined) {
@@ -342,9 +347,45 @@ public class CompFilter {
       f.setExact(false);
       f.setNot(match.getNegated());
       filter = f;
+    } else {
+      // Must have param filters
+      if (WebdavUtils.emptyCollection(paramFilters)) {
+        throw new WebdavBadRequest();
+      }
     }
 
-    return filter;
+    if (WebdavUtils.emptyCollection(paramFilters)) {
+      return filter;
+    }
+
+    return BwFilter.addAndChild(filter, processParamFilters(pi, paramFilters));
+  }
+
+  private BwFilter processParamFilters(PropertyInfo parentPi,
+                                       Collection<ParamFilter> paramFilters) throws WebdavException {
+    BwFilter parfilters = null;
+
+    for (ParamFilter pf: paramFilters) {
+      PropertyInfo pi = PropertyIndex.propertyInfoByPname.get(pf.getName());
+      if (pi == null) {
+        // Unknown property
+        throw new WebdavBadRequest("Unknown parameter " + pf.getName());
+      }
+
+      TextMatch tm = pf.getMatch();
+      boolean isNotDefined = pf.getIsNotDefined();
+      boolean testPresent = isNotDefined && (tm == null);
+      BwPropertyFilter filter = (BwPropertyFilter)makeFilter(pi, isNotDefined,
+                                                             testPresent,
+                                                             null, tm, null);
+
+      if (filter != null) {
+        filter.setParentPropertyIndex(parentPi.getPindex());
+        parfilters = BwFilter.addOrChild(parfilters, filter);
+      }
+    }
+
+    return parfilters;
   }
 
   private Collection<PropFilter> addPropFilter(Collection<PropFilter> pfs,
