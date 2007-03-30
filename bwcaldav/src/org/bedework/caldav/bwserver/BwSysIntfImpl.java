@@ -486,10 +486,20 @@ public class BwSysIntfImpl implements SysIntf {
     }
   }
 
-  public ScheduleResult requestFreeBusy(BwFreeBusy val) throws WebdavException {
+  public ScheduleResult requestFreeBusy(BwEvent val) throws WebdavException {
     try {
-      return getSvci().requestFreeBusy(val);
+      val.setOwner(svci.findUser(account, false));
+      if (Icalendar.itipReplyMethodType(val.getScheduleMethod())) {
+        return getSvci().scheduleResponse(val);
+      }
+
+      return getSvci().schedule(val);
+    } catch (CalFacadeAccessException cfae) {
+      throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
+      if (CalFacadeException.duplicateGuid.equals(cfe.getMessage())) {
+        throw new WebdavBadRequest("Duplicate-guid");
+      }
       throw new WebdavException(cfe);
     } catch (Throwable t) {
       throw new WebdavException(t);

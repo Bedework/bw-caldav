@@ -378,7 +378,7 @@ public interface SysIntf {
    * @return ScheduleResult
    * @throws WebdavException
    */
-  public ScheduleResult requestFreeBusy(BwFreeBusy val)
+  public ScheduleResult requestFreeBusy(BwEvent val)
           throws WebdavException;
 
   /** Generate a free busy object for the given time period which reflects

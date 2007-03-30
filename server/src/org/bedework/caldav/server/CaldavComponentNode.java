@@ -73,10 +73,13 @@ import edu.rpi.cmt.access.Acl.CurrentAccess;
 import edu.rpi.sss.util.xml.QName;
 import edu.rpi.sss.util.xml.XmlEmit;
 
+import net.fortuna.ical4j.data.CalendarOutputter;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
 import net.fortuna.ical4j.model.ComponentList;
 
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -663,7 +666,12 @@ public boolean generatePropertyValue(QName tag,
         ical = getSysi().toCalendar(eventInfo);
       }
       if ((compString == null)) {
-        compString = ical.toString();
+        CalendarOutputter co = new CalendarOutputter(false);
+
+        Writer wtr =  new StringWriter();
+        co.output(ical, wtr);
+        compString = wtr.toString();
+//        compString = ical.toString();
       }
     } catch (Throwable t) {
       throw new WebdavException(t);

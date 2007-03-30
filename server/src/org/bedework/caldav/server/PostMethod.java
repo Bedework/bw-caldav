@@ -61,16 +61,14 @@ import org.bedework.calfacade.BwOrganizer;
 import org.bedework.calfacade.ScheduleResult;
 import org.bedework.calfacade.ScheduleResult.ScheduleRecipientResult;
 import org.bedework.davdefs.CaldavTags;
+import org.bedework.icalendar.IcalTranslator;
 import org.bedework.icalendar.Icalendar;
-import org.bedework.icalendar.VFreeUtil;
 
 import edu.rpi.cct.webdav.servlet.common.MethodBase;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavForbidden;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
-
-import net.fortuna.ical4j.model.component.VFreeBusy;
 
 import java.util.Collection;
 import java.util.Enumeration;
@@ -366,7 +364,7 @@ public class PostMethod extends MethodBase {
   private void handleFreeBusy(CaldavBWIntf intf,
                               RequestPars pars,
                               HttpServletResponse resp) throws WebdavException {
-    BwFreeBusy fb = pars.ic.getFreeBusy();
+    BwEvent fb = pars.ic.getFreeBusy();
     fb.setRecipients(pars.recipients);
     fb.setOriginator(pars.originator);
     fb.setScheduleMethod(pars.ic.getMethodType());
@@ -386,16 +384,16 @@ public class PostMethod extends MethodBase {
 
       BwFreeBusy rfb = srr.freeBusy;
       if (rfb != null) {
-        VFreeBusy vfreeBusy;
         try {
-          vfreeBusy = VFreeUtil.toVFreeBusy(rfb);
+          cdataProperty(CaldavTags.calendarData,
+                        IcalTranslator.toIcalString(Icalendar.methodTypeNone,
+                                                    rfb));
         } catch (Throwable t) {
           if (debug) {
             error(t);
           }
           throw new WebdavException(t);
         }
-        cdataProperty(CaldavTags.calendarData, vfreeBusy.toString());
       }
 
       setReqstat(srr.status);

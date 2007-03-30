@@ -78,7 +78,6 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
 
 import net.fortuna.ical4j.model.Calendar;
-import net.fortuna.ical4j.model.Period;
 import net.fortuna.ical4j.model.TimeZone;
 
 import org.apache.log4j.Logger;
@@ -255,7 +254,7 @@ public class GoogleSysIntfImpl implements SysIntf {
     throw new WebdavException("unimplemented");
   }
 
-  public ScheduleResult requestFreeBusy(BwFreeBusy val) throws WebdavException {
+  public ScheduleResult requestFreeBusy(BwEvent val) throws WebdavException {
     throw new WebdavException("unimplemented");
   }
 
@@ -365,13 +364,7 @@ public class GoogleSysIntfImpl implements SysIntf {
           net.fortuna.ical4j.model.DateTime icalEnd =
             makeIcalDateTime(w.getEndTime());
 
-          Period per = new Period(icalStart, icalEnd);
-
-          fbc.addPeriod(per);
-
-          if (debug) {
-            trace("Event entry: period " + per);
-          }
+          fbc.addPeriod(icalStart, icalEnd);
         }
 
         fb.addTime(fbc);

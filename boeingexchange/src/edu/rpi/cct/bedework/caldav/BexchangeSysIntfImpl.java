@@ -339,7 +339,7 @@ public class BexchangeSysIntfImpl implements SysIntf {
     throw new WebdavException("unimplemented");
   }
 
-  public ScheduleResult requestFreeBusy(BwFreeBusy val) throws WebdavException {
+  public ScheduleResult requestFreeBusy(BwEvent val) throws WebdavException {
     throw new WebdavException("unimplemented");
   }
 

@@ -337,7 +337,7 @@ public class DominoSysIntfImpl implements SysIntf {
     throw new WebdavException("unimplemented");
   }
 
-  public ScheduleResult requestFreeBusy(BwFreeBusy val) throws WebdavException {
+  public ScheduleResult requestFreeBusy(BwEvent val) throws WebdavException {
     throw new WebdavException("unimplemented");
   }
 
@@ -431,7 +431,7 @@ public class DominoSysIntfImpl implements SysIntf {
         if (!bstart.equals(p.getStart())) {
           /* First free period may be at start of requested time */
           Period busyp = new Period(bstart, p.getStart());
-          fbcomp.addPeriod(busyp);
+          fbcomp.addPeriod(busyp.getStart(), busyp.getEnd());
         }
 
         bstart = p.getEnd();
@@ -442,7 +442,7 @@ public class DominoSysIntfImpl implements SysIntf {
 
       if (!bstart.equals(bend)) {
         Period busyp = new Period(bstart, bend);
-        fbcomp.addPeriod(busyp);
+        fbcomp.addPeriod(busyp.getStart(), busyp.getEnd());
       }
 
       return fb;
