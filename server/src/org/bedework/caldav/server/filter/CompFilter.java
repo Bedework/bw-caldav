@@ -348,6 +348,8 @@ public class CompFilter {
       BwObjectFilter<String> f = new BwObjectFilter<String>(null, pi.getPindex());
       f.setEntity(match.getVal());
       f.setExact(false);
+      boolean caseless = (match.getCaseless() == null) || (match.getCaseless());
+      f.setCaseless(caseless);
       f.setNot(match.getNegated());
       filter = f;
     } else {
