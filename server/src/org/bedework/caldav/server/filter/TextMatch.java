@@ -166,6 +166,6 @@ public class TextMatch {
 
     log.debug(val);
 
-    log.debug(indent + "<text-match>\n");
+    log.debug(indent + "</text-match>\n");
   }
 }

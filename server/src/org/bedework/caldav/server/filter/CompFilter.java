@@ -35,10 +35,12 @@ import org.bedework.calfacade.filter.BwPresenceFilter;
 import org.bedework.calfacade.filter.BwPropertyFilter;
 import org.bedework.calfacade.util.PropertyIndex;
 import org.bedework.calfacade.util.PropertyIndex.PropertyInfo;
+import org.bedework.davdefs.CaldavTags;
 
 import edu.rpi.cct.webdav.servlet.common.WebdavUtils;
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
+import edu.rpi.cct.webdav.servlet.shared.WebdavForbidden;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -291,7 +293,8 @@ public class CompFilter {
       PropertyInfo pi = PropertyIndex.propertyInfoByPname.get(pname);
       if (pi == null) {
         // Unknown property
-        throw new WebdavBadRequest("Unknown property " + pname);
+        throw new WebdavForbidden(CaldavTags.supportedFilter,
+                                  "Unknown property " + pname);
       }
 
       TimeRange tr = pf.getTimeRange();
@@ -369,7 +372,8 @@ public class CompFilter {
       PropertyInfo pi = PropertyIndex.propertyInfoByPname.get(pf.getName());
       if (pi == null) {
         // Unknown property
-        throw new WebdavBadRequest("Unknown parameter " + pf.getName());
+        throw new WebdavForbidden(CaldavTags.supportedFilter,
+                                  "Unknown parameter " + pf.getName());
       }
 
       TextMatch tm = pf.getMatch();

@@ -453,30 +453,26 @@ public class Filter {
               curnode.getLocalName());
       }
 
-      if (i == children.length) {
-        return pf;
-      }
+      while (i < children.length) {
+        curnode = children[i];
+        if (debug) {
+          trace("propFilter element: " +
+                curnode.getNamespaceURI() + " " +
+                curnode.getLocalName());
+        }
 
-      curnode = children[i];
-      if (debug) {
-        trace("propFilter element: " +
-              curnode.getNamespaceURI() + " " +
-              curnode.getLocalName());
-      }
+        // Can only have param-filter*
+        if (!MethodBase.nodeMatches(curnode, CaldavTags.paramFilter)) {
+          throw new WebdavBadRequest();
+        }
 
-      // Can only have param-filter*
-      if (MethodBase.nodeMatches(curnode, CaldavTags.paramFilter)) {
         ParamFilter parf = parseParamFilter(curnode);
 
         pf.addParamFilter(parf);
         i++;
       }
 
-      if (i == children.length) {
-        return pf;
-      }
-
-      throw new WebdavBadRequest();
+      return pf;
     } catch (WebdavException we) {
       throw we;
     } catch (Throwable t) {
