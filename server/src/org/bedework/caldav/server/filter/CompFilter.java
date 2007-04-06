@@ -28,6 +28,7 @@ package org.bedework.caldav.server.filter;
 import org.bedework.caldav.server.filter.Filter.EventQuery;
 import org.bedework.calfacade.base.TimeRange;
 import org.bedework.calfacade.CalFacadeDefs;
+import org.bedework.calfacade.filter.BwEntityTimeRangeFilter;
 import org.bedework.calfacade.filter.BwEntityTypeFilter;
 import org.bedework.calfacade.filter.BwFilter;
 import org.bedework.calfacade.filter.BwObjectFilter;
@@ -251,11 +252,13 @@ public class CompFilter {
        * this merge which was here so post-processing could handle it.
        */
       if (timeRange != null) {
-        if (eq.trange == null) {
+/*        if (eq.trange == null) {
           eq.trange = timeRange;
         } else {
           eq.trange.merge(timeRange);
-        }
+        } */
+        BwEntityTimeRangeFilter etrf = new BwEntityTimeRangeFilter(null, timeRange);
+        filter = BwFilter.addAndChild(filter, etrf);
       }
     }
 
