@@ -29,7 +29,6 @@ import org.bedework.caldav.server.CalDavParseUtil;
 import org.bedework.caldav.server.CaldavBWIntf;
 import org.bedework.caldav.server.CaldavBwNode;
 import org.bedework.caldav.server.CaldavComponentNode;
-import org.bedework.calfacade.base.TimeRange;
 import org.bedework.calfacade.BwDateTime;
 import org.bedework.calfacade.CalFacadeDefs;
 import org.bedework.calfacade.RecurringRetrievalMode;
@@ -158,7 +157,7 @@ public class Filter {
     public BwFilter filter;
 
     /** */
-    public TimeRange trange;
+    //public TimeRange trange;
 
     //Collection propFilters;
 
@@ -243,7 +242,7 @@ public class Filter {
 
     eventq.filter = filter.getQuery(eventq, 0);
 
-    if (debug) {
+    /*if (debug) {
       if (eventq.trange == null) {
         trace("No time-range specified for uri " + wdnode.getUri());
       } else {
@@ -251,17 +250,17 @@ public class Filter {
               " with start=" + eventq.trange.getStart() +
               " end=" + eventq.trange.getEnd());
       }
-    }
+    }*/
 
     Collection<EventInfo> events;
 
     try {
       BwDateTime start = null;
       BwDateTime end = null;
-      if (eventq.trange != null) {
+      /*if (eventq.trange != null) {
         start = eventq.trange.getStart();
         end = eventq.trange.getEnd();
-      }
+      }*/
 
       events = wdnode.getSysi().getEvents(wdnode.getCalendar(),
                                           eventq.filter,
