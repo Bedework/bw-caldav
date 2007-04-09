@@ -29,7 +29,6 @@ import org.bedework.caldav.server.CalDavParseUtil;
 import org.bedework.caldav.server.CaldavBWIntf;
 import org.bedework.caldav.server.CaldavBwNode;
 import org.bedework.caldav.server.CaldavComponentNode;
-import org.bedework.calfacade.BwDateTime;
 import org.bedework.calfacade.CalFacadeDefs;
 import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.filter.BwFilter;
@@ -156,11 +155,6 @@ public class Filter {
     /** */
     public BwFilter filter;
 
-    /** */
-    //public TimeRange trange;
-
-    //Collection propFilters;
-
     /* true if we have to postfilter the result obtained via a search
      */
     boolean postFilter;
@@ -255,16 +249,8 @@ public class Filter {
     Collection<EventInfo> events;
 
     try {
-      BwDateTime start = null;
-      BwDateTime end = null;
-      /*if (eventq.trange != null) {
-        start = eventq.trange.getStart();
-        end = eventq.trange.getEnd();
-      }*/
-
       events = wdnode.getSysi().getEvents(wdnode.getCalendar(),
-                                          eventq.filter,
-                                          start, end, retrieveRecur);
+                                          eventq.filter, retrieveRecur);
     } catch (Throwable t) {
       error(t);
       throw new WebdavException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);

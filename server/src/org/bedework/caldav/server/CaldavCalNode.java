@@ -235,7 +235,7 @@ public class CaldavCalNode extends CaldavBwNode {
 
       RecurringRetrievalMode rrm = new RecurringRetrievalMode(
                            Rmode.overrides);
-      return getSysi().getEvents(cal, null, null, null, rrm);
+      return getSysi().getEvents(cal, null, rrm);
     } catch (Throwable t) {
       throw new WebdavException(t);
     }

@@ -317,7 +317,6 @@ public class DominoSysIntfImpl implements SysIntf {
 
   public Collection<EventInfo> getEvents(BwCalendar cal,
                                          BwFilter filter,
-                                         BwDateTime startDate, BwDateTime endDate,
                                          RecurringRetrievalMode recurRetrieval)
           throws WebdavException {
     throw new WebdavException("unimplemented");

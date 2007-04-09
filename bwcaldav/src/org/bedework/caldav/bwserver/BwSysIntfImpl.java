@@ -436,18 +436,12 @@ public class BwSysIntfImpl implements SysIntf {
 
   public Collection<EventInfo> getEvents(BwCalendar cal,
                                          BwFilter filter,
-                                         BwDateTime startDate, BwDateTime endDate,
                                          RecurringRetrievalMode recurRetrieval)
           throws WebdavException {
     try {
       BwSubscription sub = BwSubscription.makeSubscription(cal);
 
-      /*
-      if ((startDate == null) && (endDate == null)) {
-        return getSvci().getEvents(sub, recurRetrieval);
-      }*/
-
-      return getSvci().getEvents(sub, filter, startDate, endDate,
+      return getSvci().getEvents(sub, filter, null, null,
                                  recurRetrieval);
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();

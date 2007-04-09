@@ -324,23 +324,20 @@ public interface SysIntf {
                           Collection<BwEventProxy> overrides,
                           ChangeTable changes) throws WebdavException;
 
-  /** Return the events for the current user in the given calendar within the
-   * given date and time range. Stored freebusy objects are returned as BwEvent
+  /** Return the events for the current user in the given calendar using the
+   * supplied filter. Stored freebusy objects are returned as BwEvent
    * objects with the appropriate entity type.
    *
    * <p>We flag the desired entity types.
    *
    * @param cal
    * @param filter - if non-null defines a search filter
-   * @param startDate    BwDateTime start - may be null
-   * @param endDate      BwDateTime end - may be null.
    * @param recurRetrieval How recurring event is returned.
    * @return Collection  populated event value objects
    * @throws WebdavException
    */
   public Collection<EventInfo> getEvents(BwCalendar cal,
                                          BwFilter filter,
-                                         BwDateTime startDate, BwDateTime endDate,
                                          RecurringRetrievalMode recurRetrieval)
           throws WebdavException;
 
