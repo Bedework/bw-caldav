@@ -618,7 +618,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
     if (debug) {
       debugMsg("putContent: intf has event with name " + entityName +
-               " and summary " + ev.getSummary());
+               " and summary " + ev.getSummary() +
+               " new event = " + evinfo.getNewEvent());
     }
 
     if (evinfo.getNewEvent()) {
