@@ -140,7 +140,7 @@ public class CaldavReportMethod extends ReportMethod {
     processDoc(doc);
 
     if (reportType == reportTypeFreeBusy) {
-      processFbResp(req, resp);
+      processFbResp(req, resp, depth);
     } else {
       processResp(req, resp, depth);
     }
@@ -498,10 +498,12 @@ public class CaldavReportMethod extends ReportMethod {
    *
    * @param req
    * @param resp
+   * @param depth
    * @throws WebdavException
    */
   public void processFbResp(HttpServletRequest req,
-                            HttpServletResponse resp) throws WebdavException {
+                            HttpServletResponse resp,
+                            int depth) throws WebdavException {
     resp.setStatus(HttpServletResponse.SC_OK);
     resp.setContentType("text/calendar; charset=UTF-8");
 
@@ -516,42 +518,34 @@ public class CaldavReportMethod extends ReportMethod {
       if (debug) {
         trace("Expected CaldavCalNode - got " + node);
       }
-      node.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+      throw new WebdavBadRequest();
+    }
+
+    intf.getFreeBusy((CaldavCalNode)node, freeBusy, defaultDepth(depth, 0));
+
+    Writer out;
+    try {
+      out = resp.getWriter();
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
+
+    /** Get the content now to set up length, type etc.
+     */
+    Reader in = getNsIntf().getContent(node);
+    resp.setContentLength(node.getContentLen());
+    if (in == null) {
+      if (debug) {
+        debugMsg("status: " + HttpServletResponse.SC_NO_CONTENT);
+      }
+
+      resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
     } else {
-      try {
-        intf.getFreeBusy((CaldavCalNode)node, freeBusy);
-      } catch (WebdavException wde) {
-        if (debug) {
-          trace("intf.getFreeBusy exception");
-          wde.printStackTrace();
-        }
-        node.setStatus(wde.getStatusCode());
+      if (debug) {
+        debugMsg("send content - length=" + node.getContentLen());
       }
 
-      Writer out;
-      try {
-        out = resp.getWriter();
-      } catch (Throwable t) {
-        throw new WebdavException(t);
-      }
-
-      /** Get the content now to set up length, type etc.
-       */
-      Reader in = getNsIntf().getContent(node);
-      resp.setContentLength(node.getContentLen());
-      if (in == null) {
-        if (debug) {
-          debugMsg("status: " + HttpServletResponse.SC_NO_CONTENT);
-        }
-
-        resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
-      } else {
-        if (debug) {
-          debugMsg("send content - length=" + node.getContentLen());
-        }
-
-        writeContent(in, out);
-      }
+      writeContent(in, out);
     }
   }
 

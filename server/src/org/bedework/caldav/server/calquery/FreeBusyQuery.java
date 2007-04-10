@@ -96,15 +96,39 @@ public class FreeBusyQuery {
    * @param sysi
    * @param cal
    * @param account
+   * @param depth
    * @return BwFreeBusy
    * @throws WebdavException
    */
   public BwFreeBusy getFreeBusy(SysIntf sysi, BwCalendar cal,
-                                String account) throws WebdavException {
+                                String account,
+                                int depth) throws WebdavException {
     try {
-      BwFreeBusy fb = sysi.getFreeBusy(cal, account,
-                                       timeRange.getStart(),
-                                       timeRange.getEnd());
+      if ((depth == 0) && !cal.getCalendarCollection()) {
+        /* Cannot return anything */
+        cal = null;
+      } else if ((depth == 1) && !cal.getCalendarCollection()) {
+        /* Make new cal object with just calendar collections as children */
+        BwCalendar newCal = new BwCalendar();
+
+        for (BwCalendar ch: sysi.getCalendars(cal)) {
+          if (ch.getCalendarCollection()) {
+            newCal.addChild(ch);
+          }
+        }
+        cal = newCal;
+      }
+
+      BwFreeBusy fb;
+      if (cal == null) {
+        fb = new BwFreeBusy();
+        fb.setDtstart(timeRange.getStart());
+        fb.setDtend(timeRange.getEnd());
+      } else {
+        fb = sysi.getFreeBusy(cal, account,
+                              timeRange.getStart(),
+                              timeRange.getEnd());
+      }
 
       if (debug) {
         trace("Got " + fb);

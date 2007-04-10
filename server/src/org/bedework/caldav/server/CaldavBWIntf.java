@@ -1404,13 +1404,16 @@ public class CaldavBWIntf extends WebdavNsIntf {
    *
    * @param cnode  CaldavCalNode
    * @param freeBusy
+   * @param depth
    * @throws WebdavException
    */
   public void getFreeBusy(CaldavCalNode cnode,
-                          FreeBusyQuery freeBusy) throws WebdavException {
+                          FreeBusyQuery freeBusy,
+                          int depth) throws WebdavException {
     try {
       BwFreeBusy fb = freeBusy.getFreeBusy(sysi, cnode.getCalendar(),
-                                           cnode.getOwner());
+                                           cnode.getOwner(),
+                                           depth);
 
       cnode.setFreeBusy(fb);
     } catch (WebdavException we) {
