@@ -456,6 +456,14 @@ public class CaldavReportMethod extends ReportMethod {
   private Collection<WebdavNsNode> doNodeAndChildren(WebdavNsNode node,
                                        int curDepth,
                                        int maxDepth) throws WebdavException {
+    if (node instanceof CaldavComponentNode) {
+      // Targetted directly at component
+      Collection<WebdavNsNode> nodes = new ArrayList<WebdavNsNode>();
+
+      nodes.add(node);
+      return nodes;
+    }
+
     if (!(node instanceof CaldavCalNode)) {
       throw new WebdavBadRequest();
     }
