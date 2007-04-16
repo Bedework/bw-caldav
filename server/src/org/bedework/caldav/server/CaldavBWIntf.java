@@ -747,6 +747,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       if (toCalNode.getExists() && !overwrite) {
         resp.setStatus(HttpServletResponse.SC_PRECONDITION_FAILED);
+
+        return;
       }
 
       BwCalendar fromCal = fromCalNode.getCalendar();
@@ -780,6 +782,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
     if (toNode.getExists() && !overwrite) {
       resp.setStatus(HttpServletResponse.SC_PRECONDITION_FAILED);
+
+      return;
     }
 
     EventInfo fromEi = fromNode.getEventInfo();
