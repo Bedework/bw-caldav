@@ -597,6 +597,27 @@ public class BwSysIntfImpl implements SysIntf {
                        BwCalendar to,
                        boolean copy,
                        boolean overwrite) throws WebdavException {
+    try {
+      if (!copy) {
+        /* Move the from collection to the new location "to".
+         * If the parent calendar is the same in both cases, this is just a rename.
+         */
+        if ((from.getCalendar() == null) || (to.getCalendar() == null)) {
+          throw new WebdavForbidden("Cannot move root");
+        }
+
+        if (from.getCalendar().equals(to.getCalendar())) {
+          getSvci().renameCalendar(from, to.getName());
+        }
+      }
+    } catch (CalFacadeAccessException cfae) {
+      throw new WebdavForbidden();
+    } catch (CalFacadeException cfe) {
+      throw new WebdavException(cfe);
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
+
     throw new WebdavException("unimplemented");
   }
 
