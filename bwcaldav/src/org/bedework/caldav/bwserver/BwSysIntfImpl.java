@@ -611,7 +611,7 @@ public class BwSysIntfImpl implements SysIntf {
     CopyMoveStatus cms;
     try {
       cms = getSvci().copyMoveNamed(from, overrides, to, name,
-                                    copy, overwrite);
+                                    copy, overwrite, false);
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
