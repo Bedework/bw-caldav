@@ -607,7 +607,9 @@ public class BwSysIntfImpl implements SysIntf {
         }
 
         if (from.getCalendar().equals(to.getCalendar())) {
+          // Rename
           getSvci().renameCalendar(from, to.getName());
+          return;
         }
       }
     } catch (CalFacadeAccessException cfae) {

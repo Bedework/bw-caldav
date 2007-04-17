@@ -1596,7 +1596,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
         if (cal == null) {
           if ((nodeType == WebdavNsIntf.nodeTypeCollection) &&
-              (existance != WebdavNsIntf.existanceNot)) {
+              (existance != WebdavNsIntf.existanceNot) &&
+              (existance != WebdavNsIntf.existanceMay)) {
             /* We asked for a collection and it doesn't exist */
             throw new WebdavNotFound(uri);
           }
