@@ -269,10 +269,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
   }
 
-  public String getLocation(WebdavNsNode node) throws WebdavException {
-    return namespacePrefix + node.getUri();
-  }
-
   public WebdavNsNode getNode(String uri,
                               int existance,
                               int nodeType) throws WebdavException {
@@ -759,6 +755,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
         resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
       } else {
         resp.setStatus(HttpServletResponse.SC_CREATED);
+        Headers.makeLocation(resp, getLocation(to), debug);
       }
 
       return;
@@ -795,6 +792,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
     } else {
       resp.setStatus(HttpServletResponse.SC_CREATED);
+      Headers.makeLocation(resp, getLocation(to), debug);
     }
   }
 
