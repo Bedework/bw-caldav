@@ -233,7 +233,7 @@ public class PropFilter {
       }
     }
 
-    log.debug(indent + "<prop-filter/>");
+    log.debug(indent + "</prop-filter>");
   }
 }
 

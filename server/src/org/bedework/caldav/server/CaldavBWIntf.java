@@ -1628,6 +1628,11 @@ public class CaldavBWIntf extends WebdavNsIntf {
       cal = sysi.getCalendar(split[0]);
 
       if (cal == null) {
+        if (nodeType == WebdavNsIntf.nodeTypeCollection) {
+          // Trying to create calendar/collection with no parent
+          throw new WebdavException(HttpServletResponse.SC_CONFLICT);
+        }
+
         throw new WebdavNotFound(uri);
       }
 
@@ -1669,6 +1674,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
   }
 
   /* Split the uri so that result[0] is the path up to the name part result[1]
+   *
+   * NormalizeUri was called previously so we have no trailing "/"
    */
   private String[] splitUri(String uri) throws WebdavException {
     int pos = uri.lastIndexOf("/");

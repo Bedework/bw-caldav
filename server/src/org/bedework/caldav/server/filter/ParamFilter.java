@@ -149,7 +149,7 @@ public class ParamFilter {
       match.dump(log, indent + "  ");
     }
 
-    log.debug(indent + "<param-filter/>");
+    log.debug(indent + "</param-filter>");
   }
 }
 

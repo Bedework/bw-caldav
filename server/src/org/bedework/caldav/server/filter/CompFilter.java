@@ -439,7 +439,7 @@ public class CompFilter {
       }
     }
 
-    log.debug(indent + "<comp-filter/>");
+    log.debug(indent + "</comp-filter>");
   }
 }
 
