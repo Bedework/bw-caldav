@@ -32,14 +32,18 @@ import org.bedework.calfacade.base.TimeRange;
 import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwFreeBusy;
 import org.bedework.davdefs.CaldavTags;
+import org.bedework.davdefs.WebdavTags;
 
 import edu.rpi.cct.webdav.servlet.common.MethodBase;
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
+import edu.rpi.cct.webdav.servlet.shared.WebdavForbidden;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Node;
+
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author Mike Douglass douglm @ rpi.edu
@@ -104,7 +108,13 @@ public class FreeBusyQuery {
                                 String account,
                                 int depth) throws WebdavException {
     try {
-      if ((depth == 0) && !cal.getCalendarCollection()) {
+      int calType = cal.getCalType();
+
+      if (!BwCalendar.collectionInfo[calType].allowFreeBusy) {
+        throw new WebdavForbidden(WebdavTags.supportedReport);
+      }
+
+      if ((depth == 0) && (calType != BwCalendar.calTypeCollection)) {
         /* Cannot return anything */
         cal = null;
       } else if ((depth == 1) && !cal.getCalendarCollection()) {
@@ -112,7 +122,7 @@ public class FreeBusyQuery {
         BwCalendar newCal = new BwCalendar();
 
         for (BwCalendar ch: sysi.getCalendars(cal)) {
-          if (ch.getCalendarCollection()) {
+          if (ch.getCalType() == BwCalendar.calTypeCollection) {
             newCal.addChild(ch);
           }
         }
@@ -135,6 +145,8 @@ public class FreeBusyQuery {
       }
 
       return fb;
+    } catch (WebdavException wde) {
+      throw wde;
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
