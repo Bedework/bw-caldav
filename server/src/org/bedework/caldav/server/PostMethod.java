@@ -390,6 +390,8 @@ public class PostMethod extends MethodBase {
 
     for (ScheduleRecipientResult srr: sr.recipientResults) {
       openTag(CaldavTags.response);
+      property(CaldavTags.recipient, srr.recipient);
+      setReqstat(srr.status);
 
       BwFreeBusy rfb = srr.freeBusy;
       if (rfb != null) {
@@ -405,7 +407,6 @@ public class PostMethod extends MethodBase {
         }
       }
 
-      setReqstat(srr.status);
       closeTag(CaldavTags.response);
 
       closeTag(CaldavTags.scheduleResponse);

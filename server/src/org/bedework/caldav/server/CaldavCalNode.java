@@ -516,6 +516,12 @@ public class CaldavCalNode extends CaldavBwNode {
         xml.openTag(tag);
         xml.startTag(CaldavTags.comp);
         xml.atribute("name", "VEVENT");
+        xml.endEmptyTag();
+        xml.newline();
+        xml.startTag(CaldavTags.comp);
+        xml.atribute("name", "VTODO");
+        xml.endEmptyTag();
+        xml.newline();
         xml.closeTag(tag);
         return true;
       }
