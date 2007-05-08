@@ -43,8 +43,6 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Node;
 
-import javax.servlet.http.HttpServletResponse;
-
 /**
  * @author Mike Douglass douglm @ rpi.edu
  */

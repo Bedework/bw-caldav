@@ -1211,6 +1211,42 @@ public class CaldavBWIntf extends WebdavNsIntf {
     return caldata;
   }
 
+  /** Properties we can process */
+  private static final QName[] knownProperties = {
+    CaldavTags.calendarData,
+    CaldavTags.calendarTimezone,
+    //  CaldavTags.maxAttendeesPerInstance,
+    //  CaldavTags.maxDateTime,
+    //  CaldavTags.maxInstances,
+    CaldavTags.maxResourceSize,
+    //  CaldavTags.minDateTime,
+  };
+
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#knownProperty(edu.rpi.cct.webdav.servlet.shared.WebdavNsNode, edu.rpi.cct.webdav.servlet.shared.WebdavProperty)
+   */
+  public boolean knownProperty(WebdavNsNode node,
+                               WebdavProperty pr) {
+    QName tag = pr.getTag();
+    String ns = tag.getNamespaceURI();
+
+    if ((!ns.equals(CaldavDefs.caldavNamespace) &&
+        !ns.equals(CaldavDefs.icalNamespace))) {
+      // Not ours
+      return super.knownProperty(node, pr);
+    }
+
+    for (int i = 0; i < knownProperties.length; i++) {
+      if (tag.equals(knownProperties[i])) {
+        return true;
+      }
+    }
+
+    /* Try the node for a value */
+
+    return node.knownProperty(tag);
+  }
+
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#generatePropValue(edu.rpi.cct.webdav.servlet.shared.WebdavNsNode, edu.rpi.cct.webdav.servlet.shared.WebdavProperty, boolean)
    */

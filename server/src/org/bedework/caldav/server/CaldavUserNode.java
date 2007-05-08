@@ -173,6 +173,20 @@ public class CaldavUserNode extends CaldavPrincipalNode {
    * ==================================================================== */
 
   /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#knownProperty(edu.rpi.sss.util.xml.QName)
+   */
+  public boolean knownProperty(QName tag) {
+    String ns = tag.getNamespaceURI();
+
+    if (!ns.equals(CaldavDefs.caldavNamespace)) {
+      // Not ours
+      return super.knownProperty(tag);
+    }
+
+    return propertyNames.get(tag) != null;
+  }
+
+  /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#generatePropertyValue(edu.rpi.sss.util.xml.QName, edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf, boolean)
    */
   public boolean generatePropertyValue(QName tag,

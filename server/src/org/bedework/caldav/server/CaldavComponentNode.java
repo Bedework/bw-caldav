@@ -61,6 +61,7 @@ import org.bedework.calfacade.BwUser;
 import org.bedework.calfacade.svc.EventInfo;
 import org.bedework.calfacade.util.CalFacadeUtil;
 
+import org.bedework.davdefs.CaldavDefs;
 import org.bedework.davdefs.CaldavTags;
 import org.bedework.davdefs.WebdavTags;
 import org.bedework.icalendar.ComponentWrapper;
@@ -82,7 +83,6 @@ import net.fortuna.ical4j.model.ComponentList;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 
 /** Class to represent an entity such as events in caldav.
  *
@@ -308,6 +308,21 @@ public class CaldavComponentNode extends CaldavBwNode {
    *                   Property methods
    * ==================================================================== */
 
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#knownProperty(edu.rpi.sss.util.xml.QName)
+   */
+  public boolean knownProperty(QName tag) {
+    String ns = tag.getNamespaceURI();
+
+    if ((!ns.equals(CaldavDefs.caldavNamespace) &&
+        !ns.equals(CaldavDefs.icalNamespace))) {
+      // Not ours
+      return super.knownProperty(tag);
+    }
+
+    return propertyNames.get(tag) != null;
+  }
+
  /* (non-Javadoc)
  * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#generatePropertyValue(edu.rpi.sss.util.xml.QName, edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf, boolean)
  */
@@ -353,15 +368,14 @@ public boolean generatePropertyValue(QName tag,
       }
 
       if (tag.equals(CaldavTags.recipient)) {
-        Collection r = ev.getRecipients();
-        if ((r == null) || (r.size() == 0)) {
+        Collection<String> r = ev.getRecipients();
+        if ((r == null) || (r.isEmpty())) {
           return true;
         }
 
         xml.openTag(tag);
-        Iterator it = r.iterator();
-        while (it.hasNext()) {
-          xml.property(WebdavTags.href, (String)it.next());
+        for (String recip: r) {
+          xml.property(WebdavTags.href, recip);
         }
         xml.closeTag(tag);
         return true;

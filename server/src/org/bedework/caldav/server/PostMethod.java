@@ -269,6 +269,10 @@ public class PostMethod extends MethodBase {
 
       /* See if it's a valid calendar user. */
       String cn = organizer.getOrganizerUri();
+      if (cn.startsWith(sysi.getUrlPrefix())) {
+        cn = cn.substring(sysi.getUrlPrefix().length());
+        organizer.setOrganizerUri(cn);
+      }
       CalUserInfo organizerInfo = sysi.getCalUserInfo(sysi.caladdrToUser(cn),
                                                       false);
 
@@ -335,7 +339,12 @@ public class PostMethod extends MethodBase {
                            RequestPars pars,
                            HttpServletResponse resp) throws WebdavException {
     BwEvent event = pars.ic.getEvent();
-    event.setRecipients(pars.recipients);
+    if (pars.recipients != null) {
+      for (String r: pars.recipients) {
+        event.addRecipient(r);
+      }
+    }
+    //event.setRecipients(pars.recipients);
     event.setOriginator(pars.originator);
     event.setScheduleMethod(pars.ic.getMethodType());
 
