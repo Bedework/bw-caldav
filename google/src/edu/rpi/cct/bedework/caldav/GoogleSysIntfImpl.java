@@ -313,6 +313,7 @@ public class GoogleSysIntfImpl implements SysIntf {
       Feed resultFeed = (Feed)svc.query(q, Feed.class);
 
       BwFreeBusy fb = new BwFreeBusy(new BwUser(account), start, end);
+      //assignGuid(fb);
 
       Iterator entries = resultFeed.getEntries().iterator();
       while (entries.hasNext()) {

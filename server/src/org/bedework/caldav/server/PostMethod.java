@@ -395,9 +395,11 @@ public class PostMethod extends MethodBase {
 
       BwFreeBusy rfb = srr.freeBusy;
       if (rfb != null) {
+        rfb.setOrganizer(pars.ic.getOrganizer());
+
         try {
           cdataProperty(CaldavTags.calendarData,
-                        IcalTranslator.toIcalString(Icalendar.methodTypeNone,
+                        IcalTranslator.toIcalString(Icalendar.methodTypeReply,
                                                     rfb));
         } catch (Throwable t) {
           if (debug) {
