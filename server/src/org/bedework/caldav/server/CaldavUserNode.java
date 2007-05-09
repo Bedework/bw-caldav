@@ -211,18 +211,26 @@ public class CaldavUserNode extends CaldavPrincipalNode {
       }
 
       if (tag.equals(CaldavTags.calendarHomeURL)) {
-        generateUrl(xml, tag, ui.userHomePath);
+        xml.openTag(tag);
+        generateHref(xml, ui.userHomePath);
+        xml.closeTag(tag);
 
         return true;
       }
 
       if (tag.equals(CaldavTags.scheduleInboxURL)) {
-        generateUrl(xml, tag, ui.inboxPath);
+        xml.openTag(tag);
+        generateHref(xml, ui.inboxPath);
+        xml.closeTag(tag);
+
         return true;
       }
 
       if (tag.equals(CaldavTags.scheduleOutboxURL)) {
-        generateUrl(xml, tag, ui.outboxPath);
+        xml.openTag(tag);
+        generateHref(xml, ui.outboxPath);
+        xml.closeTag(tag);
+
         return true;
       }
 

@@ -65,6 +65,7 @@ import org.bedework.calfacade.RecurringRetrievalMode.Rmode;
 import org.bedework.calfacade.env.CalEnvFactory;
 import org.bedework.calfacade.env.CalEnvI;
 import org.bedework.calfacade.svc.EventInfo;
+import org.bedework.davdefs.AppleServerTags;
 import org.bedework.davdefs.CaldavDefs;
 import org.bedework.davdefs.CaldavTags;
 import org.bedework.davdefs.WebdavTags;
@@ -1230,8 +1231,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
     QName tag = pr.getTag();
     String ns = tag.getNamespaceURI();
 
-    if ((!ns.equals(CaldavDefs.caldavNamespace) &&
-        !ns.equals(CaldavDefs.icalNamespace))) {
+    if (!ns.equals(CaldavDefs.caldavNamespace) &&
+        !ns.equals(CaldavDefs.icalNamespace) &&
+        !ns.equals(AppleServerTags.appleCaldavNamespace)) {
       // Not ours
       return super.knownProperty(node, pr);
     }
@@ -1259,8 +1261,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
     try {
       /* Deal with webdav properties */
-      if ((!ns.equals(CaldavDefs.caldavNamespace) &&
-          !ns.equals(CaldavDefs.icalNamespace))) {
+      if (!ns.equals(CaldavDefs.caldavNamespace) &&
+          !ns.equals(CaldavDefs.icalNamespace) &&
+          !ns.equals(AppleServerTags.appleCaldavNamespace)) {
         // Not ours
         return super.generatePropValue(node, pr, allProp);
       }

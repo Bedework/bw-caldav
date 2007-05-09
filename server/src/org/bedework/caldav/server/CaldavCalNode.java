@@ -60,6 +60,7 @@ import org.bedework.calfacade.BwUser;
 import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.RecurringRetrievalMode.Rmode;
 import org.bedework.calfacade.util.CalFacadeUtil;
+import org.bedework.davdefs.AppleServerTags;
 import org.bedework.davdefs.CaldavDefs;
 import org.bedework.davdefs.CaldavTags;
 import org.bedework.davdefs.WebdavTags;
@@ -115,6 +116,7 @@ public class CaldavCalNode extends CaldavBwNode {
     addPropEntry(propertyNames, CaldavTags.minDateTime);
     addPropEntry(propertyNames, CaldavTags.supportedCalendarComponentSet);
     addPropEntry(propertyNames, CaldavTags.supportedCalendarData);
+    addPropEntry(propertyNames, AppleServerTags.getctag);
   }
 
   /** Place holder for status
@@ -446,8 +448,9 @@ public class CaldavCalNode extends CaldavBwNode {
   public boolean knownProperty(QName tag) {
     String ns = tag.getNamespaceURI();
 
-    if ((!ns.equals(CaldavDefs.caldavNamespace) &&
-        !ns.equals(CaldavDefs.icalNamespace))) {
+    if (!ns.equals(CaldavDefs.caldavNamespace) &&
+        !ns.equals(CaldavDefs.icalNamespace) &&
+        !ns.equals(AppleServerTags.appleCaldavNamespace)) {
       // Not ours
       return super.knownProperty(tag);
     }
@@ -484,6 +487,12 @@ public class CaldavCalNode extends CaldavBwNode {
           xml.emptyTag(CaldavTags.calendar);
         }
         xml.closeTag(WebdavTags.resourcetype);
+
+        return true;
+      }
+
+      if (tag.equals(AppleServerTags.getctag)) {
+        xml.property(tag, cal.getLastmod() + cal.getSequence());
 
         return true;
       }
