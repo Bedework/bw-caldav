@@ -73,7 +73,6 @@ import org.bedework.icalendar.Icalendar;
 
 import edu.rpi.cct.webdav.servlet.common.Headers;
 import edu.rpi.cct.webdav.servlet.common.MethodBase;
-import edu.rpi.cct.webdav.servlet.common.PrincipalMatchReport;
 import edu.rpi.cct.webdav.servlet.common.WebdavServlet;
 import edu.rpi.cct.webdav.servlet.common.WebdavUtils;
 import edu.rpi.cct.webdav.servlet.common.MethodBase.MethodInfo;
@@ -92,6 +91,7 @@ import edu.rpi.cmt.access.AccessException;
 import edu.rpi.cmt.access.Ace;
 import edu.rpi.cmt.access.AceWho;
 import edu.rpi.cmt.access.Acl;
+import edu.rpi.cmt.access.PrincipalInfo;
 import edu.rpi.cmt.access.Privileges;
 import edu.rpi.cmt.access.WhoDefs;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
@@ -802,36 +802,24 @@ public class CaldavBWIntf extends WebdavNsIntf {
    * ==================================================================== */
 
   /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#getPrincipalPrefix()
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#getGroups(java.lang.String, java.lang.String)
    */
-  public String getPrincipalPrefix() throws WebdavException {
-    return getSysi().getPrincipalRoot();
-  }
-
-  /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#principalMatch(java.lang.String, edu.rpi.cct.webdav.servlet.common.PrincipalMatchReport)
-   */
-  public Collection<WebdavNsNode> principalMatch(String resourceUri,
-                                                 PrincipalMatchReport pmatch)
+  public Collection<WebdavNsNode> getGroups(String resourceUri,
+                                            String principalUrl)
           throws WebdavException {
     Collection<WebdavNsNode> res = new ArrayList<WebdavNsNode>();
 
-    if (pmatch.self) {
-      if (resourceUri.endsWith("/")) {
-        resourceUri = resourceUri.substring(0, resourceUri.length() - 1);
+    Collection<String> hrefs = getSysi().getGroups(resourceUri, principalUrl);
+    for (String href: hrefs) {
+      if (href.endsWith("/")) {
+        href = href.substring(0, href.length());
       }
+      int pos = href.lastIndexOf("/");
+      String account = href.substring(pos + 1);
+      String basePath = href.substring(0, pos);
 
-      /* ResourceUri should be the principals root or user principal root */
-      if (!resourceUri.equals(getPrincipalPrefix()) &&
-          !resourceUri.equals(getSysi().getUserPrincipalRoot())) {
-        return res;
-      }
-
-      res.add(new CaldavUserNode(new CaldavURI(this.account,
-                                               getSysi().getUserPrincipalRoot(),
-                                               true),
+      res.add(new CaldavUserNode(new CaldavURI(account, basePath, true),
                                  getSysi(), null, debug));
-      return res;
     }
 
     return res;
@@ -855,7 +843,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
     for (CalUserInfo cui: sysi.getPrincipals(resourceUri, pps)) {
       pnodes.add(new CaldavUserNode(new CaldavURI(cui.account,
-                                                  getSysi().getUserPrincipalRoot(),
+                                                  cui.principalPathPrefix,
                                                   true),
                                     getSysi(), cui, debug));
     }
@@ -867,14 +855,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#makeUserHref(java.lang.String)
    */
   public String makeUserHref(String id) throws WebdavException {
-    return getSysi().makeUserHref(id);
-  }
-
-  /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#makeGroupHref(java.lang.String)
-   */
-  public String makeGroupHref(String id) throws WebdavException {
-    return getSysi().makeGroupHref(id);
+    return getSysi().makeHref(id, Ace.whoTypeUser);
   }
 
   /** Object class passed around as we parse access.
@@ -924,7 +905,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       if ((href == null) || (href.length() == 0)) {
         throw new WebdavBadRequest("Missing href");
       }
-      info.pi = getPrincipalInfo(info.pi, href);
+      info.pi = getSysi().getPrincipalInfo(href);
       if (info.pi == null) {
         info.errorTag = WebdavTags.recognizedPrincipal;
         return false;
@@ -1063,96 +1044,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
   }
 
-  /** This class is the result of interpreting a principal url
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#getAclPrincipalInfo(edu.rpi.cct.webdav.servlet.shared.WebdavNsNode)
    */
-  public static class PrincipalInfo {
-    int whoType;   // from access.Ace user, group etc
-    String who;    // id of user group etc.
-    String prefix; // prefix of hierarchy e.g. /principals/users
-  }
-
-  private PrincipalInfo getPrincipalInfo(PrincipalInfo pi, String href)
-          throws WebdavException {
-    if (pi == null) {
-      pi = new PrincipalInfo();
-    }
-
-    try {
-      String uri = new URI(href).getPath();
-
-      /*
-      String[] segs = uri.split("/");
-
-      // First element should be empty, second = "users" or "groups"
-      // third is id.
-
-      if ((segs.length != 3) || (segs[0].length() != 0)) {
-        throw new WebdavBadRequest("0 or 3 elements expected");
-      }
-
-      if ("users".equals(segs[1])) {
-        pi.whoType = Ace.whoTypeUser;
-      } else if ("groups".equals(segs[1])) {
-        pi.whoType = Ace.whoTypeGroup;
-      } else {
-        throw new WebdavBadRequest("Bad WHO type - expect 'users|groups'");
-      }
-
-      if (segs[2].length() == 0) {
-        throw new WebdavBadRequest("Missing id");
-      }
-
-      pi.who = segs[2];
-      */
-      if (!uri.startsWith(getPrincipalPrefix())) {
-        return null;
-      }
-
-      int start;
-
-      int end = uri.length();
-      if (uri.endsWith("/")) {
-        end--;
-      }
-
-      String groupRoot = getSysi().getGroupPrincipalRoot();
-      String userRoot = getSysi().getUserPrincipalRoot();
-
-      if (uri.startsWith(userRoot)) {
-        start = userRoot.length();
-        pi.prefix = userRoot;
-        pi.whoType = Ace.whoTypeUser;
-      } else if (uri.startsWith(groupRoot)) {
-        start = groupRoot.length();
-        pi.prefix = groupRoot;
-        pi.whoType = Ace.whoTypeGroup;
-      } else {
-        throw new WebdavNotFound(uri);
-      }
-
-      if (start == end) {
-        // Trying to browse user principals?
-        pi.who = null;
-      } else if (uri.charAt(start) != '/') {
-        throw new WebdavNotFound(uri);
-      } else {
-        pi.who = uri.substring(start + 1, end);
-      }
-
-      if (debug) {
-        debugMsg("getPrincipalInfo \"" + pi.who +
-                 "\" group=" + (pi.whoType == Ace.whoTypeGroup) +
-                 " principalUri=\"" + uri + "\"");
-      }
-
-      return pi;
-    } catch (Throwable t) {
-      if (debug) {
-        error(t);
-      }
-      throw new WebdavBadRequest();
-    }
-  }
   public Collection<String> getAclPrincipalInfo(WebdavNsNode node) throws WebdavException {
     try {
       TreeSet<String> hrefs = new TreeSet<String>();
@@ -1229,14 +1123,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
   public boolean knownProperty(WebdavNsNode node,
                                WebdavProperty pr) {
     QName tag = pr.getTag();
-    String ns = tag.getNamespaceURI();
-
-    if (!ns.equals(CaldavDefs.caldavNamespace) &&
-        !ns.equals(CaldavDefs.icalNamespace) &&
-        !ns.equals(AppleServerTags.appleCaldavNamespace)) {
-      // Not ours
-      return super.knownProperty(node, pr);
-    }
 
     for (int i = 0; i < knownProperties.length; i++) {
       if (tag.equals(knownProperties[i])) {
@@ -1246,7 +1132,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
     /* Try the node for a value */
 
-    return node.knownProperty(tag);
+    return super.knownProperty(node, pr);
   }
 
   /* (non-Javadoc)
@@ -1548,67 +1434,17 @@ public class CaldavBWIntf extends WebdavNsIntf {
         return curi;
       }
 
-      boolean isPrincipal = uri.startsWith(getPrincipalPrefix());
+      boolean isPrincipal = sysi.isPrincipal(uri);
 
       if ((nodeType == WebdavNsIntf.nodeTypePrincipal) && !isPrincipal) {
         throw new WebdavNotFound(uri);
       }
 
       if (isPrincipal) {
-        PrincipalInfo pi = getPrincipalInfo(null, uri);
-
-        /*
-        boolean group;
-        int start;
-
-        int end = uri.length();
-        if (uri.endsWith("/")) {
-          end--;
-        }
-
-        String groupRoot = getSysi().getGroupPrincipalRoot();
-        String userRoot = getSysi().getUserPrincipalRoot();
-        String prefix;
-
-        if (uri.startsWith(userRoot)) {
-          start = userRoot.length();
-          prefix = userRoot;
-          group = false;
-        } else if (uri.startsWith(groupRoot)) {
-          start = groupRoot.length();
-          prefix = groupRoot;
-          group = true;
-        } else {
-          throw new WebdavNotFound(uri);
-        }
-
-        if (start == end) {
-          // Trying to browse user principals.
-          throw new WebdavForbidden();
-        }
-
-        if (uri.charAt(start) != '/') {
-          throw new WebdavNotFound(uri);
-        }
-
-        String account = uri.substring(start + 1, end);
-        if (debug) {
-          debugMsg("get uri for account \"" + account +
-                   "\" group=" + group +
-                   " principalUri=\"" + uri + "\"");
-        }
-        */
-
-        if (pi.whoType == Ace.whoTypeGroup) {
-          if (!sysi.validGroup(pi.who)) {
-            throw new WebdavNotFound(uri);
-          }
-        } else if (!sysi.validUser(pi.who)) {
-          throw new WebdavNotFound(uri);
-        }
+        PrincipalInfo pi = getSysi().getPrincipalInfo(uri);
 
         return new CaldavURI(/*sysi.userToCaladdr(pi.who)*/pi.who, pi.prefix,
-                             pi.whoType == Ace.whoTypeUser);
+                             pi.whoType != Ace.whoTypeGroup);
       }
 
       if (existance == WebdavNsIntf.existanceDoesExist) {

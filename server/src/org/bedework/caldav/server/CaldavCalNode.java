@@ -144,9 +144,9 @@ public class CaldavCalNode extends CaldavBwNode {
     collection = true;
     allowsGet = false;
 
-    if (!uri.endsWith("/")) {
-      uri += "/";
-    }
+//    if (!uri.endsWith("/")) {
+//      uri += "/";
+//    }
   }
 
   /**
@@ -446,16 +446,12 @@ public class CaldavCalNode extends CaldavBwNode {
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#knownProperty(edu.rpi.sss.util.xml.QName)
    */
   public boolean knownProperty(QName tag) {
-    String ns = tag.getNamespaceURI();
-
-    if (!ns.equals(CaldavDefs.caldavNamespace) &&
-        !ns.equals(CaldavDefs.icalNamespace) &&
-        !ns.equals(AppleServerTags.appleCaldavNamespace)) {
-      // Not ours
-      return super.knownProperty(tag);
+    if (propertyNames.get(tag) != null) {
+      return true;
     }
 
-    return propertyNames.get(tag) != null;
+    // Not ours
+    return super.knownProperty(tag);
   }
 
   /* (non-Javadoc)

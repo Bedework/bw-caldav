@@ -393,9 +393,15 @@ public class CaldavReportMethod extends ReportMethod {
                                    WebdavNsIntf.existanceMust,
                                    WebdavNsIntf.nodeTypeUnknown));
           } catch (WebdavException we) {
-            nodes.add((WebdavNsNode)new CaldavCalNode(intf.getSysi(),
-                                                      we.getStatusCode(),
-                                                      intf.getUri(hr), debug));
+            if (hr.endsWith("/")) {
+              nodes.add((WebdavNsNode)new CaldavCalNode(intf.getSysi(),
+                                                        we.getStatusCode(),
+                                                        intf.getUri(hr), debug));
+            } else {
+              nodes.add((WebdavNsNode)new CaldavComponentNode(intf.getSysi(),
+                                                              we.getStatusCode(),
+                                                              intf.getUri(hr), debug));
+            }
           }
         }
       }
@@ -409,10 +415,7 @@ public class CaldavReportMethod extends ReportMethod {
       node.setStatus(status);
       doNodeProperties(node);
     } else if (nodes != null) {
-      Iterator it = nodes.iterator();
-      while (it.hasNext()) {
-        WebdavNsNode curnode = (WebdavNsNode)it.next();
-
+      for (WebdavNsNode curnode: nodes) {
         doNodeProperties(curnode);
       }
     }

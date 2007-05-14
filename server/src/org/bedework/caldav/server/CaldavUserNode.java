@@ -176,14 +176,12 @@ public class CaldavUserNode extends CaldavPrincipalNode {
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#knownProperty(edu.rpi.sss.util.xml.QName)
    */
   public boolean knownProperty(QName tag) {
-    String ns = tag.getNamespaceURI();
-
-    if (!ns.equals(CaldavDefs.caldavNamespace)) {
-      // Not ours
-      return super.knownProperty(tag);
+    if (propertyNames.get(tag) != null) {
+      return true;
     }
 
-    return propertyNames.get(tag) != null;
+    // Not ours
+    return super.knownProperty(tag);
   }
 
   /* (non-Javadoc)
@@ -234,8 +232,8 @@ public class CaldavUserNode extends CaldavPrincipalNode {
         return true;
       }
 
-      // Not known
-      return false;
+      // Not known - try higher
+      return super.generatePropertyValue(tag, intf, allProp);
     } catch (Throwable t) {
       throw new WebdavException(t);
     }

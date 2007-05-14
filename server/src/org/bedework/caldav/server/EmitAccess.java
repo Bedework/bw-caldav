@@ -100,17 +100,12 @@ public class EmitAccess extends AccessXmlUtil {
       this.sysi = sysi;
     }
 
-    public String makeUserHref(String id) throws AccessException {
+    /* (non-Javadoc)
+     * @see edu.rpi.cmt.access.AccessXmlUtil.HrefBuilder#makeHref(java.lang.String, int)
+     */
+    public String makeHref(String id, int whoType) throws AccessException {
       try {
-        return sysi.makeUserHref(id);
-      } catch (Throwable t) {
-        throw new AccessException(t);
-      }
-    }
-
-    public String makeGroupHref(String id) throws AccessException {
-      try {
-        return sysi.makeGroupHref(id);
+        return sysi.makeHref(id, whoType);
       } catch (Throwable t) {
         throw new AccessException(t);
       }

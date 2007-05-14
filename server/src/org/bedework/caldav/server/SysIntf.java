@@ -1,31 +1,3 @@
-/*
- Copyright (c) 2000-2005 University of Washington.  All rights reserved.
-
- Redistribution and use of this distribution in source and binary forms,
- with or without modification, are permitted provided that:
-
-   The above copyright notice and this permission notice appear in
-   all copies and supporting documentation;
-
-   The name, identifiers, and trademarks of the University of Washington
-   are not used in advertising or publicity without the express prior
-   written permission of the University of Washington;
-
-   Recipients acknowledge that this distribution is made available as a
-   research courtesy, "as is", potentially with defects, without
-   any obligation on the part of the University of Washington to
-   provide support, services, or repair;
-
-   THE UNIVERSITY OF WASHINGTON DISCLAIMS ALL WARRANTIES, EXPRESS OR
-   IMPLIED, WITH REGARD TO THIS SOFTWARE, INCLUDING WITHOUT LIMITATION
-   ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
-   PARTICULAR PURPOSE, AND IN NO EVENT SHALL THE UNIVERSITY OF
-   WASHINGTON BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL
-   DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
-   PROFITS, WHETHER IN AN ACTION OF CONTRACT, TORT (INCLUDING
-   NEGLIGENCE) OR STRICT LIABILITY, ARISING OUT OF OR IN CONNECTION WITH
-   THE USE OR PERFORMANCE OF THIS SOFTWARE.
- */
 /* **********************************************************************
     Copyright 2005 Rensselaer Polytechnic Institute. All worldwide rights reserved.
 
@@ -71,6 +43,7 @@ import org.bedework.icalendar.Icalendar;
 import edu.rpi.cct.webdav.servlet.shared.PrincipalPropertySearch;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cmt.access.Ace;
+import edu.rpi.cmt.access.PrincipalInfo;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
 
 import net.fortuna.ical4j.model.Calendar;
@@ -111,40 +84,46 @@ public interface SysIntf {
    */
   public String getUrlPrefix();
 
-  /** get the principal root e.g. "/principals"
+  /** Does the value appear to represent a valid principal?
    *
-   * @return String
-   * @throws WebdavException  for errors
+   * @param val
+   * @return true if it's a (possible) principal
+   * @throws WebdavException
    */
-  public String getPrincipalRoot() throws WebdavException;
+  public boolean isPrincipal(String val) throws WebdavException;
 
-  /** get the principal root e.g. "/principals/users"
+  /** Return principal information for the given href. Also tests for a valid
+   * principal.
    *
-   * @return String
-   * @throws WebdavException  for errors
-   */
-  public String getUserPrincipalRoot() throws WebdavException;
-
-  /** get the group principal root e.g. "/principals/groups"
    *
-   * @return String
-   * @throws WebdavException  for errors
+   * @param href
+   * @return PrincipalInfo
+   * @throws WebdavException
    */
-  public String getGroupPrincipalRoot() throws WebdavException;
+  public PrincipalInfo getPrincipalInfo(String href) throws WebdavException;
 
   /**
    * @param id
+   * @param whoType - from WhoDefs
    * @return String href
    * @throws WebdavException
    */
-  public String makeUserHref(String id) throws WebdavException;
+  public String makeHref(String id, int whoType) throws WebdavException;
 
-  /**
-   * @param id
-   * @return String href
+  /** The urls should be principal urls. principalUrl can null for the current user.
+   * The result is a collection of principal urls of which the given url is a
+   * member, based upon rootUrl. For example, if rootUrl points to the base of
+   * the user principal hierarchy, then the rsult should be at least the current
+   * user's principal url, remembering that user principals are themselves groups
+   * and the user is considered a member of their own group.
+   *
+   * @param rootUrl - url to base search on.
+   * @param principalUrl - url of principal or null for current user
+   * @return Collection of urls - always non-null
    * @throws WebdavException
    */
-  public String makeGroupHref(String id) throws WebdavException;
+  public Collection<String>getGroups(String rootUrl,
+                                     String principalUrl) throws WebdavException;
 
   /** Do we allow browsing of directories?
    *
@@ -180,9 +159,15 @@ public interface SysIntf {
    * @author Mike Douglass
    */
   public static class CalUserInfo implements Serializable {
-    /** account as returned by caladdrToUer
+    /** account as returned by caladdrToUser
+     *
+     * Currently tail end of principal path
      */
     public String account;
+
+    /** principal path prefix
+     */
+    public String principalPathPrefix;
 
     /** Path to user home
      */
@@ -206,16 +191,19 @@ public interface SysIntf {
 
     /**
      * @param account
+     * @param principalPathPrefix
      * @param userHomePath
      * @param defaultCalendarPath
      * @param inboxPath
      * @param outboxPath
      * @param directoryInfo
      */
-    public CalUserInfo(String account, String userHomePath,
+    public CalUserInfo(String account, String principalPathPrefix,
+                       String userHomePath,
                        String defaultCalendarPath, String inboxPath,
                        String outboxPath, BwUserInfo directoryInfo) {
       this.account = account;
+      this.principalPathPrefix = principalPathPrefix;
       this.userHomePath = userHomePath;
       this.defaultCalendarPath = defaultCalendarPath;
       this.inboxPath = inboxPath;

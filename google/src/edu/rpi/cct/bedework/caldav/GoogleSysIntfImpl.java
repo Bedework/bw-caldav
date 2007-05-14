@@ -75,6 +75,9 @@ import edu.rpi.cct.webdav.servlet.common.WebdavUtils;
 import edu.rpi.cct.webdav.servlet.shared.PrincipalPropertySearch;
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
+import edu.rpi.cct.webdav.servlet.shared.WebdavNotFound;
+import edu.rpi.cmt.access.Ace;
+import edu.rpi.cmt.access.PrincipalInfo;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
 
 import net.fortuna.ical4j.model.Calendar;
@@ -93,8 +96,11 @@ import com.google.gdata.data.extensions.EventEntry.EventStatus;
 import com.google.gdata.data.extensions.EventEntry.Transparency;
 
 import java.io.Reader;
+import java.net.URI;
 import java.net.URL;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 
 import javax.servlet.http.HttpServletRequest;
@@ -118,6 +124,18 @@ public class GoogleSysIntfImpl implements SysIntf {
 
   private String urlPrefix;
 
+  private static HashMap<String, Integer> toWho = new HashMap<String, Integer>();
+  private static HashMap<Integer, String> fromWho = new HashMap<Integer, String>();
+
+  static {
+    initWhoMaps("/principals/users", Ace.whoTypeUser);
+    initWhoMaps("/principals/groups", Ace.whoTypeGroup);
+    initWhoMaps("/principals/tickets", Ace.whoTypeTicket);
+    initWhoMaps("/principals/resources", Ace.whoTypeResource);
+    initWhoMaps("/principals/venues", Ace.whoTypeVenue);
+    initWhoMaps("/principals/hosts", Ace.whoTypeHost);
+  }
+
   public void init(HttpServletRequest req,
                    String envPrefix,
                    String account,
@@ -135,38 +153,81 @@ public class GoogleSysIntfImpl implements SysIntf {
   }
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#getPrincipalRoot()
+   * @see org.bedework.caldav.server.SysIntf#isPrincipal(java.lang.String)
    */
-  public String getPrincipalRoot() {
-    return "/principals";
+  public boolean isPrincipal(String val) throws WebdavException {
+    return val.startsWith("/principals");
   }
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#getUserPrincipalRoot()
+   * @see org.bedework.caldav.server.SysIntf#getPrincipalInfo(java.lang.String)
    */
-  public String getUserPrincipalRoot() {
-    return "/principals/users";
+  public PrincipalInfo getPrincipalInfo(String href) throws WebdavException {
+    PrincipalInfo pi = new PrincipalInfo();
+
+    try {
+      String uri = new URI(href).getPath();
+
+      if (!isPrincipal(uri)) {
+        return null;
+      }
+
+      int start;
+
+      int end = uri.length();
+      if (uri.endsWith("/")) {
+        end--;
+      }
+
+      String groupRoot = "/principals/groups";
+      String userRoot = "/principals/users";
+
+      if (uri.startsWith(userRoot)) {
+        start = userRoot.length();
+        pi.prefix = userRoot;
+        pi.whoType = Ace.whoTypeUser;
+      } else if (uri.startsWith(groupRoot)) {
+        start = groupRoot.length();
+        pi.prefix = groupRoot;
+        pi.whoType = Ace.whoTypeGroup;
+      } else {
+        throw new WebdavNotFound(uri);
+      }
+
+      if (start == end) {
+        // Trying to browse user principals?
+        pi.who = null;
+      } else if (uri.charAt(start) != '/') {
+        throw new WebdavNotFound(uri);
+      } else {
+        pi.who = uri.substring(start + 1, end);
+      }
+
+      return pi;
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
   }
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#getGroupPrincipalRoot()
+   * @see org.bedework.caldav.server.SysIntf#makeHref(java.lang.String, boolean)
    */
-  public String getGroupPrincipalRoot() {
-    return "/principals/groups";
+  public String makeHref(String id, int whoType) throws WebdavException {
+    String root = fromWho.get(whoType);
+
+    if (root == null) {
+      throw new WebdavException("unknown who type " + whoType);
+    }
+
+    return root + "/" + id;
   }
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#makeUserHref(java.lang.String)
+   * @see org.bedework.caldav.server.SysIntf#getGroups(java.lang.String, java.lang.String)
    */
-  public String makeUserHref(String id) throws WebdavException {
-    return getUrlPrefix() + "/" + getUserPrincipalRoot() + "/" + id;
-  }
-
-  /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#makeGroupHref(java.lang.String)
-   */
-  public String makeGroupHref(String id) throws WebdavException {
-    return getUrlPrefix() + "/" + getGroupPrincipalRoot() + "/" + id;
+  public Collection<String>getGroups(String rootUrl,
+                                     String principalUrl) throws WebdavException {
+    return Collections.emptySet();
   }
 
   public boolean getDirectoryBrowsingDisallowed() throws WebdavException {
@@ -189,7 +250,7 @@ public class GoogleSysIntfImpl implements SysIntf {
    */
   public CalUserInfo getCalUserInfo(String account,
                                     boolean getDirInfo) throws WebdavException {
-    return new CalUserInfo(account, null, null, null, null, null);
+    return new CalUserInfo(account, "/principals/users", null, null, null, null, null);
   }
 
   public Collection<String> getPrincipalCollectionSet(String resourceUri)
@@ -528,6 +589,11 @@ public class GoogleSysIntfImpl implements SysIntf {
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
+  }
+
+  private static void initWhoMaps(String prefix, int whoType) {
+    toWho.put(prefix, whoType);
+    fromWho.put(whoType, prefix);
   }
 
   /* ====================================================================

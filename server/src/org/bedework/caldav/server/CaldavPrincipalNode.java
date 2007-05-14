@@ -58,12 +58,16 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
 import edu.rpi.sss.util.xml.QName;
+import edu.rpi.sss.util.xml.XmlEmit;
 
 import org.bedework.calfacade.BwCalendar;
 import org.bedework.davdefs.CaldavDefs;
+import org.bedework.davdefs.WebdavTags;
+
 import org.w3c.dom.Element;
 
 import java.util.Collection;
+import java.util.HashMap;
 
 /** Class to represent a principal in caldav.
  *
@@ -72,6 +76,14 @@ import java.util.Collection;
  */
 public class CaldavPrincipalNode extends CaldavBwNode {
   private String displayName;
+
+  private final static HashMap<QName, PropertyTagEntry> propertyNames =
+    new HashMap<QName, PropertyTagEntry>();
+
+  static {
+    addPropEntry(propertyNames, WebdavTags.groupMemberSet);
+    addPropEntry(propertyNames, WebdavTags.groupMembership);
+  }
 
   /**
    * @param cdURI
@@ -83,6 +95,9 @@ public class CaldavPrincipalNode extends CaldavBwNode {
                              boolean debug) throws WebdavException {
     super(cdURI, sysi, debug);
     displayName = cdURI.getEntityName();
+//    if (displayName.startsWith("/")) {
+//      debugMsg(displayName);
+//    }
   }
 
   /**
@@ -201,20 +216,45 @@ public class CaldavPrincipalNode extends CaldavBwNode {
   }
 
   /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#knownProperty(edu.rpi.sss.util.xml.QName)
+   */
+  public boolean knownProperty(QName tag) {
+    if (propertyNames.get(tag) != null) {
+      return true;
+    }
+
+    // Not ours
+    return super.knownProperty(tag);
+  }
+
+  /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#generatePropertyValue(edu.rpi.sss.util.xml.QName, edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf, boolean)
    */
   public boolean generatePropertyValue(QName tag,
                                        WebdavNsIntf intf,
                                        boolean allProp) throws WebdavException {
     String ns = tag.getNamespaceURI();
+    XmlEmit xml = intf.getXmlEmit();
 
     /* Deal with webdav properties */
-    if (!ns.equals(CaldavDefs.caldavNamespace)) {
+    if (!ns.equals(WebdavTags.namespace)) {
       // Not ours
       return super.generatePropertyValue(tag, intf, allProp);
     }
 
     try {
+      if (tag.equals(WebdavTags.groupMemberSet)) {
+        // PROPTODO
+        xml.emptyTag(tag);
+        return true;
+      }
+
+      if (tag.equals(WebdavTags.groupMembership)) {
+        // PROPTODO
+        xml.emptyTag(tag);
+        return true;
+      }
+
       // Not known - try higher
       return super.generatePropertyValue(tag, intf, allProp);
     } catch (Throwable t) {

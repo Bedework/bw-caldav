@@ -62,9 +62,11 @@ import edu.rpi.cct.webdav.servlet.shared.PrincipalPropertySearch;
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavForbidden;
+import edu.rpi.cct.webdav.servlet.shared.WebdavNotFound;
 import edu.rpi.cct.webdav.servlet.shared.WebdavProperty;
 import edu.rpi.cct.webdav.servlet.shared.WebdavUnauthorized;
 import edu.rpi.cmt.access.Ace;
+import edu.rpi.cmt.access.PrincipalInfo;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
 import edu.rpi.sss.util.xml.XmlUtil;
 
@@ -96,10 +98,6 @@ public class BwSysIntfImpl implements SysIntf {
 
   private String account;
 
-  //private String principalCollectionSetUri;
-  private String userPrincipalCollectionSetUri;
-  private String groupPrincipalCollectionSetUri;
-
   /* These two set after a call to getSvci()
    */
   private IcalTranslator trans;
@@ -129,18 +127,6 @@ public class BwSysIntfImpl implements SysIntf {
 
       sb.append(req.getContextPath());
 
-      String hostPortContext;
-
-      hostPortContext = sb.toString();
-
-      //BwSystem sys = getSvci().getSyspars();
-      //String userRootPath = sys.getUserCalendarRoot();
-
-      //principalCollectionSetUri = "/" + userRootPath + "/";
-      userPrincipalCollectionSetUri = hostPortContext + getUserPrincipalRoot() +
-                                      "/";
-      groupPrincipalCollectionSetUri = hostPortContext + getGroupPrincipalRoot() +
-                                       "/";
       urlPrefix = WebdavUtils.getUrlPrefix(req);
     } catch (Throwable t) {
       throw new WebdavException(t);
@@ -152,72 +138,51 @@ public class BwSysIntfImpl implements SysIntf {
   }
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#getPrincipalRoot()
+   * @see org.bedework.caldav.server.SysIntf#isPrincipal(java.lang.String)
    */
-  public String getPrincipalRoot() throws WebdavException {
+  public boolean isPrincipal(String val) throws WebdavException {
     try {
-      return getSvci().getSyspars().getPrincipalRoot();
+      return getSvci().isPrincipal(val);
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
   }
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#getUserPrincipalRoot()
+   * @see org.bedework.caldav.server.SysIntf#getPrincipalInfo(java.lang.String)
    */
-  public String getUserPrincipalRoot() throws WebdavException {
+  public PrincipalInfo getPrincipalInfo(String href) throws WebdavException {
     try {
-      return getSvci().getSyspars().getUserPrincipalRoot();
+      return getSvci().getDirectories().getPrincipalInfo(href);
+    } catch (CalFacadeException cfe) {
+      if (cfe.getMessage().equals(CalFacadeException.principalNotFound)) {
+        throw new WebdavNotFound(href);
+      }
+      throw new WebdavException(cfe);
+    }
+  }
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#makeHref(java.lang.String, boolean)
+   */
+  public String makeHref(String id, int whoType) throws WebdavException {
+    try {
+      return getUrlPrefix() + getSvci().getDirectories().makePrincipalUri(id, whoType);
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
   }
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#getGroupPrincipalRoot()
+   * @see org.bedework.caldav.server.SysIntf#getGroups(java.lang.String, java.lang.String)
    */
-  public String getGroupPrincipalRoot() throws WebdavException {
+  public Collection<String>getGroups(String rootUrl,
+                                     String principalUrl) throws WebdavException {
     try {
-      return getSvci().getSyspars().getGroupPrincipalRoot();
+      return getSvci().getDirectories().getGroups(rootUrl, principalUrl);
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
-  }
-
-  /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#makeUserHref(java.lang.String)
-   */
-  public String makeUserHref(String id) throws WebdavException {
-    StringBuffer sb = new StringBuffer(getUrlPrefix());
-
-    String root = getUserPrincipalRoot();
-    if (!root.startsWith("/")) {
-      sb.append("/");
-    }
-
-    sb.append(root);
-    sb.append("/");
-    sb.append(id);
-
-    return sb.toString();
-  }
-
-  /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#makeGroupHref(java.lang.String)
-   */
-  public String makeGroupHref(String id) throws WebdavException {
-    StringBuffer sb = new StringBuffer(getUrlPrefix());
-
-    String root = getGroupPrincipalRoot();
-    if (!root.startsWith("/")) {
-      sb.append("/");
-    }
-
-    sb.append(root);
-    sb.append("/");
-    sb.append(id);
-
-    return sb.toString();
   }
 
   public boolean getDirectoryBrowsingDisallowed() throws WebdavException {
@@ -233,7 +198,7 @@ public class BwSysIntfImpl implements SysIntf {
    */
   public String caladdrToUser(String caladdr) throws WebdavException {
     try {
-      return getSvci().caladdrToUser(caladdr);
+      return getSvci().getDirectories().caladdrToUser(caladdr);
     } catch (CalFacadeException cfe) {
       throw new WebdavException(cfe);
     } catch (Throwable t) {
@@ -246,7 +211,7 @@ public class BwSysIntfImpl implements SysIntf {
    */
   public String userToCaladdr(String account) throws WebdavException {
     try {
-      return getSvci().userToCaladdr(account);
+      return getSvci().getDirectories().userToCaladdr(account);
     } catch (CalFacadeException cfe) {
       throw new WebdavException(cfe);
     } catch (Throwable t) {
@@ -277,7 +242,12 @@ public class BwSysIntfImpl implements SysIntf {
         dirInfo = getSvci().getDirInfo(account);
       }
 
+      // XXX Cheat at this - we should just use principals throughout.
+      String principalUri = getSvci().getDirectories().makePrincipalUri(account,
+                                                                        Ace.whoTypeUser);
+      String prefix = principalUri.substring(0, principalUri.length() - account.length());
       return new CalUserInfo(account,
+                             prefix,
                              userHomePath,
                              defaultCalendarPath,
                              inboxPath,
@@ -295,8 +265,7 @@ public class BwSysIntfImpl implements SysIntf {
     try {
       ArrayList<String> al = new ArrayList<String>();
 
-      al.add(userPrincipalCollectionSetUri);
-      al.add(groupPrincipalCollectionSetUri);
+      al.add(getSvci().getDirectories().getPrincipalRoot());
 
       return al;
     } catch (Throwable t) {
@@ -319,8 +288,12 @@ public class BwSysIntfImpl implements SysIntf {
       resourceUri += "/";
     }
 
-    if (!resourceUri.equals(userPrincipalCollectionSetUri)) {
-      return principals;
+    try {
+      if (!resourceUri.equals(getSvci().getDirectories().getPrincipalRoot())) {
+        return principals;
+      }
+    } catch (Throwable t) {
+      throw new WebdavException(t);
     }
 
     /* If we don't support any of the properties in the searches we don't match

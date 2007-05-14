@@ -171,6 +171,19 @@ public class CaldavComponentNode extends CaldavBwNode {
     //addPropEntry(propertyNames, ICalTags.version);     /*     *     *     *        *            *          CALENDAR*/
   }
 
+  /** Place holder for status
+   *
+   * @param sysi
+   * @param status
+   * @param uri
+   * @param debug
+   */
+  public CaldavComponentNode(SysIntf sysi, int status, String uri, boolean debug) {
+    super(true, sysi, debug);
+    setStatus(status);
+    this.uri = uri;
+  }
+
   /** Constructor
    *
    * @param cdURI
@@ -312,15 +325,12 @@ public class CaldavComponentNode extends CaldavBwNode {
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#knownProperty(edu.rpi.sss.util.xml.QName)
    */
   public boolean knownProperty(QName tag) {
-    String ns = tag.getNamespaceURI();
-
-    if ((!ns.equals(CaldavDefs.caldavNamespace) &&
-        !ns.equals(CaldavDefs.icalNamespace))) {
-      // Not ours
-      return super.knownProperty(tag);
+    if (propertyNames.get(tag) != null) {
+      return true;
     }
 
-    return propertyNames.get(tag) != null;
+    // Not ours
+    return super.knownProperty(tag);
   }
 
  /* (non-Javadoc)
