@@ -61,7 +61,6 @@ import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.RecurringRetrievalMode.Rmode;
 import org.bedework.calfacade.util.CalFacadeUtil;
 import org.bedework.davdefs.AppleServerTags;
-import org.bedework.davdefs.CaldavDefs;
 import org.bedework.davdefs.CaldavTags;
 import org.bedework.davdefs.WebdavTags;
 import org.bedework.icalendar.IcalTranslator;
@@ -460,7 +459,6 @@ public class CaldavCalNode extends CaldavBwNode {
   public boolean generatePropertyValue(QName tag,
                                        WebdavNsIntf intf,
                                        boolean allProp) throws WebdavException {
-    String ns = tag.getNamespaceURI();
     XmlEmit xml = intf.getXmlEmit();
 
     try {
@@ -491,13 +489,6 @@ public class CaldavCalNode extends CaldavBwNode {
         xml.property(tag, cal.getLastmod() + cal.getSequence());
 
         return true;
-      }
-
-      /* Deal with webdav properties */
-      if ((!ns.equals(CaldavDefs.caldavNamespace) &&
-          !ns.equals(CaldavDefs.icalNamespace))) {
-        // Not ours
-        return super.generatePropertyValue(tag, intf, allProp);
       }
 
       if (tag.equals(CaldavTags.calendarDescription)) {
@@ -546,7 +537,8 @@ public class CaldavCalNode extends CaldavBwNode {
         return true;
       }
 
-      return false;
+      // Not known - try higher
+      return super.generatePropertyValue(tag, intf, allProp);
     } catch (WebdavException wde) {
       throw wde;
     } catch (Throwable t) {

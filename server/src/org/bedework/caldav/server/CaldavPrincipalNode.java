@@ -61,7 +61,6 @@ import edu.rpi.sss.util.xml.QName;
 import edu.rpi.sss.util.xml.XmlEmit;
 
 import org.bedework.calfacade.BwCalendar;
-import org.bedework.davdefs.CaldavDefs;
 import org.bedework.davdefs.WebdavTags;
 
 import org.w3c.dom.Element;

@@ -61,7 +61,6 @@ import org.bedework.calfacade.BwUser;
 import org.bedework.calfacade.svc.EventInfo;
 import org.bedework.calfacade.util.CalFacadeUtil;
 
-import org.bedework.davdefs.CaldavDefs;
 import org.bedework.davdefs.CaldavTags;
 import org.bedework.davdefs.WebdavTags;
 import org.bedework.icalendar.ComponentWrapper;

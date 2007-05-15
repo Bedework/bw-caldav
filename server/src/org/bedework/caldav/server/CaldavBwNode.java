@@ -29,11 +29,14 @@ import org.bedework.calfacade.BwCalendar;
 import org.bedework.davdefs.CaldavTags;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
+import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
 import edu.rpi.sss.util.xml.QName;
+import edu.rpi.sss.util.xml.XmlEmit;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 
 /** Class to represent a caldav node.
  *
@@ -42,9 +45,14 @@ import java.util.Collection;
 public abstract class CaldavBwNode extends WebdavNsNode {
 //  protected CaldavURI cdURI;
 
+  private final static HashMap<QName, PropertyTagEntry> propertyNames =
+    new HashMap<QName, PropertyTagEntry>();
+
   private final static Collection<QName> supportedReports = new ArrayList<QName>();
 
   static {
+    addPropEntry(propertyNames, CaldavTags.calendarUserAddressSet);
+
     supportedReports.add(CaldavTags.calendarMultiget); // Calendar access
     supportedReports.add(CaldavTags.calendarQuery);    // Calendar access
   }
@@ -122,6 +130,45 @@ public abstract class CaldavBwNode extends WebdavNsNode {
   /* ====================================================================
    *                   Required webdav properties
    * ==================================================================== */
+
+  /* ====================================================================
+   *                   Property methods
+   * ==================================================================== */
+
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#knownProperty(edu.rpi.sss.util.xml.QName)
+   */
+  public boolean knownProperty(QName tag) {
+    if (propertyNames.get(tag) != null) {
+      return true;
+    }
+
+    // Not ours
+    return super.knownProperty(tag);
+  }
+
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#generatePropertyValue(edu.rpi.sss.util.xml.QName, edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf, boolean)
+   */
+  public boolean generatePropertyValue(QName tag,
+                                       WebdavNsIntf intf,
+                                       boolean allProp) throws WebdavException {
+    XmlEmit xml = intf.getXmlEmit();
+
+    try {
+      if (tag.equals(CaldavTags.calendarUserAddressSet)) {
+        xml.property(tag, sysi.userToCaladdr(getOwner()));
+        return true;
+      }
+
+      // Not known - try higher
+      return super.generatePropertyValue(tag, intf, allProp);
+    } catch (WebdavException wde) {
+      throw wde;
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
+  }
 
   /* ====================================================================
    *                   Object methods

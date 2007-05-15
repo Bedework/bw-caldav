@@ -270,16 +270,13 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
   }
 
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#getNode(java.lang.String, int, int)
+   */
   public WebdavNsNode getNode(String uri,
                               int existance,
                               int nodeType) throws WebdavException {
     return getNodeInt(uri, existance, nodeType, true, null, null);
-  }
-
-  public WebdavNsNode getNodeEncoded(String uri,
-                                     int existance,
-                                     int nodeType) throws WebdavException {
-    return getNodeInt(uri, existance, nodeType, false, null, null);
   }
 
   private WebdavNsNode getNodeInt(String uri,
@@ -408,24 +405,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
           throw new WebdavException("Unexpected return type");
         }
 
-        CaldavURI wi = findURI(uri + "/" + name,
+        al.add(getNodeInt(uri + "/" + name,
                                WebdavNsIntf.existanceDoesExist,
-                               nodeType, true, cal, ei);
-
-        if (wi.isCollection()) {
-          if (debug) {
-            debugMsg("Add child as calendar");
-          }
-
-          al.add(new CaldavCalNode(wi, sysi, debug));
-        } else {
-          if (debug) {
-            debugMsg("Add child as component");
-          }
-
-          CaldavComponentNode cnode = new CaldavComponentNode(wi, sysi, debug);
-          al.add(cnode);
-        }
+                               nodeType, true, cal, ei));
       }
 
       return al;
