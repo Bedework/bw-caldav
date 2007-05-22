@@ -60,6 +60,7 @@ import org.bedework.calfacade.BwFreeBusy;
 import org.bedework.calfacade.BwOrganizer;
 import org.bedework.calfacade.ScheduleResult;
 import org.bedework.calfacade.ScheduleResult.ScheduleRecipientResult;
+import org.bedework.calfacade.exc.CalFacadeException;
 import org.bedework.davdefs.CaldavTags;
 import org.bedework.icalendar.IcalTranslator;
 import org.bedework.icalendar.Icalendar;
@@ -416,40 +417,31 @@ public class PostMethod extends MethodBase {
   }
 
   private boolean checkStatus(ScheduleResult sr) throws WebdavException {
-    // XXX Needs to set a response on failure
-    if (sr.badMethod) {
-      if (debug) {
-        debugMsg("ScheduleResult: badMethod");
-      }
+    if (sr.errorCode == null) {
+      return true;
+    }
 
+    if (debug) {
+      debugMsg("ScheduleResult: " + sr);
+    }
+
+    if (sr.errorCode == CalFacadeException.schedulingBadMethod) {
       throw new WebdavForbidden(CaldavTags.validCalendarData, "Bad METHOD");
     }
 
-    if (sr.badAttendees) {
-      if (debug) {
-        debugMsg("ScheduleResult: badAttendees");
-      }
-
+    if (sr.errorCode == CalFacadeException.schedulingBadAttendees) {
       throw new WebdavForbidden(CaldavTags.attendeeAllowed, "Bad attendees");
     }
 
-    if (sr.attendeeAccessDisallowed) {
-      if (debug) {
-        debugMsg("ScheduleResult: attendeeAccessDisallowed");
-      }
-
+    if (sr.errorCode == CalFacadeException.schedulingAttendeeAccessDisallowed) {
       throw new WebdavForbidden(CaldavTags.attendeeAllowed, "attendeeAccessDisallowed");
     }
 
-    if (sr.noRecipients) {
-      if (debug) {
-        debugMsg("ScheduleResult: noRecipients");
-      }
-
+    if (sr.errorCode == CalFacadeException.schedulingNoRecipients) {
       return false;
     }
 
-    return true;
+    throw new WebdavForbidden(sr.errorCode);
   }
 
   private void setReqstat(int status) throws WebdavException {
