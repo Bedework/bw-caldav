@@ -142,7 +142,7 @@ public class BwSysIntfImpl implements SysIntf {
    */
   public boolean isPrincipal(String val) throws WebdavException {
     try {
-      return getSvci().isPrincipal(val);
+      return getSvci().getDirectories().isPrincipal(val);
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
@@ -353,10 +353,10 @@ public class BwSysIntfImpl implements SysIntf {
     try {
       event.setOwner(svci.findUser(account, false));
       if (Icalendar.itipReplyMethodType(event.getScheduleMethod())) {
-        return getSvci().scheduleResponse(event);
+        return getSvci().getScheduler().scheduleResponse(event);
       }
 
-      return getSvci().schedule(event);
+      return getSvci().getScheduler().schedule(event);
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
@@ -457,10 +457,10 @@ public class BwSysIntfImpl implements SysIntf {
     try {
       val.setOwner(svci.findUser(account, false));
       if (Icalendar.itipReplyMethodType(val.getScheduleMethod())) {
-        return getSvci().scheduleResponse(val);
+        return getSvci().getScheduler().scheduleResponse(val);
       }
 
-      return getSvci().schedule(val);
+      return getSvci().getScheduler().schedule(val);
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
