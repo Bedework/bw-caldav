@@ -53,7 +53,9 @@
 */
 package edu.rpi.cct.bedework.caldav;
 
+import org.bedework.caldav.server.PropertyHandler;
 import org.bedework.caldav.server.SysIntf;
+import org.bedework.caldav.server.PropertyHandler.PropertyType;
 import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwDateTime;
 import org.bedework.calfacade.BwEvent;
@@ -80,9 +82,11 @@ import edu.rpi.cct.webdav.servlet.shared.PrincipalPropertySearch;
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNotFound;
+import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode.PropertyTagEntry;
 import edu.rpi.cmt.access.Ace;
 import edu.rpi.cmt.access.PrincipalInfo;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
+import edu.rpi.sss.util.xml.QName;
 
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.TimeZone;
@@ -101,6 +105,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -227,6 +232,25 @@ public class BexchangeSysIntfImpl implements SysIntf {
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
+  }
+
+  private static class MyPropertyHandler extends PropertyHandler {
+    private final static HashMap<QName, PropertyTagEntry> propertyNames =
+      new HashMap<QName, PropertyTagEntry>();
+
+    public Map<QName, PropertyTagEntry> getPropertyNames() {
+      return propertyNames;
+    }
+  }
+
+  /** Get a property handler
+   *
+   * @param ptype
+   * @return PropertyHandler
+   * @throws WebdavException
+   */
+  public PropertyHandler getPropertyHandler(PropertyType ptype) throws WebdavException {
+    return new MyPropertyHandler();
   }
 
   public String getUrlPrefix() {

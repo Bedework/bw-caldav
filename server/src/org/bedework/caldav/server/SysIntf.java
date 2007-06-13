@@ -25,6 +25,7 @@
 */
 package org.bedework.caldav.server;
 
+import org.bedework.caldav.server.PropertyHandler.PropertyType;
 import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwDateTime;
 import org.bedework.calfacade.BwEvent;
@@ -78,6 +79,14 @@ public interface SysIntf {
                    String envPrefix,
                    String account,
                    boolean debug) throws WebdavException;
+
+  /** Get a property handler
+   *
+   * @param ptype
+   * @return PropertyHandler
+   * @throws WebdavException
+   */
+  public PropertyHandler getPropertyHandler(PropertyType ptype) throws WebdavException;
 
   /**
    * @return String url prefix derived from request.
