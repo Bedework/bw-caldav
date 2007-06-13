@@ -62,6 +62,7 @@ import org.bedework.calfacade.ScheduleResult;
 import org.bedework.calfacade.ScheduleResult.ScheduleRecipientResult;
 import org.bedework.calfacade.exc.CalFacadeException;
 import org.bedework.davdefs.CaldavTags;
+import org.bedework.davdefs.WebdavTags;
 import org.bedework.icalendar.IcalTranslator;
 import org.bedework.icalendar.Icalendar;
 
@@ -450,6 +451,7 @@ public class PostMethod extends MethodBase {
     if (status == ScheduleRecipientResult.scheduleDeferred) {
       reqstat = BwEvent.requestStatusDeferred;
     } else if (status == ScheduleRecipientResult.scheduleNoAccess) {
+      propertyTagVal(WebdavTags.error, CaldavTags.recipientPermissions);
       reqstat = BwEvent.requestStatusNoAccess;
     } else {
       reqstat = BwEvent.requestStatusOK;

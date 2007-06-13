@@ -512,8 +512,7 @@ public class BwSysIntfImpl implements SysIntf {
         cal = null;
       }
 
-      return getSvci().getFreeBusy(null, cal, user, start, end,
-                                   null, false);
+      return getSvci().getScheduler().getFreeBusy(cal, user, start, end);
     } catch (CalFacadeException cfe) {
       throw new WebdavException(cfe);
     } catch (WebdavException wde) {
