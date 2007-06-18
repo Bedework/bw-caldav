@@ -43,7 +43,7 @@ import org.bedework.icalendar.Icalendar;
 
 import edu.rpi.cct.webdav.servlet.shared.PrincipalPropertySearch;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
-import edu.rpi.cmt.access.Ace;
+import edu.rpi.cmt.access.Acl;
 import edu.rpi.cmt.access.PrincipalInfo;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
 
@@ -413,19 +413,19 @@ public interface SysIntf {
 
   /**
    * @param cal
-   * @param aces
+   * @param acl
    * @throws WebdavException
    */
   public void updateAccess(BwCalendar cal,
-                           Collection<Ace> aces) throws WebdavException;
+                           Acl acl) throws WebdavException;
 
   /**
    * @param ev
-   * @param aces
+   * @param acl
    * @throws WebdavException
    */
   public void updateAccess(BwEvent ev,
-                           Collection<Ace> aces) throws WebdavException;
+                           Acl acl) throws WebdavException;
 
   /**
    * @param name

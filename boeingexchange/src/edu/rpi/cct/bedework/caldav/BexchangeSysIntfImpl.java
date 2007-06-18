@@ -84,6 +84,7 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNotFound;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode.PropertyTagEntry;
 import edu.rpi.cmt.access.Ace;
+import edu.rpi.cmt.access.Acl;
 import edu.rpi.cmt.access.PrincipalInfo;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
 import edu.rpi.sss.util.xml.QName;
@@ -522,12 +523,12 @@ public class BexchangeSysIntfImpl implements SysIntf {
   }
 
   public void updateAccess(BwCalendar cal,
-                           Collection aces) throws WebdavException {
+                           Acl acl) throws WebdavException {
     throw new WebdavException("unimplemented");
   }
 
   public void updateAccess(BwEvent ev,
-                           Collection aces) throws WebdavException{
+                           Acl acl) throws WebdavException{
     throw new WebdavException("unimplemented");
   }
 

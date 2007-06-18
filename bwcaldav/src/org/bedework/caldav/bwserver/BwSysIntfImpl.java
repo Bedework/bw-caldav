@@ -67,6 +67,7 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavProperty;
 import edu.rpi.cct.webdav.servlet.shared.WebdavUnauthorized;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode.PropertyTagEntry;
 import edu.rpi.cmt.access.Ace;
+import edu.rpi.cmt.access.Acl;
 import edu.rpi.cmt.access.PrincipalInfo;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
 import edu.rpi.sss.util.xml.QName;
@@ -541,9 +542,9 @@ public class BwSysIntfImpl implements SysIntf {
   }
 
   public void updateAccess(BwCalendar cal,
-                           Collection<Ace> aces) throws WebdavException {
+                           Acl acl) throws WebdavException {
     try {
-      getSvci().changeAccess(cal, aces, true);
+      getSvci().changeAccess(cal, acl.getAces(), true);
       getSvci().updateCalendar(cal);
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
@@ -555,9 +556,9 @@ public class BwSysIntfImpl implements SysIntf {
   }
 
   public void updateAccess(BwEvent ev,
-                           Collection<Ace> aces) throws WebdavException{
+                           Acl acl) throws WebdavException{
     try {
-      getSvci().changeAccess(ev, aces, true);
+      getSvci().changeAccess(ev, acl.getAces(), true);
       getSvci().updateEvent(ev, null, null);
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();

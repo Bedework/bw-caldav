@@ -67,6 +67,7 @@ import org.bedework.calfacade.env.CalEnvI;
 import org.bedework.calfacade.svc.EventInfo;
 import org.bedework.icalendar.Icalendar;
 
+import edu.rpi.cct.webdav.servlet.common.AccessUtil;
 import edu.rpi.cct.webdav.servlet.common.Headers;
 import edu.rpi.cct.webdav.servlet.common.WebdavServlet;
 import edu.rpi.cct.webdav.servlet.common.WebdavUtils;
@@ -87,8 +88,8 @@ import edu.rpi.cmt.access.Ace;
 import edu.rpi.cmt.access.AceWho;
 import edu.rpi.cmt.access.Acl;
 import edu.rpi.cmt.access.PrincipalInfo;
-import edu.rpi.cmt.access.Privileges;
 import edu.rpi.cmt.access.WhoDefs;
+import edu.rpi.cmt.access.AccessXmlUtil.AccessXmlCb;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
 import edu.rpi.sss.util.xml.QName;
 import edu.rpi.sss.util.xml.XmlEmit;
@@ -102,6 +103,7 @@ import net.fortuna.ical4j.model.TimeZone;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.io.Reader;
+import java.io.Serializable;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -117,7 +119,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 /** This class implements a namespace interface for the webdav abstract
  * servlet. One of these interfaces is associated with each current session.
@@ -139,7 +140,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
    */
   private String namespacePrefix;
 
-  private EmitAccess emitAccess;
+  private AccessUtil accessUtil;
 
   /** Namespace based on the request url.
    */
@@ -211,7 +212,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       sysi.init(req, envPrefix, account, debug);
 
-      emitAccess = new EmitAccess(namespacePrefix, xml, sysi);
+      accessUtil = new AccessUtil(namespacePrefix, xml,
+                                  new CalDavAccessXmlCb(sysi), debug);
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
@@ -223,6 +225,70 @@ public class CaldavBWIntf extends WebdavNsIntf {
   public String getDavHeader(WebdavNsNode node) throws WebdavException {
     return "1, access-control, calendar-access, calendar-schedule";
   }
+
+  /**
+   */
+  private static class CalDavAccessXmlCb implements AccessXmlCb, Serializable {
+    private SysIntf sysi;
+
+    private QName errorTag;
+
+    CalDavAccessXmlCb(SysIntf sysi) {
+      this.sysi = sysi;
+    }
+
+    /* (non-Javadoc)
+     * @see edu.rpi.cmt.access.AccessXmlUtil.AccessXmlCb#makeHref(java.lang.String, int)
+     */
+    public String makeHref(String id, int whoType) throws AccessException {
+      try {
+        return sysi.makeHref(id, whoType);
+      } catch (Throwable t) {
+        throw new AccessException(t);
+      }
+    }
+
+    /* (non-Javadoc)
+     * @see edu.rpi.cmt.access.AccessXmlUtil.AccessXmlCb#getAccount()
+     */
+    public String getAccount() throws AccessException {
+      try {
+        return sysi.getAccount();
+      } catch (Throwable t) {
+        throw new AccessException(t);
+      }
+    }
+
+    /* (non-Javadoc)
+     * @see edu.rpi.cmt.access.AccessXmlUtil.AccessXmlCb#getPrincipalInfo(java.lang.String)
+     */
+    public PrincipalInfo getPrincipalInfo(String href) throws AccessException {
+      try {
+        return sysi.getPrincipalInfo(href);
+      } catch (Throwable t) {
+        throw new AccessException(t);
+      }
+    }
+
+    /* (non-Javadoc)
+     * @see edu.rpi.cmt.access.AccessXmlUtil.AccessXmlCb#setErrorTag(edu.rpi.sss.util.xml.QName)
+     */
+    public void setErrorTag(QName tag) throws AccessException {
+      errorTag = tag;
+    }
+
+    /* (non-Javadoc)
+     * @see edu.rpi.cmt.access.AccessXmlUtil.AccessXmlCb#getErrorTag()
+     */
+    public QName getErrorTag() throws AccessException {
+      return errorTag;
+    }
+  }
+
+  public AccessUtil getAccessUtil() throws WebdavException {
+    return accessUtil;
+  }
+
 
   public boolean getDirectoryBrowsingDisallowed() throws WebdavException {
     return sysi.getDirectoryBrowsingDisallowed();
@@ -839,141 +905,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
     return getSysi().makeHref(id, Ace.whoTypeUser);
   }
 
-  /** Object class passed around as we parse access.
-   */
-  public static class CdAclInfo extends AclInfo {
-    String what;
-
-    PrincipalInfo pi;
-
-    boolean notWho;
-    int whoType;
-    String who;
-
-    ArrayList<Ace> aces = new ArrayList<Ace>();
-
-    Ace curAce;
-  }
-
-  /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#startAcl(java.lang.String)
-   */
-  public AclInfo startAcl(String uri) throws WebdavException {
-    CdAclInfo ainfo = new CdAclInfo();
-
-    ainfo.what = uri;
-
-    return ainfo;
-  }
-
-  /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#parseAcePrincipal(edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf.AclInfo, org.w3c.dom.Node, boolean)
-   */
-  public boolean parseAcePrincipal(AclInfo ainfo, Node nd,
-                                boolean inverted) throws WebdavException {
-    CdAclInfo info = (CdAclInfo)ainfo;
-
-    info.notWho = inverted;
-
-    Element el = getOnlyChild(nd);
-
-    info.whoType = -1;
-    info.who = null;
-
-    if (WebdavTags.href.nodeMatches(el)) {
-      String href = getElementContent(el);
-
-      if ((href == null) || (href.length() == 0)) {
-        throw new WebdavBadRequest("Missing href");
-      }
-      info.pi = getSysi().getPrincipalInfo(href);
-      if (info.pi == null) {
-        info.errorTag = WebdavTags.recognizedPrincipal;
-        return false;
-      }
-      info.whoType = info.pi.whoType;
-      info.who = info.pi.who;
-    } else if (WebdavTags.all.nodeMatches(el)) {
-      info.whoType = Ace.whoTypeAll;
-    } else if (WebdavTags.authenticated.nodeMatches(el)) {
-      info.whoType = Ace.whoTypeAuthenticated;
-    } else if (WebdavTags.unauthenticated.nodeMatches(el)) {
-      info.whoType = Ace.whoTypeUnauthenticated;
-    } else if (WebdavTags.property.nodeMatches(el)) {
-      el = getOnlyChild(el);
-      if (WebdavTags.owner.nodeMatches(el)) {
-        info.whoType = Ace.whoTypeOwner;
-      } else {
-        throw new WebdavBadRequest("Bad WHO property");
-      }
-    } else if (WebdavTags.self.nodeMatches(el)) {
-      info.whoType = Ace.whoTypeUser;
-      info.who = account;
-    } else {
-      throw new WebdavBadRequest("Bad WHO");
-    }
-
-    info.curAce = null;
-
-    if (debug) {
-      debugMsg("Parsed ace/principal whoType=" + info.whoType +
-               " who=\"" + info.who + "\"");
-    }
-
-    return true;
-  }
-
-  /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#parsePrivilege(edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf.AclInfo, org.w3c.dom.Node, boolean)
-   */
-  public void parsePrivilege(AclInfo ainfo, Node nd,
-                             boolean denial) throws WebdavException {
-    CdAclInfo info = (CdAclInfo)ainfo;
-
-    Element el = getOnlyChild(nd);
-
-    int priv;
-
-    QName[] privTags = emitAccess.getPrivTags();
-
-    if (info.curAce == null) {
-      /* Look for this 'who' in the list */
-      AceWho awho = new AceWho(info.who, info.whoType, info.notWho);
-      for (Ace ace: info.aces) {
-        if (ace.getWho().equals(awho)) {
-          info.curAce = ace;
-          break;
-        }
-      }
-
-      if (info.curAce == null) {
-        info.curAce = new Ace();
-        info.curAce.setWho(awho);
-
-        info.aces.add(info.curAce);
-      }
-    }
-
-    findPriv: {
-      // ENUM
-      for (priv = 0; priv < privTags.length; priv++) {
-        if (privTags[priv].nodeMatches(el)) {
-          break findPriv;
-        }
-      }
-      throw new WebdavBadRequest("Bad privilege");
-    }
-
-    info.curAce.addPriv(Privileges.makePriv(priv, denial));
-
-  }
-
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#updateAccess(edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf.AclInfo)
    */
-  public void updateAccess(AclInfo ainfo) throws WebdavException {
-    CdAclInfo info = (CdAclInfo)ainfo;
-
+  public void updateAccess(AclInfo info) throws WebdavException {
     CaldavBwNode node = (CaldavBwNode)getNode(info.what,
                                               WebdavNsIntf.existanceMust,
                                               WebdavNsIntf.nodeTypeUnknown);
@@ -981,10 +916,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
     try {
       // May need a real principal hierarchy
       if (node instanceof CaldavCalNode) {
-        sysi.updateAccess(((CaldavCalNode)node).getCalendar(), info.aces);
+        sysi.updateAccess(((CaldavCalNode)node).getCalendar(), info.acl);
       } else if (node instanceof CaldavComponentNode) {
         sysi.updateAccess(((CaldavComponentNode)node).getEventInfo().getEvent(),
-                          info.aces);
+                          info.acl);
       } else {
         throw new WebdavException(HttpServletResponse.SC_NOT_IMPLEMENTED);
       }
@@ -1010,16 +945,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
       }
 
       if (acl != null) {
-        emitAccess.emitAcl(acl, true);
+        accessUtil.emitAcl(acl, true);
       }
-    } catch (Throwable t) {
-      throw new WebdavException(t);
-    }
-  }
-
-  public void emitSupportedPrivSet(WebdavNsNode node) throws WebdavException {
-    try {
-      emitAccess.emitSupportedPrivSet();
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
@@ -1038,9 +965,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
           AceWho who = ace.getWho();
 
           if (who.getWhoType() == WhoDefs.whoTypeUser) {
-            hrefs.add(emitAccess.makeUserHref(who.getWho()));
+            hrefs.add(accessUtil.makeUserHref(who.getWho()));
           } else if (who.getWhoType() == WhoDefs.whoTypeGroup) {
-            hrefs.add(emitAccess.makeGroupHref(who.getWho()));
+            hrefs.add(accessUtil.makeGroupHref(who.getWho()));
           }
         }
       }
@@ -1052,14 +979,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
       }
       throw new WebdavServerError();
     }
-  }
-
-  /** Override to include free and busy access.
-   *
-   * @return QName[]
-   */
-  public QName[] getPrivTags() {
-    return emitAccess.getPrivTags();
   }
 
   /* ====================================================================
