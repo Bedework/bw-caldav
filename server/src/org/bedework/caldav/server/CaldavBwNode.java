@@ -26,13 +26,13 @@
 package org.bedework.caldav.server;
 
 import org.bedework.calfacade.BwCalendar;
-import org.bedework.davdefs.CaldavTags;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
 import edu.rpi.sss.util.xml.QName;
 import edu.rpi.sss.util.xml.XmlEmit;
+import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 
 import java.util.ArrayList;
 import java.util.Collection;

@@ -31,14 +31,13 @@ import org.bedework.caldav.server.SysIntf;
 import org.bedework.calfacade.base.TimeRange;
 import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwFreeBusy;
-import org.bedework.davdefs.CaldavTags;
-import org.bedework.davdefs.WebdavTags;
 
-import edu.rpi.cct.webdav.servlet.common.MethodBase;
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavForbidden;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
+import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
+import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Node;
@@ -77,7 +76,7 @@ public class FreeBusyQuery {
         throw new WebdavBadRequest();
       }
 
-      if (!MethodBase.nodeMatches(nd, CaldavTags.timeRange)) {
+      if (!CaldavTags.timeRange.nodeMatches(nd)) {
         throw new WebdavBadRequest();
       }
 

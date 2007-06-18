@@ -129,6 +129,8 @@ public class GoogleSysIntfImpl implements SysIntf {
 
   private String urlPrefix;
 
+  private String account;
+
   private static HashMap<String, Integer> toWho = new HashMap<String, Integer>();
   private static HashMap<Integer, String> fromWho = new HashMap<Integer, String>();
 
@@ -147,10 +149,18 @@ public class GoogleSysIntfImpl implements SysIntf {
                    boolean debug) throws WebdavException {
     try {
       this.debug = debug;
+      this.account = account;
       urlPrefix = WebdavUtils.getUrlPrefix(req);
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
+  }
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#getAccount()
+   */
+  public String getAccount() throws WebdavException {
+    return account;
   }
 
   private static class MyPropertyHandler extends PropertyHandler {

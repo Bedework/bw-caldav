@@ -80,6 +80,13 @@ public interface SysIntf {
                    String account,
                    boolean debug) throws WebdavException;
 
+  /** Return the current account
+   *
+   * @return String
+   * @throws WebdavException
+   */
+  public String getAccount() throws WebdavException;
+
   /** Get a property handler
    *
    * @param ptype

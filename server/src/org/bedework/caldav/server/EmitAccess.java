@@ -53,13 +53,13 @@
  */
 package org.bedework.caldav.server;
 
-import org.bedework.davdefs.CaldavTags;
-import org.bedework.davdefs.WebdavTags;
-
 import edu.rpi.cmt.access.AccessException;
 import edu.rpi.cmt.access.AccessXmlUtil;
+import edu.rpi.cmt.access.PrincipalInfo;
 import edu.rpi.sss.util.xml.QName;
 import edu.rpi.sss.util.xml.XmlEmit;
+
+import java.io.Serializable;
 
 /**
  * @author douglm
@@ -68,47 +68,48 @@ import edu.rpi.sss.util.xml.XmlEmit;
 public class EmitAccess extends AccessXmlUtil {
   private String namespacePrefix;
 
-  /** xml privilege tags */
-  private static final QName[] privTags = {
-    WebdavTags.all,              // privAll = 0;
-    WebdavTags.read,             // privRead = 1;
-    WebdavTags.readAcl,          // privReadAcl = 2;
-    WebdavTags.readCurrentUserPrivilegeSet,  // privReadCurrentUserPrivilegeSet = 3;
-    CaldavTags.readFreeBusy,     // privReadFreeBusy = 4;
-    WebdavTags.write,            // privWrite = 5;
-    WebdavTags.writeAcl,         // privWriteAcl = 6;
-    WebdavTags.writeProperties,  // privWriteProperties = 7;
-    WebdavTags.writeContent,     // privWriteContent = 8;
-    WebdavTags.bind,             // privBind = 9;
-
-    CaldavTags.schedule,         // privSchedule = 10;
-    CaldavTags.scheduleRequest,  // privScheduleRequest = 11;
-    CaldavTags.scheduleReply,    // privScheduleReply = 12;
-    CaldavTags.scheduleFreeBusy, // privScheduleFreeBusy = 13;
-
-    WebdavTags.unbind,           // privUnbind = 14;
-    WebdavTags.unlock,           // privUnlock = 15;
-    null                         // privNone = 16;
-  };
-
   /**
    */
-  public static class OurHrefBuilder extends HrefBuilder {
+  public static class Cb implements AccessXmlCb, Serializable {
     private SysIntf sysi;
 
-    OurHrefBuilder(SysIntf sysi) {
+    QName errorTag;
+
+    Cb(SysIntf sysi) {
       this.sysi = sysi;
     }
 
-    /* (non-Javadoc)
-     * @see edu.rpi.cmt.access.AccessXmlUtil.HrefBuilder#makeHref(java.lang.String, int)
-     */
     public String makeHref(String id, int whoType) throws AccessException {
       try {
         return sysi.makeHref(id, whoType);
       } catch (Throwable t) {
         throw new AccessException(t);
       }
+    }
+    public String getAccount() throws AccessException {
+      try {
+        return sysi.getAccount();
+      } catch (Throwable t) {
+        throw new AccessException(t);
+      }
+    }
+
+    /* (non-Javadoc)
+     * @see edu.rpi.cmt.access.AccessXmlUtil.AccessXmlCb#getPrincipalInfo(java.lang.String)
+     */
+    public PrincipalInfo getPrincipalInfo(String href) throws AccessException {
+      try {
+        return sysi.getPrincipalInfo(href);
+      } catch (Throwable t) {
+        throw new AccessException(t);
+      }
+    }
+
+    /* (non-Javadoc)
+     * @see edu.rpi.cmt.access.AccessXmlUtil.AccessXmlCb#setErrorTag(edu.rpi.sss.util.xml.QName)
+     */
+    public void setErrorTag(QName tag) throws AccessException {
+      errorTag = tag;
     }
   }
 
@@ -120,7 +121,7 @@ public class EmitAccess extends AccessXmlUtil {
    * @param sysi
    */
   public EmitAccess(String namespacePrefix, XmlEmit xml, SysIntf sysi) {
-    super(privTags, new WebdavTags(), xml, new OurHrefBuilder(sysi));
+    super(caldavPrivTags, xml, new Cb(sysi));
 
     this.namespacePrefix = namespacePrefix;
   }
@@ -147,6 +148,6 @@ public class EmitAccess extends AccessXmlUtil {
    * @return QName[]
    */
   public QName[] getPrivTags() {
-    return privTags;
+    return caldavPrivTags;
   }
 }

@@ -33,10 +33,7 @@ import org.bedework.calfacade.CalFacadeDefs;
 import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.filter.BwFilter;
 import org.bedework.calfacade.svc.EventInfo;
-import org.bedework.davdefs.CaldavDefs;
-import org.bedework.davdefs.CaldavTags;
 
-import edu.rpi.cct.webdav.servlet.common.MethodBase;
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
@@ -44,6 +41,8 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
 import edu.rpi.cct.webdav.servlet.common.WebdavUtils;
 import edu.rpi.sss.util.xml.QName;
 import edu.rpi.sss.util.xml.XmlUtil;
+import edu.rpi.sss.util.xml.tagdefs.CaldavDefs;
+import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -206,7 +205,7 @@ public class Filter {
       Element[] children = getChildren(nd);
 
       if ((children.length != 1) ||
-          (!MethodBase.nodeMatches(children[0], CaldavTags.compFilter))) {
+          (!CaldavTags.compFilter.nodeMatches(children[0]))) {
         if (debug) {
           trace("<filter>: child count error: " + children.length);
         }
@@ -347,7 +346,7 @@ public class Filter {
     }
 
     if ((children.length == 1) &&
-        MethodBase.nodeMatches(children[0], CaldavTags.isNotDefined)) {
+        CaldavTags.isNotDefined.nodeMatches(children[0])) {
       cf.setIsNotDefined(true);
       return cf;
     }
@@ -366,16 +365,16 @@ public class Filter {
 
         QName isDefined = new QName(CaldavDefs.caldavNamespace,
                                     "is-defined");
-        if (MethodBase.nodeMatches(curnode, isDefined)) {
+        if (isDefined.nodeMatches(curnode)) {
           // Probably out of date evolution - ignore it
-        } else if (MethodBase.nodeMatches(curnode, CaldavTags.timeRange)) {
+        } else if (CaldavTags.timeRange.nodeMatches(curnode)) {
           cf.setTimeRange(CalDavParseUtil.parseTimeRange(curnode, tz,
                           intf.getSysi().getTimezones()));
 
           if (cf.getTimeRange() == null) {
             return null;
           }
-        } else if (MethodBase.nodeMatches(curnode, CaldavTags.compFilter)) {
+        } else if (CaldavTags.compFilter.nodeMatches(curnode)) {
           CompFilter chcf = parseCompFilter(curnode);
 
           if (chcf == null) {
@@ -383,7 +382,7 @@ public class Filter {
           }
 
           cf.addCompFilter(chcf);
-        } else if (MethodBase.nodeMatches(curnode, CaldavTags.propFilter)) {
+        } else if (CaldavTags.propFilter.nodeMatches(curnode)) {
           PropFilter chpf = parsePropFilter(curnode);
 
           cf.addPropFilter(chpf);
@@ -420,14 +419,14 @@ public class Filter {
       int i = 0;
       Node curnode = children[i];
 
-      if (MethodBase.nodeMatches(curnode, CaldavTags.isNotDefined)) {
+      if (CaldavTags.isNotDefined.nodeMatches(curnode)) {
         pf.setIsNotDefined(true);
         i++;
-      } else if (MethodBase.nodeMatches(curnode, CaldavTags.timeRange)) {
+      } else if (CaldavTags.timeRange.nodeMatches(curnode)) {
         pf.setTimeRange(CalDavParseUtil.parseTimeRange(curnode, tz,
                                            intf.getSysi().getTimezones()));
         i++;
-      } else if (MethodBase.nodeMatches(curnode, CaldavTags.textMatch)) {
+      } else if (CaldavTags.textMatch.nodeMatches(curnode)) {
         pf.setMatch(parseTextMatch(curnode));
         i++;
       }
@@ -447,7 +446,7 @@ public class Filter {
         }
 
         // Can only have param-filter*
-        if (!MethodBase.nodeMatches(curnode, CaldavTags.paramFilter)) {
+        if (!CaldavTags.paramFilter.nodeMatches(curnode)) {
           throw new WebdavBadRequest();
         }
 
@@ -482,11 +481,11 @@ public class Filter {
             child.getLocalName());
     }
 
-    if (MethodBase.nodeMatches(child, CaldavTags.isNotDefined)) {
+    if (CaldavTags.isNotDefined.nodeMatches(child)) {
       return new ParamFilter(name, true);
     }
 
-    if (MethodBase.nodeMatches(child, CaldavTags.textMatch)) {
+    if (CaldavTags.textMatch.nodeMatches(child)) {
       TextMatch match = parseTextMatch(child);
 
       return new ParamFilter(name, match);

@@ -65,14 +65,9 @@ import org.bedework.calfacade.RecurringRetrievalMode.Rmode;
 import org.bedework.calfacade.env.CalEnvFactory;
 import org.bedework.calfacade.env.CalEnvI;
 import org.bedework.calfacade.svc.EventInfo;
-import org.bedework.davdefs.AppleServerTags;
-import org.bedework.davdefs.CaldavDefs;
-import org.bedework.davdefs.CaldavTags;
-import org.bedework.davdefs.WebdavTags;
 import org.bedework.icalendar.Icalendar;
 
 import edu.rpi.cct.webdav.servlet.common.Headers;
-import edu.rpi.cct.webdav.servlet.common.MethodBase;
 import edu.rpi.cct.webdav.servlet.common.WebdavServlet;
 import edu.rpi.cct.webdav.servlet.common.WebdavUtils;
 import edu.rpi.cct.webdav.servlet.common.MethodBase.MethodInfo;
@@ -97,6 +92,10 @@ import edu.rpi.cmt.access.WhoDefs;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
 import edu.rpi.sss.util.xml.QName;
 import edu.rpi.sss.util.xml.XmlEmit;
+import edu.rpi.sss.util.xml.tagdefs.AppleServerTags;
+import edu.rpi.sss.util.xml.tagdefs.CaldavDefs;
+import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
+import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 
 import net.fortuna.ical4j.model.TimeZone;
 
@@ -881,7 +880,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
     info.whoType = -1;
     info.who = null;
 
-    if (MethodBase.nodeMatches(el, WebdavTags.href)) {
+    if (WebdavTags.href.nodeMatches(el)) {
       String href = getElementContent(el);
 
       if ((href == null) || (href.length() == 0)) {
@@ -894,20 +893,20 @@ public class CaldavBWIntf extends WebdavNsIntf {
       }
       info.whoType = info.pi.whoType;
       info.who = info.pi.who;
-    } else if (MethodBase.nodeMatches(el, WebdavTags.all)) {
+    } else if (WebdavTags.all.nodeMatches(el)) {
       info.whoType = Ace.whoTypeAll;
-    } else if (MethodBase.nodeMatches(el, WebdavTags.authenticated)) {
+    } else if (WebdavTags.authenticated.nodeMatches(el)) {
       info.whoType = Ace.whoTypeAuthenticated;
-    } else if (MethodBase.nodeMatches(el, WebdavTags.unauthenticated)) {
+    } else if (WebdavTags.unauthenticated.nodeMatches(el)) {
       info.whoType = Ace.whoTypeUnauthenticated;
-    } else if (MethodBase.nodeMatches(el, WebdavTags.property)) {
+    } else if (WebdavTags.property.nodeMatches(el)) {
       el = getOnlyChild(el);
-      if (MethodBase.nodeMatches(el, WebdavTags.owner)) {
+      if (WebdavTags.owner.nodeMatches(el)) {
         info.whoType = Ace.whoTypeOwner;
       } else {
         throw new WebdavBadRequest("Bad WHO property");
       }
-    } else if (MethodBase.nodeMatches(el, WebdavTags.self)) {
+    } else if (WebdavTags.self.nodeMatches(el)) {
       info.whoType = Ace.whoTypeUser;
       info.who = account;
     } else {
@@ -958,7 +957,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
     findPriv: {
       // ENUM
       for (priv = 0; priv < privTags.length; priv++) {
-        if (MethodBase.nodeMatches(el, privTags[priv])) {
+        if (privTags[priv].nodeMatches(el)) {
           break findPriv;
         }
       }

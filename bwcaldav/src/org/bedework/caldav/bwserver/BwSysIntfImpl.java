@@ -53,8 +53,6 @@ import org.bedework.calsvci.CalSvcFactoryDefault;
 import org.bedework.calsvci.CalSvcI;
 import org.bedework.calsvci.CalSvcIPars;
 import org.bedework.calsvci.CalSvcI.CopyMoveStatus;
-import org.bedework.davdefs.CaldavTags;
-import org.bedework.davdefs.WebdavTags;
 import org.bedework.icalendar.IcalMalformedException;
 import org.bedework.icalendar.IcalTranslator;
 import org.bedework.icalendar.Icalendar;
@@ -73,6 +71,8 @@ import edu.rpi.cmt.access.PrincipalInfo;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
 import edu.rpi.sss.util.xml.QName;
 import edu.rpi.sss.util.xml.XmlUtil;
+import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
+import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.TimeZone;
@@ -137,6 +137,13 @@ public class BwSysIntfImpl implements SysIntf {
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
+  }
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#getAccount()
+   */
+  public String getAccount() throws WebdavException {
+    return account;
   }
 
   private static class MyPropertyHandler extends PropertyHandler {
@@ -536,7 +543,7 @@ public class BwSysIntfImpl implements SysIntf {
   public void updateAccess(BwCalendar cal,
                            Collection<Ace> aces) throws WebdavException {
     try {
-      getSvci().changeAccess(cal, aces);
+      getSvci().changeAccess(cal, aces, true);
       getSvci().updateCalendar(cal);
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
@@ -550,7 +557,7 @@ public class BwSysIntfImpl implements SysIntf {
   public void updateAccess(BwEvent ev,
                            Collection<Ace> aces) throws WebdavException{
     try {
-      getSvci().changeAccess(ev, aces);
+      getSvci().changeAccess(ev, aces, true);
       getSvci().updateEvent(ev, null, null);
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();

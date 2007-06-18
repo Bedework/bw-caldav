@@ -59,9 +59,8 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
 import edu.rpi.sss.util.xml.QName;
 import edu.rpi.sss.util.xml.XmlEmit;
-
-import org.bedework.davdefs.CaldavDefs;
-import org.bedework.davdefs.CaldavTags;
+import edu.rpi.sss.util.xml.tagdefs.CaldavDefs;
+import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 
 import java.util.ArrayList;
 import java.util.Collection;

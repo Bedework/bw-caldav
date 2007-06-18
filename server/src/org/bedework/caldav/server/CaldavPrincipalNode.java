@@ -59,9 +59,9 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
 import edu.rpi.sss.util.xml.QName;
 import edu.rpi.sss.util.xml.XmlEmit;
+import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 
 import org.bedework.calfacade.BwCalendar;
-import org.bedework.davdefs.WebdavTags;
 
 import org.w3c.dom.Element;
 

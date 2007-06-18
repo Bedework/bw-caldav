@@ -61,8 +61,6 @@ import org.bedework.calfacade.BwUser;
 import org.bedework.calfacade.svc.EventInfo;
 import org.bedework.calfacade.util.CalFacadeUtil;
 
-import org.bedework.davdefs.CaldavTags;
-import org.bedework.davdefs.WebdavTags;
 import org.bedework.icalendar.ComponentWrapper;
 import org.bedework.icalendar.IcalTranslator;
 
@@ -74,6 +72,9 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavProperty;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
 import edu.rpi.sss.util.xml.QName;
 import edu.rpi.sss.util.xml.XmlEmit;
+import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
+import edu.rpi.sss.util.xml.tagdefs.ICalTags;
+import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;

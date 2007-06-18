@@ -36,17 +36,18 @@ import org.bedework.calfacade.filter.BwPresenceFilter;
 import org.bedework.calfacade.filter.BwPropertyFilter;
 import org.bedework.calfacade.util.PropertyIndex;
 import org.bedework.calfacade.util.PropertyIndex.PropertyInfo;
-import org.bedework.davdefs.CaldavTags;
 
 import edu.rpi.cct.webdav.servlet.common.WebdavUtils;
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavForbidden;
+import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.log4j.Logger;
+
 /** Class to represent a calendar-query comp-filter
  *
  *   @author Mike Douglass   douglm@rpi.edu

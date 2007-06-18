@@ -219,12 +219,15 @@ public class BexchangeSysIntfImpl implements SysIntf {
 
   private String urlPrefix;
 
+  private String account;
+
   public void init(HttpServletRequest req,
                    String envPrefix,
                    String account,
                    boolean debug) throws WebdavException {
     try {
       this.debug = debug;
+      this.account = account;
 
       trans = new IcalTranslator(new SAICalCallback(getTimezones(), null),
                                  debug);
@@ -232,6 +235,13 @@ public class BexchangeSysIntfImpl implements SysIntf {
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
+  }
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#getAccount()
+   */
+  public String getAccount() throws WebdavException {
+    return account;
   }
 
   private static class MyPropertyHandler extends PropertyHandler {

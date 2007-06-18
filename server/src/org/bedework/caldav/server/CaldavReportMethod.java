@@ -61,8 +61,6 @@ import org.bedework.caldav.server.calquery.LimitRecurrenceSet;
 import org.bedework.caldav.server.filter.Filter;
 import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.RecurringRetrievalMode.Rmode;
-import org.bedework.davdefs.CaldavTags;
-import org.bedework.davdefs.WebdavTags;
 import org.bedework.icalendar.Icalendar;
 
 import edu.rpi.cct.webdav.servlet.common.ReportMethod;
@@ -74,6 +72,8 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
 import edu.rpi.cct.webdav.servlet.shared.WebdavProperty;
 import edu.rpi.cct.webdav.servlet.shared.WebdavStatusCode;
 import edu.rpi.sss.util.xml.XmlUtil;
+import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
+import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 
 import net.fortuna.ical4j.model.TimeZone;
 
@@ -252,7 +252,7 @@ public class CaldavReportMethod extends ReportMethod {
       if (reportType == reportTypeQuery) {
         // Filter required next
 
-        if (!nodeMatches(curnode, CaldavTags.filter)) {
+        if (!CaldavTags.filter.nodeMatches(curnode)) {
           throw new WebdavBadRequest("Expected filter");
         }
 
@@ -264,7 +264,7 @@ public class CaldavReportMethod extends ReportMethod {
           // Only timezone allowed
           curnode = chiter.next();
 
-          if (!nodeMatches(curnode, CaldavTags.timezone)) {
+          if (!CaldavTags.timezone.nodeMatches(curnode)) {
             throw new WebdavBadRequest("Expected timezone");
           }
 

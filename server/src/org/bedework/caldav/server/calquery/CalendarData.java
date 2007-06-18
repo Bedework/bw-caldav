@@ -29,15 +29,14 @@ import org.bedework.caldav.server.CaldavComponentNode;
 import org.bedework.calfacade.base.TimeRange;
 import org.bedework.calfacade.BwDateTime;
 import org.bedework.calfacade.util.CalFacadeUtil;
-import org.bedework.davdefs.CaldavTags;
 
-import edu.rpi.cct.webdav.servlet.common.MethodBase;
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
 import edu.rpi.cct.webdav.servlet.shared.WebdavProperty;
 import edu.rpi.sss.util.xml.QName;
 import edu.rpi.sss.util.xml.XmlUtil;
+import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 
 
 import java.util.Collection;
@@ -237,27 +236,27 @@ public class CalendarData extends WebdavProperty {
               curnode.getNodeName());
         }
 
-        if (MethodBase.nodeMatches(curnode, CaldavTags.comp)) {
+        if (CaldavTags.comp.nodeMatches(curnode)) {
           if (comp != null) {
             throw new WebdavBadRequest();
           }
 
           comp = parseComp(curnode);
-        } else if (MethodBase.nodeMatches(curnode, CaldavTags.expand)) {
+        } else if (CaldavTags.expand.nodeMatches(curnode)) {
           if (ers != null) {
             throw new WebdavBadRequest();
           }
 
           ers = new ExpandRecurrenceSet();
            parseTimeRange(curnode, ers);
-        } else if (MethodBase.nodeMatches(curnode, CaldavTags.limitRecurrenceSet)) {
+        } else if (CaldavTags.limitRecurrenceSet.nodeMatches(curnode)) {
           if (lrs != null) {
             throw new WebdavBadRequest();
           }
 
           lrs = new LimitRecurrenceSet();
            parseTimeRange(curnode, lrs);
-        } else if (MethodBase.nodeMatches(curnode, CaldavTags.limitFreebusySet)) {
+        } else if (CaldavTags.limitFreebusySet.nodeMatches(curnode)) {
           if (lfs != null) {
             throw new WebdavBadRequest();
           }
@@ -415,26 +414,26 @@ public class CalendarData extends WebdavProperty {
               curnode.getNodeName());
       }
 
-      if (MethodBase.nodeMatches(curnode, CaldavTags.allcomp)) {
+      if (CaldavTags.allcomp.nodeMatches(curnode)) {
         if (hadComps) {
           throw new WebdavBadRequest();
         }
 
         c.setAllcomp(true);
-      } else if (MethodBase.nodeMatches(curnode, CaldavTags.comp)) {
+      } else if (CaldavTags.comp.nodeMatches(curnode)) {
         if (c.getAllcomp()) {
           throw new WebdavBadRequest();
         }
 
         c.addComp(parseComp(curnode));
         hadComps = true;
-      } else if (MethodBase.nodeMatches(curnode, CaldavTags.allprop)) {
+      } else if (CaldavTags.allprop.nodeMatches(curnode)) {
         if (hadProps) {
           throw new WebdavBadRequest();
         }
 
         c.setAllprop(true);
-      } else if (MethodBase.nodeMatches(curnode, CaldavTags.prop)) {
+      } else if (CaldavTags.prop.nodeMatches(curnode)) {
         if (c.getAllprop()) {
           throw new WebdavBadRequest();
         }
