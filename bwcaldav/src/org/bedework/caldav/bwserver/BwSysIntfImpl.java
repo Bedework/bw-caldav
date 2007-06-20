@@ -367,7 +367,7 @@ public class BwSysIntfImpl implements SysIntf {
 
   public boolean validUser(String account) throws WebdavException {
     try {
-      return getSvci().validUser(account);
+      return getSvci().getDirectories().validUser(account);
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
