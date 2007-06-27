@@ -51,6 +51,7 @@ public abstract class CaldavBwNode extends WebdavNsNode {
   private final static Collection<QName> supportedReports = new ArrayList<QName>();
 
   static {
+    addPropEntry(propertyNames, CaldavTags.calendarHomeSet);
     addPropEntry(propertyNames, CaldavTags.calendarUserAddressSet);
 
     supportedReports.add(CaldavTags.calendarMultiget); // Calendar access
@@ -158,6 +159,12 @@ public abstract class CaldavBwNode extends WebdavNsNode {
     try {
       if (tag.equals(CaldavTags.calendarUserAddressSet)) {
         xml.property(tag, sysi.userToCaladdr(getOwner()));
+        return true;
+      }
+
+      if (tag.equals(CaldavTags.calendarHomeSet)) {
+        xml.property(tag, sysi.getUrlPrefix() +
+                     sysi.getCalUserInfo(getOwner(), false).userHomePath);
         return true;
       }
 

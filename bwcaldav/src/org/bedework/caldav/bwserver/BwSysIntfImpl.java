@@ -121,7 +121,7 @@ public class BwSysIntfImpl implements SysIntf {
       this.account = account;
       this.debug = debug;
 
-      StringBuffer sb = new StringBuffer();
+      /*StringBuffer sb = new StringBuffer();
 
       sb.append("http://");
       sb.append(req.getLocalName());
@@ -132,7 +132,7 @@ public class BwSysIntfImpl implements SysIntf {
         sb.append(port);
       }
 
-      sb.append(req.getContextPath());
+      sb.append(req.getContextPath());*/
 
       urlPrefix = WebdavUtils.getUrlPrefix(req);
     } catch (Throwable t) {
