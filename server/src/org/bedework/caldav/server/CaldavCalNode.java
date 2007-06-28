@@ -56,6 +56,7 @@ package org.bedework.caldav.server;
 
 import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwFreeBusy;
+import org.bedework.calfacade.BwProperty;
 import org.bedework.calfacade.BwUser;
 import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.RecurringRetrievalMode.Rmode;
@@ -72,6 +73,7 @@ import edu.rpi.cmt.access.Acl.CurrentAccess;
 import edu.rpi.sss.util.xml.QName;
 import edu.rpi.sss.util.xml.XmlEmit;
 import edu.rpi.sss.util.xml.XmlUtil;
+import edu.rpi.sss.util.xml.tagdefs.AppleIcalTags;
 import edu.rpi.sss.util.xml.tagdefs.AppleServerTags;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
@@ -116,6 +118,7 @@ public class CaldavCalNode extends CaldavBwNode {
     addPropEntry(propertyNames, CaldavTags.supportedCalendarComponentSet);
     addPropEntry(propertyNames, CaldavTags.supportedCalendarData);
     addPropEntry(propertyNames, AppleServerTags.getctag);
+    addPropEntry(propertyNames, AppleIcalTags.calendarcolor);
   }
 
   /** Place holder for status
@@ -433,6 +436,19 @@ public class CaldavCalNode extends CaldavBwNode {
         return true;
       }
 
+      if (AppleIcalTags.calendarcolor.nodeMatches(val)) {
+        BwProperty prop = cal.findProperty(AppleIcalTags.calendarcolor.getLocalPart());
+
+        if (prop == null) {
+          prop = new BwProperty(AppleIcalTags.calendarcolor.getLocalPart(),
+                                XmlUtil.getElementContent(val));
+        } else {
+          prop.setValue(XmlUtil.getElementContent(val));
+        }
+
+        return true;
+      }
+
       return false;
     } catch (WebdavException wde) {
       throw wde;
@@ -487,6 +503,18 @@ public class CaldavCalNode extends CaldavBwNode {
 
       if (tag.equals(AppleServerTags.getctag)) {
         xml.property(tag, cal.getLastmod() + cal.getSequence());
+
+        return true;
+      }
+
+      if (tag.equals(AppleIcalTags.calendarcolor)) {
+        BwProperty prop = cal.findProperty(tag.getLocalPart());
+
+        if (prop == null) {
+          return false;
+        }
+
+        xml.property(tag, prop.getValue());
 
         return true;
       }

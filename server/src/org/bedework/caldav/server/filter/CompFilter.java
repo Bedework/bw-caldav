@@ -415,7 +415,7 @@ public class CompFilter {
    * @param indent
    */
   public void dump(Logger log, String indent) {
-    StringBuffer sb = new StringBuffer(indent);
+    StringBuilder sb = new StringBuilder(indent);
 
     sb.append("<comp-filter name=\"");
     sb.append(name);
