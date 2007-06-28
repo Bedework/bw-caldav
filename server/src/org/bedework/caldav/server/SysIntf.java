@@ -477,6 +477,13 @@ public interface SysIntf {
    */
   public BwCalendar getCalendar(String path) throws WebdavException;
 
+  /** Update a calendar.
+   *
+   * @param val           updated BwCalendar object
+   * @throws WebdavException
+   */
+  public void updateCalendar(BwCalendar val) throws WebdavException;
+
   /** Returns children of the given calendar to which the current user has
    * some access.
    *

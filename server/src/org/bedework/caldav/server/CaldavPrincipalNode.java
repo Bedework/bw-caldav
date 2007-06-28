@@ -117,6 +117,12 @@ public class CaldavPrincipalNode extends CaldavBwNode {
     return null;
   }
 
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#update()
+   */
+  public void update() throws WebdavException {
+  }
+
   /* ====================================================================
    *                   Abstract methods
    * ==================================================================== */

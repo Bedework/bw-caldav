@@ -278,6 +278,15 @@ public class CaldavCalNode extends CaldavBwNode {
     return vfreeBusyString;
   }
 
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#update()
+   */
+  public void update() throws WebdavException {
+    if (cal != null) {
+      getSysi().updateCalendar(cal);
+    }
+  }
+
   /* ====================================================================
    *                   Required webdav properties
    * ==================================================================== */
@@ -442,6 +451,7 @@ public class CaldavCalNode extends CaldavBwNode {
         if (prop == null) {
           prop = new BwProperty(AppleIcalTags.calendarcolor.getLocalPart(),
                                 XmlUtil.getElementContent(val));
+          cal.addProperty(prop);
         } else {
           prop.setValue(XmlUtil.getElementContent(val));
         }

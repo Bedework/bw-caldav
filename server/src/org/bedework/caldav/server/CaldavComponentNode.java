@@ -303,6 +303,17 @@ public class CaldavComponentNode extends CaldavBwNode {
     return comp;
   }
 
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#update()
+   */
+  public void update() throws WebdavException {
+    if (eventInfo != null) {
+      getSysi().updateEvent(eventInfo.getEvent(),
+                            eventInfo.getOverrideProxies(),
+                            eventInfo.getChangeset());
+    }
+  }
+
   /**
    * @return String
    */

@@ -515,6 +515,9 @@ public class GoogleSysIntfImpl implements SysIntf {
     throw new WebdavException("unimplemented");
   }
 
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#getCalendar(java.lang.String)
+   */
   public BwCalendar getCalendar(String path) throws WebdavException {
     // XXX Just fake it up for the moment.
 
@@ -543,6 +546,13 @@ public class GoogleSysIntfImpl implements SysIntf {
     cal.setOwner(new BwUser(owner));
 
     return cal;
+  }
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#updateCalendar(org.bedework.calfacade.BwCalendar)
+   */
+  public void updateCalendar(BwCalendar val) throws WebdavException {
+    throw new WebdavException("unimplemented");
   }
 
   public Collection<BwCalendar> getCalendars(BwCalendar cal) throws WebdavException {

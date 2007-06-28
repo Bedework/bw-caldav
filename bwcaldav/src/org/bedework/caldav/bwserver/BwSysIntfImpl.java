@@ -674,6 +674,9 @@ public class BwSysIntfImpl implements SysIntf {
     throw new WebdavException("Unexpected response from copymove");
   }
 
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#getCalendar(java.lang.String)
+   */
   public BwCalendar getCalendar(String path) throws WebdavException {
     try {
       return getSvci().getCalendar(path);
@@ -686,6 +689,27 @@ public class BwSysIntfImpl implements SysIntf {
     }
   }
 
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#updateCalendar(org.bedework.calfacade.BwCalendar)
+   */
+  public void updateCalendar(BwCalendar val) throws WebdavException {
+    try {
+      getSvci().updateCalendar(val);
+    } catch (CalFacadeAccessException cfae) {
+      throw new WebdavForbidden();
+    } catch (CalFacadeException cfe) {
+      if (CalFacadeException.duplicateGuid.equals(cfe.getMessage())) {
+        throw new WebdavBadRequest("Duplicate-guid");
+      }
+      throw new WebdavException(cfe);
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
+  }
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#getCalendars(org.bedework.calfacade.BwCalendar)
+   */
   public Collection<BwCalendar> getCalendars(BwCalendar cal) throws WebdavException {
     try {
       return getSvci().getCalendars(cal);

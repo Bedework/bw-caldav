@@ -608,6 +608,13 @@ public class DominoSysIntfImpl implements SysIntf {
     return cal;
   }
 
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#updateCalendar(org.bedework.calfacade.BwCalendar)
+   */
+  public void updateCalendar(BwCalendar val) throws WebdavException {
+    throw new WebdavException("unimplemented");
+  }
+
   public Collection<BwCalendar> getCalendars(BwCalendar cal) throws WebdavException {
     throw new WebdavException("unimplemented");
   }
