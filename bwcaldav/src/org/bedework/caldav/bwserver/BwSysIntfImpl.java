@@ -262,9 +262,21 @@ public class BwSysIntfImpl implements SysIntf {
         return null;
       }
 
+      BwUser u = getSvci().findUser(account, false);
+      if (u == null) {
+        return null;
+      }
+
       BwSystem sys = getSvci().getSyspars();
-      String userHomePath = "/" + sys.getUserCalendarRoot() +
-                            "/" + account + "/";
+      BwCalendar cal = getSvci().getCalendars(u);
+      if (cal == null) {
+        return null;
+      }
+
+      String userHomePath = cal.getPath();
+
+      //String userHomePath = "/" + sys.getUserCalendarRoot() +
+      //                      "/" + account + "/";
       String defaultCalendarPath = userHomePath + sys.getUserDefaultCalendar();
       String inboxPath = userHomePath + sys.getUserInbox() + "/";
       String outboxPath = userHomePath + sys.getUserOutbox() + "/";
