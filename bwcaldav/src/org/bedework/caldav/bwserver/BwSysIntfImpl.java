@@ -401,7 +401,7 @@ public class BwSysIntfImpl implements SysIntf {
         return getSvci().getScheduler().scheduleResponse(event);
       }
 
-      return getSvci().getScheduler().schedule(event);
+      return getSvci().getScheduler().schedule(event, null);
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
@@ -505,7 +505,7 @@ public class BwSysIntfImpl implements SysIntf {
         return getSvci().getScheduler().scheduleResponse(val);
       }
 
-      return getSvci().getScheduler().schedule(val);
+      return getSvci().getScheduler().schedule(val, null);
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
