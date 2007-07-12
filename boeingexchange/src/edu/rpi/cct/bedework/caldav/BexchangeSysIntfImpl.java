@@ -573,7 +573,6 @@ public class BexchangeSysIntfImpl implements SysIntf {
     BwCalendar cal = new BwCalendar();
     cal.setName(namePart);
     cal.setPath(path);
-    cal.setDtstamps();
 
     String owner = (String)l.get(1);
 
