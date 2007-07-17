@@ -404,7 +404,7 @@ public class BexchangeSysIntfImpl implements SysIntf {
   }
 
   public void updateEvent(BwEvent event,
-                          Collection overrides,
+                          Collection<BwEventProxy> overrides,
                           ChangeTable changes) throws WebdavException {
     throw new WebdavException("unimplemented");
   }
@@ -566,7 +566,7 @@ public class BexchangeSysIntfImpl implements SysIntf {
     /* The path should always start with /server-name/user
      */
 
-    List l = splitUri(path, true);
+    List<String> l = splitUri(path, true);
 
     String namePart = (String)l.get(l.size() - 1);
 
@@ -854,7 +854,7 @@ END:VCALENDAR
   }
   */
 
-  private List splitUri(String uri, boolean decoded) throws WebdavException {
+  private List<String> splitUri(String uri, boolean decoded) throws WebdavException {
     try {
       /*Remove all "." and ".." components */
       if (decoded) {
@@ -883,7 +883,7 @@ END:VCALENDAR
         throw new WebdavBadRequest("Bad uri: " + uri);
       }
 
-      List l = Arrays.asList(ss);
+      List<String> l = Arrays.asList(ss);
       return l.subList(1, l.size());
     } catch (Throwable t) {
       if (debug) {

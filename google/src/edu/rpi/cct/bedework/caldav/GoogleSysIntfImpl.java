@@ -106,7 +106,6 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -323,7 +322,7 @@ public class GoogleSysIntfImpl implements SysIntf {
   }
 
   public void updateEvent(BwEvent event,
-                          Collection overrides,
+                          Collection<BwEventProxy> overrides,
                           ChangeTable changes) throws WebdavException {
     throw new WebdavException("unimplemented");
   }
@@ -411,9 +410,7 @@ public class GoogleSysIntfImpl implements SysIntf {
       BwFreeBusy fb = new BwFreeBusy(new BwUser(account), start, end);
       //assignGuid(fb);
 
-      Iterator entries = resultFeed.getEntries().iterator();
-      while (entries.hasNext()) {
-        Entry e = (Entry)entries.next();
+      for (Entry e: resultFeed.getEntries()) {
 
         /* I should probably check the Category here
         if (!(o instanceof EventEntry)) {
@@ -450,10 +447,7 @@ public class GoogleSysIntfImpl implements SysIntf {
           trace("Event entry: status " + fbc.getType());
         }
 
-        Iterator times = ev.getTimes().iterator();
-        while (times.hasNext()) {
-          When w = (When)times.next();
-
+        for (When w: ev.getTimes()) {
           net.fortuna.ical4j.model.DateTime icalStart =
             makeIcalDateTime(w.getStartTime());
 

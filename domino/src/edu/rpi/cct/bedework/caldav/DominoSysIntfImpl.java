@@ -402,7 +402,7 @@ public class DominoSysIntfImpl implements SysIntf {
   }
 
   public void updateEvent(BwEvent event,
-                          Collection overrides,
+                          Collection<BwEventProxy> overrides,
                           ChangeTable changes) throws WebdavException {
     throw new WebdavException("unimplemented");
   }
@@ -515,10 +515,7 @@ public class DominoSysIntfImpl implements SysIntf {
 
       DateTime bstart = (DateTime)start.makeDate(timezones);
 
-      Iterator pit = periods.iterator();
-      while (pit.hasNext()) {
-        Period p = (Period)pit.next();
-
+      for (Period p: periods) {
         if (!bstart.equals(p.getStart())) {
           /* First free period may be at start of requested time */
           Period busyp = new Period(bstart, p.getStart());
