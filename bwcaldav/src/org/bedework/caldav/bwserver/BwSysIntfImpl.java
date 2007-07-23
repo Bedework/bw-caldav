@@ -394,14 +394,15 @@ public class BwSysIntfImpl implements SysIntf {
    *                   Scheduling
    * ==================================================================== */
 
-  public ScheduleResult schedule(BwEvent event) throws WebdavException {
+  public ScheduleResult schedule(EventInfo ei) throws WebdavException {
     try {
-      event.setOwner(svci.findUser(account, false));
-      if (Icalendar.itipReplyMethodType(event.getScheduleMethod())) {
-        return getSvci().getScheduler().scheduleResponse(event);
+      BwEvent ev = ei.getEvent();
+      ev.setOwner(svci.findUser(account, false));
+      if (Icalendar.itipReplyMethodType(ev.getScheduleMethod())) {
+        return getSvci().getScheduler().scheduleResponse(ei);
       }
 
-      return getSvci().getScheduler().schedule(event, null);
+      return getSvci().getScheduler().schedule(ei, null);
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
@@ -415,11 +416,10 @@ public class BwSysIntfImpl implements SysIntf {
   }
 
   public Collection<BwEventProxy> addEvent(BwCalendar cal,
-                                           BwEvent event,
-                                           Collection<BwEventProxy> overrides,
+                                           EventInfo ei,
                                            boolean rollbackOnError) throws WebdavException {
     try {
-      return getSvci().addEvent(cal, event, overrides, rollbackOnError).failedOverrides;
+      return getSvci().addEvent(cal, ei, rollbackOnError).failedOverrides;
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
@@ -498,10 +498,11 @@ public class BwSysIntfImpl implements SysIntf {
     }
   }
 
-  public ScheduleResult requestFreeBusy(BwEvent val) throws WebdavException {
+  public ScheduleResult requestFreeBusy(EventInfo val) throws WebdavException {
     try {
-      val.setOwner(svci.findUser(account, false));
-      if (Icalendar.itipReplyMethodType(val.getScheduleMethod())) {
+      BwEvent ev = val.getEvent();
+      ev.setOwner(svci.findUser(account, false));
+      if (Icalendar.itipReplyMethodType(ev.getScheduleMethod())) {
         return getSvci().getScheduler().scheduleResponse(val);
       }
 

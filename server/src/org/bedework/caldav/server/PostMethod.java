@@ -61,6 +61,7 @@ import org.bedework.calfacade.BwOrganizer;
 import org.bedework.calfacade.ScheduleResult;
 import org.bedework.calfacade.ScheduleResult.ScheduleRecipientResult;
 import org.bedework.calfacade.exc.CalFacadeException;
+import org.bedework.calfacade.svc.EventInfo;
 import org.bedework.icalendar.IcalTranslator;
 import org.bedework.icalendar.Icalendar;
 
@@ -340,17 +341,18 @@ public class PostMethod extends MethodBase {
   private void handleEvent(CaldavBWIntf intf,
                            RequestPars pars,
                            HttpServletResponse resp) throws WebdavException {
-    BwEvent event = pars.ic.getEvent();
+    EventInfo ei = pars.ic.getEventInfo();
+    BwEvent ev = ei.getEvent();
     if (pars.recipients != null) {
       for (String r: pars.recipients) {
-        event.addRecipient(r);
+        ev.addRecipient(r);
       }
     }
     //event.setRecipients(pars.recipients);
-    event.setOriginator(pars.originator);
-    event.setScheduleMethod(pars.ic.getMethodType());
+    ev.setOriginator(pars.originator);
+    ev.setScheduleMethod(pars.ic.getMethodType());
 
-    ScheduleResult sr = intf.getSysi().schedule(event);
+    ScheduleResult sr = intf.getSysi().schedule(ei);
     checkStatus(sr);
 
     startEmit(resp);
@@ -375,12 +377,13 @@ public class PostMethod extends MethodBase {
   private void handleFreeBusy(CaldavBWIntf intf,
                               RequestPars pars,
                               HttpServletResponse resp) throws WebdavException {
-    BwEvent fb = pars.ic.getFreeBusy();
-    fb.setRecipients(pars.recipients);
-    fb.setOriginator(pars.originator);
-    fb.setScheduleMethod(pars.ic.getMethodType());
+    EventInfo ei = pars.ic.getEventInfo();
+    BwEvent ev = ei.getEvent();
+    ev.setRecipients(pars.recipients);
+    ev.setOriginator(pars.originator);
+    ev.setScheduleMethod(pars.ic.getMethodType());
 
-    ScheduleResult sr = intf.getSysi().requestFreeBusy(fb);
+    ScheduleResult sr = intf.getSysi().requestFreeBusy(ei);
     checkStatus(sr);
 
     startEmit(resp);

@@ -292,11 +292,11 @@ public interface SysIntf {
    * request will be immediately addded to the recipients inbox. For external
    * users they are sent via mail.
    *
-   * @param event         BwEvent object
+   * @param ei         EventInfo object
    * @return ScheduleResult
    * @throws WebdavException
    */
-  public ScheduleResult schedule(BwEvent event) throws WebdavException;
+  public ScheduleResult schedule(EventInfo ei) throws WebdavException;
 
   /* ====================================================================
    *                   Events
@@ -305,16 +305,13 @@ public interface SysIntf {
   /** Add an event/todo/journal.
    *
    * @param cal          BwCalendar defining recipient calendar
-   * @param event        BwEvent object to be added
-   * @param overrides    Collection of EventInfo objects with refs to BwEventProxy
-   *                     objects which override instances of the new event
+   * @param ei           EventInfo object + overrides to be added
    * @param rollbackOnError true if we rollback and throw an exception on error
    * @return Collection of overrides which did not match or null if all matched
    * @throws WebdavException
    */
  public Collection<BwEventProxy> addEvent(BwCalendar cal,
-                                          BwEvent event,
-                                          Collection<BwEventProxy> overrides,
+                                          EventInfo ei,
                                           boolean rollbackOnError) throws WebdavException;
 
   /** Update an event/todo/journal.
@@ -379,7 +376,7 @@ public interface SysIntf {
    * @return ScheduleResult
    * @throws WebdavException
    */
-  public ScheduleResult requestFreeBusy(BwEvent val)
+  public ScheduleResult requestFreeBusy(EventInfo val)
           throws WebdavException;
 
   /** Generate a free busy object for the given time period which reflects

@@ -392,13 +392,12 @@ public class BexchangeSysIntfImpl implements SysIntf {
    *                   Scheduling
    * ==================================================================== */
 
-  public ScheduleResult schedule(BwEvent event) throws WebdavException {
+  public ScheduleResult schedule(EventInfo ei) throws WebdavException {
     throw new WebdavException("unimplemented");
   }
 
   public Collection<BwEventProxy> addEvent(BwCalendar cal,
-                                           BwEvent event,
-                                           Collection<BwEventProxy> overrides,
+                                           EventInfo ei,
                                            boolean rollbackOnError) throws WebdavException {
     throw new WebdavException("unimplemented");
   }
@@ -430,7 +429,7 @@ public class BexchangeSysIntfImpl implements SysIntf {
     throw new WebdavException("unimplemented");
   }
 
-  public ScheduleResult requestFreeBusy(BwEvent val) throws WebdavException {
+  public ScheduleResult requestFreeBusy(EventInfo ei) throws WebdavException {
     throw new WebdavException("unimplemented");
   }
 

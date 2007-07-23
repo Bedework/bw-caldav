@@ -670,7 +670,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       ev.setName(entityName);
 
       /* Collection<BwEventProxy>failedOverrides = */
-        sysi.addEvent(cal, ev, evinfo.getOverrideProxies(), true);
+        sysi.addEvent(cal, evinfo, true);
 
       /*StringBuffer sb = new StringBuffer(cdUri.getPath());
       sb.append("/");
