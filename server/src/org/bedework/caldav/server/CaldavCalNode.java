@@ -497,13 +497,13 @@ public class CaldavCalNode extends CaldavBwNode {
         }
 
         int calType = cal.getCalType();
-        boolean isCollection = cal.getCalendarCollection();
+        //boolean isCollection = cal.getCalendarCollection();
 
         if (calType == BwCalendar.calTypeInbox) {
           xml.emptyTag(CaldavTags.scheduleInbox);
         } else if (calType == BwCalendar.calTypeOutbox) {
           xml.emptyTag(CaldavTags.scheduleOutbox);
-        } else if (isCollection) {
+        } else if (calType == BwCalendar.calTypeCollection) {
           xml.emptyTag(CaldavTags.calendar);
         }
         xml.closeTag(WebdavTags.resourcetype);
