@@ -310,9 +310,17 @@ public class GoogleSysIntfImpl implements SysIntf {
    *                   Scheduling
    * ==================================================================== */
 
+  public Collection<String> getFreebusySet() throws WebdavException {
+    throw new WebdavException("unimplemented");
+  }
+
   public ScheduleResult schedule(EventInfo ei) throws WebdavException {
     throw new WebdavException("unimplemented");
   }
+
+  /* ====================================================================
+   *                   Events
+   * ==================================================================== */
 
   public Collection<BwEventProxy> addEvent(BwCalendar cal,
                                            EventInfo ei,

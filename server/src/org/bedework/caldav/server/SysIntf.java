@@ -280,6 +280,13 @@ public interface SysIntf {
    *                   Scheduling
    * ==================================================================== */
 
+  /** Return a set of hrefs for each resource affecting this users freebusy
+   *
+   * @return Collection of hrefs
+   * @throws WebdavException  for errors
+   */
+  public Collection<String> getFreebusySet() throws WebdavException;
+
   /** Request to schedule a meeting. The event object must have the organizer
    * and attendees and possibly recipients set. If no recipients are set, they
    * will be set from the attendees.

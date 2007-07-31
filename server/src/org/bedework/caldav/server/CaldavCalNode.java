@@ -109,6 +109,7 @@ public class CaldavCalNode extends CaldavBwNode {
 
   static {
     addPropEntry(propertyNames, CaldavTags.calendarDescription);
+    addPropEntry(propertyNames, CaldavTags.calendarFreeBusySet);
     addPropEntry(propertyNames, CaldavTags.calendarTimezone);
     addPropEntry(propertyNames, CaldavTags.maxAttendeesPerInstance);
     addPropEntry(propertyNames, CaldavTags.maxDateTime);
@@ -531,6 +532,20 @@ public class CaldavCalNode extends CaldavBwNode {
 
       if (tag.equals(CaldavTags.calendarDescription)) {
         xml.property(tag, cal.getDescription());
+
+        return true;
+      }
+
+      if ((cal.getCalType() == BwCalendar.calTypeInbox) &&
+          (tag.equals(CaldavTags.calendarFreeBusySet))) {
+        xml.openTag(tag);
+
+        Collection<String> hrefs = getSysi().getFreebusySet();
+
+        for (String href: hrefs) {
+          xml.property(WebdavTags.href, href);
+        }
+        xml.closeTag(tag);
 
         return true;
       }

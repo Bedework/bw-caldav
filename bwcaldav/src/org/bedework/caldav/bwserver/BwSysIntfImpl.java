@@ -394,6 +394,25 @@ public class BwSysIntfImpl implements SysIntf {
    *                   Scheduling
    * ==================================================================== */
 
+  public Collection<String> getFreebusySet() throws WebdavException {
+    try {
+      Collection<BwCalendar> cals = svci.getScheduler().getFreebusySet();
+      Collection<String> hrefs = new ArrayList<String>();
+
+      if (cals == null) {
+        return hrefs;
+      }
+
+      for (BwCalendar cal: cals) {
+        hrefs.add(getUrlPrefix() + cal.getPath());
+      }
+
+      return hrefs;
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
+  }
+
   public ScheduleResult schedule(EventInfo ei) throws WebdavException {
     try {
       BwEvent ev = ei.getEvent();
@@ -414,6 +433,10 @@ public class BwSysIntfImpl implements SysIntf {
       throw new WebdavException(t);
     }
   }
+
+  /* ====================================================================
+   *                   Events
+   * ==================================================================== */
 
   public Collection<BwEventProxy> addEvent(BwCalendar cal,
                                            EventInfo ei,
