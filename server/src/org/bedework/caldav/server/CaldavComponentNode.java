@@ -770,13 +770,38 @@ public boolean generatePropertyValue(QName tag,
       return null;
     }
 
-    String val = ev.getLastmod() + "-" + ev.getSeq();
+    return makeEtag(ev.getLastmod(), ev.getSeq(), strong);
+  }
 
-    if (strong) {
-      return "\"" + val + "\"";
+  /**
+   * @param strong
+   * @return etag before changes
+   * @throws WebdavException
+   */
+  public String getPrevEtagValue(boolean strong) throws WebdavException {
+    init(true);
+
+    EventInfo ei = getEventInfo();
+    if (ei == null) {
+      return null;
     }
 
-    return "W/\"" + val + "\"";
+    return makeEtag(ei.getPrevLastmod(), ei.getPrevSeq(), strong);
+  }
+
+  private String makeEtag(String lastmod, int seq, boolean strong) {
+    StringBuilder val = new StringBuilder();
+    if (!strong) {
+      val.append("W");
+    }
+
+    val.append("\"");
+    val.append(lastmod);
+    val.append("-");
+    val.append(seq);
+    val.append("\"");
+
+    return val.toString();
   }
 
   public String toString() {

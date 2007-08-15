@@ -605,13 +605,16 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
   }
 
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#putContent(edu.rpi.cct.webdav.servlet.shared.WebdavNsNode, java.io.Reader, boolean)
+   */
   public PutContentResult putContent(WebdavNsNode node,
                                      Reader contentRdr,
-                                     boolean create) throws WebdavException {
+                                     boolean create,
+                                     String ifEtag) throws WebdavException {
     try {
       PutContentResult pcr = new PutContentResult();
       pcr.node = node;
-      pcr.created = create;
 
       CaldavComponentNode bwnode = (CaldavComponentNode)getBwnode(node);
       BwCalendar cal = bwnode.getCalendar();
@@ -620,7 +623,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       /** We can only put a single resource - that resource will be an ics file
        * containing freebusy information or an event or todo and possible overrides.
-       * The calendar may contain timezones which we can ignore.
        */
 
       Iterator it = ic.iterator();
@@ -630,7 +632,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
         Object o = it.next();
 
         if (o instanceof EventInfo) {
-          pcr.created = putEvent(bwnode, (EventInfo)o);
+          pcr.created = putEvent(bwnode, (EventInfo)o, create, ifEtag);
         } else if (o instanceof BwFreeBusy) {
         } else {
           fail = true;
@@ -653,7 +655,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
   }
 
   private boolean putEvent(CaldavComponentNode bwnode,
-                           EventInfo evinfo) throws WebdavException {
+                           EventInfo evinfo,
+                           boolean create,
+                           String ifEtag) throws WebdavException {
     BwEvent ev = evinfo.getEvent();
     String entityName = bwnode.getEntityName();
     BwCalendar cal = bwnode.getCalendar();
@@ -680,12 +684,22 @@ public class CaldavBWIntf extends WebdavNsIntf {
       }*/
 
       bwnode.setEventInfo(evinfo);
+    } else if (create) {
+      /* Resource already exists */
+
+      throw new WebdavException(HttpServletResponse.SC_NOT_MODIFIED);
     } else {
       if (!entityName.equals(ev.getName())) {
         throw new WebdavBadRequest("Mismatched names");
       }
 
-      /* XXX check calendar not changed */
+      if ((ifEtag != null) && (!ifEtag.equals(bwnode.getPrevEtagValue(true)))) {
+        if (debug) {
+          debugMsg("putContent: etag mismatch if=" + ifEtag +
+                   "prev=" + bwnode.getPrevEtagValue(true));
+        }
+        throw new WebdavException(HttpServletResponse.SC_NOT_MODIFIED);
+      }
 
       if (debug) {
         debugMsg("putContent: update event " + ev);
