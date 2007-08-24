@@ -28,7 +28,7 @@ package org.bedework.caldav.server;
 import org.bedework.calfacade.base.TimeRange;
 import org.bedework.calfacade.BwDateTime;
 import org.bedework.calfacade.timezones.CalTimezones;
-import org.bedework.calfacade.util.CalFacadeUtil;
+import org.bedework.calfacade.util.DateTimeUtil;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
@@ -85,28 +85,28 @@ public class CalDavParseUtil {
 
       if (nmAttr != null) {
         attrCt--;
-        start = CalFacadeUtil.getDateTime(nmAttr.getNodeValue(),
-                                          false,
-                                          tz == null,   // utc
-                                          false,
-                                          tzid,
-                                          tz,
-                                          null,   // tzowner
-                                          timezones);
+        start = DateTimeUtil.getDateTime(nmAttr.getNodeValue(),
+                                         false,
+                                         tz == null,   // utc
+                                         false,
+                                         tzid,
+                                         tz,
+                                         null,   // tzowner
+                                         timezones);
       }
 
       nmAttr = nnm.getNamedItem("end");
 
       if (nmAttr != null) {
         attrCt--;
-        end = CalFacadeUtil.getDateTime(nmAttr.getNodeValue(),
-                                        false,
-                                        tz == null,   // utc
-                                        false,
-                                        tzid,
-                                        tz,
-                                        null,   // tzowner
-                                        timezones);
+        end = DateTimeUtil.getDateTime(nmAttr.getNodeValue(),
+                                       false,
+                                       tz == null,   // utc
+                                       false,
+                                       tzid,
+                                       tz,
+                                       null,   // tzowner
+                                       timezones);
       }
     } catch (Throwable t) {
       throw new WebdavBadRequest();

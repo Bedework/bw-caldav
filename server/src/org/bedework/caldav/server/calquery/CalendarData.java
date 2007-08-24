@@ -28,7 +28,7 @@ package org.bedework.caldav.server.calquery;
 import org.bedework.caldav.server.CaldavComponentNode;
 import org.bedework.calfacade.base.TimeRange;
 import org.bedework.calfacade.BwDateTime;
-import org.bedework.calfacade.util.CalFacadeUtil;
+import org.bedework.calfacade.util.DateTimeUtil;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
@@ -466,7 +466,7 @@ public class CalendarData extends WebdavProperty {
         throw new WebdavBadRequest();
       }
 
-      start = CalFacadeUtil.getDateTimeUTC(nmAttr.getNodeValue());
+      start = DateTimeUtil.getDateTimeUTC(nmAttr.getNodeValue());
 
       nmAttr = nnm.getNamedItem("end");
 
@@ -474,7 +474,7 @@ public class CalendarData extends WebdavProperty {
         throw new WebdavBadRequest();
       }
 
-      end = CalFacadeUtil.getDateTimeUTC(nmAttr.getNodeValue());
+      end = DateTimeUtil.getDateTimeUTC(nmAttr.getNodeValue());
     } catch (Throwable t) {
       throw new WebdavBadRequest();
     }
