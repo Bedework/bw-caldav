@@ -90,7 +90,6 @@ import edu.rpi.cmt.access.Acl;
 import edu.rpi.cmt.access.PrincipalInfo;
 import edu.rpi.cmt.access.WhoDefs;
 import edu.rpi.cmt.access.AccessXmlUtil.AccessXmlCb;
-import edu.rpi.cmt.access.Acl.CurrentAccess;
 import edu.rpi.sss.util.xml.QName;
 import edu.rpi.sss.util.xml.XmlEmit;
 import edu.rpi.sss.util.xml.tagdefs.CaldavDefs;
@@ -949,10 +948,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
     try {
       if (cdnode.isCollection()) {
-        CurrentAccess ca = node.getCurrentAccess();
-        if (ca != null) {
-          acl = ca.acl;
-        }
+        acl = node.getCurrentAccess().acl;
       } else if (node instanceof CaldavComponentNode) {
         acl = ((CaldavComponentNode)node).getEventInfo().getCurrentAccess().acl;
       }
@@ -972,16 +968,13 @@ public class CaldavBWIntf extends WebdavNsIntf {
     try {
       TreeSet<String> hrefs = new TreeSet<String>();
 
-      CurrentAccess ca = node.getCurrentAccess();
-      if (ca != null) {
-        for (Ace ace: ca.acl.getAces()) {
-          AceWho who = ace.getWho();
+      for (Ace ace: node.getCurrentAccess().acl.getAces()) {
+        AceWho who = ace.getWho();
 
-          if (who.getWhoType() == WhoDefs.whoTypeUser) {
-            hrefs.add(accessUtil.makeUserHref(who.getWho()));
-          } else if (who.getWhoType() == WhoDefs.whoTypeGroup) {
-            hrefs.add(accessUtil.makeGroupHref(who.getWho()));
-          }
+        if (who.getWhoType() == WhoDefs.whoTypeUser) {
+          hrefs.add(accessUtil.makeUserHref(who.getWho()));
+        } else if (who.getWhoType() == WhoDefs.whoTypeGroup) {
+          hrefs.add(accessUtil.makeGroupHref(who.getWho()));
         }
       }
 

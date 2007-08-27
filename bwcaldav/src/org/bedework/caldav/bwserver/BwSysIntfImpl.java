@@ -581,7 +581,6 @@ public class BwSysIntfImpl implements SysIntf {
                            Acl acl) throws WebdavException {
     try {
       getSvci().changeAccess(cal, acl.getAces(), true);
-      getSvci().updateCalendar(cal);
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
@@ -595,7 +594,6 @@ public class BwSysIntfImpl implements SysIntf {
                            Acl acl) throws WebdavException{
     try {
       getSvci().changeAccess(ev, acl.getAces(), true);
-      getSvci().updateEvent(ev, null, null);
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
