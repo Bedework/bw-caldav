@@ -63,9 +63,6 @@
     <property name="google.jar"
               location="${dist.home}/${edu.rpi.cmt.caldav.google.jar}-${project.version}.jar" />
 
-    <property name="client.jar"
-              location="${dist.home}/${edu.rpi.cmt.caldav.client.jar}-${project.version}.jar" />
-
     <property name="server.jar"
               location="${dist.home}/${edu.rpi.cmt.caldav.server.jar}-${project.version}.jar" />
 
@@ -134,7 +131,6 @@
      =================================================================== -->
 
   <target name="build-source" depends="bld.server,
-                                       bld.client,
                                        bld.bwcaldav,
                                        bld.boeingexchange,
                                        bld.domino,
@@ -156,7 +152,6 @@
                          ${org.bedework.caldav.bwcaldav.base}/src:
                          ${org.bedework.caldav.domino.base}/src:
                          ${org.bedework.caldav.google.base}/src:
-                         ${org.bedework.caldav.client.base}/src:
                          ${org.bedework.caldav.server.base}/src:"
            classpathref="compile.classpath"
                 destdir="${destdir}"
@@ -200,11 +195,6 @@
 
   <target name="bld.google" >
       <ant antfile="${org.bedework.caldav.google.base}/build.xml" inheritrefs="true"
-           target="build" />
-  </target>
-
-  <target name="bld.client">
-      <ant antfile="${org.bedework.caldav.client.base}/build.xml" inheritrefs="true"
            target="build" />
   </target>
 

@@ -591,17 +591,13 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
   /**
    * @param cal
-   * @param req
+   * @param rdr
    * @return Icalendar
    * @throws WebdavException
    */
-  public Icalendar getIcal(BwCalendar cal, HttpServletRequest req)
+  public Icalendar getIcal(BwCalendar cal, Reader rdr)
       throws WebdavException {
-    try {
-      return sysi.fromIcal(cal, new MyReader(req.getReader()));
-    } catch (Throwable t) {
-      throw new WebdavException(t);
-    }
+    return sysi.fromIcal(cal, new MyReader(rdr));
   }
 
   /* (non-Javadoc)

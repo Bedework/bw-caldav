@@ -73,6 +73,7 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 
+import java.io.Reader;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.TreeSet;
@@ -82,7 +83,7 @@ import javax.servlet.http.HttpServletResponse;
 
 /** Class called to handle POST
  *
- *   @author Mike Douglass   douglm@rpi.edu
+ *   @author Mike Douglass   douglm - rpi.edu
  */
 public class PostMethod extends MethodBase {
   /* (non-Javadoc)
@@ -91,14 +92,54 @@ public class PostMethod extends MethodBase {
   public void init() {
   }
 
-  private static class RequestPars {
-    BwCalendar cal;
+  // XXX Make this a global option later
+  private static final String realTimeServiceURI = "rtsvc";
 
-    Icalendar ic;
+  private class RequestPars {
+    String resourceUri;
+
+    String contentType;
 
     String originator;
 
     Collection<String> recipients = new TreeSet<String>();
+
+    Reader reqRdr;
+
+    Icalendar ic;
+
+    BwCalendar cal;
+
+    /* true if this is a realtime request from some other server */
+    boolean realTime;
+
+    RequestPars(HttpServletRequest req, CaldavBWIntf intf) throws WebdavException {
+      SysIntf sysi = intf.getSysi();
+
+      resourceUri = getResourceUri(req);
+      contentType = req.getContentType();
+      originator = adjustPrincipal(req.getHeader("Originator"), sysi);
+
+      Enumeration rs = req.getHeaders("Recipient");
+
+      if (rs != null) {
+        while (rs.hasMoreElements()) {
+          String[] rlist = ((String)rs.nextElement()).split(",");
+
+          if (rlist != null) {
+            for (String r: rlist) {
+              recipients.add(adjustPrincipal(r.trim(), sysi));
+            }
+          }
+        }
+      }
+
+      try {
+        reqRdr = req.getReader();
+      } catch (Throwable t) {
+        throw new WebdavException(t);
+      }
+    }
   }
 
   public void doMethod(HttpServletRequest req,
@@ -107,11 +148,36 @@ public class PostMethod extends MethodBase {
       trace("PostMethod: doMethod");
     }
 
-    try {
-      CaldavBWIntf intf = (CaldavBWIntf)getNsIntf();
-      SysIntf sysi = intf.getSysi();
+    CaldavBWIntf intf = (CaldavBWIntf)getNsIntf();
 
-      WebdavNsNode node = intf.getNode(getResourceUri(req),
+    RequestPars pars = new RequestPars(req, intf);
+
+    if (!realTimeServiceURI.equals(pars.resourceUri)) {
+      // Standard CalDAV scheduling
+      doSchedule(intf, pars, resp);
+      return;
+    }
+
+    /* We have a potential incoming real time scheduling request.
+     *
+     * NOTE: Leaving this enabled is a security risk
+     */
+    warn("*****************************************************************");
+    warn("* Realtime request - security hole");
+    warn("*****************************************************************");
+
+    pars.realTime = true;
+
+    doSchedule(intf, pars, resp);
+  }
+
+  private void doSchedule(CaldavBWIntf intf,
+                          RequestPars pars,
+                          HttpServletResponse resp) throws WebdavException {
+    SysIntf sysi = intf.getSysi();
+
+    try {
+      WebdavNsNode node = intf.getNode(pars.resourceUri,
                                        WebdavNsIntf.existanceMust,
                                        WebdavNsIntf.nodeTypeCollection);
 
@@ -119,8 +185,6 @@ public class PostMethod extends MethodBase {
         resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
         return;
       }
-
-      RequestPars pars = new RequestPars();
 
       /* Preconditions:
         (CALDAV:supported-collection):
@@ -150,32 +214,34 @@ public class PostMethod extends MethodBase {
                 address of users to whom the scheduling message will be delivered.
       */
 
-      /* (CALDAV:supported-collection) */
-      CaldavCalNode calnode = intf.getCalnode(node,
-                                              HttpServletResponse.SC_FORBIDDEN);
-      pars.cal = calnode.getCalendar();
+      if (!pars.realTime) {
+        /* (CALDAV:supported-collection) */
+        CaldavCalNode calnode = intf.getCalnode(node,
+                                                HttpServletResponse.SC_FORBIDDEN);
+        pars.cal = calnode.getCalendar();
 
-      if (pars.cal.getCalType() != BwCalendar.calTypeOutbox) {
-        if (debug) {
-          debugMsg("Not targetted at Outbox");
+        if (pars.cal.getCalType() != BwCalendar.calTypeOutbox) {
+          if (debug) {
+            debugMsg("Not targetted at Outbox");
+          }
+          throw new WebdavException(HttpServletResponse.SC_METHOD_NOT_ALLOWED,
+          "Not targetted at Outbox");
         }
-        throw new WebdavException(HttpServletResponse.SC_METHOD_NOT_ALLOWED, "Not targetted at Outbox");
       }
 
       /* (CALDAV:supported-calendar-data) */
-      if (!req.getContentType().startsWith("text/calendar")) {
+      if (!pars.contentType.startsWith("text/calendar")) {
         if (debug) {
-          debugMsg("Bad content type: " + req.getContentType());
+          debugMsg("Bad content type: " + pars.contentType);
         }
         throw new WebdavForbidden(CaldavTags.supportedCalendarData,
-                                  "Bad content type: " + req.getContentType());
+                                  "Bad content type: " + pars.contentType);
       }
 
       /* (CALDAV:valid-calendar-data) -- later */
       /* (CALDAV:valid-scheduling-message) -- later */
 
       /* (CALDAV:originator-specified) */
-      pars.originator = req.getHeader("Originator");
       if (pars.originator == null) {
         if (debug) {
           debugMsg("No originator");
@@ -183,8 +249,6 @@ public class PostMethod extends MethodBase {
         throw new WebdavForbidden(CaldavTags.originatorSpecified,
                                   "No originator");
       }
-
-      pars.originator = adjustPrincipal(pars.originator, sysi);
 
       /* (CALDAV:originator-allowed)
        *
@@ -212,28 +276,16 @@ public class PostMethod extends MethodBase {
       /* (CALDAV:organizer-allowed) -- later */
 
       /* (CALDAV:recipient-specified) */
-      Enumeration rs = req.getHeaders("Recipient");
-
-      if ((rs == null) || (!rs.hasMoreElements())) {
+      if (pars.recipients.isEmpty()) {
         if (debug) {
           debugMsg("No recipient(s)");
         }
         throw new WebdavForbidden(CaldavTags.recipientSpecified,
                                   "No recipient(s)");
-      } else {
-        while (rs.hasMoreElements()) {
-          String[] rlist = ((String)rs.nextElement()).split(",");
-
-          if (rlist != null) {
-            for (String r: rlist) {
-              pars.recipients.add(adjustPrincipal(r.trim(), sysi));
-            }
-          }
-        }
       }
 
       try {
-        pars.ic = intf.getIcal(pars.cal, req);
+        pars.ic = intf.getIcal(pars.cal, pars.reqRdr);
       } catch (Throwable t) {
         if (debug) {
           error(t);
@@ -284,7 +336,7 @@ public class PostMethod extends MethodBase {
           trace("organizerInfo for " + cn + " is NULL");
         } else {
           trace("organizer cn = " + cn +
-                ", requri = " + getResourceUri(req) +
+                ", resourceUri = " + pars.resourceUri +
                 ", outBoxPath = " + organizerInfo.outboxPath);
         }
       }
@@ -296,7 +348,7 @@ public class PostMethod extends MethodBase {
 
       if (pars.ic.requestMethodType()) {
         /* This must be targetted at the organizers outbox. */
-        if (!getResourceUri(req).equals(organizerInfo.outboxPath)) {
+        if (!pars.resourceUri.equals(organizerInfo.outboxPath)) {
           throw new WebdavForbidden(CaldavTags.organizerAllowed,
                                     "No access for scheduling");
         }
