@@ -381,7 +381,12 @@ public class PostMethod extends MethodBase {
    *
    * If we get an absolute principal - turn it into a relative
    */
-  private String adjustPrincipal(String val, SysIntf sysi) throws WebdavException {
+  private String adjustPrincipal(String val,
+                                 SysIntf sysi) throws WebdavException {
+    if (val == null) {
+      return null;
+    }
+
     if (val.startsWith(sysi.getUrlPrefix())) {
       return val.substring(sysi.getUrlPrefix().length());
     }
