@@ -93,7 +93,7 @@ public class PostMethod extends MethodBase {
   }
 
   // XXX Make this a global option later
-  private static final String realTimeServiceURI = "rtsvc";
+  private static final String realTimeServiceURI = "/rtsvc";
 
   private class RequestPars {
     String resourceUri;
@@ -177,15 +177,6 @@ public class PostMethod extends MethodBase {
     SysIntf sysi = intf.getSysi();
 
     try {
-      WebdavNsNode node = intf.getNode(pars.resourceUri,
-                                       WebdavNsIntf.existanceMust,
-                                       WebdavNsIntf.nodeTypeCollection);
-
-      if (node == null) {
-        resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-        return;
-      }
-
       /* Preconditions:
         (CALDAV:supported-collection):
                The Request-URI MUST identify the location of a scheduling Outbox collection;
@@ -205,16 +196,30 @@ public class PostMethod extends MethodBase {
                 Originator request header in the POST request MUST be granted the
                 CALDAV:schedule privilege or a suitable sub-privilege on the
                 scheduling Outbox collection being targeted by the request;
-        (CALDAV:organizer-allowed): The calendar user identified by the ORGANIZER
-                property in the POST request's scheduling message MUST be the
-                owner (or one of the owners) of the scheduling Outbox being
-                targeted by the request;
+            //(CALDAV:organizer-allowed): The calendar user identified by the ORGANIZER
+            //       property in the POST request's scheduling message MUST be the
+            //       owner (or one of the owners) of the scheduling Outbox being
+            //       targeted by the request;
+        (CALDAV:organizer-allowed): The calendar user identified by the
+                ORGANIZER property in the POST request's scheduling message MUST
+                be the calendar user (or one of the calendar users) associated
+                with the scheduling Outbox being targeted by the request when the
+                scheduling message is an outgoing scheduling message;
         (CALDAV:recipient-specified): The POST request MUST include one or more
                 valid Recipient request headers specifying the calendar user
                 address of users to whom the scheduling message will be delivered.
       */
 
       if (!pars.realTime) {
+        WebdavNsNode node = intf.getNode(pars.resourceUri,
+                                         WebdavNsIntf.existanceMust,
+                                         WebdavNsIntf.nodeTypeCollection);
+
+        if (node == null) {
+          resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+          return;
+        }
+
         /* (CALDAV:supported-collection) */
         CaldavCalNode calnode = intf.getCalnode(node,
                                                 HttpServletResponse.SC_FORBIDDEN);
@@ -250,27 +255,31 @@ public class PostMethod extends MethodBase {
                                   "No originator");
       }
 
-      /* (CALDAV:originator-allowed)
-       *
-       * Every POST request MUST include an Originator request header that
-       * specifies the calendar user address of the originator of a given
-       * scheduling message.  The value specified in this request header MUST
-       * be a calendar user address specified in the CALDAV:calendar-user-
-       * address-set property defined on the principal resource of the
-       * currently authenticated user.  Also, the currently authenticated user
-       * MUST have the CALDAV:schedule privilege or a suitable sub-privilege
-       * granted on the targeted scheduling Outbox collection.
-       *
-       * Ensure the originator is a real calendar user
-       */
-      String originatorAccount = sysi.caladdrToUser(pars.originator);
-      if ((originatorAccount == null) ||
-          !sysi.validUser(originatorAccount)) {
-        if (debug) {
-          debugMsg("No access for scheduling");
+      if (pars.realTime) {
+        // XXX Who is the originator?
+      } else {
+        /* (CALDAV:originator-allowed)
+         *
+         * Every POST request MUST include an Originator request header that
+         * specifies the calendar user address of the originator of a given
+         * scheduling message.  The value specified in this request header MUST
+         * be a calendar user address specified in the CALDAV:calendar-user-
+         * address-set property defined on the principal resource of the
+         * currently authenticated user.  Also, the currently authenticated user
+         * MUST have the CALDAV:schedule privilege or a suitable sub-privilege
+         * granted on the targeted scheduling Outbox collection.
+         *
+         * Ensure the originator is a real calendar user
+         */
+        String originatorAccount = sysi.caladdrToUser(pars.originator);
+        if ((originatorAccount == null) ||
+            !sysi.validUser(originatorAccount)) {
+          if (debug) {
+            debugMsg("No access for scheduling");
+          }
+          throw new WebdavForbidden(CaldavTags.originatorAllowed,
+          "No access for scheduling");
         }
-        throw new WebdavForbidden(CaldavTags.originatorAllowed,
-                                  "No access for scheduling");
       }
 
       /* (CALDAV:organizer-allowed) -- later */
@@ -314,39 +323,39 @@ public class PostMethod extends MethodBase {
       /* (CALDAV:valid-scheduling-message) -- later */
 
       /* (CALDAV:organizer-allowed) */
-      /* There must be a valid organizer with an outbox. */
-      BwOrganizer organizer = pars.ic.getOrganizer();
+      /* There must be a valid organizer with an outbox for outgoing. */
+      if (!pars.realTime && pars.ic.requestMethodType()) {
+        BwOrganizer organizer = pars.ic.getOrganizer();
 
-      if (organizer == null) {
-        throw new WebdavForbidden(CaldavTags.organizerAllowed,
-                                  "No access for scheduling");
-      }
-
-      /* See if it's a valid calendar user. */
-      String cn = organizer.getOrganizerUri();
-      if (cn.startsWith(sysi.getUrlPrefix())) {
-        cn = cn.substring(sysi.getUrlPrefix().length());
-        organizer.setOrganizerUri(cn);
-      }
-      CalUserInfo organizerInfo = sysi.getCalUserInfo(sysi.caladdrToUser(cn),
-                                                      false);
-
-      if (debug) {
-        if (organizerInfo == null) {
-          trace("organizerInfo for " + cn + " is NULL");
-        } else {
-          trace("organizer cn = " + cn +
-                ", resourceUri = " + pars.resourceUri +
-                ", outBoxPath = " + organizerInfo.outboxPath);
+        if (organizer == null) {
+          throw new WebdavForbidden(CaldavTags.organizerAllowed,
+          "No access for scheduling");
         }
-      }
 
-      if (organizerInfo == null) {
-        throw new WebdavForbidden(CaldavTags.organizerAllowed,
-                                  "No access for scheduling");
-      }
+        /* See if it's a valid calendar user. */
+        String cn = organizer.getOrganizerUri();
+        if (cn.startsWith(sysi.getUrlPrefix())) {
+          cn = cn.substring(sysi.getUrlPrefix().length());
+          organizer.setOrganizerUri(cn);
+        }
+        CalUserInfo organizerInfo = sysi.getCalUserInfo(sysi.caladdrToUser(cn),
+                                                        false);
 
-      if (pars.ic.requestMethodType()) {
+        if (debug) {
+          if (organizerInfo == null) {
+            trace("organizerInfo for " + cn + " is NULL");
+          } else {
+            trace("organizer cn = " + cn +
+                  ", resourceUri = " + pars.resourceUri +
+                  ", outBoxPath = " + organizerInfo.outboxPath);
+          }
+        }
+
+        if (organizerInfo == null) {
+          throw new WebdavForbidden(CaldavTags.organizerAllowed,
+          "No access for scheduling");
+        }
+
         /* This must be targetted at the organizers outbox. */
         if (!pars.resourceUri.equals(organizerInfo.outboxPath)) {
           throw new WebdavForbidden(CaldavTags.organizerAllowed,
