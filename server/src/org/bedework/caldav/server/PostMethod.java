@@ -56,7 +56,6 @@ package org.bedework.caldav.server;
 import org.bedework.caldav.server.SysIntf.CalUserInfo;
 import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwEvent;
-import org.bedework.calfacade.BwFreeBusy;
 import org.bedework.calfacade.BwOrganizer;
 import org.bedework.calfacade.ScheduleResult;
 import org.bedework.calfacade.ScheduleResult.ScheduleRecipientResult;
@@ -464,7 +463,7 @@ public class PostMethod extends MethodBase {
       property(CaldavTags.recipient, srr.recipient);
       setReqstat(srr.status);
 
-      BwFreeBusy rfb = srr.freeBusy;
+      BwEvent rfb = srr.freeBusy;
       if (rfb != null) {
         rfb.setOrganizer(pars.ic.getOrganizer());
 

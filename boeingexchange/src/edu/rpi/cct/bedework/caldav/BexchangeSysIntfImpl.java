@@ -60,7 +60,6 @@ import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwDateTime;
 import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.BwEventProxy;
-import org.bedework.calfacade.BwFreeBusy;
 import org.bedework.calfacade.BwUser;
 import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.ScheduleResult;
@@ -441,10 +440,10 @@ public class BexchangeSysIntfImpl implements SysIntf {
     throw new WebdavException("unimplemented");
   }
 
-  public BwFreeBusy getFreeBusy(BwCalendar cal,
-                                String account,
-                                BwDateTime start,
-                                BwDateTime end) throws WebdavException {
+  public BwEvent getFreeBusy(BwCalendar cal,
+                             String account,
+                             BwDateTime start,
+                             BwDateTime end) throws WebdavException {
     /* Create a url something like:
      *  http://t1.egenconsulting.com:80/servlet/Freetime/John?start-min=2006-07-11T12:00:00Z&start-max=2006-07-16T12:00:00Z
      */
@@ -483,7 +482,7 @@ public class BexchangeSysIntfImpl implements SysIntf {
         debugMsg("Got response \n" + resp.getResponseBodyAsString());
       }
       /*
-      BwFreeBusy fb = makeFb(start, end,
+      BwEvent fb = makeFb(start, end,
                              "000010110000111100001101" +
                              "000010110000111100001101" +
                              "000010110000111100001101" +
@@ -503,8 +502,8 @@ public class BexchangeSysIntfImpl implements SysIntf {
       while (fbit.hasNext()) {
         Object o = fbit.next();
 
-        if (o instanceof BwFreeBusy) {
-          return (BwFreeBusy)o;
+        if (o instanceof BwEvent) {
+          return (BwEvent)o;
         }
       }
 

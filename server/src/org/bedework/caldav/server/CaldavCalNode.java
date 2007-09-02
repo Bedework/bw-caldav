@@ -55,7 +55,7 @@
 package org.bedework.caldav.server;
 
 import org.bedework.calfacade.BwCalendar;
-import org.bedework.calfacade.BwFreeBusy;
+import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.BwProperty;
 import org.bedework.calfacade.BwUser;
 import org.bedework.calfacade.RecurringRetrievalMode;
@@ -250,7 +250,7 @@ public class CaldavCalNode extends CaldavBwNode {
    * @param fb
    * @throws WebdavException
    */
-  public void setFreeBusy(BwFreeBusy fb) throws WebdavException {
+  public void setFreeBusy(BwEvent fb) throws WebdavException {
     try {
       VFreeBusy vfreeBusy = VFreeUtil.toVFreeBusy(fb);
       if (vfreeBusy != null) {

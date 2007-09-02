@@ -30,7 +30,6 @@ import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwDateTime;
 import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.BwEventProxy;
-import org.bedework.calfacade.BwFreeBusy;
 import org.bedework.calfacade.BwUserInfo;
 import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.ScheduleResult;
@@ -393,13 +392,13 @@ public interface SysIntf {
    * @param account
    * @param start
    * @param end
-   * @return BwFreeBusy
+   * @return BwEvent
    * @throws WebdavException
    */
-  public BwFreeBusy getFreeBusy(BwCalendar cal,
-                                String account,
-                                BwDateTime start,
-                                BwDateTime end) throws WebdavException;
+  public BwEvent getFreeBusy(BwCalendar cal,
+                             String account,
+                             BwDateTime start,
+                             BwDateTime end) throws WebdavException;
 
   /** Check the access for the given entity. Returns the current access
    * or null or optionally throws a no access exception.

@@ -59,7 +59,6 @@ import org.bedework.caldav.server.calquery.FreeBusyQuery;
 import org.bedework.caldav.server.filter.Filter;
 import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwEvent;
-import org.bedework.calfacade.BwFreeBusy;
 import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.RecurringRetrievalMode.Rmode;
 import org.bedework.calfacade.env.CalEnvFactory;
@@ -628,7 +627,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
         if (o instanceof EventInfo) {
           pcr.created = putEvent(bwnode, (EventInfo)o, create, ifEtag);
-        } else if (o instanceof BwFreeBusy) {
         } else {
           fail = true;
           break;
@@ -1237,9 +1235,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
                           FreeBusyQuery freeBusy,
                           int depth) throws WebdavException {
     try {
-      BwFreeBusy fb = freeBusy.getFreeBusy(sysi, cnode.getCalendar(),
-                                           cnode.getOwner(),
-                                           depth);
+      BwEvent fb = freeBusy.getFreeBusy(sysi, cnode.getCalendar(),
+                                        cnode.getOwner(),
+                                        depth);
 
       cnode.setFreeBusy(fb);
     } catch (WebdavException we) {

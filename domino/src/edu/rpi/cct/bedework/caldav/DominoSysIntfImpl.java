@@ -59,8 +59,8 @@ import org.bedework.caldav.server.PropertyHandler.PropertyType;
 import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwDateTime;
 import org.bedework.calfacade.BwEvent;
+import org.bedework.calfacade.BwEventObj;
 import org.bedework.calfacade.BwEventProxy;
-import org.bedework.calfacade.BwFreeBusy;
 import org.bedework.calfacade.BwFreeBusyComponent;
 import org.bedework.calfacade.BwUser;
 import org.bedework.calfacade.RecurringRetrievalMode;
@@ -439,10 +439,10 @@ public class DominoSysIntfImpl implements SysIntf {
     throw new WebdavException("unimplemented");
   }
 
-  public BwFreeBusy getFreeBusy(BwCalendar cal,
-                                String account,
-                                BwDateTime start,
-                                BwDateTime end) throws WebdavException {
+  public BwEvent getFreeBusy(BwCalendar cal,
+                             String account,
+                             BwDateTime start,
+                             BwDateTime end) throws WebdavException {
     /* Create a url something like:
      *  http://t1.egenconsulting.com:80/servlet/Freetime/John?start-min=2006-07-11T12:00:00Z&start-max=2006-07-16T12:00:00Z
      */
@@ -488,10 +488,10 @@ public class DominoSysIntfImpl implements SysIntf {
       while (fbit.hasNext()) {
         Object o = fbit.next();
 
-        if (o instanceof BwFreeBusy) {
-          BwFreeBusy fb = (BwFreeBusy)o;
+        if (o instanceof BwEvent) {
+          BwEvent fb = (BwEvent)o;
 
-          Collection<BwFreeBusyComponent> times = fb.getTimes();
+          Collection<BwFreeBusyComponent> times = fb.getFreeBusyPeriods();
 
           if (times != null) {
             for (BwFreeBusyComponent fbcomp: times) {
@@ -507,14 +507,14 @@ public class DominoSysIntfImpl implements SysIntf {
         }
       }
 
-      BwFreeBusy fb = new BwFreeBusy();
+      BwEvent fb = new BwEventObj();
 
       fb.setDtstart(start);
       fb.setDtend(end);
 
       BwFreeBusyComponent fbcomp = new BwFreeBusyComponent();
 
-      fb.addTime(fbcomp);
+      fb.addFreeBusyPeriod(fbcomp);
 
       fbcomp.setType(BwFreeBusyComponent.typeBusy);
 

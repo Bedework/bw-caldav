@@ -32,7 +32,6 @@ import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwDateTime;
 import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.BwEventProxy;
-import org.bedework.calfacade.BwFreeBusy;
 import org.bedework.calfacade.BwSystem;
 import org.bedework.calfacade.BwUser;
 import org.bedework.calfacade.BwUserInfo;
@@ -542,10 +541,10 @@ public class BwSysIntfImpl implements SysIntf {
     }
   }
 
-  public BwFreeBusy getFreeBusy(BwCalendar cal,
-                                String account,
-                                BwDateTime start,
-                                BwDateTime end) throws WebdavException {
+  public BwEvent getFreeBusy(BwCalendar cal,
+                             String account,
+                             BwDateTime start,
+                             BwDateTime end) throws WebdavException {
     try {
       BwUser user = getSvci().findUser(account, false);
       if (user == null) {

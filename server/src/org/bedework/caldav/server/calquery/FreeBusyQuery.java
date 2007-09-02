@@ -30,7 +30,9 @@ import org.bedework.caldav.server.CaldavBWIntf;
 import org.bedework.caldav.server.SysIntf;
 import org.bedework.calfacade.base.TimeRange;
 import org.bedework.calfacade.BwCalendar;
-import org.bedework.calfacade.BwFreeBusy;
+import org.bedework.calfacade.BwEvent;
+import org.bedework.calfacade.BwEventObj;
+import org.bedework.calfacade.CalFacadeDefs;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
@@ -98,12 +100,12 @@ public class FreeBusyQuery {
    * @param cal
    * @param account
    * @param depth
-   * @return BwFreeBusy
+   * @return BwEvent
    * @throws WebdavException
    */
-  public BwFreeBusy getFreeBusy(SysIntf sysi, BwCalendar cal,
-                                String account,
-                                int depth) throws WebdavException {
+  public BwEvent getFreeBusy(SysIntf sysi, BwCalendar cal,
+                             String account,
+                             int depth) throws WebdavException {
     try {
       int calType = cal.getCalType();
 
@@ -126,9 +128,10 @@ public class FreeBusyQuery {
         cal = newCal;
       }
 
-      BwFreeBusy fb;
+      BwEvent fb;
       if (cal == null) {
-        fb = new BwFreeBusy();
+        fb = new BwEventObj();
+        fb.setEntityType(CalFacadeDefs.entityTypeFreeAndBusy);
         fb.setDtstart(timeRange.getStart());
         fb.setDtend(timeRange.getEnd());
       } else {

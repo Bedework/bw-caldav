@@ -59,10 +59,11 @@ import org.bedework.caldav.server.PropertyHandler.PropertyType;
 import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwDateTime;
 import org.bedework.calfacade.BwEvent;
+import org.bedework.calfacade.BwEventObj;
 import org.bedework.calfacade.BwEventProxy;
-import org.bedework.calfacade.BwFreeBusy;
 import org.bedework.calfacade.BwFreeBusyComponent;
 import org.bedework.calfacade.BwUser;
+import org.bedework.calfacade.CalFacadeDefs;
 import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.ScheduleResult;
 import org.bedework.calfacade.base.BwShareableDbentity;
@@ -359,7 +360,7 @@ public class GoogleSysIntfImpl implements SysIntf {
     throw new WebdavException("unimplemented");
   }
 
-  public BwFreeBusy getFreeBusy(BwCalendar cal,
+  public BwEvent getFreeBusy(BwCalendar cal,
                                 String account,
                                 BwDateTime start,
                                 BwDateTime end) throws WebdavException {
@@ -414,7 +415,12 @@ public class GoogleSysIntfImpl implements SysIntf {
       //       Send the request and receive the response:
       Feed resultFeed = (Feed)svc.query(q, Feed.class);
 
-      BwFreeBusy fb = new BwFreeBusy(new BwUser(account), start, end);
+      BwEvent fb = new BwEventObj();
+
+      fb.setEntityType(CalFacadeDefs.entityTypeFreeAndBusy);
+      fb.setOwner(new BwUser(account));
+      fb.setDtstart(start);
+      fb.setDtend(end);
       //assignGuid(fb);
 
       for (Entry e: resultFeed.getEntries()) {
@@ -464,7 +470,7 @@ public class GoogleSysIntfImpl implements SysIntf {
           fbc.addPeriod(icalStart, icalEnd);
         }
 
-        fb.addTime(fbc);
+        fb.addFreeBusyPeriod(fbc);
       }
 
       return fb;
