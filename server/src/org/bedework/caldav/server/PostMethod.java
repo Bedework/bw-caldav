@@ -94,14 +94,21 @@ public class PostMethod extends MethodBase {
   // XXX Make this a global option later
   private static final String realTimeServiceURI = "/rtsvc";
 
-  private class RequestPars {
+  // XXX Make this a global option later
+  private static final String fburlServiceURI = "/fbsvc";
+
+  /**
+   */
+  public static class RequestPars {
     String resourceUri;
 
     String contentType;
 
-    String originator;
+    /** value of the Originator header */
+    public String originator;
 
-    Collection<String> recipients = new TreeSet<String>();
+    /** values of Recipient headers */
+    public Collection<String> recipients = new TreeSet<String>();
 
     Reader reqRdr;
 
@@ -112,32 +119,68 @@ public class PostMethod extends MethodBase {
     /* true if this is a realtime request from some other server */
     boolean realTime;
 
-    RequestPars(HttpServletRequest req, CaldavBWIntf intf) throws WebdavException {
+    /** true if this is a busy request from some other server */
+    public boolean freeBusy;
+
+    /**
+     * @param req
+     * @param intf
+     * @param resourceUri
+     * @throws WebdavException
+     */
+    public RequestPars(HttpServletRequest req, CaldavBWIntf intf,
+                String resourceUri) throws WebdavException {
       SysIntf sysi = intf.getSysi();
 
-      resourceUri = getResourceUri(req);
+      this.resourceUri = resourceUri;
+      realTime = realTimeServiceURI.equals(resourceUri);
+      if (!realTime) {
+        freeBusy = fburlServiceURI.equals(resourceUri);
+      }
+
       contentType = req.getContentType();
-      originator = adjustPrincipal(req.getHeader("Originator"), sysi);
 
-      Enumeration rs = req.getHeaders("Recipient");
+      if (!freeBusy) {
+        originator = adjustPrincipal(req.getHeader("Originator"), sysi);
 
-      if (rs != null) {
-        while (rs.hasMoreElements()) {
-          String[] rlist = ((String)rs.nextElement()).split(",");
+        Enumeration rs = req.getHeaders("Recipient");
 
-          if (rlist != null) {
-            for (String r: rlist) {
-              recipients.add(adjustPrincipal(r.trim(), sysi));
+        if (rs != null) {
+          while (rs.hasMoreElements()) {
+            String[] rlist = ((String)rs.nextElement()).split(",");
+
+            if (rlist != null) {
+              for (String r: rlist) {
+                recipients.add(adjustPrincipal(r.trim(), sysi));
+              }
             }
           }
         }
+
+        try {
+          reqRdr = req.getReader();
+        } catch (Throwable t) {
+          throw new WebdavException(t);
+        }
+      }
+    }
+
+    /* We seem to be getting both absolute and relative principals as well as mailto
+     * forms of calendar user.
+     *
+     * If we get an absolute principal - turn it into a relative
+     */
+    private String adjustPrincipal(String val,
+                                   SysIntf sysi) throws WebdavException {
+      if (val == null) {
+        return null;
       }
 
-      try {
-        reqRdr = req.getReader();
-      } catch (Throwable t) {
-        throw new WebdavException(t);
+      if (val.startsWith(sysi.getUrlPrefix())) {
+        return val.substring(sysi.getUrlPrefix().length());
       }
+
+      return val;
     }
   }
 
@@ -149,9 +192,9 @@ public class PostMethod extends MethodBase {
 
     CaldavBWIntf intf = (CaldavBWIntf)getNsIntf();
 
-    RequestPars pars = new RequestPars(req, intf);
+    RequestPars pars = new RequestPars(req, intf, getResourceUri(req));
 
-    if (!realTimeServiceURI.equals(pars.resourceUri)) {
+    if (!pars.realTime) {
       // Standard CalDAV scheduling
       doSchedule(intf, pars, resp);
       return;
@@ -170,9 +213,16 @@ public class PostMethod extends MethodBase {
     doSchedule(intf, pars, resp);
   }
 
-  private void doSchedule(CaldavBWIntf intf,
-                          RequestPars pars,
-                          HttpServletResponse resp) throws WebdavException {
+  /** Handle a scheduling action
+   *
+   * @param intf
+   * @param pars
+   * @param resp
+   * @throws WebdavException
+   */
+  public void doSchedule(CaldavBWIntf intf,
+                         RequestPars pars,
+                         HttpServletResponse resp) throws WebdavException {
     SysIntf sysi = intf.getSysi();
 
     try {
@@ -384,25 +434,6 @@ public class PostMethod extends MethodBase {
     }
   }
 
-  /* We seem to be getting both absolute and relative principals as well as mailto
-   * forms of calendar user.
-   *
-   * If we get an absolute principal - turn it into a relative
-   */
-  private String adjustPrincipal(String val,
-                                 SysIntf sysi) throws WebdavException {
-    if (val == null) {
-      return null;
-    }
-
-    if (val.startsWith(sysi.getUrlPrefix())) {
-      return val.substring(sysi.getUrlPrefix().length());
-    }
-
-    return val;
-  }
-
-
   private void handleEvent(CaldavBWIntf intf,
                            RequestPars pars,
                            HttpServletResponse resp) throws WebdavException {
@@ -449,6 +480,10 @@ public class PostMethod extends MethodBase {
     ev.setScheduleMethod(pars.ic.getMethodType());
 
     ScheduleResult sr = intf.getSysi().requestFreeBusy(ei);
+
+    if (debug) {
+      debugMsg("ScheduleResult: " + sr);
+    }
     checkStatus(sr);
 
     startEmit(resp);
@@ -485,13 +520,14 @@ public class PostMethod extends MethodBase {
     }
   }
 
-  private boolean checkStatus(ScheduleResult sr) throws WebdavException {
+  /**
+   * @param sr
+   * @return boolean
+   * @throws WebdavException
+   */
+  public static boolean checkStatus(ScheduleResult sr) throws WebdavException {
     if (sr.errorCode == null) {
       return true;
-    }
-
-    if (debug) {
-      debugMsg("ScheduleResult: " + sr);
     }
 
     if (sr.errorCode == CalFacadeException.schedulingBadMethod) {

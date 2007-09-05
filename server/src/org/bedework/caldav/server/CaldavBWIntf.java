@@ -53,18 +53,28 @@
 */
 package org.bedework.caldav.server;
 
+import org.bedework.caldav.server.PostMethod.RequestPars;
 import org.bedework.caldav.server.SysIntf.CalUserInfo;
 import org.bedework.caldav.server.calquery.CalendarData;
 import org.bedework.caldav.server.calquery.FreeBusyQuery;
 import org.bedework.caldav.server.filter.Filter;
 import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwEvent;
+import org.bedework.calfacade.BwEventObj;
+import org.bedework.calfacade.BwOrganizer;
+import org.bedework.calfacade.CalFacadeDefs;
 import org.bedework.calfacade.RecurringRetrievalMode;
+import org.bedework.calfacade.ScheduleResult;
 import org.bedework.calfacade.RecurringRetrievalMode.Rmode;
+import org.bedework.calfacade.ScheduleResult.ScheduleRecipientResult;
 import org.bedework.calfacade.env.CalEnvFactory;
 import org.bedework.calfacade.env.CalEnvI;
 import org.bedework.calfacade.svc.EventInfo;
+import org.bedework.calfacade.util.DateTimeUtil;
+import org.bedework.calfacade.util.DateTimeUtil.DatePeriod;
+import org.bedework.icalendar.IcalTranslator;
 import org.bedework.icalendar.Icalendar;
+import org.bedework.icalendar.VFreeUtil;
 
 import edu.rpi.cct.webdav.servlet.common.AccessUtil;
 import edu.rpi.cct.webdav.servlet.common.Headers;
@@ -96,6 +106,7 @@ import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 
 import net.fortuna.ical4j.model.TimeZone;
+import net.fortuna.ical4j.model.component.VFreeBusy;
 
 import java.io.IOException;
 import java.io.LineNumberReader;
@@ -104,6 +115,7 @@ import java.io.Serializable;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -848,6 +860,97 @@ public class CaldavBWIntf extends WebdavNsIntf {
       resp.setStatus(HttpServletResponse.SC_CREATED);
       Headers.makeLocation(resp, getLocation(to), debug);
     }
+  }
+
+  public boolean specialUri(HttpServletRequest req,
+                            HttpServletResponse resp,
+                            String resourceUri) throws WebdavException {
+    RequestPars pars = new RequestPars(req, this, resourceUri);
+
+    if (!pars.freeBusy) {
+      return false;
+    }
+
+    try {
+      if (account != null) {
+        pars.originator = getSysi().userToCaladdr(account);
+      }
+
+      String cua = req.getParameter("cua");
+
+      if (cua == null) {
+        String user = req.getParameter("user");
+        if (user == null) {
+          if (account == null) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing user/cua");
+            return true;
+          }
+
+          user = account;
+        }
+
+        cua = getSysi().userToCaladdr(user);
+      }
+
+      pars.recipients.add(cua);
+      BwOrganizer org = new BwOrganizer();
+      org.setOrganizerUri(cua);
+
+      pars.contentType = "text/calendar";
+
+      DatePeriod dp = DateTimeUtil.getPeriod(req.getParameter("start"),
+                                             req.getParameter("end"),
+                                             Calendar.WEEK_OF_YEAR, 1,
+                                             Calendar.DATE, 32,
+                                             getSysi().getTimezones());
+
+      if (dp == null) {
+        resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Date/times");
+        return true;
+      }
+
+      BwEvent ev = new BwEventObj();
+      ev.setDtstart(dp.start);
+      ev.setDtend(dp.end);
+
+      ev.setEntityType(CalFacadeDefs.entityTypeFreeAndBusy);
+
+      ev.setScheduleMethod(Icalendar.methodTypeRequest);
+
+      ev.setRecipients(pars.recipients);
+      ev.setOriginator(pars.originator);
+      ev.setOrganizer(org);
+      resp.setContentType("text/calendar");
+
+      ScheduleResult sr = getSysi().requestFreeBusy(new EventInfo(ev));
+      PostMethod.checkStatus(sr);
+
+      for (ScheduleRecipientResult srr: sr.recipientResults) {
+        // We expect one only
+        BwEvent rfb = srr.freeBusy;
+        if (rfb != null) {
+          rfb.setOrganizer(org);
+
+          try {
+            VFreeBusy vfreeBusy = VFreeUtil.toVFreeBusy(rfb);
+            net.fortuna.ical4j.model.Calendar ical = IcalTranslator.newIcal(Icalendar.methodTypeReply);
+            ical.getComponents().add(vfreeBusy);
+            IcalTranslator.writeCalendar(ical, resp.getWriter());
+          } catch (Throwable t) {
+            if (debug) {
+              error(t);
+            }
+            throw new WebdavException(t);
+          }
+        }
+      }
+    } catch (WebdavException wde) {
+      throw wde;
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
+
+    return true;
   }
 
   /* ====================================================================
