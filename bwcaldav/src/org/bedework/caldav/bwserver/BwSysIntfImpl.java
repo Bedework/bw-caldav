@@ -506,7 +506,7 @@ public class BwSysIntfImpl implements SysIntf {
 
   public void deleteEvent(BwEvent ev) throws WebdavException {
     try {
-      getSvci().deleteEvent(ev, true);
+      getSvci().deleteEvent(ev, true, true); // Delete unreffed
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
