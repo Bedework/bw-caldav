@@ -98,7 +98,7 @@ public class CaldavBWServlet extends WebdavServlet {
     // Replace methods
     methods.put("MKCALENDAR", new MethodInfo(MkcalendarMethod.class, true));
     //methods.put("OPTIONS", new MethodInfo(CalDavOptionsMethod.class, false));
-    methods.put("POST", new MethodInfo(PostMethod.class, true));
+    methods.put("POST", new MethodInfo(PostMethod.class, false));  // Allow unauth POST for freebusy etc. true));
     methods.put("REPORT", new MethodInfo(CaldavReportMethod.class, false));
   }
 
