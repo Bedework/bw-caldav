@@ -272,7 +272,7 @@ public class BwSysIntfImpl implements SysIntf {
         return null;
       }
 
-      String userHomePath = cal.getPath();
+      String userHomePath = cal.getPath() + "/";
 
       //String userHomePath = "/" + sys.getUserCalendarRoot() +
       //                      "/" + account + "/";
