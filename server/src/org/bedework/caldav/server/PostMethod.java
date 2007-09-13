@@ -210,6 +210,10 @@ public class PostMethod extends MethodBase {
 
     pars.realTime = true;
 
+    if (intf.getSysi().getAccount() == null) {
+      intf.reAuth(req, "realtime01");
+    }
+
     doSchedule(intf, pars, resp);
   }
 
@@ -515,9 +519,9 @@ public class PostMethod extends MethodBase {
       }
 
       closeTag(CaldavTags.response);
-
-      closeTag(CaldavTags.scheduleResponse);
     }
+
+    closeTag(CaldavTags.scheduleResponse);
   }
 
   /**

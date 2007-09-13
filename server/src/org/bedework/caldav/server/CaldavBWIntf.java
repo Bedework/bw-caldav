@@ -200,7 +200,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
     super.init(servlet, req, props, debug, methods, dumpContent);
 
     try {
-
       HttpSession session = req.getSession();
       ServletContext sc = session.getServletContext();
 
@@ -214,6 +213,31 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       namespacePrefix = WebdavUtils.getUrlPrefix(req);
       namespace = namespacePrefix + "/schema";
+
+      CalEnvI env = CalEnvFactory.getEnv(envPrefix, debug);
+
+      sysi = (SysIntf)env.getAppObject("sysintfimpl", SysIntf.class);
+
+      sysi.init(req, envPrefix, account, debug);
+
+      accessUtil = new AccessUtil(namespacePrefix, xml,
+                                  new CalDavAccessXmlCb(sysi), debug);
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
+  }
+
+  /** See if we can reauthenticate. Use for real-time service which needs to
+   * authenticaet as a particular principal.
+   *
+   * @param req
+   * @param account
+   * @throws WebdavException
+   */
+  public void reAuth(HttpServletRequest req,
+                     String account) throws WebdavException {
+    try {
+      this.account = account;
 
       CalEnvI env = CalEnvFactory.getEnv(envPrefix, debug);
 
