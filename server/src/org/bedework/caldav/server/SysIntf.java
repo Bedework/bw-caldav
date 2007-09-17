@@ -42,6 +42,7 @@ import org.bedework.icalendar.Icalendar;
 
 import edu.rpi.cct.webdav.servlet.shared.PrincipalPropertySearch;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
+import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode.UrlHandler;
 import edu.rpi.cmt.access.Acl;
 import edu.rpi.cmt.access.PrincipalInfo;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
@@ -95,9 +96,19 @@ public interface SysIntf {
   public PropertyHandler getPropertyHandler(PropertyType ptype) throws WebdavException;
 
   /**
-   * @return String url prefix derived from request.
+   * @return UrlHandler object to manipulate urls.
    */
+  public UrlHandler getUrlHandler();
+
+  /* *
+   * @return String url prefix derived from request.
+   * /
   public String getUrlPrefix();
+
+  /* *
+   * @return boolean - true if using relative urls for broken clients
+   * /
+  public boolean getRelativeUrls();*/
 
   /** Does the value appear to represent a valid principal?
    *

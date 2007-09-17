@@ -176,11 +176,14 @@ public class PostMethod extends MethodBase {
         return null;
       }
 
+      return sysi.getUrlHandler().unprefix(val);
+      /*
       if (val.startsWith(sysi.getUrlPrefix())) {
         return val.substring(sysi.getUrlPrefix().length());
       }
 
       return val;
+      */
     }
   }
 
@@ -387,10 +390,13 @@ public class PostMethod extends MethodBase {
 
         /* See if it's a valid calendar user. */
         String cn = organizer.getOrganizerUri();
+        /*
         if (cn.startsWith(sysi.getUrlPrefix())) {
           cn = cn.substring(sysi.getUrlPrefix().length());
           organizer.setOrganizerUri(cn);
         }
+        */
+        organizer.setOrganizerUri(sysi.getUrlHandler().unprefix(cn));
         CalUserInfo organizerInfo = sysi.getCalUserInfo(sysi.caladdrToUser(cn),
                                                         false);
 
@@ -465,7 +471,9 @@ public class PostMethod extends MethodBase {
     for (ScheduleRecipientResult srr: sr.recipientResults) {
       openTag(CaldavTags.response);
 
-      property(CaldavTags.recipient, srr.recipient);
+      openTag(CaldavTags.recipient);
+      property(WebdavTags.href, srr.recipient);
+      closeTag(CaldavTags.recipient);
 
       setReqstat(srr.status);
       closeTag(CaldavTags.response);
@@ -499,7 +507,9 @@ public class PostMethod extends MethodBase {
 
     for (ScheduleRecipientResult srr: sr.recipientResults) {
       openTag(CaldavTags.response);
-      property(CaldavTags.recipient, srr.recipient);
+      openTag(CaldavTags.recipient);
+      property(WebdavTags.href, srr.recipient);
+      closeTag(CaldavTags.recipient);
       setReqstat(srr.status);
 
       BwEvent rfb = srr.freeBusy;

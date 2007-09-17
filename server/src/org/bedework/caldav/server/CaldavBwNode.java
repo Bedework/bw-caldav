@@ -62,7 +62,7 @@ public abstract class CaldavBwNode extends WebdavNsNode {
   private SysIntf sysi;
 
   CaldavBwNode(CaldavURI cdURI, SysIntf sysi, boolean debug) {
-    super(sysi.getUrlPrefix(), cdURI.getPath(), cdURI.isCollection(), debug);
+    super(sysi.getUrlHandler(), cdURI.getPath(), cdURI.isCollection(), debug);
 
     //this.cdURI = cdURI;
     this.sysi = sysi;
@@ -73,7 +73,7 @@ public abstract class CaldavBwNode extends WebdavNsNode {
   }
 
   CaldavBwNode(boolean collection, SysIntf sysi, boolean debug) {
-    super(sysi.getUrlPrefix(), null, collection, debug);
+    super(sysi.getUrlHandler(), null, collection, debug);
 
     //this.cdURI = cdURI;
     this.sysi = sysi;
@@ -158,13 +158,20 @@ public abstract class CaldavBwNode extends WebdavNsNode {
 
     try {
       if (tag.equals(CaldavTags.calendarUserAddressSet)) {
-        xml.property(tag, sysi.userToCaladdr(getOwner()));
+        xml.openTag(tag);
+        generateHref(xml, sysi.userToCaladdr(getOwner()));
+        xml.closeTag(tag);
+
         return true;
       }
 
       if (tag.equals(CaldavTags.calendarHomeSet)) {
+        /*
         xml.property(tag, sysi.getUrlPrefix() +
                      sysi.getCalUserInfo(getOwner(), false).userHomePath);
+                     */
+        xml.property(tag, sysi.getUrlHandler().prefix(
+                     sysi.getCalUserInfo(getOwner(), false).userHomePath));
         return true;
       }
 

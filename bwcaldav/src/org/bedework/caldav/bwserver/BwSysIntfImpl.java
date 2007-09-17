@@ -56,7 +56,6 @@ import org.bedework.icalendar.IcalMalformedException;
 import org.bedework.icalendar.IcalTranslator;
 import org.bedework.icalendar.Icalendar;
 
-import edu.rpi.cct.webdav.servlet.common.WebdavUtils;
 import edu.rpi.cct.webdav.servlet.shared.PrincipalPropertySearch;
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
@@ -65,6 +64,7 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavNotFound;
 import edu.rpi.cct.webdav.servlet.shared.WebdavProperty;
 import edu.rpi.cct.webdav.servlet.shared.WebdavUnauthorized;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode.PropertyTagEntry;
+import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode.UrlHandler;
 import edu.rpi.cmt.access.Ace;
 import edu.rpi.cmt.access.Acl;
 import edu.rpi.cmt.access.PrincipalInfo;
@@ -109,7 +109,11 @@ public class BwSysIntfImpl implements SysIntf {
   private IcalTranslator trans;
   private CalSvcI svci;
 
-  private String urlPrefix;
+  private UrlHandler urlHandler;
+
+  //private String urlPrefix;
+
+  //private boolean relativeUrls = false;
 
   public void init(HttpServletRequest req,
                    String envPrefix,
@@ -133,7 +137,7 @@ public class BwSysIntfImpl implements SysIntf {
 
       sb.append(req.getContextPath());*/
 
-      urlPrefix = WebdavUtils.getUrlPrefix(req);
+      urlHandler = new UrlHandler(req, true);
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
@@ -155,19 +159,33 @@ public class BwSysIntfImpl implements SysIntf {
     }
   }
 
-  /** Get a property handler
-   *
-   * @param ptype
-   * @return PropertyHandler
-   * @throws WebdavException
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#getPropertyHandler(org.bedework.caldav.server.PropertyHandler.PropertyType)
    */
   public PropertyHandler getPropertyHandler(PropertyType ptype) throws WebdavException {
     return new MyPropertyHandler();
   }
 
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#getUrlHandler()
+   */
+  public UrlHandler getUrlHandler() {
+    return urlHandler;
+  }
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#getUrlPrefix()
+   * /
   public String getUrlPrefix() {
     return urlPrefix;
   }
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#getRelativeUrls()
+   * /
+  public boolean getRelativeUrls() {
+    return relativeUrls;
+  }*/
 
   /* (non-Javadoc)
    * @see org.bedework.caldav.server.SysIntf#isPrincipal(java.lang.String)
@@ -199,7 +217,8 @@ public class BwSysIntfImpl implements SysIntf {
    */
   public String makeHref(String id, int whoType) throws WebdavException {
     try {
-      return getUrlPrefix() + getSvci().getDirectories().makePrincipalUri(id, whoType);
+      return getUrlHandler().prefix(getSvci().getDirectories().makePrincipalUri(id, whoType));
+//      return getUrlPrefix() + getSvci().getDirectories().makePrincipalUri(id, whoType);
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
@@ -403,7 +422,8 @@ public class BwSysIntfImpl implements SysIntf {
       }
 
       for (BwCalendar cal: cals) {
-        hrefs.add(getUrlPrefix() + cal.getPath());
+        hrefs.add(getUrlHandler().prefix(cal.getPath()));
+        //hrefs.add(getUrlPrefix() + cal.getPath());
       }
 
       return hrefs;
