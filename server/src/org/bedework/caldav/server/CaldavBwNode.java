@@ -33,6 +33,7 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
 import edu.rpi.sss.util.xml.QName;
 import edu.rpi.sss.util.xml.XmlEmit;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
+import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -159,7 +160,7 @@ public abstract class CaldavBwNode extends WebdavNsNode {
     try {
       if (tag.equals(CaldavTags.calendarUserAddressSet)) {
         xml.openTag(tag);
-        generateHref(xml, sysi.userToCaladdr(getOwner()));
+        xml.property(WebdavTags.href, sysi.userToCaladdr(getOwner()));
         xml.closeTag(tag);
 
         return true;
