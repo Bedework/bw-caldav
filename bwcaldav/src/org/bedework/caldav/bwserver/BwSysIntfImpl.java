@@ -302,7 +302,7 @@ public class BwSysIntfImpl implements SysIntf {
       BwUserInfo dirInfo = null;
 
       if (getDirInfo) {
-        dirInfo = getSvci().getDirInfo(account);
+        dirInfo = getSvci().getDirectories().getDirInfo(account);
       }
 
       // XXX Cheat at this - we should just use principals throughout.
