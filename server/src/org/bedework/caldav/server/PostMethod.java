@@ -59,6 +59,7 @@ import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.BwOrganizer;
 import org.bedework.calfacade.ScheduleResult;
 import org.bedework.calfacade.ScheduleResult.ScheduleRecipientResult;
+import org.bedework.calfacade.configs.CalDAVConfig;
 import org.bedework.calfacade.exc.CalFacadeException;
 import org.bedework.calfacade.svc.EventInfo;
 import org.bedework.icalendar.IcalTranslator;
@@ -90,12 +91,6 @@ public class PostMethod extends MethodBase {
    */
   public void init() {
   }
-
-  // XXX Make this a global option later
-  private static final String realTimeServiceURI = "/rtsvc";
-
-  // XXX Make this a global option later
-  private static final String fburlServiceURI = "/fbsvc";
 
   /**
    */
@@ -133,9 +128,15 @@ public class PostMethod extends MethodBase {
       SysIntf sysi = intf.getSysi();
 
       this.resourceUri = resourceUri;
-      realTime = realTimeServiceURI.equals(resourceUri);
-      if (!realTime) {
-        freeBusy = fburlServiceURI.equals(resourceUri);
+
+      CalDAVConfig conf = intf.getConfig();
+
+      if (conf.getRealTimeServiceURI() != null) {
+        realTime = conf.getRealTimeServiceURI().equals(resourceUri);
+      }
+
+      if (!realTime && (conf.getFburlServiceURI() != null)) {
+        freeBusy = conf.getFburlServiceURI().equals(resourceUri);
       }
 
       contentType = req.getContentType();

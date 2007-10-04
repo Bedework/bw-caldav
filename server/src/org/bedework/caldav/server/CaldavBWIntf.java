@@ -67,8 +67,10 @@ import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.ScheduleResult;
 import org.bedework.calfacade.RecurringRetrievalMode.Rmode;
 import org.bedework.calfacade.ScheduleResult.ScheduleRecipientResult;
+import org.bedework.calfacade.configs.CalDAVConfig;
 import org.bedework.calfacade.env.CalEnvFactory;
 import org.bedework.calfacade.env.CalEnvI;
+import org.bedework.calfacade.env.CalOptionsFactory;
 import org.bedework.calfacade.svc.EventInfo;
 import org.bedework.calfacade.util.DateTimeUtil;
 import org.bedework.calfacade.util.DateTimeUtil.DatePeriod;
@@ -161,6 +163,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
   SysIntf sysi;
 
+  private CalDAVConfig config;
+
   /* These two set after a call to getSvci()
    */
   //private IcalTranslator trans;
@@ -222,6 +226,17 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       accessUtil = new AccessUtil(namespacePrefix, xml,
                                   new CalDavAccessXmlCb(sysi), debug);
+
+      String configName = "UserCalDAV";
+      if (anonymous) {
+        configName = "PublicCalDAV";
+      }
+
+      config = (CalDAVConfig)CalOptionsFactory.getOptions("org.bedework.app.",
+                                                          debug).getAppProperty(configName);
+      if (config == null) {
+        config = new CalDAVConfig();
+      }
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
@@ -257,6 +272,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
    */
   public String getDavHeader(WebdavNsNode node) throws WebdavException {
     return "1, access-control, calendar-access, calendar-schedule";
+  }
+
+  protected CalDAVConfig getConfig() {
+    return config;
   }
 
   /**
