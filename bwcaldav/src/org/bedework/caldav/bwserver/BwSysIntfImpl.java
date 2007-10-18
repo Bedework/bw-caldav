@@ -38,6 +38,7 @@ import org.bedework.calfacade.BwUserInfo;
 import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.ScheduleResult;
 import org.bedework.calfacade.base.BwShareableDbentity;
+import org.bedework.calfacade.configs.CalDAVConfig;
 import org.bedework.calfacade.env.CalEnvFactory;
 import org.bedework.calfacade.env.CalEnvI;
 import org.bedework.calfacade.exc.CalFacadeAccessException;
@@ -111,31 +112,18 @@ public class BwSysIntfImpl implements SysIntf {
 
   private UrlHandler urlHandler;
 
-  //private String urlPrefix;
-
-  //private boolean relativeUrls = false;
+  private CalDAVConfig conf;
 
   public void init(HttpServletRequest req,
                    String envPrefix,
                    String account,
+                   CalDAVConfig conf,
                    boolean debug) throws WebdavException {
     try {
       this.envPrefix = envPrefix;
       this.account = account;
+      this.conf = conf;
       this.debug = debug;
-
-      /*StringBuffer sb = new StringBuffer();
-
-      sb.append("http://");
-      sb.append(req.getLocalName());
-
-      int port = req.getLocalPort();
-      if (port != 80) {
-        sb.append(":");
-        sb.append(port);
-      }
-
-      sb.append(req.getContextPath());*/
 
       urlHandler = new UrlHandler(req, true);
     } catch (Throwable t) {
@@ -883,6 +871,7 @@ public class BwSysIntfImpl implements SysIntf {
                                          false,  // adminCanEditAllPublicSponsors
                                          true,    // caldav
                                          null, // synchId
+                                         conf,
                                          debug);
       svci = new CalSvcFactoryDefault().getSvc(pars);
 

@@ -34,6 +34,7 @@ import org.bedework.calfacade.BwUserInfo;
 import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.ScheduleResult;
 import org.bedework.calfacade.base.BwShareableDbentity;
+import org.bedework.calfacade.configs.CalDAVConfig;
 import org.bedework.calfacade.filter.BwFilter;
 import org.bedework.calfacade.svc.EventInfo;
 import org.bedework.calfacade.timezones.CalTimezones;
@@ -72,12 +73,14 @@ public interface SysIntf {
    * @param req
    * @param envPrefix
    * @param account
+   * @param conf  per application type configuration
    * @param debug
    * @throws WebdavException
    */
   public void init(HttpServletRequest req,
                    String envPrefix,
                    String account,
+                   CalDAVConfig conf,
                    boolean debug) throws WebdavException;
 
   /** Return the current account

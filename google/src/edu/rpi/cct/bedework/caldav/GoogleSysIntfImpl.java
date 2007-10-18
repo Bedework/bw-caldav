@@ -67,6 +67,7 @@ import org.bedework.calfacade.CalFacadeDefs;
 import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.ScheduleResult;
 import org.bedework.calfacade.base.BwShareableDbentity;
+import org.bedework.calfacade.configs.CalDAVConfig;
 import org.bedework.calfacade.filter.BwFilter;
 import org.bedework.calfacade.svc.EventInfo;
 import org.bedework.calfacade.timezones.CalTimezones;
@@ -147,6 +148,7 @@ public class GoogleSysIntfImpl implements SysIntf {
   public void init(HttpServletRequest req,
                    String envPrefix,
                    String account,
+                   CalDAVConfig conf,
                    boolean debug) throws WebdavException {
     try {
       this.debug = debug;

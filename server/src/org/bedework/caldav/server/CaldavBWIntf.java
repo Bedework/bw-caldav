@@ -220,13 +220,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       CalEnvI env = CalEnvFactory.getEnv(envPrefix, debug);
 
-      sysi = (SysIntf)env.getAppObject("sysintfimpl", SysIntf.class);
-
-      sysi.init(req, envPrefix, account, debug);
-
-      accessUtil = new AccessUtil(namespacePrefix, xml,
-                                  new CalDavAccessXmlCb(sysi), debug);
-
       String configName = "UserCalDAV";
       if (anonymous) {
         configName = "PublicCalDAV";
@@ -237,6 +230,13 @@ public class CaldavBWIntf extends WebdavNsIntf {
       if (config == null) {
         config = new CalDAVConfig();
       }
+
+      sysi = (SysIntf)env.getAppObject("sysintfimpl", SysIntf.class);
+
+      sysi.init(req, envPrefix, account, config, debug);
+
+      accessUtil = new AccessUtil(namespacePrefix, xml,
+                                  new CalDavAccessXmlCb(sysi), debug);
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
@@ -258,7 +258,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       sysi = (SysIntf)env.getAppObject("sysintfimpl", SysIntf.class);
 
-      sysi.init(req, envPrefix, account, debug);
+      sysi.init(req, envPrefix, account, config, debug);
 
       accessUtil = new AccessUtil(namespacePrefix, xml,
                                   new CalDavAccessXmlCb(sysi), debug);
