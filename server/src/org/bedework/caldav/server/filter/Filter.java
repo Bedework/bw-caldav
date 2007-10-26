@@ -25,24 +25,22 @@
 */
 package org.bedework.caldav.server.filter;
 
-import org.bedework.caldav.server.CalDavParseUtil;
-import org.bedework.caldav.server.CaldavBWIntf;
 import org.bedework.caldav.server.CaldavBwNode;
 import org.bedework.caldav.server.CaldavComponentNode;
 import org.bedework.calfacade.CalFacadeDefs;
 import org.bedework.calfacade.RecurringRetrievalMode;
-import org.bedework.calfacade.filter.BwFilter;
+import org.bedework.calfacade.exc.CalFacadeException;
+import org.bedework.calfacade.exc.CalFacadeForbidden;
+import org.bedework.calfacade.filter.caldav.CompFilter;
+import org.bedework.calfacade.filter.caldav.EventQuery;
+import org.bedework.calfacade.filter.caldav.PropFilter;
 import org.bedework.calfacade.svc.EventInfo;
+import org.bedework.calfacade.timezones.CalTimezones;
 
-import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
-import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
+import edu.rpi.cct.webdav.servlet.shared.WebdavForbidden;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
 import edu.rpi.cct.webdav.servlet.common.WebdavUtils;
-import edu.rpi.sss.util.xml.QName;
-import edu.rpi.sss.util.xml.XmlUtil;
-import edu.rpi.sss.util.xml.tagdefs.CaldavDefs;
-import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -51,9 +49,6 @@ import javax.servlet.http.HttpServletResponse;
 import net.fortuna.ical4j.model.Component;
 import net.fortuna.ical4j.model.TimeZone;
 
-import org.apache.log4j.Logger;
-import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
 /** Class to represent a calendar-query filter
@@ -137,86 +132,35 @@ import org.w3c.dom.Node;
  *
  *   @author Mike Douglass   douglm @ rpi.edu
  */
-public class Filter {
-  private boolean debug;
-
-  private CaldavBWIntf intf;
-
-  private TimeZone tz;
-
-  protected transient Logger log;
-
-  /** The root element.
-   */
-  private CompFilter filter;
-
-  static class EventQuery {
-    /** */
-    public BwFilter filter;
-
-    /* true if we have to postfilter the result obtained via a search
-     */
-    boolean postFilter;
-
-    /** If non-null apply to retrieved event components
-     */
-    public Collection<PropFilter> eventFilters;
-
-    /** If non-null apply to retrieved tod components
-     */
-    public Collection<PropFilter> todoFilters;
-
-    /** If non-null apply to retrieved journal components
-     */
-    public Collection<PropFilter> journalFilters;
-
-    /** If non-null apply to retrieved alarm components
-     */
-    public Collection<PropFilter> alarmFilters;
-  }
-
+public class Filter extends org.bedework.calfacade.filter.caldav.Filter {
   /* Query we executed */
   private EventQuery eventq;
 
   /** Constructor
    *
-   * @param intf
+   * @param timezones
    * @param debug
    */
-  public Filter(WebdavNsIntf intf, boolean debug) {
-    this.intf = (CaldavBWIntf)intf;
-    this.debug = debug;
+  public Filter(CalTimezones timezones, boolean debug) {
+    super(timezones, debug);
   }
 
-  /** The given node must be the Filter element
+  /** Parse for th ecaldav server.
    *
    * @param nd
-   * @param tz timezone from request
-   * @return int     htp status
+   * @param tz
    * @throws WebdavException
    */
-  public int parse(Node nd,
-                   TimeZone tz) throws WebdavException {
+  public void caldavParse(Node nd,
+                          TimeZone tz) throws WebdavException {
+
     try {
-      this.tz = tz;
-
-      /* We expect exactly one comp-filter child. */
-
-      Element[] children = getChildren(nd);
-
-      if ((children.length != 1) ||
-          (!CaldavTags.compFilter.nodeMatches(children[0]))) {
-        if (debug) {
-          trace("<filter>: child count error: " + children.length);
-        }
-        throw new WebdavBadRequest();
-      }
-
-      filter = parseCompFilter((Node)children[0]);
-
-      return HttpServletResponse.SC_OK;
-    } catch (WebdavBadRequest wbr) {
-      return wbr.getStatusCode();
+      parse(nd, tz);
+    } catch (CalFacadeForbidden cf) {
+      throw new WebdavForbidden(cf.getQname(), cf.getMessage());
+    } catch (Throwable t) {
+      error(t);
+      throw new WebdavException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -231,11 +175,12 @@ public class Filter {
    */
   public Collection<EventInfo> query(CaldavBwNode wdnode,
                                      RecurringRetrievalMode retrieveRecur) throws WebdavException {
-    eventq = new EventQuery();
+    try {
+      eventq = new EventQuery();
 
-    eventq.filter = filter.getQuery(eventq, 0);
+      eventq.filter = filter.getQuery(eventq, 0);
 
-    /*if (debug) {
+      /*if (debug) {
       if (eventq.trange == null) {
         trace("No time-range specified for uri " + wdnode.getUri());
       } else {
@@ -245,21 +190,22 @@ public class Filter {
       }
     }*/
 
-    Collection<EventInfo> events;
+      Collection<EventInfo> events;
 
-    try {
       events = wdnode.getSysi().getEvents(wdnode.getCalendar(),
                                           eventq.filter, retrieveRecur);
+
+      if (debug) {
+        trace("Query returned " + events.size());
+      }
+
+      return events;
+    } catch (CalFacadeForbidden cf) {
+      throw new WebdavForbidden(cf.getQname(), cf.getMessage());
     } catch (Throwable t) {
       error(t);
       throw new WebdavException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
     }
-
-    if (debug) {
-      trace("Query returned " + events.size());
-    }
-
-    return events;
   }
 
   /** Carry out any postfiltering on the collection of initialised nodes,
@@ -270,358 +216,62 @@ public class Filter {
    */
   public Collection<WebdavNsNode> postFilter(
                    Collection<WebdavNsNode> nodes) throws WebdavException {
-    if (!eventq.postFilter) {
-      return nodes;
-    }
+    try {
+      if (!eventq.postFilter) {
+        return nodes;
+      }
 
-    if (debug) {
-      trace("post filtering needed");
-    }
+      if (debug) {
+        trace("post filtering needed");
+      }
 
-    CompFilter cfltr = filter;
+      CompFilter cfltr = filter;
 
-    // Currently only handle VCALENDAR for top level.
-    if (!"VCALENDAR".equals(cfltr.getName())) {
-      return new ArrayList<WebdavNsNode>();
-    }
+      // Currently only handle VCALENDAR for top level.
+      if (!"VCALENDAR".equals(cfltr.getName())) {
+        return new ArrayList<WebdavNsNode>();
+      }
 
-    ArrayList<WebdavNsNode> filtered = new ArrayList<WebdavNsNode>();
+      ArrayList<WebdavNsNode> filtered = new ArrayList<WebdavNsNode>();
 
-    for (WebdavNsNode node: nodes) {
-      CaldavComponentNode curnode = null;
+      for (WebdavNsNode node: nodes) {
+        CaldavComponentNode curnode = null;
 
-      if (!(node instanceof CaldavComponentNode)) {
-        // Cannot match to anything - don't pass it?
-      } else {
-        curnode = (CaldavComponentNode)node;
+        if (!(node instanceof CaldavComponentNode)) {
+          // Cannot match to anything - don't pass it?
+        } else {
+          curnode = (CaldavComponentNode)node;
 
-        int entityType = curnode.getEventInfo().getEvent().getEntityType();
+          int entityType = curnode.getEventInfo().getEvent().getEntityType();
 
-        Collection<PropFilter> pfs = null;
+          Collection<PropFilter> pfs = null;
 
-        if (entityType == CalFacadeDefs.entityTypeEvent) {
-          pfs = eventq.eventFilters;
-        } else if (entityType == CalFacadeDefs.entityTypeTodo) {
-          pfs = eventq.todoFilters;
-        } else if (entityType == CalFacadeDefs.entityTypeJournal) {
-          pfs = eventq.journalFilters;
-        //} else if (entityType == CalFacadeDefs.entityTypeAlarm) {
-        //  pfs = addPropFilter(eq.alarmFilters, pf);
-        }
+          if (entityType == CalFacadeDefs.entityTypeEvent) {
+            pfs = eventq.eventFilters;
+          } else if (entityType == CalFacadeDefs.entityTypeTodo) {
+            pfs = eventq.todoFilters;
+          } else if (entityType == CalFacadeDefs.entityTypeJournal) {
+            pfs = eventq.journalFilters;
+            //} else if (entityType == CalFacadeDefs.entityTypeAlarm) {
+            //  pfs = addPropFilter(eq.alarmFilters, pf);
+          }
 
-        if (!WebdavUtils.emptyCollection(pfs)) {
-          Component comp = curnode.getComponent();
+          if (!WebdavUtils.emptyCollection(pfs)) {
+            Component comp = curnode.getComponent();
 
-          for (PropFilter pf: pfs) {
-            if (pf.filter(comp)) {
-              filtered.add(curnode);
-              break;
+            for (PropFilter pf: pfs) {
+              if (pf.filter(comp)) {
+                filtered.add(curnode);
+                break;
+              }
             }
           }
         }
       }
+
+      return filtered;
+    } catch (CalFacadeException cfe) {
+      throw new WebdavException(cfe);
     }
-
-    return filtered;
-  }
-
-  /** The given node must be a comp-filter element
-   *    <!ELEMENT comp-filter (is-not-defined | (time-range?,
-   *                            prop-filter*, comp-filter*))>
-   *
-   *    <!ATTLIST comp-filter name CDATA #REQUIRED>
-   *
-   * @param nd
-   * @return CompFilter
-   * @throws WebdavException
-   */
-  private CompFilter parseCompFilter(Node nd) throws WebdavException {
-    CompFilter cf = new CompFilter(getOnlyAttrVal(nd, "name"));
-
-    Element[] children = getChildren(nd);
-
-    if (children.length == 0) {
-      // Empty
-      return cf;
-    }
-
-    if ((children.length == 1) &&
-        CaldavTags.isNotDefined.nodeMatches(children[0])) {
-      cf.setIsNotDefined(true);
-      return cf;
-    }
-
-    /* (time-range?, prop-filter*, comp-filter*) */
-
-    try {
-      for (int i = 0; i < children.length; i++) {
-        Node curnode = children[i];
-
-        if (debug) {
-          trace("compFilter element: " +
-              curnode.getNamespaceURI() + ":" +
-              curnode.getLocalName());
-        }
-
-        QName isDefined = new QName(CaldavDefs.caldavNamespace,
-                                    "is-defined");
-        if (isDefined.nodeMatches(curnode)) {
-          // Probably out of date evolution - ignore it
-        } else if (CaldavTags.timeRange.nodeMatches(curnode)) {
-          cf.setTimeRange(CalDavParseUtil.parseTimeRange(curnode, tz,
-                          intf.getSysi().getTimezones()));
-
-          if (cf.getTimeRange() == null) {
-            return null;
-          }
-        } else if (CaldavTags.compFilter.nodeMatches(curnode)) {
-          CompFilter chcf = parseCompFilter(curnode);
-
-          if (chcf == null) {
-            return null;
-          }
-
-          cf.addCompFilter(chcf);
-        } else if (CaldavTags.propFilter.nodeMatches(curnode)) {
-          PropFilter chpf = parsePropFilter(curnode);
-
-          cf.addPropFilter(chpf);
-        } else {
-          throw new WebdavBadRequest();
-        }
-      }
-    } catch (WebdavBadRequest wbr) {
-      throw wbr;
-    } catch (Throwable t) {
-      throw new WebdavBadRequest();
-    }
-
-    return cf;
-  }
-
-  /* The given node must be a prop-filter element
-   *    <!ELEMENT prop-filter (is-not-defined | time-range | text-match)?
-   *                            param-filter*>
-   *
-   *    <!ATTLIST prop-filter name CDATA #REQUIRED>
-   */
-  private PropFilter parsePropFilter(Node nd) throws WebdavException {
-    try {
-      PropFilter pf = new PropFilter(getOnlyAttrVal(nd, "name"));
-
-      Element[] children = getChildren(nd);
-
-      if (children.length == 0) {
-        // Presence filter
-        return pf;
-      }
-
-      int i = 0;
-      Node curnode = children[i];
-
-      if (CaldavTags.isNotDefined.nodeMatches(curnode)) {
-        pf.setIsNotDefined(true);
-        i++;
-      } else if (CaldavTags.timeRange.nodeMatches(curnode)) {
-        pf.setTimeRange(CalDavParseUtil.parseTimeRange(curnode, tz,
-                                           intf.getSysi().getTimezones()));
-        i++;
-      } else if (CaldavTags.textMatch.nodeMatches(curnode)) {
-        pf.setMatch(parseTextMatch(curnode));
-        i++;
-      }
-
-      if (debug) {
-        trace("propFilter element: " +
-              curnode.getNamespaceURI() + " " +
-              curnode.getLocalName());
-      }
-
-      while (i < children.length) {
-        curnode = children[i];
-        if (debug) {
-          trace("propFilter element: " +
-                curnode.getNamespaceURI() + " " +
-                curnode.getLocalName());
-        }
-
-        // Can only have param-filter*
-        if (!CaldavTags.paramFilter.nodeMatches(curnode)) {
-          throw new WebdavBadRequest();
-        }
-
-        ParamFilter parf = parseParamFilter(curnode);
-
-        pf.addParamFilter(parf);
-        i++;
-      }
-
-      return pf;
-    } catch (WebdavException we) {
-      throw we;
-    } catch (Throwable t) {
-      throw new WebdavException(t);
-    }
-  }
-
-  /* The given node must be a param-filter element
-   *    <!ELEMENT param-filter (is-not-defined | text-match) >
-   *
-   *    <!ATTLIST param-filter name CDATA #REQUIRED>
-   */
-  private ParamFilter parseParamFilter(Node nd) throws WebdavException {
-    String name = getOnlyAttrVal(nd, "name");
-
-    // Only one child - either is-defined | text-match
-    Element child = getOnlyChild(nd);
-
-    if (debug) {
-      trace("paramFilter element: " +
-            child.getNamespaceURI() + " " +
-            child.getLocalName());
-    }
-
-    if (CaldavTags.isNotDefined.nodeMatches(child)) {
-      return new ParamFilter(name, true);
-    }
-
-    if (CaldavTags.textMatch.nodeMatches(child)) {
-      TextMatch match = parseTextMatch(child);
-
-      return new ParamFilter(name, match);
-    }
-
-    throw new WebdavBadRequest();
-  }
-
-  /* The given node must be a text-match element
-   *  <!ELEMENT text-match #PCDATA>
-   *
-   *  <!ATTLIST text-match caseless (yes|no)>
-   */
-  private TextMatch parseTextMatch(Node nd) throws WebdavException {
-    //int numAttrs = XmlUtil.numAttrs(nd);
-    int numValid = 0;
-
-    Boolean caseless = null;
-    caseless = yesNoAttr(nd, "caseless");
-    if (caseless != null) {
-      numValid++;
-    }
-
-    Boolean tempBool = null;
-    boolean negated = false;
-    tempBool = yesNoAttr(nd, "negate-condition");
-    if (tempBool != null) {
-      numValid++;
-      negated = tempBool;
-    }
-
-    /*
-    if (numAttrs != numValid) {
-      throw new WebdavBadRequest();
-    }
-    */
-
-    try {
-      return new TextMatch(caseless, negated, XmlUtil.getReqOneNodeVal(nd));
-    } catch (Throwable t) {
-      throw new WebdavBadRequest();
-    }
-  }
-
-  private Element[] getChildren(Node nd) throws WebdavException {
-    try {
-      return XmlUtil.getElementsArray(nd);
-    } catch (Throwable t) {
-      if (debug) {
-        getLogger().error("<filter>: parse exception: ", t);
-      }
-
-      throw new WebdavBadRequest();
-    }
-  }
-
-  private Element getOnlyChild(Node nd) throws WebdavException {
-    try {
-      return XmlUtil.getOnlyElement(nd);
-    } catch (Throwable t) {
-      if (debug) {
-        getLogger().error("<filter>: parse exception: ", t);
-      }
-
-      throw new WebdavBadRequest();
-    }
-  }
-
-  private String getOnlyAttrVal(Node nd, String name) throws WebdavException {
-    NamedNodeMap nnm = nd.getAttributes();
-
-    if ((nnm == null) || (nnm.getLength() != 1)) {
-      throw new WebdavBadRequest("Missing comp-filter name");
-    }
-
-    String res = XmlUtil.getAttrVal(nnm, name);
-    if (res == null) {
-      throw new WebdavBadRequest("Missing comp-filter name");
-    }
-
-    return res;
-  }
-
-  private Boolean yesNoAttr(Node nd, String name) throws WebdavException {
-    NamedNodeMap nnm = nd.getAttributes();
-
-    if ((nnm == null) || (nnm.getLength() == 0)) {
-      return null;
-    }
-
-    try {
-      return XmlUtil.getYesNoAttrVal(nnm, name);
-    } catch (Throwable t) {
-      throw new WebdavBadRequest(t.getMessage());
-    }
-  }
-
-  /** ===================================================================
-   *                   Dump methods
-   *  =================================================================== */
-
-  public void dump() {
-    trace("  <filter>");
-    filter.dump(getLogger(), "    ");
-    trace("  </filter>");
-  }
-
-  /** ===================================================================
-   *                   Logging methods
-   *  =================================================================== */
-
-  /**
-   * @return Logger
-   */
-  protected Logger getLogger() {
-    if (log == null) {
-      log = Logger.getLogger(this.getClass());
-    }
-
-    return log;
-  }
-
-  protected void debugMsg(String msg) {
-    getLogger().debug(msg);
-  }
-
-  protected void error(Throwable t) {
-    getLogger().error(this, t);
-  }
-
-  protected void logIt(String msg) {
-    getLogger().info(msg);
-  }
-
-  protected void trace(String msg) {
-    getLogger().debug(msg);
   }
 }
-

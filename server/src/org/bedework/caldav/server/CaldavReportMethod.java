@@ -284,12 +284,8 @@ public class CaldavReportMethod extends ReportMethod {
           tz = tzs.iterator().next();
         }
 
-        filter = new Filter(intf, debug);
-        int st = filter.parse(filterNode, tz);
-
-        if (st != HttpServletResponse.SC_OK) {
-          throw new WebdavException(st);
-        }
+        filter = new Filter(intf.getSysi().getTimezones(), debug);
+        filter.caldavParse(filterNode, tz);
 
         if (debug) {
           trace("REPORT: query");

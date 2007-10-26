@@ -25,10 +25,10 @@
 */
 package org.bedework.caldav.server.calquery;
 
-import org.bedework.caldav.server.CalDavParseUtil;
 import org.bedework.caldav.server.CaldavBWIntf;
 import org.bedework.caldav.server.SysIntf;
 import org.bedework.calfacade.base.TimeRange;
+import org.bedework.calfacade.util.xml.CalDavParseUtil;
 import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.BwEventObj;
