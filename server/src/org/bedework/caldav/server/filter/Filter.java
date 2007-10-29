@@ -145,7 +145,7 @@ public class Filter extends org.bedework.calfacade.filter.caldav.Filter {
     super(timezones, debug);
   }
 
-  /** Parse for th ecaldav server.
+  /** Parse for the caldav server.
    *
    * @param nd
    * @param tz

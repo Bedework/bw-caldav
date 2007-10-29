@@ -116,6 +116,7 @@ import java.io.Reader;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -393,13 +394,12 @@ public class CaldavBWIntf extends WebdavNsIntf {
   public WebdavNsNode getNode(String uri,
                               int existance,
                               int nodeType) throws WebdavException {
-    return getNodeInt(uri, existance, nodeType, true, null, null);
+    return getNodeInt(uri, existance, nodeType, null, null);
   }
 
   private WebdavNsNode getNodeInt(String uri,
                                   int existance,
                                   int nodeType,
-                                  boolean decoded,
                                   BwCalendar cal,
                                   EventInfo ei) throws WebdavException {
     if (debug) {
@@ -411,7 +411,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
 
     try {
-      CaldavURI wi = findURI(uri, existance, nodeType, decoded, cal, ei);
+      CaldavURI wi = findURI(uri, existance, nodeType, cal, ei);
 
       if (wi == null) {
         throw new WebdavNotFound(uri);
@@ -524,7 +524,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
         al.add(getNodeInt(uri + "/" + name,
                                WebdavNsIntf.existanceDoesExist,
-                               nodeType, true, cal, ei));
+                               nodeType, cal, ei));
       }
 
       return al;
@@ -1344,7 +1344,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
         CaldavComponentNode evnode = (CaldavComponentNode)getNodeInt(evuri,
                                                    WebdavNsIntf.existanceDoesExist,
                                                    WebdavNsIntf.nodeTypeEntity,
-                                                   false,
                                                    cal,
                                                    ei);
 
@@ -1443,7 +1442,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
    * @param uri        String uri - just the path part
    * @param existance        Say's something about the state of existance
    * @param nodeType         Say's something about the type of node
-   * @param decoded    true if the uri has been decoded
    * @param cal        Supplied BwCalendar object if we already have it.
    * @param ei
    * @return CaldavURI object representing the uri
@@ -1451,7 +1449,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
    */
   private CaldavURI findURI(String uri,
                             int existance,
-                            int nodeType, boolean decoded,
+                            int nodeType,
                             BwCalendar cal,
                             EventInfo ei) throws WebdavException {
     try {
@@ -1461,7 +1459,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
         throw new WebdavServerError();
       }
 
-      uri = normalizeUri(uri, decoded);
+      uri = normalizeUri(uri);
 
       if (!uri.startsWith("/")) {
         return null;
@@ -1615,15 +1613,12 @@ public class CaldavBWIntf extends WebdavNsIntf {
     };
   }
 
-  private String normalizeUri(String uri,
-                              boolean decoded) throws WebdavException {
+  private String normalizeUri(String uri) throws WebdavException {
     /*Remove all "." and ".." components */
     try {
-      if (decoded) {
-        uri = new URI(null, null, uri, null).toString();
-      }
+      uri = new URI(null, null, uri, null).toString();
 
-      uri = new URI(uri).normalize().getPath();
+      uri = new URI(URLEncoder.encode(uri, "UTF-8")).normalize().getPath();
 
       uri = URLDecoder.decode(uri, "UTF-8");
 
