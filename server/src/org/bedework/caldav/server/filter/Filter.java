@@ -176,9 +176,7 @@ public class Filter extends org.bedework.calfacade.filter.caldav.Filter {
   public Collection<EventInfo> query(CaldavBwNode wdnode,
                                      RecurringRetrievalMode retrieveRecur) throws WebdavException {
     try {
-      eventq = new EventQuery();
-
-      eventq.filter = filter.getQuery(eventq, 0);
+      eventq = getQuery();
 
       /*if (debug) {
       if (eventq.trange == null) {
