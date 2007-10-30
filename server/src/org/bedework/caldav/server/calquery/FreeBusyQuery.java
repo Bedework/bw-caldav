@@ -25,7 +25,6 @@
 */
 package org.bedework.caldav.server.calquery;
 
-import org.bedework.caldav.server.CaldavBWIntf;
 import org.bedework.caldav.server.SysIntf;
 import org.bedework.calfacade.base.TimeRange;
 import org.bedework.calfacade.util.xml.CalDavParseUtil;
@@ -37,7 +36,6 @@ import org.bedework.calfacade.CalFacadeDefs;
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavForbidden;
-import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 
@@ -50,19 +48,15 @@ import org.w3c.dom.Node;
 public class FreeBusyQuery {
   private boolean debug;
 
-  private CaldavBWIntf intf;
-
   protected transient Logger log;
 
   private TimeRange timeRange;
 
   /** Constructor
    *
-   * @param intf
    * @param debug
    */
-  public FreeBusyQuery(WebdavNsIntf intf, boolean debug) {
-    this.intf = (CaldavBWIntf)intf;
+  public FreeBusyQuery(boolean debug) {
     this.debug = debug;
   }
 
@@ -82,8 +76,7 @@ public class FreeBusyQuery {
         throw new WebdavBadRequest();
       }
 
-      timeRange = CalDavParseUtil.parseTimeRange(nd, null,
-                                                 intf.getSysi().getTimezones());
+      timeRange = CalDavParseUtil.parseTimeRange(nd, null);
 
       if (debug) {
         trace("Parsed time range " + timeRange);

@@ -197,7 +197,7 @@ public class CaldavReportMethod extends ReportMethod {
 
       if (reportType == reportTypeFreeBusy) {
         /* Expect exactly one time-range */
-        freeBusy = new FreeBusyQuery(intf, debug);
+        freeBusy = new FreeBusyQuery(debug);
         freeBusy.parse(getOnlyChild(root));
         if (debug) {
           trace("REPORT: free-busy");
@@ -284,7 +284,7 @@ public class CaldavReportMethod extends ReportMethod {
           tz = tzs.iterator().next();
         }
 
-        filter = new Filter(intf.getSysi().getTimezones(), debug);
+        filter = new Filter(debug);
         filter.caldavParse(filterNode, tz);
 
         if (debug) {

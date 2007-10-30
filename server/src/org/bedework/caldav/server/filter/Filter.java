@@ -35,7 +35,6 @@ import org.bedework.calfacade.filter.caldav.CompFilter;
 import org.bedework.calfacade.filter.caldav.EventQuery;
 import org.bedework.calfacade.filter.caldav.PropFilter;
 import org.bedework.calfacade.svc.EventInfo;
-import org.bedework.calfacade.timezones.CalTimezones;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavForbidden;
@@ -138,11 +137,10 @@ public class Filter extends org.bedework.calfacade.filter.caldav.Filter {
 
   /** Constructor
    *
-   * @param timezones
    * @param debug
    */
-  public Filter(CalTimezones timezones, boolean debug) {
-    super(timezones, debug);
+  public Filter(boolean debug) {
+    super(debug);
   }
 
   /** Parse for the caldav server.
