@@ -125,7 +125,7 @@ public class BwSysIntfImpl implements SysIntf {
       this.conf = conf;
       this.debug = debug;
 
-      urlHandler = new UrlHandler(req, true);
+      urlHandler = new UrlHandler(req, false);
     } catch (Throwable t) {
       throw new WebdavException(t);
     }

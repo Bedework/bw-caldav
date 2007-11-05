@@ -54,6 +54,9 @@ public abstract class CaldavBwNode extends WebdavNsNode {
   static {
     addPropEntry(propertyNames, CaldavTags.calendarHomeSet);
     addPropEntry(propertyNames, CaldavTags.calendarUserAddressSet);
+    addPropEntry(propertyNames, CaldavTags.calendarHomeURL);
+    addPropEntry(propertyNames, CaldavTags.scheduleInboxURL);
+    addPropEntry(propertyNames, CaldavTags.scheduleOutboxURL);
 
     supportedReports.add(CaldavTags.calendarMultiget); // Calendar access
     supportedReports.add(CaldavTags.calendarQuery);    // Calendar access
@@ -173,6 +176,30 @@ public abstract class CaldavBwNode extends WebdavNsNode {
                      */
         xml.property(tag, sysi.getUrlHandler().prefix(
                      sysi.getCalUserInfo(getOwner(), false).userHomePath));
+        return true;
+      }
+
+      if (tag.equals(CaldavTags.calendarHomeURL)) {
+        xml.openTag(tag);
+        generateHref(xml, sysi.getCalUserInfo(intf.getAccount(), false).userHomePath);
+        xml.closeTag(tag);
+
+        return true;
+      }
+
+      if (tag.equals(CaldavTags.scheduleInboxURL)) {
+        xml.openTag(tag);
+        generateHref(xml, sysi.getCalUserInfo(intf.getAccount(), false).inboxPath);
+        xml.closeTag(tag);
+
+        return true;
+      }
+
+      if (tag.equals(CaldavTags.scheduleOutboxURL)) {
+        xml.openTag(tag);
+        generateHref(xml, sysi.getCalUserInfo(intf.getAccount(), false).outboxPath);
+        xml.closeTag(tag);
+
         return true;
       }
 

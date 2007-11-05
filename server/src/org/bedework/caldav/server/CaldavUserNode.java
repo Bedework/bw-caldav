@@ -79,9 +79,6 @@ public class CaldavUserNode extends CaldavPrincipalNode {
 
   static {
     addPropEntry(propertyNames, CaldavTags.calendarHomeSet);
-    addPropEntry(propertyNames, CaldavTags.calendarHomeURL);
-    addPropEntry(propertyNames, CaldavTags.scheduleInboxURL);
-    addPropEntry(propertyNames, CaldavTags.scheduleOutboxURL);
   }
 
   /**
@@ -202,30 +199,6 @@ public class CaldavUserNode extends CaldavPrincipalNode {
       if (tag.equals(CaldavTags.calendarHomeSet)) {
         xml.openTag(tag);
         generateHref(xml, ui.userHomePath);
-        xml.closeTag(tag);
-
-        return true;
-      }
-
-      if (tag.equals(CaldavTags.calendarHomeURL)) {
-        xml.openTag(tag);
-        generateHref(xml, ui.userHomePath);
-        xml.closeTag(tag);
-
-        return true;
-      }
-
-      if (tag.equals(CaldavTags.scheduleInboxURL)) {
-        xml.openTag(tag);
-        generateHref(xml, ui.inboxPath);
-        xml.closeTag(tag);
-
-        return true;
-      }
-
-      if (tag.equals(CaldavTags.scheduleOutboxURL)) {
-        xml.openTag(tag);
-        generateHref(xml, ui.outboxPath);
         xml.closeTag(tag);
 
         return true;
