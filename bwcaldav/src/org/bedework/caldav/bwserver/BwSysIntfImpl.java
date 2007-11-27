@@ -1,5 +1,5 @@
 /* **********************************************************************
-    Copyright 2006 Rensselaer Polytechnic Institute. All worldwide rights reserved.
+    Copyright 2007 Rensselaer Polytechnic Institute. All worldwide rights reserved.
 
     Redistribution and use of this distribution in source and binary forms,
     with or without modification, are permitted provided that:
@@ -47,7 +47,6 @@ import org.bedework.calfacade.exc.CalFacadeStaleStateException;
 import org.bedework.calfacade.filter.BwFilter;
 import org.bedework.calfacade.svc.BwSubscription;
 import org.bedework.calfacade.svc.EventInfo;
-import org.bedework.calfacade.timezones.CalTimezones;
 import org.bedework.calfacade.util.ChangeTable;
 import org.bedework.calsvci.CalSvcFactoryDefault;
 import org.bedework.calsvci.CalSvcI;
@@ -76,7 +75,6 @@ import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 
 import net.fortuna.ical4j.model.Calendar;
-import net.fortuna.ical4j.model.TimeZone;
 
 import org.apache.log4j.Logger;
 
@@ -777,26 +775,6 @@ public class BwSysIntfImpl implements SysIntf {
       return trans.fromIcal(cal, rdr);
     } catch (IcalMalformedException ime) {
       throw new WebdavBadRequest(ime.getMessage());
-    } catch (Throwable t) {
-      throw new WebdavException(t);
-    }
-  }
-
-  public CalTimezones getTimezones() throws WebdavException {
-    try {
-      return getSvci().getTimezones();
-    } catch (CalFacadeException cfe) {
-      throw new WebdavException(cfe);
-    } catch (Throwable t) {
-      throw new WebdavException(t);
-    }
-  }
-
-  public TimeZone getDefaultTimeZone() throws WebdavException {
-    try {
-      return getSvci().getTimezones().getDefaultTimeZone();
-    } catch (CalFacadeException cfe) {
-      throw new WebdavException(cfe);
     } catch (Throwable t) {
       throw new WebdavException(t);
     }

@@ -44,6 +44,7 @@ import org.bedework.calfacade.env.CalEnvFactory;
 import org.bedework.calfacade.env.CalEnvI;
 import org.bedework.calfacade.env.CalOptionsFactory;
 import org.bedework.calfacade.svc.EventInfo;
+import org.bedework.calfacade.timezones.CalTimezones;
 import org.bedework.calfacade.util.DateTimeUtil;
 import org.bedework.calfacade.util.DateTimeUtil.DatePeriod;
 import org.bedework.icalendar.IcalTranslator;
@@ -79,7 +80,6 @@ import edu.rpi.sss.util.xml.tagdefs.CaldavDefs;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 
-import net.fortuna.ical4j.model.TimeZone;
 import net.fortuna.ical4j.model.component.VFreeBusy;
 
 import java.io.IOException;
@@ -916,8 +916,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       DatePeriod dp = DateTimeUtil.getPeriod(req.getParameter("start"),
                                              req.getParameter("end"),
                                              Calendar.WEEK_OF_YEAR, 1,
-                                             Calendar.DATE, 32,
-                                             getSysi().getTimezones());
+                                             Calendar.DATE, 32);
 
       if (dp == null) {
         resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Date/times");
@@ -1207,8 +1206,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       }
 
       if (tag.equals(CaldavTags.calendarTimezone)) {
-        TimeZone tz = sysi.getDefaultTimeZone();
-        xml.property(tag, sysi.toStringTzCalendar(tz.getID()));
+        xml.property(tag, sysi.toStringTzCalendar(CalTimezones.getDefaultTzid()));
         return true;
       }
 

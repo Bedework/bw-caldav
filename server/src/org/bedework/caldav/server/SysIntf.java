@@ -37,7 +37,6 @@ import org.bedework.calfacade.base.BwShareableDbentity;
 import org.bedework.calfacade.configs.CalDAVConfig;
 import org.bedework.calfacade.filter.BwFilter;
 import org.bedework.calfacade.svc.EventInfo;
-import org.bedework.calfacade.timezones.CalTimezones;
 import org.bedework.calfacade.util.ChangeTable;
 import org.bedework.icalendar.Icalendar;
 
@@ -49,7 +48,6 @@ import edu.rpi.cmt.access.PrincipalInfo;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
 
 import net.fortuna.ical4j.model.Calendar;
-import net.fortuna.ical4j.model.TimeZone;
 
 import java.io.Reader;
 import java.io.Serializable;
@@ -527,19 +525,6 @@ public interface SysIntf {
    * @throws WebdavException
    */
   public Icalendar fromIcal(BwCalendar cal, Reader rdr) throws WebdavException;
-
-  /**
-   * @return CalTimezones
-   * @throws WebdavException
-   */
-  public CalTimezones getTimezones() throws WebdavException;
-
-  /** Get the default timezone for this system.
-   *
-   * @return default TimeZone or null for none set.
-   * @throws WebdavException
-   */
-  public TimeZone getDefaultTimeZone() throws WebdavException;
 
   /** Create a Calendar object from the named timezone and convert to
    * a String representation

@@ -1,33 +1,5 @@
-/*
- Copyright (c) 2000-2005 University of Washington.  All rights reserved.
-
- Redistribution and use of this distribution in source and binary forms,
- with or without modification, are permitted provided that:
-
-   The above copyright notice and this permission notice appear in
-   all copies and supporting documentation;
-
-   The name, identifiers, and trademarks of the University of Washington
-   are not used in advertising or publicity without the express prior
-   written permission of the University of Washington;
-
-   Recipients acknowledge that this distribution is made available as a
-   research courtesy, "as is", potentially with defects, without
-   any obligation on the part of the University of Washington to
-   provide support, services, or repair;
-
-   THE UNIVERSITY OF WASHINGTON DISCLAIMS ALL WARRANTIES, EXPRESS OR
-   IMPLIED, WITH REGARD TO THIS SOFTWARE, INCLUDING WITHOUT LIMITATION
-   ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
-   PARTICULAR PURPOSE, AND IN NO EVENT SHALL THE UNIVERSITY OF
-   WASHINGTON BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL
-   DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
-   PROFITS, WHETHER IN AN ACTION OF CONTRACT, TORT (INCLUDING
-   NEGLIGENCE) OR STRICT LIABILITY, ARISING OUT OF OR IN CONNECTION WITH
-   THE USE OR PERFORMANCE OF THIS SOFTWARE.
- */
 /* **********************************************************************
-    Copyright 2005 Rensselaer Polytechnic Institute. All worldwide rights reserved.
+    Copyright 2007 Rensselaer Polytechnic Institute. All worldwide rights reserved.
 
     Redistribution and use of this distribution in source and binary forms,
     with or without modification, are permitted provided that:
@@ -122,8 +94,6 @@ public class GoogleSysIntfImpl implements SysIntf {
 
   private boolean debug;
 
-  private ResourceTimezones timezones;
-
   // XXX get from properties
   private static String defaultTimezone = "America/Los_Angeles";
 
@@ -154,6 +124,10 @@ public class GoogleSysIntfImpl implements SysIntf {
       this.debug = debug;
       this.account = account;
       urlHandler = new UrlHandler(req, false);
+
+      CalTimezones timezones = new ResourceTimezones(debug, null);
+      CalTimezones.setTimezones(timezones);
+      CalTimezones.setDefaultTzid(defaultTimezone);
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
@@ -589,27 +563,6 @@ public class GoogleSysIntfImpl implements SysIntf {
     throw new WebdavException("unimplemented");
   }
 
-  public CalTimezones getTimezones() throws WebdavException {
-    try {
-      if (timezones == null) {
-        timezones = new ResourceTimezones(debug, null);
-        timezones.setDefaultTimeZoneId(defaultTimezone);
-      }
-
-      return timezones;
-    } catch (Throwable t) {
-      throw new WebdavException(t);
-    }
-  }
-
-  public TimeZone getDefaultTimeZone() throws WebdavException {
-    try {
-      return getTimezones().getDefaultTimeZone();
-    } catch (Throwable t) {
-      throw new WebdavException(t);
-    }
-  }
-
   public String toStringTzCalendar(String tzid) throws WebdavException {
     throw new WebdavException("unimplemented");
   }
@@ -631,8 +584,8 @@ public class GoogleSysIntfImpl implements SysIntf {
 
   private DateTime makeDateTime(BwDateTime dt) throws WebdavException {
     try {
-      TimeZone tz = getTimezones().getTimeZone(dt.getTzid(), null);
-      long millis = dt.makeDate(timezones).getTime();
+      TimeZone tz = CalTimezones.getTz(dt.getTzid(), null);
+      long millis = dt.makeDate().getTime();
       return new DateTime(millis, tz.getOffset(millis) / 60000);
     } catch (Throwable t) {
       throw new WebdavException(t);
