@@ -266,7 +266,7 @@ public class BwSysIntfImpl implements SysIntf {
         return null;
       }
 
-      BwUser u = getSvci().findUser(account, false);
+      BwUser u = getSvci().getUsersHandler().get(account);
       if (u == null) {
         return null;
       }
@@ -421,7 +421,7 @@ public class BwSysIntfImpl implements SysIntf {
   public ScheduleResult schedule(EventInfo ei) throws WebdavException {
     try {
       BwEvent ev = ei.getEvent();
-      ev.setOwner(svci.findUser(account, false));
+      ev.setOwner(svci.getUsersHandler().get(account));
       if (Icalendar.itipReplyMethodType(ev.getScheduleMethod())) {
         return getSvci().getScheduler().scheduleResponse(ei);
       }
@@ -529,7 +529,7 @@ public class BwSysIntfImpl implements SysIntf {
   public ScheduleResult requestFreeBusy(EventInfo val) throws WebdavException {
     try {
       BwEvent ev = val.getEvent();
-      ev.setOwner(svci.findUser(account, false));
+      ev.setOwner(svci.getUsersHandler().get(account));
       if (Icalendar.itipReplyMethodType(ev.getScheduleMethod())) {
         return getSvci().getScheduler().scheduleResponse(val);
       }
@@ -552,7 +552,7 @@ public class BwSysIntfImpl implements SysIntf {
                              BwDateTime start,
                              BwDateTime end) throws WebdavException {
     try {
-      BwUser user = getSvci().findUser(account, false);
+      BwUser user = getSvci().getUsersHandler().get(account);
       if (user == null) {
         throw new WebdavUnauthorized();
       }
