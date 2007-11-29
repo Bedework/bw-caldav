@@ -272,7 +272,7 @@ public class BwSysIntfImpl implements SysIntf {
       }
 
       BwSystem sys = getSvci().getSyspars();
-      BwCalendar cal = getSvci().getCalendars(u);
+      BwCalendar cal = getSvci().getCalendarsHandler().getHome(u);
       if (cal == null) {
         return null;
       }
@@ -520,7 +520,7 @@ public class BwSysIntfImpl implements SysIntf {
 
   public void deleteCalendar(BwCalendar cal) throws WebdavException {
     try {
-      getSvci().deleteCalendar(cal, true);
+      getSvci().getCalendarsHandler().delete(cal, true);
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
@@ -557,7 +557,7 @@ public class BwSysIntfImpl implements SysIntf {
         throw new WebdavUnauthorized();
       }
 
-      if (getSvci().isUserRoot(cal)) {
+      if (getSvci().getCalendarsHandler().isUserRoot(cal)) {
         cal = null;
       }
 
@@ -616,7 +616,7 @@ public class BwSysIntfImpl implements SysIntf {
     newcal.setCalendarCollection(calendarCollection);
 
     try {
-      getSvci().addCalendar(newcal, parentPath);
+      getSvci().getCalendarsHandler().add(newcal, parentPath);
       return HttpServletResponse.SC_CREATED;
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
@@ -652,7 +652,7 @@ public class BwSysIntfImpl implements SysIntf {
 
         if (from.getCalendar().equals(to.getCalendar())) {
           // Rename
-          getSvci().renameCalendar(from, to.getName());
+          getSvci().getCalendarsHandler().rename(from, to.getName());
           return;
         }
       }
@@ -718,7 +718,7 @@ public class BwSysIntfImpl implements SysIntf {
    */
   public BwCalendar getCalendar(String path) throws WebdavException {
     try {
-      return getSvci().getCalendar(path);
+      return getSvci().getCalendarsHandler().get(path);
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
@@ -733,7 +733,7 @@ public class BwSysIntfImpl implements SysIntf {
    */
   public void updateCalendar(BwCalendar val) throws WebdavException {
     try {
-      getSvci().updateCalendar(val);
+      getSvci().getCalendarsHandler().update(val);
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
@@ -751,7 +751,7 @@ public class BwSysIntfImpl implements SysIntf {
    */
   public Collection<BwCalendar> getCalendars(BwCalendar cal) throws WebdavException {
     try {
-      return getSvci().getCalendars(cal);
+      return getSvci().getCalendarsHandler().getChildren(cal);
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
