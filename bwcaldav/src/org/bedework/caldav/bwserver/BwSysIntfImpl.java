@@ -51,7 +51,7 @@ import org.bedework.calfacade.util.ChangeTable;
 import org.bedework.calsvci.CalSvcFactoryDefault;
 import org.bedework.calsvci.CalSvcI;
 import org.bedework.calsvci.CalSvcIPars;
-import org.bedework.calsvci.CalSvcI.CopyMoveStatus;
+import org.bedework.calsvci.EventsI.CopyMoveStatus;
 import org.bedework.icalendar.IcalMalformedException;
 import org.bedework.icalendar.IcalTranslator;
 import org.bedework.icalendar.Icalendar;
@@ -447,7 +447,7 @@ public class BwSysIntfImpl implements SysIntf {
                                            EventInfo ei,
                                            boolean rollbackOnError) throws WebdavException {
     try {
-      return getSvci().addEvent(cal, ei, rollbackOnError).failedOverrides;
+      return getSvci().getEventsHandler().add(cal, ei, rollbackOnError).failedOverrides;
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
@@ -467,7 +467,7 @@ public class BwSysIntfImpl implements SysIntf {
                           Collection<BwEventProxy> overrides,
                           ChangeTable changes) throws WebdavException {
     try {
-      getSvci().updateEvent(event, overrides, changes);
+      getSvci().getEventsHandler().update(event, overrides, changes);
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
@@ -487,8 +487,8 @@ public class BwSysIntfImpl implements SysIntf {
     try {
       BwSubscription sub = BwSubscription.makeSubscription(cal);
 
-      return getSvci().getEvents(sub, filter, null, null,
-                                 recurRetrieval);
+      return getSvci().getEventsHandler().getEvents(sub, filter, null, null,
+                                                    recurRetrieval);
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
@@ -504,7 +504,7 @@ public class BwSysIntfImpl implements SysIntf {
                             RecurringRetrievalMode recurRetrieval)
               throws WebdavException {
     try {
-      return getSvci().getEvent(cal, val, recurRetrieval);
+      return getSvci().getEventsHandler().get(cal, val, recurRetrieval);
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
@@ -512,7 +512,7 @@ public class BwSysIntfImpl implements SysIntf {
 
   public void deleteEvent(BwEvent ev) throws WebdavException {
     try {
-      getSvci().deleteEvent(ev, true, true); // Delete unreffed
+      getSvci().getEventsHandler().delete(ev, true, true); // Delete unreffed
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
@@ -677,8 +677,8 @@ public class BwSysIntfImpl implements SysIntf {
                           boolean overwrite) throws WebdavException {
     CopyMoveStatus cms;
     try {
-      cms = getSvci().copyMoveNamed(from, overrides, to, name,
-                                    copy, overwrite, false);
+      cms = getSvci().getEventsHandler().copyMoveNamed(from, overrides, to, name,
+                                                       copy, overwrite, false);
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
