@@ -224,7 +224,7 @@ public class BwSysIntfImpl implements SysIntf {
 
   public boolean getDirectoryBrowsingDisallowed() throws WebdavException {
     try {
-      return getSvci().getSyspars().getDirectoryBrowsingDisallowed();
+      return getSvci().getSysparsHandler().get().getDirectoryBrowsingDisallowed();
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
@@ -271,7 +271,7 @@ public class BwSysIntfImpl implements SysIntf {
         return null;
       }
 
-      BwSystem sys = getSvci().getSyspars();
+      BwSystem sys = getSvci().getSysparsHandler().get();
       BwCalendar cal = getSvci().getCalendarsHandler().getHome(u);
       if (cal == null) {
         return null;
@@ -792,7 +792,7 @@ public class BwSysIntfImpl implements SysIntf {
 
   public int getMaxUserEntitySize() throws WebdavException {
     try {
-      return getSvci().getSyspars().getMaxUserEntitySize();
+      return getSvci().getSysparsHandler().get().getMaxUserEntitySize();
     } catch (CalFacadeException cfe) {
       throw new WebdavException(cfe);
     } catch (Throwable t) {
