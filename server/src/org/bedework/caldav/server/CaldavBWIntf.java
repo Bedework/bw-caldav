@@ -1000,7 +1000,13 @@ public class CaldavBWIntf extends WebdavNsIntf {
    */
   public Collection<String> getPrincipalCollectionSet(String resourceUri)
          throws WebdavException {
-    return getSysi().getPrincipalCollectionSet(resourceUri);
+    ArrayList<String> al = new ArrayList<String>();
+
+    for (String s: getSysi().getPrincipalCollectionSet(resourceUri)) {
+      al.add(sysi.getUrlHandler().prefix(s));
+    }
+
+    return al;
   }
 
   /* (non-Javadoc)
