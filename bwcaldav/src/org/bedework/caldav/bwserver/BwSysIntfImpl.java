@@ -288,7 +288,7 @@ public class BwSysIntfImpl implements SysIntf {
       BwUserInfo dirInfo = null;
 
       if (getDirInfo) {
-        dirInfo = getSvci().getDirectories().getDirInfo(account);
+        dirInfo = getSvci().getDirectories().getDirInfo(u);
       }
 
       // XXX Cheat at this - we should just use principals throughout.
@@ -338,22 +338,44 @@ public class BwSysIntfImpl implements SysIntf {
     }
 
     try {
-      if (!resourceUri.equals(getSvci().getDirectories().getPrincipalRoot())) {
+      String proot = getSvci().getDirectories().getPrincipalRoot();
+
+      if (!proot.endsWith("/")) {
+        proot += "/";
+      }
+
+      if (!resourceUri.equals(proot)) {
         return principals;
       }
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
 
-    /* If we don't support any of the properties in the searches we don't match
+    /* If we don't support any of the properties in the searches we don't match.
+     *
+     * Currently we only support calendarUserAddressSet or calendarHomeSet.
+     *
+     * For calendarUserAddressSet the value to match must be a valid CUA
+     *
+     * For calendarHomeSet it must be a valid home uri
      */
-    String caladdr = null;
+    String matchVal = null;
+    boolean calendarUserAddressSet = false;
+    boolean calendarHomeSet = false;
 
     for (PrincipalPropertySearch.PropertySearch ps: pps.propertySearches) {
       for (WebdavProperty prop: ps.props) {
-        if (!CaldavTags.calendarUserAddressSet.equals(prop.getTag())) {
+        if (CaldavTags.calendarUserAddressSet.equals(prop.getTag())) {
+          calendarUserAddressSet = true;
+        } else if (CaldavTags.calendarHomeSet.equals(prop.getTag())) {
+          calendarHomeSet = true;
+        } else {
           return principals;
         }
+      }
+
+      if (calendarUserAddressSet && calendarHomeSet) {
+        return principals;
       }
 
       String mval;
@@ -367,16 +389,29 @@ public class BwSysIntfImpl implements SysIntf {
         debugMsg("Try to match " + mval);
       }
 
-      if ((caladdr != null) && (!caladdr.equals(mval))) {
+      if ((matchVal != null) && (!matchVal.equals(mval))) {
         return principals;
       }
 
-      caladdr = mval;
+      matchVal = mval;
     }
 
-    CalUserInfo cui = getCalUserInfo(caladdrToUser(caladdr), true);
+    CalUserInfo cui = null;
 
-    principals.add(cui);
+    if (calendarUserAddressSet) {
+      cui = getCalUserInfo(caladdrToUser(matchVal), true);
+    } else {
+      String path = getUrlHandler().unprefix(matchVal);
+
+      BwCalendar cal = getCalendar(path);
+      if (cal != null) {
+        cui = getCalUserInfo(cal.getOwner().getAccount(), true);
+      }
+    }
+
+    if (cui != null) {
+      principals.add(cui);
+    }
 
     return principals;
   }
