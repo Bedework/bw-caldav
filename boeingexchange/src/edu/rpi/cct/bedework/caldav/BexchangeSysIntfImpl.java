@@ -890,18 +890,12 @@ END:VCALENDAR
     int responseCode;
 
     try {
-      if (r.getAuth()) {
-        responseCode = cio.sendRequest(r.getMethod(), r.getUrl(),
-                                       r.getUser(), r.getPw(),
-                                       r.getHeaders(), r.getDepth(),
-                                       r.getContentType(),
-                                       r.getContentLength(), r.getContentBytes());
-      } else {
-        responseCode = cio.sendRequest(r.getMethod(), r.getUrl(),
-                                       r.getHeaders(), r.getDepth(),
-                                       r.getContentType(), r.getContentLength(),
-                                       r.getContentBytes());
-      }
+      cio.setCredentials(r.getUser(), r.getPw());
+
+      responseCode = cio.sendRequest(r.getMethod(), r.getUrl(),
+                                     r.getHeaders(), r.getDepth(),
+                                     r.getContentType(), r.getContentLength(),
+                                     r.getContentBytes());
 
       if (responseCode != HttpServletResponse.SC_OK) {
         if (debug) {
