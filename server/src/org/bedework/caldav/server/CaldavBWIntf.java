@@ -193,13 +193,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       CalEnvI env = CalEnvFactory.getEnv(envPrefix, debug);
 
-      String configName = "UserCalDAV";
-      if (anonymous) {
-        configName = "PublicCalDAV";
-      }
-
       config = (CalDAVConfig)CalOptionsFactory.getOptions("org.bedework.app.",
-                                                          debug).getAppProperty(configName);
+                                                          debug).getAppProperty(appName);
       if (config == null) {
         config = new CalDAVConfig();
       }

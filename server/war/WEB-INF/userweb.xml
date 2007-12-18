@@ -61,8 +61,8 @@
   <!-- The role name of * below means all roles defined in this web.xml -->
   <security-constraint>
     <web-resource-collection>
-      <web-resource-name>UWCal</web-resource-name>
-      <description>UWCal user</description>
+      <web-resource-name>Bedework</web-resource-name>
+      <description>Bedework user</description>
       <url-pattern>/*</url-pattern>
     </web-resource-collection>
     <auth-constraint>
