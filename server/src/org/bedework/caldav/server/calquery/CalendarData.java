@@ -236,27 +236,27 @@ public class CalendarData extends WebdavProperty {
               curnode.getNodeName());
         }
 
-        if (CaldavTags.comp.nodeMatches(curnode)) {
+        if (XmlUtil.nodeMatches(curnode, CaldavTags.comp)) {
           if (comp != null) {
             throw new WebdavBadRequest();
           }
 
           comp = parseComp(curnode);
-        } else if (CaldavTags.expand.nodeMatches(curnode)) {
+        } else if (XmlUtil.nodeMatches(curnode, CaldavTags.expand)) {
           if (ers != null) {
             throw new WebdavBadRequest();
           }
 
           ers = new ExpandRecurrenceSet();
            parseTimeRange(curnode, ers);
-        } else if (CaldavTags.limitRecurrenceSet.nodeMatches(curnode)) {
+        } else if (XmlUtil.nodeMatches(curnode, CaldavTags.limitRecurrenceSet)) {
           if (lrs != null) {
             throw new WebdavBadRequest();
           }
 
           lrs = new LimitRecurrenceSet();
            parseTimeRange(curnode, lrs);
-        } else if (CaldavTags.limitFreebusySet.nodeMatches(curnode)) {
+        } else if (XmlUtil.nodeMatches(curnode, CaldavTags.limitFreebusySet)) {
           if (lfs != null) {
             throw new WebdavBadRequest();
           }
@@ -414,26 +414,26 @@ public class CalendarData extends WebdavProperty {
               curnode.getNodeName());
       }
 
-      if (CaldavTags.allcomp.nodeMatches(curnode)) {
+      if (XmlUtil.nodeMatches(curnode, CaldavTags.allcomp)) {
         if (hadComps) {
           throw new WebdavBadRequest();
         }
 
         c.setAllcomp(true);
-      } else if (CaldavTags.comp.nodeMatches(curnode)) {
+      } else if (XmlUtil.nodeMatches(curnode, CaldavTags.comp)) {
         if (c.getAllcomp()) {
           throw new WebdavBadRequest();
         }
 
         c.addComp(parseComp(curnode));
         hadComps = true;
-      } else if (CaldavTags.allprop.nodeMatches(curnode)) {
+      } else if (XmlUtil.nodeMatches(curnode, CaldavTags.allprop)) {
         if (hadProps) {
           throw new WebdavBadRequest();
         }
 
         c.setAllprop(true);
-      } else if (CaldavTags.prop.nodeMatches(curnode)) {
+      } else if (XmlUtil.nodeMatches(curnode, CaldavTags.prop)) {
         if (c.getAllprop()) {
           throw new WebdavBadRequest();
         }

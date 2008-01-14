@@ -128,15 +128,15 @@ public class CaldavReportMethod extends ReportMethod {
     try {
       Element root = doc.getDocumentElement();
 
-      if (CaldavTags.calendarQuery.nodeMatches(root)) {
+      if (XmlUtil.nodeMatches(root, CaldavTags.calendarQuery)) {
         return reportTypeQuery;
       }
 
-      if (CaldavTags.calendarMultiget.nodeMatches(root)) {
+      if (XmlUtil.nodeMatches(root, CaldavTags.calendarMultiget)) {
         return reportTypeMultiGet;
       }
 
-      if (CaldavTags.freeBusyQuery.nodeMatches(root)) {
+      if (XmlUtil.nodeMatches(root, CaldavTags.freeBusyQuery)) {
         return reportTypeFreeBusy;
       }
 
@@ -224,7 +224,7 @@ public class CaldavReportMethod extends ReportMethod {
       if (reportType == reportTypeQuery) {
         // Filter required next
 
-        if (!CaldavTags.filter.nodeMatches(curnode)) {
+        if (!XmlUtil.nodeMatches(curnode, CaldavTags.filter)) {
           throw new WebdavBadRequest("Expected filter");
         }
 
@@ -236,7 +236,7 @@ public class CaldavReportMethod extends ReportMethod {
           // Only timezone allowed
           curnode = chiter.next();
 
-          if (!CaldavTags.timezone.nodeMatches(curnode)) {
+          if (!XmlUtil.nodeMatches(curnode, CaldavTags.timezone)) {
             throw new WebdavBadRequest("Expected timezone");
           }
 
@@ -271,7 +271,7 @@ public class CaldavReportMethod extends ReportMethod {
         // One or more hrefs
 
         for (;;) {
-          if (!WebdavTags.href.nodeMatches(curnode)) {
+          if (!XmlUtil.nodeMatches(curnode, WebdavTags.href)) {
             throw new WebdavBadRequest("Expected href");
           }
 

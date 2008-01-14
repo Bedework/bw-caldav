@@ -408,28 +408,28 @@ public class CaldavCalNode extends CaldavBwNode {
     }
 
     try {
-      if (WebdavTags.description.nodeMatches(val)) {
+      if (XmlUtil.nodeMatches(val, WebdavTags.description)) {
         if (checkCalForSetProp(spr)) {
           cal.setDescription(XmlUtil.getElementContent(val));
         }
         return true;
       }
 
-      if (CaldavTags.calendarDescription.nodeMatches(val)) {
+      if (XmlUtil.nodeMatches(val, CaldavTags.calendarDescription)) {
         if (checkCalForSetProp(spr)) {
           cal.setDescription(XmlUtil.getElementContent(val));
         }
         return true;
       }
 
-      if (WebdavTags.displayname.nodeMatches(val)) {
+      if (XmlUtil.nodeMatches(val, WebdavTags.displayname)) {
         if (checkCalForSetProp(spr)) {
           cal.setSummary(XmlUtil.getElementContent(val));
         }
         return true;
       }
 
-      if (CaldavTags.calendarFreeBusySet.nodeMatches(val)) {
+      if (XmlUtil.nodeMatches(val, CaldavTags.calendarFreeBusySet)) {
         // Only valid for inbox
         if (cal.getCalType() != BwCalendar.calTypeInbox) {
           throw new WebdavForbidden("Not on inbox");
@@ -441,12 +441,12 @@ public class CaldavCalNode extends CaldavBwNode {
         return true;
       }
 
-      if (CaldavTags.calendarTimezone.nodeMatches(val)) {
+      if (XmlUtil.nodeMatches(val, CaldavTags.calendarTimezone)) {
         warn("Unimplemented - calendarTimezone");
         return true;
       }
 
-      if (AppleIcalTags.calendarcolor.nodeMatches(val)) {
+      if (XmlUtil.nodeMatches(val, AppleIcalTags.calendarcolor)) {
         BwProperty prop = cal.findProperty(AppleIcalTags.calendarcolor.getLocalPart());
 
         if (prop == null) {

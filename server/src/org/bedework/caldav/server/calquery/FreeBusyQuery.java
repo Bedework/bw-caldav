@@ -36,6 +36,7 @@ import org.bedework.calfacade.CalFacadeDefs;
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavForbidden;
+import edu.rpi.sss.util.xml.XmlUtil;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 
@@ -72,7 +73,7 @@ public class FreeBusyQuery {
         throw new WebdavBadRequest();
       }
 
-      if (!CaldavTags.timeRange.nodeMatches(nd)) {
+      if (!XmlUtil.nodeMatches(nd, CaldavTags.timeRange)) {
         throw new WebdavBadRequest();
       }
 

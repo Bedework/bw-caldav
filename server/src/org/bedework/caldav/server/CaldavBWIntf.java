@@ -76,6 +76,7 @@ import edu.rpi.cmt.access.WhoDefs;
 import edu.rpi.cmt.access.AccessXmlUtil.AccessXmlCb;
 import edu.rpi.sss.util.xml.QName;
 import edu.rpi.sss.util.xml.XmlEmit;
+import edu.rpi.sss.util.xml.XmlUtil;
 import edu.rpi.sss.util.xml.tagdefs.CaldavDefs;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
@@ -1110,7 +1111,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
    * @throws WebdavException
    */
   public WebdavProperty makeProp(Element propnode) throws WebdavException {
-    if (!CaldavTags.calendarData.nodeMatches(propnode)) {
+    if (!XmlUtil.nodeMatches(propnode, CaldavTags.calendarData)) {
       return super.makeProp(propnode);
     }
 
