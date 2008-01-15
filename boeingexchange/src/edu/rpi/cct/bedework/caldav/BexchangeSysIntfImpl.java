@@ -59,7 +59,6 @@ import edu.rpi.cmt.access.Ace;
 import edu.rpi.cmt.access.Acl;
 import edu.rpi.cmt.access.PrincipalInfo;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
-import edu.rpi.sss.util.xml.QName;
 
 import net.fortuna.ical4j.model.Calendar;
 
@@ -81,6 +80,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.namespace.QName;
 
 /** Domino implementation of SysIntf. This interacts with a servlet on Domino
  * which presents requested calendar information.

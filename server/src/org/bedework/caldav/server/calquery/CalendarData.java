@@ -34,7 +34,6 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
 import edu.rpi.cct.webdav.servlet.shared.WebdavProperty;
-import edu.rpi.sss.util.xml.QName;
 import edu.rpi.sss.util.xml.XmlUtil;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 
@@ -42,6 +41,7 @@ import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 import java.util.Collection;
 import java.util.Iterator;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.namespace.QName;
 
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;

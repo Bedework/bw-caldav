@@ -28,10 +28,11 @@ package org.bedework.caldav.server;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode.PropertyTagEntry;
-import edu.rpi.sss.util.xml.QName;
 
 import java.io.Serializable;
 import java.util.Map;
+
+import javax.xml.namespace.QName;
 
 /** This type of object will handle system dependent properties through the
  * system interface.
