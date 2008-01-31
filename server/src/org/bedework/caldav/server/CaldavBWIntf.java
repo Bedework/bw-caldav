@@ -873,6 +873,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
   }
 
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#specialUri(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, java.lang.String)
+   */
   public boolean specialUri(HttpServletRequest req,
                             HttpServletResponse resp,
                             String resourceUri) throws WebdavException {
