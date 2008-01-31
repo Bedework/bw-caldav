@@ -564,13 +564,18 @@ public class BwSysIntfImpl implements SysIntf {
   public ScheduleResult requestFreeBusy(EventInfo val) throws WebdavException {
     try {
       BwEvent ev = val.getEvent();
-      ev.setOwner(svci.getUsersHandler().get(account));
+      if (account != null) {
+        ev.setOwner(svci.getUsersHandler().get(account));
+      }
       if (Icalendar.itipReplyMethodType(ev.getScheduleMethod())) {
         return getSvci().getScheduler().scheduleResponse(val);
       }
 
       return getSvci().getScheduler().schedule(val, null);
     } catch (CalFacadeAccessException cfae) {
+      if (debug) {
+        error(cfae);
+      }
       throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
       if (CalFacadeException.duplicateGuid.equals(cfe.getMessage())) {
