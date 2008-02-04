@@ -171,12 +171,10 @@ public abstract class CaldavBwNode extends WebdavNsNode {
       }
 
       if (tag.equals(CaldavTags.calendarHomeSet)) {
-        /*
-        xml.property(tag, sysi.getUrlPrefix() +
-                     sysi.getCalUserInfo(getOwner(), false).userHomePath);
-                     */
-        xml.property(tag, sysi.getUrlHandler().prefix(
-                     sysi.getCalUserInfo(getOwner(), false).userHomePath));
+        xml.openTag(tag);
+        generateHref(xml, sysi.getCalUserInfo(getOwner(), false).userHomePath);
+        xml.closeTag(tag);
+
         return true;
       }
 
