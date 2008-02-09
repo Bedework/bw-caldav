@@ -442,7 +442,16 @@ public class CaldavCalNode extends CaldavBwNode {
       }
 
       if (XmlUtil.nodeMatches(val, CaldavTags.calendarTimezone)) {
-        warn("Unimplemented - calendarTimezone");
+        BwProperty prop = cal.findProperty(CaldavTags.calendarTimezone.getLocalPart());
+
+        if (prop == null) {
+          prop = new BwProperty(CaldavTags.calendarTimezone.getLocalPart(),
+                                XmlUtil.getElementContent(val));
+          cal.addProperty(prop);
+        } else {
+          prop.setValue(XmlUtil.getElementContent(val));
+        }
+
         return true;
       }
 
