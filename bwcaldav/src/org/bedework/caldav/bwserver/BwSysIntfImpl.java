@@ -271,6 +271,7 @@ public class BwSysIntfImpl implements SysIntf {
         return null;
       }
 
+      // SCHEDULE - just get home path and get default cal from user prefs.
       BwSystem sys = getSvci().getSysparsHandler().get();
       BwCalendar cal = getSvci().getCalendarsHandler().getHome(u);
       if (cal == null) {
@@ -803,7 +804,7 @@ public class BwSysIntfImpl implements SysIntf {
 
   public Calendar toCalendar(EventInfo ev) throws WebdavException {
     try {
-      return trans.toIcal(ev, Icalendar.methodTypeNone);
+      return trans.toIcal(ev, ev.getEvent().getScheduleMethod());
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
