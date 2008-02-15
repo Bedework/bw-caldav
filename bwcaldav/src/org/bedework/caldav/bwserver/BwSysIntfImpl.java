@@ -123,7 +123,7 @@ public class BwSysIntfImpl implements SysIntf {
       this.conf = conf;
       this.debug = debug;
 
-      urlHandler = new UrlHandler(req, false);
+      urlHandler = new UrlHandler(req, true);
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
