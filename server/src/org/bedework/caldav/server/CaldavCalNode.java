@@ -119,7 +119,7 @@ public class CaldavCalNode extends CaldavBwNode {
     addPropEntry(propertyNames, CaldavTags.supportedCalendarComponentSet);
     addPropEntry(propertyNames, CaldavTags.supportedCalendarData);
     addPropEntry(propertyNames, AppleServerTags.getctag);
-    addPropEntry(propertyNames, AppleIcalTags.calendarcolor);
+    addPropEntry(propertyNames, AppleIcalTags.calendarColor);
   }
 
   /** Place holder for status
@@ -446,11 +446,11 @@ public class CaldavCalNode extends CaldavBwNode {
         return true;
       }
 
-      if (AppleIcalTags.calendarcolor.nodeMatches(val)) {
-        BwProperty prop = cal.findProperty(AppleIcalTags.calendarcolor.getLocalPart());
+      if (AppleIcalTags.calendarColor.nodeMatches(val)) {
+        BwProperty prop = cal.findProperty(AppleIcalTags.calendarColor.getLocalPart());
 
         if (prop == null) {
-          prop = new BwProperty(AppleIcalTags.calendarcolor.getLocalPart(),
+          prop = new BwProperty(AppleIcalTags.calendarColor.getLocalPart(),
                                 XmlUtil.getElementContent(val));
           cal.addProperty(prop);
         } else {
@@ -518,7 +518,7 @@ public class CaldavCalNode extends CaldavBwNode {
         return true;
       }
 
-      if (tag.equals(AppleIcalTags.calendarcolor)) {
+      if (tag.equals(AppleIcalTags.calendarColor)) {
         BwProperty prop = cal.findProperty(tag.getLocalPart());
 
         if (prop == null) {
