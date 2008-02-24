@@ -456,15 +456,7 @@ public class CaldavCalNode extends CaldavBwNode {
       }
 
       if (XmlUtil.nodeMatches(val, AppleIcalTags.calendarColor)) {
-        BwProperty prop = cal.findProperty(AppleIcalTags.calendarColor.getLocalPart());
-
-        if (prop == null) {
-          prop = new BwProperty(AppleIcalTags.calendarColor.getLocalPart(),
-                                XmlUtil.getElementContent(val));
-          cal.addProperty(prop);
-        } else {
-          prop.setValue(XmlUtil.getElementContent(val));
-        }
+        cal.setColor(XmlUtil.getElementContent(val));
 
         return true;
       }
@@ -528,13 +520,13 @@ public class CaldavCalNode extends CaldavBwNode {
       }
 
       if (tag.equals(AppleIcalTags.calendarColor)) {
-        BwProperty prop = cal.findProperty(tag.getLocalPart());
+       String val = cal.getColor();
 
-        if (prop == null) {
+        if (val == null) {
           return false;
         }
 
-        xml.property(tag, prop.getValue());
+        xml.property(tag, val);
 
         return true;
       }
