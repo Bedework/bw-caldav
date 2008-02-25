@@ -648,15 +648,16 @@ public class BwSysIntfImpl implements SysIntf {
     }
   }
 
-  public int makeCollection(String name, boolean calendarCollection,
-                             String parentPath) throws WebdavException {
-    BwCalendar newcal = new BwCalendar();
-
-    newcal.setName(name);
-    newcal.setCalendarCollection(calendarCollection);
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#makeCollection(org.bedework.calfacade.BwCalendar, boolean, java.lang.String)
+   */
+  public int makeCollection(BwCalendar cal,
+                            boolean calendarCollection,
+                            String parentPath) throws WebdavException {
+    cal.setCalendarCollection(calendarCollection);
 
     try {
-      getSvci().getCalendarsHandler().add(newcal, parentPath);
+      getSvci().getCalendarsHandler().add(cal, parentPath);
       return HttpServletResponse.SC_CREATED;
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();

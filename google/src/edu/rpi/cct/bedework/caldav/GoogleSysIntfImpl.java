@@ -486,7 +486,8 @@ public class GoogleSysIntfImpl implements SysIntf {
     throw new WebdavException("unimplemented");
   }
 
-  public int makeCollection(String name, boolean calendarCollection,
+  public int makeCollection(BwCalendar cal,
+                            boolean calendarCollection,
                             String parentPath) throws WebdavException {
     throw new WebdavException("unimplemented");
   }

@@ -531,7 +531,8 @@ public class BexchangeSysIntfImpl implements SysIntf {
   /* (non-Javadoc)
    * @see org.bedework.caldav.server.SysIntf#makeCollection(java.lang.String, boolean, java.lang.String)
    */
-  public int makeCollection(String name, boolean calendarCollection,
+  public int makeCollection(BwCalendar cal,
+                            boolean calendarCollection,
                             String parentPath) throws WebdavException {
     throw new WebdavException("unimplemented");
   }

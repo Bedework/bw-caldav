@@ -44,7 +44,6 @@ import org.bedework.calfacade.env.CalEnvFactory;
 import org.bedework.calfacade.env.CalEnvI;
 import org.bedework.calfacade.env.CalOptionsFactory;
 import org.bedework.calfacade.svc.EventInfo;
-import org.bedework.calfacade.timezones.CalTimezones;
 import org.bedework.calfacade.util.DateTimeUtil;
 import org.bedework.calfacade.util.DateTimeUtil.DatePeriod;
 import org.bedework.icalendar.IcalTranslator;
@@ -782,12 +781,11 @@ public class CaldavBWIntf extends WebdavNsIntf {
         throw new WebdavForbidden(CaldavTags.calendarCollectionLocationOk);
       }
 
-      String name = newCal.getName();
-      if (name == null) {
+      if (newCal.getName() == null) {
         throw new WebdavForbidden("Forbidden: Null name");
       }
 
-      resp.setStatus(sysi.makeCollection(name,
+      resp.setStatus(sysi.makeCollection(newCal,
                                          "MKCALENDAR".equalsIgnoreCase(req.getMethod()),
                                          parent.getPath()));
     } catch (WebdavException we) {
@@ -1203,11 +1201,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
          */
 
         xml.cdataProperty(CaldavTags.calendarData, content);
-        return true;
-      }
-
-      if (tag.equals(CaldavTags.calendarTimezone)) {
-        xml.property(tag, sysi.toStringTzCalendar(CalTimezones.getDefaultTzid()));
         return true;
       }
 
