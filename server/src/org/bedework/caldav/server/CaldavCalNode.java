@@ -56,7 +56,6 @@ package org.bedework.caldav.server;
 
 import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwEvent;
-import org.bedework.calfacade.BwProperty;
 import org.bedework.calfacade.BwUser;
 import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.RecurringRetrievalMode.Rmode;
@@ -78,8 +77,10 @@ import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 
 import net.fortuna.ical4j.model.Calendar;
+import net.fortuna.ical4j.model.TimeZone;
 import net.fortuna.ical4j.model.component.VFreeBusy;
 
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -442,14 +443,28 @@ public class CaldavCalNode extends CaldavBwNode {
       }
 
       if (XmlUtil.nodeMatches(val, CaldavTags.calendarTimezone)) {
-        BwProperty prop = cal.findProperty(CaldavTags.calendarTimezone.getLocalPart());
+        try {
+          StringReader sr = new StringReader(XmlUtil.getElementContent(val));
 
-        if (prop == null) {
-          prop = new BwProperty(CaldavTags.calendarTimezone.getLocalPart(),
-                                XmlUtil.getElementContent(val));
-          cal.addProperty(prop);
-        } else {
-          prop.setValue(XmlUtil.getElementContent(val));
+          // This call automatically saves the timezone in the db
+          Icalendar ic = getSysi().fromIcal(cal, sr);
+
+          if ((ic == null) ||
+              (ic.size() != 0) || // No components other than timezones
+              (ic.getTimeZones().size() != 1)) {
+            if (debug) {
+              debugMsg("Not icalendar");
+            }
+            throw new WebdavForbidden(CaldavTags.validCalendarData, "Not icalendar");
+          }
+
+          TimeZone tz = ic.getTimeZones().iterator().next();
+
+          cal.setTimezone(tz.getID());
+        } catch (WebdavException wde) {
+          throw wde;
+        } catch (Throwable t) {
+          throw new WebdavForbidden(CaldavTags.validCalendarData, "Not icalendar");
         }
 
         return true;
@@ -588,6 +603,24 @@ public class CaldavCalNode extends CaldavBwNode {
         xml.atribute("content-type", "text/calendar");
         xml.atribute("version", "2.0");
         xml.closeTag(tag);
+        return true;
+      }
+
+      if (tag.equals(CaldavTags.calendarTimezone)) {
+        String tzid = cal.getTimezone();
+
+        if (tzid == null) {
+          return false;
+        }
+
+        String val = getSysi().toStringTzCalendar(tzid);
+
+        if (val == null) {
+          return false;
+        }
+
+        xml.cdataProperty(tag, val);
+
         return true;
       }
 

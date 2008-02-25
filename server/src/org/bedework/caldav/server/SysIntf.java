@@ -443,13 +443,14 @@ public interface SysIntf {
                            Acl acl) throws WebdavException;
 
   /**
-   * @param name
+   * @param cal   Initialised collection object
    * @param calendarCollection
    * @param parentPath
    * @return int status
    * @throws WebdavException
    */
-  public int makeCollection(String name, boolean calendarCollection,
+  public int makeCollection(BwCalendar cal,
+                            boolean calendarCollection,
                             String parentPath) throws WebdavException;
 
   /** Copy or move the collection to another location.
