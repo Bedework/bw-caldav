@@ -44,7 +44,6 @@ import org.bedework.calfacade.env.CalEnvFactory;
 import org.bedework.calfacade.env.CalEnvI;
 import org.bedework.calfacade.env.CalOptionsFactory;
 import org.bedework.calfacade.svc.EventInfo;
-import org.bedework.calfacade.timezones.CalTimezones;
 import org.bedework.calfacade.util.DateTimeUtil;
 import org.bedework.calfacade.util.DateTimeUtil.DatePeriod;
 import org.bedework.icalendar.IcalTranslator;
