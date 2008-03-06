@@ -580,11 +580,11 @@ public class CaldavCalNode extends CaldavBwNode {
 
         xml.openTag(tag);
         xml.startTag(CaldavTags.comp);
-        xml.atribute("name", "VEVENT");
+        xml.attribute("name", "VEVENT");
         xml.endEmptyTag();
         xml.newline();
         xml.startTag(CaldavTags.comp);
-        xml.atribute("name", "VTODO");
+        xml.attribute("name", "VTODO");
         xml.endEmptyTag();
         xml.newline();
         xml.closeTag(tag);
@@ -600,8 +600,8 @@ public class CaldavCalNode extends CaldavBwNode {
          */
         xml.openTag(tag);
         xml.startTag(CaldavTags.calendarData);
-        xml.atribute("content-type", "text/calendar");
-        xml.atribute("version", "2.0");
+        xml.attribute("content-type", "text/calendar");
+        xml.attribute("version", "2.0");
         xml.closeTag(tag);
         return true;
       }
