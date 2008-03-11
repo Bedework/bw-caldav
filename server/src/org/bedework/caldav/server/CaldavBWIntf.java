@@ -904,7 +904,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       BwOrganizer org = new BwOrganizer();
       org.setOrganizerUri(cua);
 
-      pars.contentType = "text/calendar";
+      pars.contentType = "text/calendar; charset=UTF-8";
 
       DatePeriod dp = DateTimeUtil.getPeriod(req.getParameter("start"),
                                              req.getParameter("end"),

@@ -465,7 +465,7 @@ public class PostMethod extends MethodBase {
     startEmit(resp);
 
     resp.setStatus(HttpServletResponse.SC_OK);
-    resp.setContentType("text/xml");
+    resp.setContentType("text/xml; charset=UTF-8");
 
     openTag(CaldavTags.scheduleResponse);
 
@@ -502,7 +502,7 @@ public class PostMethod extends MethodBase {
     startEmit(resp);
 
     resp.setStatus(HttpServletResponse.SC_OK);
-    resp.setContentType("text/xml");
+    resp.setContentType("text/xml; charset=UTF-8");
 
     openTag(CaldavTags.scheduleResponse);
 

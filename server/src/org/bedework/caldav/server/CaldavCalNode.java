@@ -316,7 +316,7 @@ public class CaldavCalNode extends CaldavBwNode {
    */
   public String getContentType() throws WebdavException {
     if (vfreeBusyString != null) {
-      return "text/calendar";
+      return "text/calendar; charset=UTF-8";
     }
 
     return null;
