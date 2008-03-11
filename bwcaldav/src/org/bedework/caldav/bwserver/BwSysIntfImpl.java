@@ -803,6 +803,21 @@ public class BwSysIntfImpl implements SysIntf {
     }
   }
 
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#resolveAlias(org.bedework.calfacade.BwCalendar)
+   */
+  public void resolveAlias(BwCalendar cal) throws WebdavException {
+    try {
+      getSvci().getCalendarsHandler().resolveAlias(cal, true, false);
+    } catch (CalFacadeAccessException cfae) {
+      throw new WebdavForbidden();
+    } catch (CalFacadeException cfe) {
+      throw new WebdavException(cfe);
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
+  }
+
   public Calendar toCalendar(EventInfo ev) throws WebdavException {
     try {
       return trans.toIcal(ev, ev.getEvent().getScheduleMethod());

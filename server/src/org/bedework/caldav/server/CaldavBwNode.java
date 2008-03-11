@@ -90,8 +90,9 @@ public abstract class CaldavBwNode extends WebdavNsNode {
 
   /**
    * @return BwCalendar containing or represented by this entity
+   * @throws WebdavException
    */
-  public abstract BwCalendar getCalendar();
+  public abstract BwCalendar getCalendar() throws WebdavException ;
 
   /**
    * @return boolean if this is a calendar

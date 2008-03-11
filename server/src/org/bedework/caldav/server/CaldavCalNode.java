@@ -156,8 +156,19 @@ public class CaldavCalNode extends CaldavBwNode {
   /**
    * @return BwCalendar this node represents
    */
-  public BwCalendar getCalendar() {
-    return cal;
+  public BwCalendar getCalendar() throws WebdavException {
+    BwCalendar curCal = cal;
+
+    if ((curCal != null) &&
+        (curCal.getCalType() == BwCalendar.calTypeAlias)) {
+      curCal = cal.getAliasTarget();
+      if (curCal == null) {
+        getSysi().resolveAlias(cal);
+        curCal = cal.getAliasTarget();
+      }
+    }
+
+    return curCal;
   }
 
   /* (non-Javadoc)
@@ -186,11 +197,13 @@ public class CaldavCalNode extends CaldavBwNode {
   }
 
   public String getEtagValue(boolean strong) throws WebdavException {
-    if (cal == null) {
+    BwCalendar c = getCalendar(); // Unalias
+
+    if (c == null) {
       return null;
     }
 
-    String val = cal.getLastmod() + "-" + cal.getSeq();
+    String val = c.getLastmod() + "-" + c.getSeq();
 
     if (strong) {
       return "\"" + val + "\"";
@@ -204,11 +217,13 @@ public class CaldavCalNode extends CaldavBwNode {
    * @throws WebdavException
    */
   public boolean getSchedulingAllowed() throws WebdavException {
-    if (cal == null) {
+    BwCalendar c = getCalendar(); // Unalias
+
+    if (c == null) {
       return false;
     }
 
-    int type = cal.getCalType();
+    int type = c.getCalType();
     if (type == BwCalendar.calTypeInbox) {
       return true;
     }
@@ -227,21 +242,23 @@ public class CaldavCalNode extends CaldavBwNode {
        */
 
     try {
-      if (cal.hasChildren()) {
+      BwCalendar c = getCalendar(); // Unalias
+
+      if (c.hasChildren()) {
         if (debug) {
-          debugMsg("POSSIBLE SEARCH: getChildren for cal " + cal.getId());
+          debugMsg("POSSIBLE SEARCH: getChildren for cal " + c.getId());
         }
-        return getSysi().getCalendars(cal);
+        return getSysi().getCalendars(c);
       }
 
-      /* Othewise, return the events in this calendar */
+      /* Othrewise, return the events in this calendar */
       if (debug) {
-        debugMsg("Get all resources in calendar " + cal.getPath());
+        debugMsg("Get all resources in calendar " + c.getPath());
       }
 
       RecurringRetrievalMode rrm = new RecurringRetrievalMode(
                            Rmode.overrides);
-      return getSysi().getEvents(cal, null, rrm);
+      return getSysi().getEvents(c, null, rrm);
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
@@ -284,6 +301,7 @@ public class CaldavCalNode extends CaldavBwNode {
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#update()
    */
   public void update() throws WebdavException {
+    // ALIAS probably not unaliasing here
     if (cal != null) {
       getSysi().updateCalendar(cal);
     }
@@ -316,7 +334,7 @@ public class CaldavCalNode extends CaldavBwNode {
    */
   public String getContentType() throws WebdavException {
     if (vfreeBusyString != null) {
-      return "text/calendar";
+      return "text/calendar; charset=UTF-8";
     }
 
     return null;
@@ -365,12 +383,14 @@ public class CaldavCalNode extends CaldavBwNode {
       return currentAccess;
     }
 
-    if (cal == null) {
+    BwCalendar c = getCalendar(); // Unalias
+
+    if (c == null) {
       return null;
     }
 
     try {
-      currentAccess = getSysi().checkAccess(cal, PrivilegeDefs.privAny, true);
+      currentAccess = getSysi().checkAccess(c, PrivilegeDefs.privAny, true);
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
@@ -505,6 +525,8 @@ public class CaldavCalNode extends CaldavBwNode {
     XmlEmit xml = intf.getXmlEmit();
 
     try {
+      BwCalendar c = getCalendar(); // Unalias
+
       if (tag.equals(WebdavTags.resourcetype)) {
         // dav 13.9
         xml.openTag(WebdavTags.resourcetype);
@@ -513,7 +535,7 @@ public class CaldavCalNode extends CaldavBwNode {
           debugMsg("generatePropResourcetype for " + cal);
         }
 
-        int calType = cal.getCalType();
+        int calType = c.getCalType();
         //boolean isCollection = cal.getCalendarCollection();
 
         if (calType == BwCalendar.calTypeInbox) {
@@ -654,11 +676,13 @@ public class CaldavCalNode extends CaldavBwNode {
    */
   public Collection<QName> getSupportedReports() throws WebdavException {
     Collection<QName> res = new ArrayList<QName>();
+    BwCalendar c = getCalendar(); // Unalias
+
     res.addAll(super.getSupportedReports());
 
     /* Cannot do free-busy on in and outbox */
-    if ((cal.getCalType() == BwCalendar.calTypeCollection) ||
-        (cal.getCalType() == BwCalendar.calTypeFolder)) {
+    if ((c.getCalType() == BwCalendar.calTypeCollection) ||
+        (c.getCalType() == BwCalendar.calTypeFolder)) {
       res.add(CaldavTags.freeBusyQuery);    // Calendar access
     }
 

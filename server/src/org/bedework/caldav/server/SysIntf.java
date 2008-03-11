@@ -510,6 +510,14 @@ public interface SysIntf {
   public Collection<BwCalendar> getCalendars(BwCalendar cal)
           throws WebdavException;
 
+  /** If the parameter is an alias and the target has not been resolved it will
+   * be fetched adn implanted in the paramater object.
+   *
+   * @param cal
+   * @throws WebdavException
+   */
+  public void resolveAlias(BwCalendar cal) throws WebdavException;
+
   /** Make an ical Calendar from an event.
    *
    * @param ev

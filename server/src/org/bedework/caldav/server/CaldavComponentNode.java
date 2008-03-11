@@ -224,8 +224,19 @@ public class CaldavComponentNode extends CaldavBwNode {
   /**
    * @return BwCalendar containing this entity
    */
-  public BwCalendar getCalendar() {
-    return cal;
+  public BwCalendar getCalendar() throws WebdavException {
+    BwCalendar curCal = cal;
+
+    if ((curCal != null) &&
+        (curCal.getCalType() == BwCalendar.calTypeAlias)) {
+      curCal = cal.getAliasTarget();
+      if (curCal == null) {
+        getSysi().resolveAlias(cal);
+        curCal = cal.getAliasTarget();
+      }
+    }
+
+    return curCal;
   }
 
   /* (non-Javadoc)
@@ -844,7 +855,7 @@ public boolean generatePropertyValue(QName tag,
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getContentType()
    */
   public String getContentType() throws WebdavException {
-    return "text/calendar";
+    return "text/calendar; charset=UTF-8";
   }
 
   /* (non-Javadoc)
