@@ -942,7 +942,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
       ev.setRecipients(pars.recipients);
       ev.setOriginator(pars.originator);
       ev.setOrganizer(org);
-      resp.setContentType("text/calendar");
+
+      resp.setHeader("Content-Disposition",
+                     "Attachment; Filename=\"freebusy.ics\"");
+      resp.setContentType("text/calendar; charset=UTF-8");
 
       ScheduleResult sr = getSysi().requestFreeBusy(new EventInfo(ev));
       PostMethod.checkStatus(sr);
