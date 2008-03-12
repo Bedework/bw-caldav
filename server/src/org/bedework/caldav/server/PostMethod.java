@@ -86,8 +86,11 @@ public class PostMethod extends MethodBase {
     /* true if this is a realtime request from some other server */
     boolean realTime;
 
-    /** true if this is a busy request from some other server */
+    /** true if this is a free busy request */
     public boolean freeBusy;
+
+    /** true if this is a web calendar request */
+    public boolean webcal;
 
     /**
      * @param req
@@ -111,9 +114,13 @@ public class PostMethod extends MethodBase {
         freeBusy = conf.getFburlServiceURI().equals(resourceUri);
       }
 
+      if (!realTime && !freeBusy && (conf.getWebcalServiceURI() != null)) {
+        webcal = conf.getWebcalServiceURI().equals(resourceUri);
+      }
+
       contentType = req.getContentType();
 
-      if (!freeBusy) {
+      if (!freeBusy && !webcal) {
         originator = adjustPrincipal(req.getHeader("Originator"), sysi);
 
         Enumeration rs = req.getHeaders("Recipient");

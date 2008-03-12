@@ -79,6 +79,7 @@ import edu.rpi.sss.util.xml.tagdefs.CaldavDefs;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 
+import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.component.VFreeBusy;
 
 import java.io.IOException;
@@ -89,7 +90,6 @@ import java.net.URI;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -211,7 +211,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
   }
 
   /** See if we can reauthenticate. Use for real-time service which needs to
-   * authenticaet as a particular principal.
+   * authenticate as a particular principal.
    *
    * @param req
    * @param account
@@ -879,10 +879,22 @@ public class CaldavBWIntf extends WebdavNsIntf {
                             String resourceUri) throws WebdavException {
     RequestPars pars = new RequestPars(req, this, resourceUri);
 
-    if (!pars.freeBusy) {
-      return false;
+    if (pars.freeBusy) {
+      doSpecialFreeBusy(req, resp, pars);
+      return true;
     }
 
+    if (pars.webcal) {
+      doSpecialWebcal(req, resp, pars);
+      return true;
+    }
+
+    return false;
+  }
+
+  private void doSpecialFreeBusy(HttpServletRequest req,
+                                 HttpServletResponse resp,
+                                 RequestPars pars) throws WebdavException {
     try {
       if (account != null) {
         pars.originator = getSysi().userToCaladdr(account);
@@ -895,7 +907,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
         if (user == null) {
           if (account == null) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing user/cua");
-            return true;
+            return;
           }
 
           user = account;
@@ -912,12 +924,12 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       DatePeriod dp = DateTimeUtil.getPeriod(req.getParameter("start"),
                                              req.getParameter("end"),
-                                             Calendar.WEEK_OF_YEAR, 1,
-                                             Calendar.DATE, 32);
+                                             java.util.Calendar.DATE, 31,
+                                             java.util.Calendar.DATE, 32);
 
       if (dp == null) {
         resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Date/times");
-        return true;
+        return;
       }
 
       BwEvent ev = new BwEventObj();
@@ -960,8 +972,100 @@ public class CaldavBWIntf extends WebdavNsIntf {
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
+  }
 
-    return true;
+  private void doSpecialWebcal(HttpServletRequest req,
+                               HttpServletResponse resp,
+                               RequestPars pars) throws WebdavException {
+    try {
+      DatePeriod dp = DateTimeUtil.getPeriod(req.getParameter("start"),
+                                             req.getParameter("end"),
+                                             java.util.Calendar.DATE, 31,
+                                             java.util.Calendar.DATE, 32 * 3);
+
+      if (dp == null) {
+        resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Date/times");
+        return;
+      }
+
+      String calPath = req.getParameter("calPath");
+      if (calPath == null) {
+        resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "No calPath");
+        return;
+      }
+
+      calPath = WebdavNsIntf.fixPath(calPath);
+
+      WebdavNsNode node = getNode(calPath,
+                                  WebdavNsIntf.existanceMust,
+                                  WebdavNsIntf.nodeTypeUnknown);
+
+      if ((node == null) || !node.getExists()) {
+        resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+        return;
+      }
+
+      if (!node.isCollection()) {
+        resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Not collection");
+        return;
+      }
+
+      /*
+      CaldavCalNode calNode = (CaldavCalNode)node;
+
+      BwCalendar cal = calNode.getCalendar();
+      if (cal == null) {
+        resp.sendError(HttpServletResponse.SC_NOT_FOUND, calPath);
+        return;
+      }
+
+      BwFilter filter = null;
+
+      String cat = req.getParameter("cat");
+      if (cat != null) {
+        PropertyInfo pi = PropertyIndex.propertyInfoByPname.get("CATEGORIES");
+        BwObjectFilter<String> f = new BwObjectFilter<String>(null, pi.getPindex());
+        f.setEntity(cat);
+        f.setExact(false);
+
+        filter = f;
+      }
+
+      try {
+        BwDateTime sdt = dp.start;
+        BwDateTime edt = dp.end;
+
+        if (debug) {
+          debugMsg("getEvents for start = " + sdt +
+                   " end = " + edt);
+        }
+
+        BwSubscription sub = BwSubscription.makeSubscription(cal);
+
+        RecurringRetrievalMode rrm = new RecurringRetrievalMode(Rmode.expanded,
+                                                                sdt, edt);
+                                                                */
+      Collection<EventInfo> evs = new ArrayList<EventInfo>();
+
+      for (WebdavNsNode child: getChildren(node)) {
+        if (child instanceof CaldavComponentNode) {
+          evs.add(((CaldavComponentNode)child).getEventInfo());
+        }
+      }
+
+      Calendar ical = getSysi().toCalendar(evs, Icalendar.methodTypePublish);
+
+      resp.setHeader("Content-Disposition",
+                     "Attachment; Filename=\"" +
+                     node.getDisplayname() + ".ics\"");
+      resp.setContentType("text/calendar; charset=UTF-8");
+
+      IcalTranslator.writeCalendar(ical, resp.getWriter());
+    } catch (WebdavException wde) {
+      throw wde;
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
   }
 
   /* ====================================================================

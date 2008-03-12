@@ -526,6 +526,16 @@ public interface SysIntf {
    */
   public Calendar toCalendar(EventInfo ev) throws WebdavException;
 
+  /** Make an ical Calendar from a collection of events.
+   *
+   * @param evs
+   * @param method
+   * @return Calendar
+   * @throws WebdavException
+   */
+  public Calendar toCalendar(Collection<EventInfo> evs,
+                             int method) throws WebdavException;
+
   /** Convert the Icalendar reader to a Collection of Calendar objects
    *
    * @param cal       calendar in which to place entities
