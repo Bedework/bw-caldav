@@ -593,6 +593,11 @@ public class BexchangeSysIntfImpl implements SysIntf {
     throw new WebdavException("unimplemented");
   }
 
+  public Calendar toCalendar(Collection<EventInfo> evs,
+                             int method) throws WebdavException {
+    throw new WebdavException("unimplemented");
+  }
+
   public Icalendar fromIcal(BwCalendar cal, Reader rdr) throws WebdavException {
     throw new WebdavException("unimplemented");
   }

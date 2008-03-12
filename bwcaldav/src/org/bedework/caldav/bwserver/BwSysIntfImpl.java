@@ -124,6 +124,9 @@ public class BwSysIntfImpl implements SysIntf {
       this.debug = debug;
 
       urlHandler = new UrlHandler(req, true);
+
+      // Call to set up ThreadLocal variables
+      getSvci();
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
@@ -805,6 +808,15 @@ public class BwSysIntfImpl implements SysIntf {
   public Calendar toCalendar(EventInfo ev) throws WebdavException {
     try {
       return trans.toIcal(ev, ev.getEvent().getScheduleMethod());
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
+  }
+
+  public Calendar toCalendar(Collection<EventInfo> evs,
+                             int method) throws WebdavException {
+    try {
+      return trans.toIcal(evs, method);
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
