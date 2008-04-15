@@ -55,6 +55,7 @@ import org.w3c.dom.Element;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.Writer;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -276,6 +277,17 @@ public class CaldavReportMethod extends ReportMethod {
           }
 
           String href = XmlUtil.getElementContent(curnode);
+
+          if (href != null) {
+            String decoded;
+            try {
+              decoded = URLDecoder.decode(href, "UTF8");
+            } catch (Throwable t) {
+              throw new WebdavBadRequest("bad href: " + href);
+            }
+
+            href = decoded;
+          }
 
           if ((href == null) || (href.length() == 0)) {
             throw new WebdavBadRequest("Bad href");
