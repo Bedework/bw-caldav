@@ -46,8 +46,8 @@ import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 
 import java.io.Reader;
-import java.util.Collection;
 import java.util.Enumeration;
+import java.util.Set;
 import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
@@ -75,7 +75,7 @@ public class PostMethod extends MethodBase {
     public String originator;
 
     /** values of Recipient headers */
-    public Collection<String> recipients = new TreeSet<String>();
+    public Set<String> recipients = new TreeSet<String>();
 
     Reader reqRdr;
 
