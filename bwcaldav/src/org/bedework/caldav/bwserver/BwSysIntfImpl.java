@@ -658,7 +658,11 @@ public class BwSysIntfImpl implements SysIntf {
   public int makeCollection(BwCalendar cal,
                             boolean calendarCollection,
                             String parentPath) throws WebdavException {
-    cal.setCalendarCollection(calendarCollection);
+    if (calendarCollection) {
+      cal.setCalType(BwCalendar.calTypeCollection);
+    } else {
+      cal.setCalType(BwCalendar.calTypeFolder);
+    }
 
     try {
       getSvci().getCalendarsHandler().add(cal, parentPath);
