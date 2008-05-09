@@ -702,7 +702,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
     } else if (create) {
       /* Resource already exists */
 
-      throw new WebdavException(HttpServletResponse.SC_NOT_MODIFIED);
+      throw new WebdavException(HttpServletResponse.SC_PRECONDITION_FAILED);
     } else {
       if (!entityName.equals(ev.getName())) {
         throw new WebdavBadRequest("Mismatched names");
@@ -713,7 +713,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
           debugMsg("putContent: etag mismatch if=" + ifEtag +
                    "prev=" + bwnode.getPrevEtagValue(true));
         }
-        throw new WebdavException(HttpServletResponse.SC_NOT_MODIFIED);
+        throw new WebdavException(HttpServletResponse.SC_PRECONDITION_FAILED);
       }
 
       if (debug) {
