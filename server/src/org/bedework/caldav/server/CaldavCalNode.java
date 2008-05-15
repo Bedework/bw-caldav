@@ -244,14 +244,14 @@ public class CaldavCalNode extends CaldavBwNode {
     try {
       BwCalendar c = getCalendar(); // Unalias
 
-      if (c.hasChildren()) {
+      if (!c.getCollectionInfo().entitiesAllowed) {
         if (debug) {
-          debugMsg("POSSIBLE SEARCH: getChildren for cal " + c.getId());
+          debugMsg("POSSIBLE SEARCH: getChildren for cal " + c.getPath());
         }
         return getSysi().getCalendars(c);
       }
 
-      /* Othrewise, return the events in this calendar */
+      /* Otherwise, return the events in this calendar */
       if (debug) {
         debugMsg("Get all resources in calendar " + c.getPath());
       }
