@@ -34,6 +34,8 @@ import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.BwEventObj;
 import org.bedework.calfacade.BwOrganizer;
+import org.bedework.calfacade.BwResource;
+import org.bedework.calfacade.BwResourceContent;
 import org.bedework.calfacade.CalFacadeDefs;
 import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.ScheduleResult;
@@ -83,6 +85,7 @@ import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.component.VFreeBusy;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.LineNumberReader;
 import java.io.Reader;
 import java.io.Serializable;
@@ -361,14 +364,15 @@ public class CaldavBWIntf extends WebdavNsIntf {
   public WebdavNsNode getNode(String uri,
                               int existance,
                               int nodeType) throws WebdavException {
-    return getNodeInt(uri, existance, nodeType, null, null);
+    return getNodeInt(uri, existance, nodeType, null, null, null);
   }
 
   private WebdavNsNode getNodeInt(String uri,
                                   int existance,
                                   int nodeType,
                                   BwCalendar cal,
-                                  EventInfo ei) throws WebdavException {
+                                  EventInfo ei,
+                                  BwResource r) throws WebdavException {
     if (debug) {
       debugMsg("About to get node for " + uri);
     }
@@ -378,7 +382,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
 
     try {
-      CaldavURI wi = findURI(uri, existance, nodeType, cal, ei);
+      CaldavURI wi = findURI(uri, existance, nodeType, cal, ei, r);
 
       if (wi == null) {
         throw new WebdavNotFound(uri);
@@ -392,6 +396,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
         nd = new CaldavGroupNode(wi, sysi, debug);
       } else if (wi.isCollection()) {
         nd = new CaldavCalNode(wi, sysi, debug);
+      } else if (wi.isResource()) {
+        nd = new CaldavResourceNode(wi, sysi, debug);
       } else {
         nd = new CaldavComponentNode(wi, sysi, debug);
       }
@@ -445,6 +451,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
   }
 
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#getChildren(edu.rpi.cct.webdav.servlet.shared.WebdavNsNode)
+   */
   public Collection<WebdavNsNode> getChildren(WebdavNsNode node) throws WebdavException {
     try {
       CaldavBwNode wdnode = getBwnode(node);
@@ -469,6 +478,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       while (it.hasNext()) {
         Object o = it.next();
         BwCalendar cal = null;
+        BwResource r = null;
         EventInfo ei = null;
         String name;
         int nodeType;
@@ -480,6 +490,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
           if (debug) {
             debugMsg("Found child " + cal);
           }
+        } else if (o instanceof BwResource) {
+          r = (BwResource)o;
+          name = r.getName();
+          nodeType = WebdavNsIntf.nodeTypeEntity;
         } else if (o instanceof EventInfo) {
           cal = parent;
           ei = (EventInfo)o;
@@ -491,7 +505,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
         al.add(getNodeInt(uri + "/" + name,
                                WebdavNsIntf.existanceDoesExist,
-                               nodeType, cal, ei));
+                               nodeType, cal, ei, r));
       }
 
       return al;
@@ -507,23 +521,46 @@ public class CaldavBWIntf extends WebdavNsIntf {
     return null;
   }
 
-  /*
-  private void addProp(Vector v, QName tag, Object val) {
-    if (val != null) {
-      v.addElement(new WebdavProperty(tag, String.valueOf(val)));
-    }
-  }*/
-
-  public Reader getContent(WebdavNsNode node)
-      throws WebdavException {
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#getContent(edu.rpi.cct.webdav.servlet.shared.WebdavNsNode)
+   */
+  public Reader getContent(WebdavNsNode node) throws WebdavException {
     try {
       if (!node.getAllowsGet()) {
         return null;
       }
 
-      CaldavBwNode uwnode = getBwnode(node);
+      CaldavBwNode bwnode = getBwnode(node);
 
-      return uwnode.getContent();
+      return bwnode.getContent();
+    } catch (WebdavException we) {
+      throw we;
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
+  }
+
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#getBinaryContent(edu.rpi.cct.webdav.servlet.shared.WebdavNsNode)
+   */
+  public InputStream getBinaryContent(WebdavNsNode node) throws WebdavException {
+    try {
+      if (!node.getAllowsGet()) {
+        return null;
+      }
+
+      if (!(node instanceof CaldavResourceNode)) {
+        throw new WebdavException("Unexpected node type");
+      }
+
+      CaldavResourceNode bwnode = (CaldavResourceNode)getBwnode(node);
+      BwResource r = bwnode.getResource();
+
+      if (r.getContent() == null) {
+        sysi.getFileContent(r);
+      }
+
+      return bwnode.getContentStream();
     } catch (WebdavException we) {
       throw we;
     } catch (Throwable t) {
@@ -622,9 +659,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
   }
 
   /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#putContent(edu.rpi.cct.webdav.servlet.shared.WebdavNsNode, java.io.Reader, boolean)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#putContent(edu.rpi.cct.webdav.servlet.shared.WebdavNsNode, java.lang.String, java.io.Reader, boolean, java.lang.String)
    */
   public PutContentResult putContent(WebdavNsNode node,
+                                     String contentType,
                                      Reader contentRdr,
                                      boolean create,
                                      String ifEtag) throws WebdavException {
@@ -632,8 +670,17 @@ public class CaldavBWIntf extends WebdavNsIntf {
       PutContentResult pcr = new PutContentResult();
       pcr.node = node;
 
+      if (node instanceof CaldavResourceNode) {
+        throw new WebdavException(HttpServletResponse.SC_PRECONDITION_FAILED);
+      }
+
       CaldavComponentNode bwnode = (CaldavComponentNode)getBwnode(node);
       BwCalendar cal = bwnode.getCalendar();
+
+      if (!cal.getCalendarCollection() ||
+          ((contentType != null) && !contentType.equals("text/calendar"))) {
+        throw new WebdavForbidden(CaldavTags.supportedCalendarData);
+      }
 
       Icalendar ic = sysi.fromIcal(cal, new MyReader(contentRdr));
 
@@ -661,6 +708,93 @@ public class CaldavBWIntf extends WebdavNsIntf {
       }
 
 
+      return pcr;
+    } catch (WebdavException we) {
+      throw we;
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
+  }
+
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#putBinaryContent(edu.rpi.cct.webdav.servlet.shared.WebdavNsNode, java.lang.String, java.io.InputStream, boolean, java.lang.String)
+   */
+  public PutContentResult putBinaryContent(WebdavNsNode node,
+                                           String contentType,
+                                           InputStream contentStream,
+                                           boolean create,
+                                           String ifEtag) throws WebdavException {
+    try {
+      PutContentResult pcr = new PutContentResult();
+      pcr.node = node;
+
+      if (!(node instanceof CaldavResourceNode)) {
+        throw new WebdavException(HttpServletResponse.SC_PRECONDITION_FAILED);
+      }
+
+      CaldavResourceNode bwnode = (CaldavResourceNode)getBwnode(node);
+      BwCalendar cal = bwnode.getCalendar();
+
+      if (cal.getCalendarCollection()) {
+        throw new WebdavException(HttpServletResponse.SC_PRECONDITION_FAILED);
+      }
+
+      BwResource r = bwnode.getResource();
+
+      if (r.unsaved()) {
+        create = true;
+      }
+
+      r.setContentType(contentType);
+
+      // XXX Fix this
+      int bufflen = 5000;
+      byte[] buff = new byte[bufflen];
+      byte[] res = null;
+
+      for (;;) {
+        int len = contentStream.read(buff, 0, bufflen);
+        if (len < 0) {
+          break;
+        }
+
+        if (res == null) {
+          res = buff;
+          buff = new byte[bufflen];
+        } else {
+          byte[] newres = new byte[res.length + len];
+          for (int i = 0; i < res.length; i++) {
+            newres[i] = res[i];
+          }
+
+          for (int i = 0; i < len; i++) {
+            newres[res.length + i] = buff[i];
+          }
+
+          res = newres;
+        }
+      }
+
+      BwResourceContent rc = r.getContent();
+
+      if (rc == null) {
+        sysi.getFileContent(r);
+        rc = r.getContent();
+
+        if (rc == null) {
+          rc = new BwResourceContent();
+          r.setContent(rc);
+        }
+      }
+
+      rc.setValue(res);
+      r.setContentLength(res.length);
+
+      if (create) {
+        sysi.putFile(cal, r);
+      } else {
+        sysi.updateFile(r, true);
+      }
       return pcr;
     } catch (WebdavException we) {
       throw we;
@@ -1369,8 +1503,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
    * @throws WebdavException
    */
   public Collection<WebdavNsNode> query(WebdavNsNode wdnode,
-                                                  RecurringRetrievalMode retrieveRecur,
-                                                  Filter fltr) throws WebdavException {
+                                        RecurringRetrievalMode retrieveRecur,
+                                        Filter fltr) throws WebdavException {
     CaldavBwNode node = getBwnode(wdnode);
     Collection<EventInfo> events;
 
@@ -1421,8 +1555,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
         CaldavComponentNode evnode = (CaldavComponentNode)getNodeInt(evuri,
                                                    WebdavNsIntf.existanceDoesExist,
                                                    WebdavNsIntf.nodeTypeEntity,
-                                                   cal,
-                                                   ei);
+                                                   cal, ei, null);
 
           evnodes.add(evnode);
           /*evnodeMap.put(evuri, evnode);
@@ -1521,6 +1654,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
    * @param nodeType         Say's something about the type of node
    * @param cal        Supplied BwCalendar object if we already have it.
    * @param ei
+   * @param r
    * @return CaldavURI object representing the uri
    * @throws WebdavException
    */
@@ -1528,7 +1662,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
                             int existance,
                             int nodeType,
                             BwCalendar cal,
-                            EventInfo ei) throws WebdavException {
+                            EventInfo ei,
+                            BwResource r) throws WebdavException {
     try {
       if ((nodeType == WebdavNsIntf.nodeTypeUnknown) &&
           (existance != WebdavNsIntf.existanceMust)) {
@@ -1570,8 +1705,12 @@ public class CaldavBWIntf extends WebdavNsIntf {
         String name = null;
         if (ei != null) {
           name = ei.getEvent().getName();
+          curi = new CaldavURI(cal, ei, name);
+        } else if (r != null) {
+          curi = new CaldavURI(r);
+        } else {
+          curi = new CaldavURI(cal, ei, name);
         }
-        curi = new CaldavURI(cal, ei, name);
         putUriPath(curi);
 
         return curi;
@@ -1603,7 +1742,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
             debugMsg("create collection uri - cal=\"" + cal.getPath() + "\"");
           }
 
-          curi = new CaldavURI(cal, null, null);
+          curi = new CaldavURI(cal);
           putUriPath(curi);
 
           return curi;
@@ -1611,14 +1750,14 @@ public class CaldavBWIntf extends WebdavNsIntf {
       }
 
       // Entity or unknown
-      String[] split = splitUri(uri);
+      SplitResult split = splitUri(uri);
 
-      if (split[1] == null) {
+      if (split.name == null) {
         // No name part
         throw new WebdavNotFound(uri);
       }
 
-      cal = sysi.getCalendar(split[0]);
+      cal = sysi.getCalendar(split.path);
 
       if (cal == null) {
         if (nodeType == WebdavNsIntf.nodeTypeCollection) {
@@ -1634,28 +1773,52 @@ public class CaldavBWIntf extends WebdavNsIntf {
         BwCalendar newCal = new BwCalendar();
 
         newCal.setCalendar(cal);
-        newCal.setName(split[1]);
+        newCal.setName(split.name);
         newCal.setPath(cal.getPath() + "/" + newCal.getName());
 
-        curi = new CaldavURI(newCal, null, null);
+        curi = new CaldavURI(newCal);
         putUriPath(curi);
 
         return curi;
       }
 
-      if (debug) {
-        debugMsg("find event(s) - cal=\"" + cal.getPath() + "\" name=\"" +
-                 split[1] + "\"");
-      }
-      RecurringRetrievalMode rrm =
-        new RecurringRetrievalMode(Rmode.overrides);
-      ei = sysi.getEvent(cal, split[1], rrm);
+      if (cal.getCalendarCollection()) {
+        if (debug) {
+          debugMsg("find event(s) - cal=\"" + cal.getPath() + "\" name=\"" +
+                   split.name + "\"");
+        }
 
-      if ((existance == WebdavNsIntf.existanceMust) && (ei == null)) {
-        throw new WebdavNotFound(uri);
+        RecurringRetrievalMode rrm =
+          new RecurringRetrievalMode(Rmode.overrides);
+        ei = sysi.getEvent(cal, split.name, rrm);
+
+        if ((existance == WebdavNsIntf.existanceMust) && (ei == null)) {
+          throw new WebdavNotFound(uri);
+        }
+
+        curi = new CaldavURI(cal, ei, split.name);
+      } else {
+        if (debug) {
+          debugMsg("find resource - cal=\"" + cal.getPath() + "\" name=\"" +
+                   split.name + "\"");
+        }
+
+        /* Look for a resource */
+        r = sysi.getFile(cal, split.name);
+
+        if ((existance == WebdavNsIntf.existanceMust) && (r == null)) {
+          throw new WebdavNotFound(uri);
+        }
+
+        if (r == null) {
+          r = new BwResource();
+          r.setName(split.name);
+          r.setCalendar(cal);
+        }
+
+        curi = new CaldavURI(r);
       }
 
-      curi = new CaldavURI(cal, ei, split[1]);
       putUriPath(curi);
 
       return curi;
@@ -1666,11 +1829,21 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
   }
 
-  /* Split the uri so that result[0] is the path up to the name part result[1]
+  private static class SplitResult {
+    String path;
+    String name;
+
+    SplitResult(String path, String name) {
+      this.path = path;
+      this.name = name;
+    }
+  }
+
+  /* Split the uri so that result.path is the path up to the name part result.name
    *
    * NormalizeUri was called previously so we have no trailing "/"
    */
-  private String[] splitUri(String uri) throws WebdavException {
+  private SplitResult splitUri(String uri) throws WebdavException {
     int pos = uri.lastIndexOf("/");
     if (pos < 0) {
       // bad uri
@@ -1678,16 +1851,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
 
     if (pos == 0) {
-      return new String[]{
-          uri,
-          null
-      };
+      return new SplitResult(uri, null);
     }
 
-    return new String[]{
-        uri.substring(0, pos),
-        uri.substring(pos + 1)
-    };
+    return new SplitResult(uri.substring(0, pos), uri.substring(pos + 1));
   }
 
   private String normalizeUri(String uri) throws WebdavException {

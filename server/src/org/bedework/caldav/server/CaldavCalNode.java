@@ -248,7 +248,12 @@ public class CaldavCalNode extends CaldavBwNode {
         if (debug) {
           debugMsg("POSSIBLE SEARCH: getChildren for cal " + c.getPath());
         }
-        return getSysi().getCalendars(c);
+
+        ArrayList ch = new ArrayList();
+        ch.addAll(getSysi().getCalendars(c));
+        ch.addAll(getSysi().getFiles(c));
+
+        return ch;
       }
 
       /* Otherwise, return the events in this calendar */
@@ -681,8 +686,7 @@ public class CaldavCalNode extends CaldavBwNode {
     res.addAll(super.getSupportedReports());
 
     /* Cannot do free-busy on in and outbox */
-    if ((c.getCalType() == BwCalendar.calTypeCollection) ||
-        (c.getCalType() == BwCalendar.calTypeFolder)) {
+    if (c.getCollectionInfo().allowFreeBusy) {
       res.add(CaldavTags.freeBusyQuery);    // Calendar access
     }
 

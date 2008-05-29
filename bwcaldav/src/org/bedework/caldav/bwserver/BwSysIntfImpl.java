@@ -32,6 +32,7 @@ import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwDateTime;
 import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.BwEventProxy;
+import org.bedework.calfacade.BwResource;
 import org.bedework.calfacade.BwSystem;
 import org.bedework.calfacade.BwUser;
 import org.bedework.calfacade.BwUserInfo;
@@ -816,6 +817,88 @@ public class BwSysIntfImpl implements SysIntf {
   public void resolveAlias(BwCalendar cal) throws WebdavException {
     try {
       getSvci().getCalendarsHandler().resolveAlias(cal, true, false);
+    } catch (CalFacadeAccessException cfae) {
+      throw new WebdavForbidden();
+    } catch (CalFacadeException cfe) {
+      throw new WebdavException(cfe);
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
+  }
+
+  /* ====================================================================
+   *                   Files
+   * ==================================================================== */
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#putFile(org.bedework.calfacade.BwCalendar, org.bedework.calfacade.BwResource)
+   */
+  public void putFile(BwCalendar coll,
+                      BwResource val) throws WebdavException {
+    try {
+      getSvci().getResourcesHandler().save(coll.getPath(), val);
+    } catch (CalFacadeAccessException cfae) {
+      throw new WebdavForbidden();
+    } catch (CalFacadeException cfe) {
+      throw new WebdavException(cfe);
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
+  }
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#getFile(org.bedework.calfacade.BwCalendar, java.lang.String)
+   */
+  public BwResource getFile(BwCalendar coll,
+                            String name) throws WebdavException {
+    try {
+      return getSvci().getResourcesHandler().get(coll.getPath() + "/" + name);
+    } catch (CalFacadeAccessException cfae) {
+      throw new WebdavForbidden();
+    } catch (CalFacadeException cfe) {
+      throw new WebdavException(cfe);
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
+  }
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#getContent(org.bedework.calfacade.BwResource)
+   */
+  public void getFileContent(BwResource val) throws WebdavException {
+    try {
+      getSvci().getResourcesHandler().getContent(val);
+    } catch (CalFacadeAccessException cfae) {
+      throw new WebdavForbidden();
+    } catch (CalFacadeException cfe) {
+      throw new WebdavException(cfe);
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
+  }
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#getFiles(org.bedework.calfacade.BwCalendar)
+   */
+  public Collection<BwResource> getFiles(BwCalendar coll) throws WebdavException {
+    try {
+      return getSvci().getResourcesHandler().getAll(coll.getPath());
+    } catch (CalFacadeAccessException cfae) {
+      throw new WebdavForbidden();
+    } catch (CalFacadeException cfe) {
+      throw new WebdavException(cfe);
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
+  }
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#updateFile(org.bedework.calfacade.BwResource, boolean)
+   */
+  public void updateFile(BwResource val,
+                         boolean updateContent) throws WebdavException {
+    try {
+      getSvci().getResourcesHandler().update(val, updateContent);
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {

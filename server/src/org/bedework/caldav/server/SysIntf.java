@@ -30,6 +30,7 @@ import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwDateTime;
 import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.BwEventProxy;
+import org.bedework.calfacade.BwResource;
 import org.bedework.calfacade.BwUserInfo;
 import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.ScheduleResult;
@@ -517,6 +518,54 @@ public interface SysIntf {
    * @throws WebdavException
    */
   public void resolveAlias(BwCalendar cal) throws WebdavException;
+
+  /* ====================================================================
+   *                   Files
+   * ==================================================================== */
+
+  /** PUT a file.
+   *
+   * @param coll         BwCalendar defining recipient collection
+   * @param val          BwResource
+   * @throws WebdavException
+   */
+  public void putFile(BwCalendar coll,
+                      BwResource val) throws WebdavException;
+
+  /** GET a file.
+   *
+   * @param coll         BwCalendar containing file
+   * @param name
+   * @return BwResource
+   * @throws WebdavException
+   */
+  public BwResource getFile(BwCalendar coll,
+                            String name) throws WebdavException;
+
+  /** Get resource content given the resource. It will be set in the resource
+   * object
+   *
+   * @param  val BwResource
+   * @throws WebdavException
+   */
+  public void getFileContent(BwResource val) throws WebdavException;
+
+  /** Get the files in a collection.
+   *
+   * @param coll         BwCalendar containing file
+   * @return Collection of BwResource
+   * @throws WebdavException
+   */
+  public Collection<BwResource> getFiles(BwCalendar coll) throws WebdavException;
+
+  /** Update a file.
+   *
+   * @param val          BwResource
+   * @param updateContent if true we also update the content
+   * @throws WebdavException
+   */
+  public void updateFile(BwResource val,
+                         boolean updateContent) throws WebdavException;
 
   /** Make an ical Calendar from an event.
    *

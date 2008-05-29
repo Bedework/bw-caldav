@@ -56,6 +56,7 @@ package org.bedework.caldav.server;
 
 import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwEvent;
+import org.bedework.calfacade.BwResource;
 import org.bedework.calfacade.svc.EventInfo;
 
 /** We map uris onto an object which may be a calendar or an
@@ -71,7 +72,11 @@ import org.bedework.calfacade.svc.EventInfo;
  *   @author Mike Douglass   douglm@rpi.edu
  */
 public class CaldavURI {
+  /* For a resource or an entity, this is the containing collection
+   */
   BwCalendar cal;
+
+  BwResource resource;
 
   EventInfo entity;
 
@@ -80,10 +85,35 @@ public class CaldavURI {
 
   boolean userUri; // entityname is user
 
+  boolean resourceUri; // entityname is resource
+
   boolean groupUri;// entityname is group
 
+  /** Reference to a collection
+   *
+   * @param cal
+   */
+  CaldavURI(BwCalendar cal) {
+    init(cal, null, null, null);
+  }
+
+  /** Reference to a contained entity
+   *
+   * @param cal
+   * @param entity
+   * @param entityName
+   */
   CaldavURI(BwCalendar cal, EventInfo entity, String entityName) {
-    init(cal, entity, entityName);
+    init(cal, null, entity, entityName);
+  }
+
+  /** Reference to a contained resource
+   *
+   * @param res
+   */
+  CaldavURI(BwResource res) {
+    init(res.getCalendar(), res, null, res.getName());
+    resourceUri = true;
   }
 
   CaldavURI(String entityName, String path, boolean isUser) {
@@ -97,8 +127,9 @@ public class CaldavURI {
     this.path = path;
   }
 
-  private void init(BwCalendar cal, EventInfo entity, String entityName) {
+  private void init(BwCalendar cal, BwResource res, EventInfo entity, String entityName) {
     this.cal = cal;
+    this.resource = res;
     this.entity = entity;
     this.entityName = entityName;
   }
@@ -108,6 +139,13 @@ public class CaldavURI {
    */
   public BwCalendar getCal() {
     return cal;
+  }
+
+  /**
+   * @return BwResource
+   */
+  public BwResource getResource() {
+    return resource;
   }
 
   /**
@@ -146,6 +184,8 @@ public class CaldavURI {
       }
     } else if (cal != null) {
       return cal.getOwner().getAccount();
+    } else if (resource != null) {
+      return resource.getOwner().getAccount();
     }
 
     return null;
@@ -174,6 +214,13 @@ public class CaldavURI {
       return getPath();
     }
     return getPath() + "/" + entityName;
+  }
+
+  /**
+   * @return true if this represents a calendar
+   */
+  public boolean isResource() {
+    return resourceUri;
   }
 
   /**

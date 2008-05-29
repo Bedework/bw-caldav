@@ -138,6 +138,13 @@ public abstract class CaldavBwNode extends WebdavNsNode {
    *                   Required webdav properties
    * ==================================================================== */
 
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getContentBinary()
+   */
+  public boolean getContentBinary() throws WebdavException {
+    return false;
+  }
+
   /* ====================================================================
    *                   Property methods
    * ==================================================================== */

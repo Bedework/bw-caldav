@@ -34,6 +34,7 @@ import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.BwEventObj;
 import org.bedework.calfacade.BwEventProxy;
 import org.bedework.calfacade.BwFreeBusyComponent;
+import org.bedework.calfacade.BwResource;
 import org.bedework.calfacade.BwUser;
 import org.bedework.calfacade.CalFacadeDefs;
 import org.bedework.calfacade.RecurringRetrievalMode;
@@ -560,6 +561,48 @@ public class GoogleSysIntfImpl implements SysIntf {
   }
 
   public void resolveAlias(BwCalendar cal) throws WebdavException {
+    throw new WebdavException("unimplemented");
+  }
+
+  /* ====================================================================
+   *                   Files
+   * ==================================================================== */
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#putFile(org.bedework.calfacade.BwCalendar, org.bedework.calfacade.BwResource)
+   */
+  public void putFile(BwCalendar coll,
+                      BwResource val) throws WebdavException {
+    throw new WebdavException("unimplemented");
+  }
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#getFile(org.bedework.calfacade.BwCalendar, java.lang.String)
+   */
+  public BwResource getFile(BwCalendar coll,
+                            String name) throws WebdavException {
+    throw new WebdavException("unimplemented");
+  }
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#getContent(org.bedework.calfacade.BwResource)
+   */
+  public void getFileContent(BwResource val) throws WebdavException {
+    throw new WebdavException("unimplemented");
+  }
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#getFiles(org.bedework.calfacade.BwCalendar)
+   */
+  public Collection<BwResource> getFiles(BwCalendar coll) throws WebdavException {
+    throw new WebdavException("unimplemented");
+  }
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#updateFile(org.bedework.calfacade.BwResource, boolean)
+   */
+  public void updateFile(BwResource val,
+                         boolean updateContent) throws WebdavException {
     throw new WebdavException("unimplemented");
   }
 

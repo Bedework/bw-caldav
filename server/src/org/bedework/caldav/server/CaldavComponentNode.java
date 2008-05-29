@@ -97,7 +97,7 @@ public class CaldavComponentNode extends CaldavBwNode {
 
   private String entityName;
 
-  // We also need a todo object and maybe a journal, freebusy and a timezone
+  // We also need a task object and maybe a journal, freebusy and a timezone
 
   private boolean isTimezone;
 
