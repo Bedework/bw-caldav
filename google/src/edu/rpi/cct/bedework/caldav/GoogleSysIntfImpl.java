@@ -606,6 +606,13 @@ public class GoogleSysIntfImpl implements SysIntf {
     throw new WebdavException("unimplemented");
   }
 
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#deleteFile(org.bedework.calfacade.BwResource)
+   */
+  public void deleteFile(BwResource val) throws WebdavException {
+    throw new WebdavException("unimplemented");
+  }
+
   public Calendar toCalendar(EventInfo ev) throws WebdavException {
     throw new WebdavException("unimplemented");
   }

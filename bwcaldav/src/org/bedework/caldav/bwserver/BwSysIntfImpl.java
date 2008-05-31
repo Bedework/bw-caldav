@@ -908,6 +908,22 @@ public class BwSysIntfImpl implements SysIntf {
     }
   }
 
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#deleteFile(org.bedework.calfacade.BwResource)
+   */
+  public void deleteFile(BwResource val) throws WebdavException {
+    try {
+      getSvci().getResourcesHandler().delete(val.getCalendar().getPath() + "/" +
+                                             val.getName());
+    } catch (CalFacadeAccessException cfae) {
+      throw new WebdavForbidden();
+    } catch (CalFacadeException cfe) {
+      throw new WebdavException(cfe);
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
+  }
+
   public Calendar toCalendar(EventInfo ev) throws WebdavException {
     try {
       return trans.toIcal(ev, ev.getEvent().getScheduleMethod());

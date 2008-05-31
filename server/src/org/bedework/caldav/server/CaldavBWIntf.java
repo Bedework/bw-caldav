@@ -418,7 +418,13 @@ public class CaldavBWIntf extends WebdavNsIntf {
     try {
       CaldavBwNode uwnode = getBwnode(node);
 
-      if (uwnode instanceof CaldavComponentNode) {
+      if (uwnode instanceof CaldavResourceNode) {
+        CaldavResourceNode rnode = (CaldavResourceNode)uwnode;
+
+        BwResource r = rnode.getResource();
+
+        sysi.deleteFile(r);
+      } else if (uwnode instanceof CaldavComponentNode) {
         CaldavComponentNode cnode = (CaldavComponentNode)uwnode;
 
         BwEvent ev = cnode.getEventInfo().getEvent();
@@ -778,8 +784,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
       BwResourceContent rc = r.getContent();
 
       if (rc == null) {
-        sysi.getFileContent(r);
-        rc = r.getContent();
+        if (!r.unsaved()) {
+          sysi.getFileContent(r);
+          rc = r.getContent();
+        }
 
         if (rc == null) {
           rc = new BwResourceContent();

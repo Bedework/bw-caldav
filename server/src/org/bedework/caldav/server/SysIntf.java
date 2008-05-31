@@ -567,6 +567,13 @@ public interface SysIntf {
   public void updateFile(BwResource val,
                          boolean updateContent) throws WebdavException;
 
+  /** Delete a file.
+   *
+   * @param val          BwResource
+   * @throws WebdavException
+   */
+  public void deleteFile(BwResource val) throws WebdavException;
+
   /** Make an ical Calendar from an event.
    *
    * @param ev
