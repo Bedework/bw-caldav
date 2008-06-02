@@ -924,6 +924,17 @@ public class BwSysIntfImpl implements SysIntf {
     }
   }
 
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#copyMoveFile(org.bedework.calfacade.BwResource, org.bedework.calfacade.BwCalendar, java.lang.String, boolean, boolean)
+   */
+  public boolean copyMoveFile(BwResource from,
+                              BwCalendar to,
+                              String name,
+                              boolean copy,
+                              boolean overwrite) throws WebdavException {
+    throw new WebdavException("unimplemented");
+  }
+
   public Calendar toCalendar(EventInfo ev) throws WebdavException {
     try {
       return trans.toIcal(ev, ev.getEvent().getScheduleMethod());

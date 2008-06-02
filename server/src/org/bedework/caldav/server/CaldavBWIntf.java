@@ -668,7 +668,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#putContent(edu.rpi.cct.webdav.servlet.shared.WebdavNsNode, java.lang.String, java.io.Reader, boolean, java.lang.String)
    */
   public PutContentResult putContent(WebdavNsNode node,
-                                     String contentType,
+                                     String[] contentTypePars,
                                      Reader contentRdr,
                                      boolean create,
                                      String ifEtag) throws WebdavException {
@@ -683,8 +683,12 @@ public class CaldavBWIntf extends WebdavNsIntf {
       CaldavComponentNode bwnode = (CaldavComponentNode)getBwnode(node);
       BwCalendar cal = bwnode.getCalendar();
 
-      if (!cal.getCalendarCollection() ||
-          ((contentType != null) && !contentType.equals("text/calendar"))) {
+      boolean calContent = false;
+      if ((contentTypePars != null) && contentTypePars.length > 0) {
+        calContent = contentTypePars[0].equals("text/calendar");
+      }
+
+      if (!cal.getCalendarCollection() || !calContent) {
         throw new WebdavForbidden(CaldavTags.supportedCalendarData);
       }
 
@@ -726,7 +730,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#putBinaryContent(edu.rpi.cct.webdav.servlet.shared.WebdavNsNode, java.lang.String, java.io.InputStream, boolean, java.lang.String)
    */
   public PutContentResult putBinaryContent(WebdavNsNode node,
-                                           String contentType,
+                                           String[] contentTypePars,
                                            InputStream contentStream,
                                            boolean create,
                                            String ifEtag) throws WebdavException {
@@ -749,6 +753,17 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       if (r.unsaved()) {
         create = true;
+      }
+
+      String contentType = null;
+
+      if ((contentTypePars != null) && contentTypePars.length > 0) {
+        for (String c: contentTypePars) {
+          if (contentType != null) {
+            contentType += ";";
+          }
+          contentType += c;
+        }
       }
 
       r.setContentType(contentType);
@@ -946,52 +961,77 @@ public class CaldavBWIntf extends WebdavNsIntf {
                        boolean overwrite,
                        int depth) throws WebdavException {
     if (from instanceof CaldavCalNode) {
-      if (!(to instanceof CaldavCalNode)) {
-        throw new WebdavBadRequest();
-      }
-
-      // Copy folder
-      if ((depth != Headers.depthNone) && (depth != Headers.depthInfinity)) {
-        throw new WebdavBadRequest();
-      }
-
-      CaldavCalNode fromCalNode = (CaldavCalNode)from;
-      CaldavCalNode toCalNode = (CaldavCalNode)to;
-
-      if (toCalNode.getExists() && !overwrite) {
-        resp.setStatus(HttpServletResponse.SC_PRECONDITION_FAILED);
-
-        return;
-      }
-
-      BwCalendar fromCal = fromCalNode.getCalendar();
-      BwCalendar toCal = toCalNode.getCalendar();
-
-      getSysi().copyMove(fromCal, toCal, copy, overwrite);
-      if (toCalNode.getExists()) {
-        resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
-      } else {
-        resp.setStatus(HttpServletResponse.SC_CREATED);
-        Headers.makeLocation(resp, getLocation(to), debug);
-      }
+      copyMoveCollection(resp, (CaldavCalNode)from,
+                         to, copy, overwrite, depth);
 
       return;
     }
 
-    if (!(from instanceof CaldavComponentNode)) {
-      throw new WebdavBadRequest();
-    }
-
-    if (!(to instanceof CaldavComponentNode)) {
-      throw new WebdavBadRequest();
-    }
-
-    // Copy entity
+    // Copy entity or resource
     if ((depth != Headers.depthNone) && (depth != 0)) {
       throw new WebdavBadRequest();
     }
 
-    CaldavComponentNode fromNode = (CaldavComponentNode)from;
+    if (from instanceof CaldavComponentNode) {
+      copyMoveComponent(resp, (CaldavComponentNode)from,
+                        to, copy, overwrite);
+      return;
+    }
+
+    if (from instanceof CaldavResourceNode) {
+      copyMoveResource(resp, (CaldavResourceNode)from,
+                       to, copy, overwrite);
+      return;
+    }
+
+    throw new WebdavBadRequest();
+  }
+
+  private void copyMoveCollection(HttpServletResponse resp,
+                                  CaldavCalNode from,
+                                  WebdavNsNode to,
+                                  boolean copy,
+                                  boolean overwrite,
+                                  int depth) throws WebdavException {
+    if (!(to instanceof CaldavCalNode)) {
+      throw new WebdavBadRequest();
+    }
+
+    // Copy folder
+    if ((depth != Headers.depthNone) && (depth != Headers.depthInfinity)) {
+      throw new WebdavBadRequest();
+    }
+
+    CaldavCalNode fromCalNode = (CaldavCalNode)from;
+    CaldavCalNode toCalNode = (CaldavCalNode)to;
+
+    if (toCalNode.getExists() && !overwrite) {
+      resp.setStatus(HttpServletResponse.SC_PRECONDITION_FAILED);
+
+      return;
+    }
+
+    BwCalendar fromCal = fromCalNode.getCalendar();
+    BwCalendar toCal = toCalNode.getCalendar();
+
+    getSysi().copyMove(fromCal, toCal, copy, overwrite);
+    if (toCalNode.getExists()) {
+      resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
+    } else {
+      resp.setStatus(HttpServletResponse.SC_CREATED);
+      Headers.makeLocation(resp, getLocation(to), debug);
+    }
+  }
+
+  private void copyMoveComponent(HttpServletResponse resp,
+                                 CaldavComponentNode from,
+                                 WebdavNsNode to,
+                                 boolean copy,
+                                 boolean overwrite) throws WebdavException {
+    if (!(to instanceof CaldavComponentNode)) {
+      throw new WebdavBadRequest();
+    }
+
     CaldavComponentNode toNode = (CaldavComponentNode)to;
 
     if (toNode.getExists() && !overwrite) {
@@ -1000,7 +1040,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       return;
     }
 
-    EventInfo fromEi = fromNode.getEventInfo();
+    EventInfo fromEi = from.getEventInfo();
     BwCalendar toCal = toNode.getCalendar();
 
     if (!getSysi().copyMove(fromEi.getEvent(), fromEi.getOverrideProxies(),
@@ -1013,6 +1053,34 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
   }
 
+  private void copyMoveResource(HttpServletResponse resp,
+                               CaldavResourceNode from,
+                               WebdavNsNode to,
+                               boolean copy,
+                               boolean overwrite) throws WebdavException {
+    if (!(to instanceof CaldavResourceNode)) {
+      throw new WebdavBadRequest();
+    }
+
+    CaldavResourceNode toNode = (CaldavResourceNode)to;
+
+    if (toNode.getExists() && !overwrite) {
+      resp.setStatus(HttpServletResponse.SC_PRECONDITION_FAILED);
+
+      return;
+    }
+
+    BwCalendar toCal = toNode.getCalendar();
+
+    if (!getSysi().copyMoveFile(from.getResource(),
+                            toCal, toNode.getEntityName(), copy,
+                            overwrite)) {
+      resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
+    } else {
+      resp.setStatus(HttpServletResponse.SC_CREATED);
+      Headers.makeLocation(resp, getLocation(to), debug);
+    }
+  }
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#specialUri(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, java.lang.String)
    */

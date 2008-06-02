@@ -574,6 +574,23 @@ public interface SysIntf {
    */
   public void deleteFile(BwResource val) throws WebdavException;
 
+  /** Copy or move the given file to the destination collection with the given name.
+   * Status is set on return
+   *
+   * @param from      Source resource
+   * @param to        Destination collection
+   * @param name      String name of new entity
+   * @param copy      true for copying
+   * @param overwrite destination exists
+   * @return true if destination created (i.e. not updated)
+   * @throws WebdavException
+   */
+  public boolean copyMoveFile(BwResource from,
+                              BwCalendar to,
+                              String name,
+                              boolean copy,
+                              boolean overwrite) throws WebdavException;
+
   /** Make an ical Calendar from an event.
    *
    * @param ev
