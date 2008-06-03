@@ -932,7 +932,17 @@ public class BwSysIntfImpl implements SysIntf {
                               String name,
                               boolean copy,
                               boolean overwrite) throws WebdavException {
-    throw new WebdavException("unimplemented");
+    try {
+      return getSvci().getResourcesHandler().copyMove(from, to.getPath(), name,
+                                                      copy,
+                                                      overwrite);
+    } catch (CalFacadeAccessException cfae) {
+      throw new WebdavForbidden();
+    } catch (CalFacadeException cfe) {
+      throw new WebdavException(cfe);
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
   }
 
   public Calendar toCalendar(EventInfo ev) throws WebdavException {
@@ -1011,12 +1021,12 @@ public class BwSysIntfImpl implements SysIntf {
 
     try {
       String runAsUser = account;
-      boolean superUser = false;
+      boolean allowSuperUser = false;
 
       if (account == null) {
         runAsUser = getEnv().getAppProperty("run.as.user");
       } else if (account.equals("root")) {
-        superUser = true;
+        allowSuperUser = true;
       }
 
       /* account is what we authenticated with.
@@ -1027,6 +1037,7 @@ public class BwSysIntfImpl implements SysIntf {
                                          null,    // calsuite
                                          envPrefix,
                                          false,   // publicAdmin
+                                         allowSuperUser,
                                          false,  // adminCanEditAllPublicCategories
                                          false,  // adminCanEditAllPublicLocations
                                          false,  // adminCanEditAllPublicSponsors
@@ -1035,10 +1046,6 @@ public class BwSysIntfImpl implements SysIntf {
                                          conf,
                                          debug);
       svci = new CalSvcFactoryDefault().getSvc(pars);
-
-      if (superUser) {
-        svci.setSuperUser(true);
-      }
 
       svci.open();
       svci.beginTransaction();
