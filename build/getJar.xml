@@ -1,0 +1,120 @@
+<?xml version="1.0"?>
+
+<!-- ===================================================================
+     Define a macro to fetch jars from the bedework repository or from
+     the generated library in the named project.
+
+     IF a project is named and we cannot locate the named file we try the
+     repository.
+
+     For jars fetched from the archive we have a two step process, first check
+     that a copy in a local cache is up to date, second copy from the local cache
+     into the final destination. This allows the caller to delete and recreate the
+     destination, ensuring that jar version changes don't result in multiple
+     copies of a jar.
+
+     @param name     Name of the jar e.g. junit
+     @param version  optional version for the jar
+     @param src      optional url for the get task
+     @param lib      optional destination for the get task
+     @param libcache optional location of the cache
+     @param project optional project name for local fetch from generated quickstart.
+     =================================================================== -->
+<project name="getJar" basedir="." default="">
+  <macrodef name="getJar">
+    <attribute name="name"/>
+    <attribute name="version" default="" />
+    <attribute name="src" default="http://bedework.org/downloads/lib"/>
+    <attribute name="lib" default="${lib.dir}"/>
+    <attribute name="libcache" default="@{lib}/../libcache"/>
+    <attribute name="project" default="" />
+    <attribute name="projectHome" default="" />
+    <sequential>
+      <taskdef resource="net/sf/antcontrib/antcontrib.properties" />
+
+      <mkdir dir="@{libcache}" />
+
+      <!-- Names are of form
+             <name-part>-<version>.jar   or
+             <name-part>.jar
+        -->
+
+      <if>
+        <equals arg1="@{version}" arg2="" />
+        <then>
+          <var name="org.bedework.getjar.jarname" value="@{name}.jar" />
+        </then>
+        <else>
+          <var name="org.bedework.getjar.jarname" value="@{name}-@{version}.jar" />
+       </else>
+      </if>
+
+      <!-- Ensure projectHome is set to something
+        -->
+
+      <if>
+        <equals arg1="@{projectHome}" arg2="" />
+        <then>
+          <var name="org.bedework.getjar.projecthome"
+               value="${project.home}/../@{project}" />
+        </then>
+        <else>
+          <var name="org.bedework.getjar.projecthome" value="@{projectHome}" />
+       </else>
+      </if>
+
+      <var name="org.bedework.getjar.dest"
+           value="@{lib}/${org.bedework.getjar.jarname}" />
+
+      <var name="org.bedework.getjar.finished" value="false" />
+
+      <!-- If a project was specified try to get it from the locale file system
+        -->
+      <if>
+        <not>
+          <equals arg1="@{project}" arg2="" />
+        </not>
+        <then>
+          <var name="org.bedework.getjar.project.jar"
+               value="${org.bedework.getjar.projecthome}/dist/${org.bedework.getjar.jarname}" />
+          <echo message="check ${org.bedework.getjar.project.jar}" />
+
+          <if>
+            <available file="${org.bedework.getjar.project.jar}" />
+            <then>
+              <!-- Say we found the file -->
+              <var name="org.bedework.getjar.finished" value="true" />
+
+              <if>
+                <not>
+                  <uptodate srcfile="${org.bedework.getjar.project.jar}"
+                            targetfile="${org.bedework.getjar.dest}" />
+                </not>
+                <then>
+                  <echo message="Fetch ${org.bedework.getjar.jarname} from project @{project}" />
+                  <copy file="${org.bedework.getjar.project.jar}"
+                        todir="@{lib}" overwrite="yes" />
+                </then>
+              </if>
+            </then>
+          </if>
+        </then>
+      </if>
+
+      <if>
+        <equals arg1="${org.bedework.getjar.finished}" arg2="false" />
+        <then>
+          <echo message="Fetch ${org.bedework.getjar.jarname} from archive" />
+          <get src="@{src}/${org.bedework.getjar.jarname}"
+               dest="@{libcache}/${org.bedework.getjar.jarname}"
+               ignoreerrors="true"
+               verbose="true"
+               usetimestamp="true"/>
+
+          <copy file="@{libcache}/${org.bedework.getjar.jarname}"
+                todir="@{lib}" overwrite="yes" />
+        </then>
+      </if>
+    </sequential>
+  </macrodef>
+</project>
