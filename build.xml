@@ -25,7 +25,7 @@
   <import file="${build.dir}/getJar.xml"/>
 
   <!-- =================================================================
-       init:  all the property defs are in bldfiles/globalDdefs.xml
+       init:  
        ================================================================= -->
 
   <target name="init">
