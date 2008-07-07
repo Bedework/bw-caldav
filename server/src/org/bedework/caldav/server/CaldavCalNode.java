@@ -373,7 +373,7 @@ public class CaldavCalNode extends CaldavBwNode {
     }
 
     try {
-      return DateTimeUtil.fromISODateTimeUTCtoRfc822(cal.getLastmod());
+      return DateTimeUtil.fromISODateTimeUTCtoRfc822(cal.getLastmod().getTimestamp());
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
@@ -556,7 +556,7 @@ public class CaldavCalNode extends CaldavBwNode {
       }
 
       if (tag.equals(AppleServerTags.getctag)) {
-        xml.property(tag, cal.getLastmod() + cal.getSequence());
+        xml.property(tag, cal.getLastmod().getTagValue());
 
         return true;
       }
