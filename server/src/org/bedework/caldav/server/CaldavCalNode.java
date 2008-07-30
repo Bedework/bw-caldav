@@ -629,6 +629,8 @@ public class CaldavCalNode extends CaldavBwNode {
         xml.startTag(CaldavTags.calendarData);
         xml.attribute("content-type", "text/calendar");
         xml.attribute("version", "2.0");
+        xml.endEmptyTag();
+        xml.newline();
         xml.closeTag(tag);
         return true;
       }
