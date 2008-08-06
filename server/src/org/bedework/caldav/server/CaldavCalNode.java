@@ -203,7 +203,7 @@ public class CaldavCalNode extends CaldavBwNode {
       return null;
     }
 
-    String val = c.getLastmod() + "-" + c.getSeq();
+    String val = c.getLastmod().getTagValue();
 
     if (strong) {
       return "\"" + val + "\"";
