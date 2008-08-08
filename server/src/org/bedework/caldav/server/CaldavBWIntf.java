@@ -41,6 +41,7 @@ import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.ScheduleResult;
 import org.bedework.calfacade.RecurringRetrievalMode.Rmode;
 import org.bedework.calfacade.ScheduleResult.ScheduleRecipientResult;
+import org.bedework.calfacade.base.BwShareableDbentity;
 import org.bedework.calfacade.configs.CalDAVConfig;
 import org.bedework.calfacade.env.CalEnvFactory;
 import org.bedework.calfacade.env.CalEnvI;
@@ -73,6 +74,7 @@ import edu.rpi.cmt.access.Ace;
 import edu.rpi.cmt.access.AceWho;
 import edu.rpi.cmt.access.Acl;
 import edu.rpi.cmt.access.PrincipalInfo;
+import edu.rpi.cmt.access.PrivilegeDefs;
 import edu.rpi.cmt.access.WhoDefs;
 import edu.rpi.cmt.access.AccessXmlUtil.AccessXmlCb;
 import edu.rpi.sss.util.xml.XmlEmit;
@@ -308,15 +310,46 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
   }
 
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#getAccessUtil()
+   */
   public AccessUtil getAccessUtil() throws WebdavException {
     return accessUtil;
   }
 
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#canPut(edu.rpi.cct.webdav.servlet.shared.WebdavNsNode)
+   */
+  public boolean canPut(WebdavNsNode node) throws WebdavException {
+    BwShareableDbentity ent;
+    int access = PrivilegeDefs.privWriteContent;
 
+    if (node instanceof CaldavComponentNode) {
+      CaldavComponentNode comp = (CaldavComponentNode)node;
+
+      if (comp.getEventInfo() != null) {
+        ent = comp.getEventInfo().getEvent();
+      } else {
+        ent = comp.getCalendar();
+        access = PrivilegeDefs.privBind;
+      }
+    } else {
+      return false;
+    }
+
+    return sysi.checkAccess(ent, access, true).accessAllowed;
+  }
+
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#getDirectoryBrowsingDisallowed()
+   */
   public boolean getDirectoryBrowsingDisallowed() throws WebdavException {
     return sysi.getDirectoryBrowsingDisallowed();
   }
 
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#close()
+   */
   public void close() throws WebdavException {
     sysi.close();
   }
@@ -328,6 +361,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
     return sysi;
   }
 
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#getSupportedLocks()
+   */
   public String getSupportedLocks() {
     return null; // No locks
     /*
