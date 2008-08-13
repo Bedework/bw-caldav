@@ -343,10 +343,10 @@ public class CaldavReportMethod extends ReportMethod {
   public void processResp(HttpServletRequest req,
                           HttpServletResponse resp,
                           int depth) throws WebdavException {
-    startEmit(resp);
-
     resp.setStatus(WebdavStatusCode.SC_MULTI_STATUS);
     resp.setContentType("text/xml; charset=UTF-8");
+
+    startEmit(resp);
 
     String resourceUri = getResourceUri(req);
 

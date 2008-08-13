@@ -441,10 +441,10 @@ public class PostMethod extends MethodBase {
     ScheduleResult sr = intf.getSysi().schedule(ei);
     checkStatus(sr);
 
-    startEmit(resp);
-
     resp.setStatus(HttpServletResponse.SC_OK);
     resp.setContentType("text/xml; charset=UTF-8");
+
+    startEmit(resp);
 
     openTag(CaldavTags.scheduleResponse);
 
@@ -478,10 +478,10 @@ public class PostMethod extends MethodBase {
     }
     checkStatus(sr);
 
-    startEmit(resp);
-
     resp.setStatus(HttpServletResponse.SC_OK);
     resp.setContentType("text/xml; charset=UTF-8");
+
+    startEmit(resp);
 
     openTag(CaldavTags.scheduleResponse);
 
