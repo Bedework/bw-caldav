@@ -46,7 +46,6 @@ import org.bedework.calfacade.exc.CalFacadeAccessException;
 import org.bedework.calfacade.exc.CalFacadeException;
 import org.bedework.calfacade.exc.CalFacadeStaleStateException;
 import org.bedework.calfacade.filter.BwFilter;
-import org.bedework.calfacade.svc.BwSubscription;
 import org.bedework.calfacade.svc.EventInfo;
 import org.bedework.calfacade.util.ChangeTable;
 import org.bedework.calsvci.CalSvcFactoryDefault;
@@ -525,9 +524,7 @@ public class BwSysIntfImpl implements SysIntf {
                                          RecurringRetrievalMode recurRetrieval)
           throws WebdavException {
     try {
-      BwSubscription sub = BwSubscription.makeSubscription(cal);
-
-      return getSvci().getEventsHandler().getEvents(sub, filter, null, null,
+      return getSvci().getEventsHandler().getEvents(cal, filter, null, null,
                                                     recurRetrieval);
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
