@@ -107,7 +107,7 @@ public class FreeBusyQuery {
         throw new WebdavForbidden(WebdavTags.supportedReport);
       }
 
-      if ((depth == 0) && (calType != BwCalendar.calTypeCollection)) {
+      if ((depth == 0) && (calType != BwCalendar.calTypeSchedulingCollection)) {
         /* Cannot return anything */
         cal = null;
       } else if ((depth == 1) && !cal.getCalendarCollection()) {
@@ -115,7 +115,7 @@ public class FreeBusyQuery {
         BwCalendar newCal = new BwCalendar();
 
         for (BwCalendar ch: sysi.getCalendars(cal)) {
-          if (ch.getCalType() == BwCalendar.calTypeCollection) {
+          if (ch.getCalType() == BwCalendar.calTypeSchedulingCollection) {
             newCal.addChild(ch);
           }
         }

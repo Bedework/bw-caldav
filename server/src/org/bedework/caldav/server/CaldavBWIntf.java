@@ -143,20 +143,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
   private CalDAVConfig config;
 
-  /* These two set after a call to getSvci()
-   */
-  //private IcalTranslator trans;
-  //private CalSvcI svci;
-
-  //private CalEnv env;
-
   /** We store CaldavURI objects here
-   */
+   * /
   private HashMap<String, CaldavURI> uriMap = new HashMap<String, CaldavURI>();
-
-  /** An object representing the current users access
-   */
-//  LuwakAccess access;
+  */
 
   /* ====================================================================
    *                     Interface methods
@@ -961,7 +951,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
                              HttpServletResponse resp,
                              WebdavNsNode node) throws WebdavException {
     try {
-      CaldavBwNode bwnode = getBwnode(node);
+      CaldavCalNode bwnode = (CaldavCalNode)getBwnode(node);
 
       /* The uri should have an entity name representing the new collection
        * and a calendar object representing the parent.
@@ -981,6 +971,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       resp.setStatus(sysi.makeCollection(newCal,
                                          "MKCALENDAR".equalsIgnoreCase(req.getMethod()),
+                                         bwnode.getSchedulingAllowed(),
                                          parent.getPath()));
     } catch (WebdavException we) {
       throw we;
@@ -1766,7 +1757,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
    * @param nodeType         Say's something about the type of node
    * @param cal        Supplied BwCalendar object if we already have it.
    * @param ei
-   * @param r
+   * @param rsrc
    * @return CaldavURI object representing the uri
    * @throws WebdavException
    */
@@ -1775,7 +1766,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
                             int nodeType,
                             BwCalendar cal,
                             EventInfo ei,
-                            BwResource r) throws WebdavException {
+                            BwResource rsrc) throws WebdavException {
     try {
       if ((nodeType == WebdavNsIntf.nodeTypeUnknown) &&
           (existance != WebdavNsIntf.existanceMust)) {
@@ -1789,7 +1780,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
         return null;
       }
 
-      /* Look for it in the map */
+      CaldavURI curi = null;
+      /* Look for it in the map * /
+       * This is stateless so we probably never find it.
       CaldavURI curi = getUriPath(uri);
       if (curi != null) {
         if (debug) {
@@ -1797,7 +1790,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
                    "\" entityName=\"" + curi.getEntityName() + "\"");
         }
         return curi;
-      }
+      }*/
 
       boolean isPrincipal = sysi.isPrincipal(uri);
 
@@ -1808,7 +1801,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       if (isPrincipal) {
         PrincipalInfo pi = getSysi().getPrincipalInfo(uri);
 
-        return new CaldavURI(/*sysi.userToCaladdr(pi.who)*/pi.who, pi.prefix,
+        return new CaldavURI(pi.who, pi.prefix,
                              pi.whoType != Ace.whoTypeGroup);
       }
 
@@ -1817,13 +1810,13 @@ public class CaldavBWIntf extends WebdavNsIntf {
         String name = null;
         if (ei != null) {
           name = ei.getEvent().getName();
-          curi = new CaldavURI(cal, ei, name);
-        } else if (r != null) {
-          curi = new CaldavURI(r);
+          curi = new CaldavURI(cal, ei, name, true);
+        } else if (rsrc != null) {
+          curi = new CaldavURI(rsrc, true);
         } else {
-          curi = new CaldavURI(cal, ei, name);
+          curi = new CaldavURI(cal, ei, name, true);
         }
-        putUriPath(curi);
+        //putUriPath(curi);
 
         return curi;
       }
@@ -1854,14 +1847,16 @@ public class CaldavBWIntf extends WebdavNsIntf {
             debugMsg("create collection uri - cal=\"" + cal.getPath() + "\"");
           }
 
-          curi = new CaldavURI(cal);
-          putUriPath(curi);
+          curi = new CaldavURI(cal, true);
+          //putUriPath(curi);
 
           return curi;
         }
       }
 
       // Entity or unknown
+
+      /* Split name into parent path and entity name part */
       SplitResult split = splitUri(uri);
 
       if (split.name == null) {
@@ -1869,6 +1864,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
         throw new WebdavNotFound(uri);
       }
 
+      /* Look for the parent */
       cal = sysi.getCalendar(split.path);
 
       if (cal == null) {
@@ -1888,8 +1884,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
         newCal.setName(split.name);
         newCal.setPath(cal.getPath() + "/" + newCal.getName());
 
-        curi = new CaldavURI(newCal);
-        putUriPath(curi);
+        curi = new CaldavURI(newCal, false);
+        //putUriPath(curi);
 
         return curi;
       }
@@ -1908,7 +1904,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
           throw new WebdavNotFound(uri);
         }
 
-        curi = new CaldavURI(cal, ei, split.name);
+        curi = new CaldavURI(cal, ei, split.name, ei != null);
       } else {
         if (debug) {
           debugMsg("find resource - cal=\"" + cal.getPath() + "\" name=\"" +
@@ -1916,22 +1912,24 @@ public class CaldavBWIntf extends WebdavNsIntf {
         }
 
         /* Look for a resource */
-        r = sysi.getFile(cal, split.name);
+        rsrc = sysi.getFile(cal, split.name);
 
-        if ((existance == WebdavNsIntf.existanceMust) && (r == null)) {
+        if ((existance == WebdavNsIntf.existanceMust) && (rsrc == null)) {
           throw new WebdavNotFound(uri);
         }
 
-        if (r == null) {
-          r = new BwResource();
-          r.setName(split.name);
-          r.setCalendar(cal);
+        boolean exists = rsrc != null;
+
+        if (!exists) {
+          rsrc = new BwResource();
+          rsrc.setName(split.name);
+          rsrc.setCalendar(cal);
         }
 
-        curi = new CaldavURI(r);
+        curi = new CaldavURI(rsrc, exists);
       }
 
-      putUriPath(curi);
+      //putUriPath(curi);
 
       return curi;
     } catch (WebdavException wde) {
@@ -1995,6 +1993,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
   }
 
+  /*
   private CaldavURI getUriPath(String path) {
     return uriMap.get(path);
   }
@@ -2002,4 +2001,5 @@ public class CaldavBWIntf extends WebdavNsIntf {
   private void putUriPath(CaldavURI wi) {
     uriMap.put(wi.getPath(), wi);
   }
+  */
 }

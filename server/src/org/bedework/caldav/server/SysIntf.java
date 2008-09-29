@@ -445,13 +445,16 @@ public interface SysIntf {
 
   /**
    * @param cal   Initialised collection object
+   *
    * @param calendarCollection
+   * @param schedulingCalendarCollection
    * @param parentPath
    * @return int status
    * @throws WebdavException
    */
   public int makeCollection(BwCalendar cal,
                             boolean calendarCollection,
+                            boolean schedulingCalendarCollection,
                             String parentPath) throws WebdavException;
 
   /** Copy or move the collection to another location.

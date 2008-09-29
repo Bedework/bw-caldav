@@ -64,6 +64,7 @@ import org.bedework.icalendar.IcalTranslator;
 import org.bedework.icalendar.Icalendar;
 import org.bedework.icalendar.VFreeUtil;
 
+import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavForbidden;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
@@ -104,6 +105,8 @@ public class CaldavCalNode extends CaldavBwNode {
   private String vfreeBusyString;
 
   private CurrentAccess currentAccess;
+
+  private Boolean exists;   // null for unknown.
 
   private final static HashMap<QName, PropertyTagEntry> propertyNames =
     new HashMap<QName, PropertyTagEntry>();
@@ -148,9 +151,7 @@ public class CaldavCalNode extends CaldavBwNode {
     collection = true;
     allowsGet = false;
 
-//    if (!uri.endsWith("/")) {
-//      uri += "/";
-//    }
+    exists = cdURI.getExists();
   }
 
   /**
@@ -229,6 +230,10 @@ public class CaldavCalNode extends CaldavBwNode {
     }
 
     if (type == BwCalendar.calTypeOutbox) {
+      return true;
+    }
+
+    if (type == BwCalendar.calTypeSchedulingCollection) {
       return true;
     }
 
@@ -455,6 +460,38 @@ public class CaldavCalNode extends CaldavBwNode {
         return true;
       }
 
+      if (XmlUtil.nodeMatches(val, WebdavTags.resourcetype)) {
+        Collection<Element> propVals = XmlUtil.getElements(val);
+
+        boolean schedule = false;
+
+        for (Element pval: propVals) {
+          if (XmlUtil.nodeMatches(pval, WebdavTags.collection)) {
+            // Fine
+            continue;
+          }
+
+          if (XmlUtil.nodeMatches(pval, CaldavTags.calendar)) {
+            // Fine again
+            continue;
+          }
+
+          if (XmlUtil.nodeMatches(pval, CaldavTags.scheduleCalendar)) {
+            schedule = true;
+            continue;
+          }
+        }
+
+        if (exists) {
+          if ((cal.getCalType() == BwCalendar.calTypeSchedulingCollection) != schedule) {
+            throw new WebdavBadRequest();
+          }
+        } else if (schedule) {
+          cal.setCalType(BwCalendar.calTypeSchedulingCollection);
+        }
+        return true;
+      }
+
       if (XmlUtil.nodeMatches(val, CaldavTags.calendarFreeBusySet)) {
         // Only valid for inbox
         if (cal.getCalType() != BwCalendar.calTypeInbox) {
@@ -549,6 +586,9 @@ public class CaldavCalNode extends CaldavBwNode {
           xml.emptyTag(CaldavTags.scheduleOutbox);
         } else if (calType == BwCalendar.calTypeCollection) {
           xml.emptyTag(CaldavTags.calendar);
+        } else if (calType == BwCalendar.calTypeSchedulingCollection) {
+          xml.emptyTag(CaldavTags.calendar);
+          xml.emptyTag(CaldavTags.scheduleCalendar);
         }
         xml.closeTag(WebdavTags.resourcetype);
 

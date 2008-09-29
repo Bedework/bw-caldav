@@ -72,6 +72,8 @@ import org.bedework.calfacade.svc.EventInfo;
  *   @author Mike Douglass   douglm@rpi.edu
  */
 public class CaldavURI {
+  boolean exists;
+
   /* For a resource or an entity, this is the containing collection
    */
   BwCalendar cal;
@@ -92,9 +94,10 @@ public class CaldavURI {
   /** Reference to a collection
    *
    * @param cal
+   * @param exists        true if the referenced object exists
    */
-  CaldavURI(BwCalendar cal) {
-    init(cal, null, null, null);
+  CaldavURI(BwCalendar cal, boolean exists) {
+    init(cal, null, null, null, exists);
   }
 
   /** Reference to a contained entity
@@ -102,21 +105,26 @@ public class CaldavURI {
    * @param cal
    * @param entity
    * @param entityName
+   * @param exists        true if the referenced object exists
    */
-  CaldavURI(BwCalendar cal, EventInfo entity, String entityName) {
-    init(cal, null, entity, entityName);
+  CaldavURI(BwCalendar cal, EventInfo entity, String entityName,
+            boolean exists) {
+    init(cal, null, entity, entityName, exists);
   }
 
   /** Reference to a contained resource
    *
    * @param res
+   * @param exists        true if the referenced object exists
    */
-  CaldavURI(BwResource res) {
-    init(res.getCalendar(), res, null, res.getName());
+  CaldavURI(BwResource res,
+            boolean exists) {
+    init(res.getCalendar(), res, null, res.getName(), exists);
     resourceUri = true;
   }
 
   CaldavURI(String entityName, String path, boolean isUser) {
+    exists = true;
     cal = null;
     this.entityName = entityName;
     if (isUser) {
@@ -127,11 +135,21 @@ public class CaldavURI {
     this.path = path;
   }
 
-  private void init(BwCalendar cal, BwResource res, EventInfo entity, String entityName) {
+  private void init(BwCalendar cal, BwResource res,
+                    EventInfo entity, String entityName,
+                    boolean exists) {
     this.cal = cal;
     this.resource = res;
     this.entity = entity;
     this.entityName = entityName;
+    this.exists = exists;
+  }
+
+  /**
+   * @return boolean
+   */
+  public boolean getExists() {
+    return exists;
   }
 
   /**
