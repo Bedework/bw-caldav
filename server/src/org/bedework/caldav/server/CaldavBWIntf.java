@@ -973,7 +973,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       resp.setStatus(sysi.makeCollection(newCal,
                                          "MKCALENDAR".equalsIgnoreCase(req.getMethod()),
-                                         bwnode.getSchedulingAllowed(),
                                          parent.getPath()));
     } catch (WebdavException we) {
       throw we;

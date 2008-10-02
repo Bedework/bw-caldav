@@ -660,18 +660,13 @@ public class BwSysIntfImpl implements SysIntf {
   }
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#makeCollection(org.bedework.calfacade.BwCalendar, boolean, boolean, java.lang.String)
+   * @see org.bedework.caldav.server.SysIntf#makeCollection(org.bedework.calfacade.BwCalendar, boolean, java.lang.String)
    */
   public int makeCollection(BwCalendar cal,
                             boolean calendarCollection,
-                            boolean schedulingCalendarCollection,
                             String parentPath) throws WebdavException {
     if (calendarCollection) {
-      if (schedulingCalendarCollection) {
-        cal.setCalType(BwCalendar.calTypeSchedulingCollection);
-      } else {
-        cal.setCalType(BwCalendar.calTypeCollection);
-      }
+      cal.setCalType(BwCalendar.calTypeCollection);
     } else {
       cal.setCalType(BwCalendar.calTypeFolder);
     }
