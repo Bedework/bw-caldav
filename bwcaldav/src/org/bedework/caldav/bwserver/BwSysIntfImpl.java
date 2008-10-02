@@ -482,11 +482,17 @@ public class BwSysIntfImpl implements SysIntf {
    *                   Events
    * ==================================================================== */
 
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#addEvent(org.bedework.calfacade.BwCalendar, org.bedework.calfacade.svc.EventInfo, boolean, boolean)
+   */
   public Collection<BwEventProxy> addEvent(BwCalendar cal,
                                            EventInfo ei,
+                                           boolean noInvites,
                                            boolean rollbackOnError) throws WebdavException {
     try {
-      return getSvci().getEventsHandler().add(cal, ei, rollbackOnError).failedOverrides;
+      return getSvci().getEventsHandler().add(cal, ei, noInvites,
+                                              false,  // scheduling - inbox
+                                              rollbackOnError).failedOverrides;
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
@@ -502,6 +508,9 @@ public class BwSysIntfImpl implements SysIntf {
     }
   }
 
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#updateEvent(org.bedework.calfacade.BwEvent, java.util.Collection, org.bedework.calfacade.util.ChangeTable)
+   */
   public void updateEvent(BwEvent event,
                           Collection<BwEventProxy> overrides,
                           ChangeTable changes) throws WebdavException {

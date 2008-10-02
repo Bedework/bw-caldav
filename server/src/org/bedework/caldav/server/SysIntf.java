@@ -321,16 +321,20 @@ public interface SysIntf {
    *                   Events
    * ==================================================================== */
 
-  /** Add an event/todo/journal.
+  /** Add an event/task/journal. If this is a scheduling event we are adding,
+   * determined by examining the organizer and attendee properties, we will send
+   * out invitations to the attendees, unless the noInvites flag is set.
    *
    * @param cal          BwCalendar defining recipient calendar
    * @param ei           EventInfo object + overrides to be added
+   * @param noInvites    Set from request - if true don't send invites
    * @param rollbackOnError true if we rollback and throw an exception on error
    * @return Collection of overrides which did not match or null if all matched
    * @throws WebdavException
    */
  public Collection<BwEventProxy> addEvent(BwCalendar cal,
                                           EventInfo ei,
+                                          boolean noInvites,
                                           boolean rollbackOnError) throws WebdavException;
 
   /** Update an event/todo/journal.

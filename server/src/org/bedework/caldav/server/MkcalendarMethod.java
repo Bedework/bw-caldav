@@ -29,7 +29,6 @@ package org.bedework.caldav.server;
 import edu.rpi.cct.webdav.servlet.common.PropPatchMethod;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
-import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 
 import javax.servlet.http.HttpServletRequest;
@@ -63,11 +62,13 @@ public class MkcalendarMethod extends PropPatchMethod {
     /* Create the node */
     String resourceUri = getResourceUri(req);
 
-    WebdavNsNode node = getNsIntf().getNode(resourceUri,
-                                            WebdavNsIntf.existanceNot,
-                                            WebdavNsIntf.nodeTypeCollection);
+    CaldavCalNode node = (CaldavCalNode)getNsIntf().getNode(resourceUri,
+                                                            WebdavNsIntf.existanceNot,
+                                                            WebdavNsIntf.nodeTypeCollection);
 
     boolean success = true;
+
+    node.setDefaults(true);
 
     if (doc != null) {
       success = processDoc(req, resp, doc, node, CaldavTags.mkcalendar, true);

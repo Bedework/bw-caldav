@@ -871,8 +871,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
       created = true;
       ev.setName(entityName);
 
+      boolean noInvites = false; // based on header?
+
       /* Collection<BwEventProxy>failedOverrides = */
-        sysi.addEvent(cal, evinfo, true);
+        sysi.addEvent(cal, evinfo, noInvites, true);
 
       /*StringBuffer sb = new StringBuffer(cdUri.getPath());
       sb.append("/");

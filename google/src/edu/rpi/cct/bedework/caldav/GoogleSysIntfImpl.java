@@ -316,6 +316,7 @@ public class GoogleSysIntfImpl implements SysIntf {
 
   public Collection<BwEventProxy> addEvent(BwCalendar cal,
                                            EventInfo ei,
+                                           boolean noInvites,
                                            boolean rollbackOnError) throws WebdavException {
     throw new WebdavException("unimplemented");
   }

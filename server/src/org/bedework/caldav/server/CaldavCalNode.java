@@ -240,6 +240,20 @@ public class CaldavCalNode extends CaldavBwNode {
     return false;
   }
 
+  /**
+   * @param forMkCalendar
+   * @throws WebdavException
+   */
+  public void setDefaults(boolean forMkCalendar) throws WebdavException {
+    if (!forMkCalendar) {
+      return;
+    }
+
+    BwCalendar c = getCalendar(); // Unalias
+
+    c.setCalType(BwCalendar.calTypeSchedulingCollection);
+  }
+
   public Collection getChildren() throws WebdavException {
     /* For the moment we're going to do this the inefficient way.
        We really need to have calendar defs that can be expressed as a search
