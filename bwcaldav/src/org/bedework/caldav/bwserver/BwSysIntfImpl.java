@@ -28,10 +28,12 @@ package org.bedework.caldav.bwserver;
 import org.bedework.caldav.server.PropertyHandler;
 import org.bedework.caldav.server.SysIntf;
 import org.bedework.caldav.server.PropertyHandler.PropertyType;
+import org.bedework.calfacade.BwAttendee;
 import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwDateTime;
 import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.BwEventProxy;
+import org.bedework.calfacade.BwOrganizer;
 import org.bedework.calfacade.BwResource;
 import org.bedework.calfacade.BwSystem;
 import org.bedework.calfacade.BwUser;
@@ -276,7 +278,7 @@ public class BwSysIntfImpl implements SysIntf {
 
       // SCHEDULE - just get home path and get default cal from user prefs.
       BwSystem sys = getSvci().getSysparsHandler().get();
-      BwCalendar cal = getSvci().getCalendarsHandler().getHome(u);
+      BwCalendar cal = getSvci().getCalendarsHandler().getHome(u, false);
       if (cal == null) {
         return null;
       }
@@ -490,6 +492,33 @@ public class BwSysIntfImpl implements SysIntf {
                                            boolean noInvites,
                                            boolean rollbackOnError) throws WebdavException {
     try {
+      /* Is the event a scheduling object? */
+
+      BwEvent ev = ei.getEvent();
+
+      BwOrganizer org = ev.getOrganizer();
+      String account = getSvci().getUser().getAccount();
+
+      if ((org != null) &&
+          getSvci().getDirectories().caladdrToUser(org.getOrganizerUri()).equals(account)) {
+        ev.setOrganizerSchedulingObject(true);
+        ev.setScheduleMethod(Icalendar.methodTypeRequest);
+      } else {
+        Collection<BwAttendee> atts = ev.getAttendees();
+
+        if ((atts != null) && !atts.isEmpty()) {
+          for (BwAttendee att: atts) {
+            if (getSvci().getDirectories().caladdrToUser(att.getAttendeeUri()).equals(account)) {
+              ev.setAttendeeSchedulingObject(true);
+
+              // XXX Is thi sOK?
+              ev.setScheduleMethod(Icalendar.methodTypeRequest);
+              break;
+            }
+          }
+        }
+      }
+
       return getSvci().getEventsHandler().add(cal, ei, noInvites,
                                               false,  // scheduling - inbox
                                               rollbackOnError).failedOverrides;

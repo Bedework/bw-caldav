@@ -234,7 +234,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#getDavHeader(edu.rpi.cct.webdav.servlet.shared.WebdavNsNode)
    */
   public String getDavHeader(WebdavNsNode node) throws WebdavException {
-    return "1, access-control, calendar-access, calendar-schedule";
+    return "1, access-control, calendar-access, calendar-auto-schedule";
   }
 
   protected CalDAVConfig getConfig() {
