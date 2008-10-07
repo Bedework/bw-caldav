@@ -438,28 +438,51 @@ public class PostMethod extends MethodBase {
     ev.setOriginator(pars.originator);
     ev.setScheduleMethod(pars.ic.getMethodType());
 
-    ScheduleResult sr = intf.getSysi().schedule(ei);
-    checkStatus(sr);
+    if (pars.realTime) {
+      ScheduleResult sr = intf.getSysi().schedule(ei);
+      checkStatus(sr);
 
-    resp.setStatus(HttpServletResponse.SC_OK);
-    resp.setContentType("text/xml; charset=UTF-8");
+      resp.setStatus(HttpServletResponse.SC_OK);
+      resp.setContentType("text/xml; charset=UTF-8");
 
-    startEmit(resp);
+      startEmit(resp);
 
-    openTag(CaldavTags.scheduleResponse);
+      openTag(CaldavTags.scheduleResponse);
 
-    for (ScheduleRecipientResult srr: sr.recipientResults) {
-      openTag(CaldavTags.response);
+      for (ScheduleRecipientResult srr: sr.recipientResults) {
+        openTag(CaldavTags.response);
 
-      openTag(CaldavTags.recipient);
-      property(WebdavTags.href, srr.recipient);
-      closeTag(CaldavTags.recipient);
+        openTag(CaldavTags.recipient);
+        property(WebdavTags.href, srr.recipient);
+        closeTag(CaldavTags.recipient);
 
-      setReqstat(srr.status);
-      closeTag(CaldavTags.response);
+        setReqstat(srr.status);
+        closeTag(CaldavTags.response);
+      }
+
+      closeTag(CaldavTags.scheduleResponse);
+    } else {
+      /* Just ignore and send back a bogus response - pre auto-sched client? */
+      resp.setStatus(HttpServletResponse.SC_OK);
+      resp.setContentType("text/xml; charset=UTF-8");
+
+      startEmit(resp);
+
+      openTag(CaldavTags.scheduleResponse);
+
+      for (String recipient: ev.getRecipients()) {
+        openTag(CaldavTags.response);
+
+        openTag(CaldavTags.recipient);
+        property(WebdavTags.href, recipient);
+        closeTag(CaldavTags.recipient);
+
+        setReqstat(ScheduleRecipientResult.scheduleOk);
+        closeTag(CaldavTags.response);
+      }
+
+      closeTag(CaldavTags.scheduleResponse);
     }
-
-    closeTag(CaldavTags.scheduleResponse);
   }
 
   private void handleFreeBusy(CaldavBWIntf intf,
