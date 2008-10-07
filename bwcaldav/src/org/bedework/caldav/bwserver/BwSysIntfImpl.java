@@ -498,9 +498,13 @@ public class BwSysIntfImpl implements SysIntf {
 
       BwOrganizer org = ev.getOrganizer();
       String account = getSvci().getUser().getAccount();
+      String caladdr = null;
 
-      if ((org != null) &&
-          getSvci().getDirectories().caladdrToUser(org.getOrganizerUri()).equals(account)) {
+      if (org != null) {
+        caladdr = getSvci().getDirectories().caladdrToUser(org.getOrganizerUri());
+      }
+
+      if ((caladdr != null) && caladdr.equals(account)) {
         ev.setOrganizerSchedulingObject(true);
         ev.setScheduleMethod(Icalendar.methodTypeRequest);
       } else {
