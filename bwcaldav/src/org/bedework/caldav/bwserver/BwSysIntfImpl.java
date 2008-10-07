@@ -512,7 +512,8 @@ public class BwSysIntfImpl implements SysIntf {
 
         if ((atts != null) && !atts.isEmpty()) {
           for (BwAttendee att: atts) {
-            if (getSvci().getDirectories().caladdrToUser(att.getAttendeeUri()).equals(account)) {
+            caladdr = getSvci().getDirectories().caladdrToUser(att.getAttendeeUri());
+            if ((caladdr != null) && caladdr.equals(account)) {
               ev.setAttendeeSchedulingObject(true);
 
               // XXX Is thi sOK?
