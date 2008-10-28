@@ -194,7 +194,6 @@ public class DominoSysIntfImpl implements SysIntf {
   //private String urlPrefix;
 
   public void init(HttpServletRequest req,
-                   String envPrefix,
                    String account,
                    CalDAVConfig conf,
                    boolean debug) throws WebdavException {

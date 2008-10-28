@@ -195,7 +195,6 @@ public class BexchangeSysIntfImpl implements SysIntf {
   private String account;
 
   public void init(HttpServletRequest req,
-                   String envPrefix,
                    String account,
                    CalDAVConfig conf,
                    boolean debug) throws WebdavException {

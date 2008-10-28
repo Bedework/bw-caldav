@@ -42,8 +42,6 @@ import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.ScheduleResult;
 import org.bedework.calfacade.base.BwShareableDbentity;
 import org.bedework.calfacade.configs.CalDAVConfig;
-import org.bedework.calfacade.env.CalEnvFactory;
-import org.bedework.calfacade.env.CalEnvI;
 import org.bedework.calfacade.exc.CalFacadeAccessException;
 import org.bedework.calfacade.exc.CalFacadeException;
 import org.bedework.calfacade.exc.CalFacadeStaleStateException;
@@ -98,11 +96,6 @@ public class BwSysIntfImpl implements SysIntf {
 
   protected transient Logger log;
 
-  /* Prefix for our properties */
-  private String envPrefix;
-
-  private CalEnvI env;
-
   private String account;
 
   /* These two set after a call to getSvci()
@@ -115,12 +108,10 @@ public class BwSysIntfImpl implements SysIntf {
   private CalDAVConfig conf;
 
   public void init(HttpServletRequest req,
-                   String envPrefix,
                    String account,
                    CalDAVConfig conf,
                    boolean debug) throws WebdavException {
     try {
-      this.envPrefix = envPrefix;
       this.account = account;
       this.conf = conf;
       this.debug = debug;
@@ -1064,7 +1055,7 @@ public class BwSysIntfImpl implements SysIntf {
       boolean allowSuperUser = false;
 
       if (account == null) {
-        runAsUser = getEnv().getAppProperty("run.as.user");
+        runAsUser = conf.getRunAsUser();
       } else if (account.equals("root")) {
         allowSuperUser = true;
       }
@@ -1075,7 +1066,6 @@ public class BwSysIntfImpl implements SysIntf {
       CalSvcIPars pars = new CalSvcIPars(account,
                                          runAsUser,
                                          null,    // calsuite
-                                         envPrefix,
                                          false,   // publicAdmin
                                          allowSuperUser,
                                          false,  // adminCanEditAllPublicCategories
@@ -1091,26 +1081,11 @@ public class BwSysIntfImpl implements SysIntf {
       svci.beginTransaction();
 
       trans = new IcalTranslator(svci.getIcalCallback(), debug);
-    } catch (WebdavException wde) {
-      throw wde;
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
 
     return svci;
-  }
-
-  private CalEnvI getEnv() throws WebdavException {
-    try {
-      if (env != null) {
-        return env;
-      }
-
-      env = CalEnvFactory.getEnv(envPrefix, debug);
-      return env;
-    } catch (Throwable t) {
-      throw new WebdavException(t);
-    }
   }
 
   private void close(CalSvcI svci) throws WebdavException {

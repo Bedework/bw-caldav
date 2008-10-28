@@ -117,7 +117,6 @@ public class GoogleSysIntfImpl implements SysIntf {
   }
 
   public void init(HttpServletRequest req,
-                   String envPrefix,
                    String account,
                    CalDAVConfig conf,
                    boolean debug) throws WebdavException {

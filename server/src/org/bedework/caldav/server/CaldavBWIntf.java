@@ -43,10 +43,10 @@ import org.bedework.calfacade.RecurringRetrievalMode.Rmode;
 import org.bedework.calfacade.ScheduleResult.ScheduleRecipientResult;
 import org.bedework.calfacade.base.BwShareableDbentity;
 import org.bedework.calfacade.configs.CalDAVConfig;
-import org.bedework.calfacade.env.CalEnvFactory;
-import org.bedework.calfacade.env.CalEnvI;
 import org.bedework.calfacade.env.CalOptionsFactory;
+import org.bedework.calfacade.env.CalOptionsI;
 import org.bedework.calfacade.svc.EventInfo;
+import org.bedework.calfacade.util.CalFacadeUtil;
 import org.bedework.calfacade.util.DateTimeUtil;
 import org.bedework.calfacade.util.DateTimeUtil.DatePeriod;
 import org.bedework.icalendar.IcalTranslator;
@@ -136,9 +136,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
   @SuppressWarnings("unused")
   private String namespace;
 
-  /* Prefix for our properties */
-  private String envPrefix;
-
   SysIntf sysi;
 
   private CalDAVConfig config;
@@ -181,22 +178,20 @@ public class CaldavBWIntf extends WebdavNsIntf {
         appName = "unknown-app-name";
       }
 
-      envPrefix = "org.bedework.app." + appName + ".";
-
       namespacePrefix = WebdavUtils.getUrlPrefix(req);
       namespace = namespacePrefix + "/schema";
 
-      CalEnvI env = CalEnvFactory.getEnv(envPrefix, debug);
-
-      config = (CalDAVConfig)CalOptionsFactory.getOptions("org.bedework.app.",
-                                                          debug).getAppProperty(appName);
+      CalOptionsI opts = CalOptionsFactory.getOptions("org.bedework.app.",
+                                                      debug);
+      config = (CalDAVConfig)opts.getAppProperty(appName);
       if (config == null) {
         config = new CalDAVConfig();
       }
 
-      sysi = (SysIntf)env.getAppObject("sysintfimpl", SysIntf.class);
+      sysi = (SysIntf)CalFacadeUtil.getObject(config.getSysintfImpl(),
+                                              SysIntf.class);
 
-      sysi.init(req, envPrefix, account, config, debug);
+      sysi.init(req, account, config, debug);
 
       accessUtil = new AccessUtil(namespacePrefix, xml,
                                   new CalDavAccessXmlCb(sysi), debug);
@@ -217,11 +212,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
     try {
       this.account = account;
 
-      CalEnvI env = CalEnvFactory.getEnv(envPrefix, debug);
+      sysi = (SysIntf)CalFacadeUtil.getObject(config.getSysintfImpl(),
+                                              SysIntf.class);
 
-      sysi = (SysIntf)env.getAppObject("sysintfimpl", SysIntf.class);
-
-      sysi.init(req, envPrefix, account, config, debug);
+      sysi.init(req, account, config, debug);
 
       accessUtil = new AccessUtil(namespacePrefix, xml,
                                   new CalDavAccessXmlCb(sysi), debug);
