@@ -22,6 +22,9 @@
   <property name="build.dir" location="${project.home}/build"/>
   <property name="buildjar" location="${build.dir}/buildjar.xml"/>
 
+  <property name="org.bedework.libcache.dir"
+            location="${project.home}/libcache"/>
+
   <import file="${build.dir}/getJar.xml"/>
 
   <!-- =================================================================
