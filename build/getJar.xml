@@ -18,6 +18,7 @@
      @param src      optional url for the get task
      @param lib      optional destination for the get task
      @param libcache optional location of the cache
+     @param property optional name of property to hold location of resulting jar
      @param project optional project name for local fetch from generated quickstart.
      =================================================================== -->
 <project name="getJar" basedir="." default="">
@@ -26,7 +27,8 @@
     <attribute name="version" default="" />
     <attribute name="src" default="http://bedework.org/downloads/lib"/>
     <attribute name="lib" default="${lib.dir}"/>
-    <attribute name="libcache" default="@{lib}/../libcache"/>
+    <attribute name="libcache" default="${org.bedework.libcache.dir}"/>
+    <attribute name="property" default="" />
     <attribute name="project" default="" />
     <attribute name="projectHome" default="" />
     <sequential>
@@ -68,12 +70,18 @@
 
       <var name="org.bedework.getjar.finished" value="false" />
 
-      <!-- If a project was specified try to get it from the locale file system
+      <!-- If a project or projecthome was specified try to get it from the
+           local file system
         -->
       <if>
-        <not>
-          <equals arg1="@{project}" arg2="" />
-        </not>
+        <or>
+          <not>
+            <equals arg1="@{project}" arg2="" />
+          </not>
+          <not>
+            <equals arg1="@{projecthome}" arg2="" />
+          </not>
+        </or>
         <then>
           <var name="org.bedework.getjar.project.jar"
                value="${org.bedework.getjar.projecthome}/dist/${org.bedework.getjar.jarname}" />
@@ -114,6 +122,29 @@
           <copy file="@{libcache}/${org.bedework.getjar.jarname}"
                 todir="@{lib}" overwrite="yes" />
         </then>
+      </if>
+
+      <if>
+        <not>
+          <equals arg1="@{property}" arg2="" />
+        </not>
+        <then>
+          <echo message="set property @{property} to ${org.bedework.getjar.dest}" />
+          <property name="@{property}" location="${org.bedework.getjar.dest}" />
+        </then>
+        <elseif>
+          <isset property="org.bedework.getjar.property.prefix" />
+          <then>
+            <echo message="set property ${org.bedework.getjar.property.prefix}.@{name} to ${org.bedework.getjar.dest}" />
+            <property name="${org.bedework.getjar.property.prefix}.@{name}"
+                      location="${org.bedework.getjar.dest}" />
+          </then>
+        </elseif>
+        <else>
+          <echo message="set property org.bedework.getjar.jarloc.@{name} to ${org.bedework.getjar.dest}" />
+          <property name="org.bedework.getjar.jarloc.@{name}"
+                    location="${org.bedework.getjar.dest}" />
+        </else>
       </if>
     </sequential>
   </macrodef>

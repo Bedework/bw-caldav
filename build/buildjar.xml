@@ -36,6 +36,8 @@
 -->
 
 <project name="buildjar" default="build" >
+  <taskdef resource="net/sf/antcontrib/antcontrib.properties" />
+
   <target name="init">
     <!--  =================== Compilation Control Options ===============
       These properties control option settings on the Javac compiler when it
@@ -79,71 +81,75 @@
       -->
     </uptodate>
 
-    <antcall target="do.build.uptodate" inheritRefs="true" />
-    <antcall target="do.build.notuptodate" inheritRefs="true" />
-  </target>
+    <if>
+      <isset property="build.jar.uptodate"/>
+      <then>
+        <echo message="**** ${build.jar.file} is up to date" />
+      </then>
+    </if>
 
-  <target name="do.build.notuptodate"
-          if="build.jar.uptodate">
-    <echo message="**** ${build.jar.file} is up to date" />
-  </target>
+    <if>
+      <not>
+        <isset property="build.jar.uptodate"/>
+      </not>
+      <then>
+        <echo message="**** ${build.jar.file} needs rebuilding" />
 
-  <target name="do.build.uptodate"
-          unless="build.jar.uptodate">
-    <echo message="**** ${build.jar.file} needs rebuilding" />
+        <!-- Delete jar file -->
+        <delete file="${build.jar.file}"/>
 
-    <!-- Delete jar file -->
-    <delete file="${build.jar.file}"/>
+        <dirname property="build.jar.dir" file="${build.jar.file}"/>
 
-    <dirname property="build.jar.dir" file="${build.jar.file}"/>
+        <mkdir dir="${build.jar.dir}" />
 
-    <mkdir dir="${build.jar.dir}" />
+        <!-- ==========================================================
+                          Build the classes
+             ========================================================== -->
 
-    <!-- ==============================================================
-                      Build the classes
-         ============================================================== -->
+        <!-- First copy the sources we are going to compile into a temp
+             directory. -->
+        <mkdir dir="${jar.temp.sources}" />
+        <copy toDir="${jar.temp.sources}">
+          <fileset refid="base.java.sources" />
+          <fileset refid="base.generated.java.sources" />
+          <fileset refid="base.resource.files"/>
+        </copy>
 
-    <!-- First copy the sources we are going to compile into a temp
-         directory. -->
-    <mkdir dir="${jar.temp.sources}" />
-    <copy toDir="${jar.temp.sources}">
-      <fileset refid="base.java.sources" />
-      <fileset refid="base.resource.files"/>
-    </copy>
+        <mkdir dir="${jar.temp.classes}"/>
+        <echo message="About to build jar ${build.jar.file}"/>
+        <property name="cp" refid="compile.classpath" />
+        <echo message="***************cp: ${cp}"/>
 
-    <mkdir dir="${jar.temp.classes}"/>
-    <echo message="About to build jar ${build.jar.file}"/>
-    <property name="cp" refid="compile.classpath" />
-    <echo message="***************cp: ${cp}"/>
+        <javac srcdir="${jar.temp.sources}"
+               destdir="${jar.temp.classes}"
+               debug="${compile.debug}"
+               verbose="${compile.verbose}"
+               listfiles="${compile.listfiles}"
+               deprecation="${compile.deprecation}"
+               optimize="${compile.optimize}">
+          <classpath refid="compile.classpath"/>
+          <include name="**/*.java"/>
+          <compilerarg value="-nowarn" compiler="jikes" />
+        </javac>
 
-    <javac srcdir="${jar.temp.sources}"
-           destdir="${jar.temp.classes}"
-           debug="${compile.debug}"
-           verbose="${compile.verbose}"
-           listfiles="${compile.listfiles}"
-           deprecation="${compile.deprecation}"
-           optimize="${compile.optimize}">
-      <classpath refid="compile.classpath"/>
-      <include name="**/*.java"/>
-      <compilerarg value="-nowarn" compiler="jikes" />
-    </javac>
+        <!-- ==========================================================
+                          Build jar file
+             ========================================================== -->
 
-    <!-- ==============================================================
-                      Build jar file
-         ============================================================== -->
+        <jar jarfile="${build.jar.file}">
+          <fileset dir="${jar.temp.classes}">
+            <patternset refid="base.class.patternset"/>
+          </fileset>
+          <fileset refid="base.resource.files"/>
+        </jar>
 
-    <jar jarfile="${build.jar.file}">
-      <fileset dir="${jar.temp.classes}">
-        <patternset refid="base.class.patternset"/>
-      </fileset>
-      <fileset refid="base.resource.files"/>
-    </jar>
+        <!-- ==========================================================
+                          Clean up
+             ========================================================== -->
 
-    <!-- ==============================================================
-                      Clean up
-         ============================================================== -->
-
-    <delete dir="${jar.temp.sources}" />
-    <delete dir="${jar.temp.classes}"/>
+        <delete dir="${jar.temp.sources}" />
+        <delete dir="${jar.temp.classes}"/>
+      </then>
+    </if>
   </target>
 </project>
