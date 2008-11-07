@@ -56,6 +56,10 @@
     <property name="compile.verbose" value="false"/>
     <property name="compile.listfiles" value="false"/>
 
+    <!-- default to empty -->
+    <fileset id="buildjar.resource.files" refid="empty.fileset" />
+    <fileset id="buildjar.generated.java.sources" refid="empty.fileset" />
+
     <property name="jar.dest.dir" location="${dist.home}" />
 
     <property name="jar.temp.sources"
@@ -74,8 +78,9 @@
 
     <uptodate property="build.jar.uptodate"
               targetfile="${build.jar.file}" >
-      <srcfiles refid="base.java.sources" />
-      <srcfiles refid="base.resource.files"/>
+      <srcfiles refid="buildjar.java.sources" />
+      <srcfiles refid="buildjar.generated.java.sources" />
+      <srcfiles refid="buildjar.resource.files"/>
       <!-- change this to a fileset
       <srcfiles refid="compile.classpath" />
       -->
@@ -110,9 +115,9 @@
              directory. -->
         <mkdir dir="${jar.temp.sources}" />
         <copy toDir="${jar.temp.sources}">
-          <fileset refid="base.java.sources" />
-          <fileset refid="base.generated.java.sources" />
-          <fileset refid="base.resource.files"/>
+          <fileset refid="buildjar.java.sources" />
+          <fileset refid="buildjar.generated.java.sources" />
+          <fileset refid="buildjar.resource.files"/>
         </copy>
 
         <mkdir dir="${jar.temp.classes}"/>
@@ -140,7 +145,7 @@
           <fileset dir="${jar.temp.classes}">
             <patternset refid="base.class.patternset"/>
           </fileset>
-          <fileset refid="base.resource.files"/>
+          <fileset refid="buildjar.resource.files"/>
         </jar>
 
         <!-- ==========================================================

@@ -74,8 +74,10 @@
 
     <fileset id="empty.fileset" dir="${edu.rpi.cmt.empty.dir}"
              excludes="*" />
+
     <!-- default to empty -->
-    <fileset id="base.resource.files" refid="empty.fileset" />
+    <fileset id="buildjar.resource.files" refid="empty.fileset" />
+    <fileset id="buildjar.generated.java.sources" refid="empty.fileset" />
 
     <property name="boeingexchange.jar"
               location="${dist.home}/${edu.rpi.cmt.caldav.boeingexchange.jar}-${project.version}.jar" />
