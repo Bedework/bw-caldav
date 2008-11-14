@@ -644,10 +644,10 @@ public class BexchangeSysIntfImpl implements SysIntf {
   }
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#copyMoveFile(org.bedework.calfacade.BwResource, org.bedework.calfacade.BwCalendar, java.lang.String, boolean, boolean)
+   * @see org.bedework.caldav.server.SysIntf#copyMoveFile(org.bedework.calfacade.BwResource, java.lang.String, java.lang.String, boolean, boolean)
    */
   public boolean copyMoveFile(BwResource from,
-                              BwCalendar to,
+                              String toPath,
                               String name,
                               boolean copy,
                               boolean overwrite) throws WebdavException {

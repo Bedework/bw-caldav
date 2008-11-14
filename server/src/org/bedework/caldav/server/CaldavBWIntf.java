@@ -33,6 +33,7 @@ import org.bedework.caldav.server.filter.Filter;
 import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.BwEventObj;
+import org.bedework.calfacade.BwGroup;
 import org.bedework.calfacade.BwOrganizer;
 import org.bedework.calfacade.BwResource;
 import org.bedework.calfacade.BwResourceContent;
@@ -44,7 +45,6 @@ import org.bedework.calfacade.ScheduleResult.ScheduleRecipientResult;
 import org.bedework.calfacade.base.BwShareableDbentity;
 import org.bedework.calfacade.configs.CalDAVConfig;
 import org.bedework.calfacade.env.CalOptionsFactory;
-import org.bedework.calfacade.env.CalOptionsI;
 import org.bedework.calfacade.svc.EventInfo;
 import org.bedework.calfacade.util.CalFacadeUtil;
 import org.bedework.calfacade.util.DateTimeUtil;
@@ -62,9 +62,11 @@ import edu.rpi.cct.webdav.servlet.shared.PrincipalPropertySearch;
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavForbidden;
+import edu.rpi.cct.webdav.servlet.shared.WebdavGroupNode;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNotFound;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
+import edu.rpi.cct.webdav.servlet.shared.WebdavPrincipalNode;
 import edu.rpi.cct.webdav.servlet.shared.WebdavProperty;
 import edu.rpi.cct.webdav.servlet.shared.WebdavServerError;
 import edu.rpi.cct.webdav.servlet.shared.WebdavUnauthorized;
@@ -77,6 +79,7 @@ import edu.rpi.cmt.access.PrincipalInfo;
 import edu.rpi.cmt.access.PrivilegeDefs;
 import edu.rpi.cmt.access.WhoDefs;
 import edu.rpi.cmt.access.AccessXmlUtil.AccessXmlCb;
+import edu.rpi.sss.util.OptionsI;
 import edu.rpi.sss.util.xml.XmlEmit;
 import edu.rpi.sss.util.xml.XmlUtil;
 import edu.rpi.sss.util.xml.tagdefs.CaldavDefs;
@@ -181,8 +184,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       namespacePrefix = WebdavUtils.getUrlPrefix(req);
       namespace = namespacePrefix + "/schema";
 
-      CalOptionsI opts = CalOptionsFactory.getOptions("org.bedework.app.",
-                                                      debug);
+      OptionsI opts = CalOptionsFactory.getOptions(debug);
       config = (CalDAVConfig)opts.getAppProperty(appName);
       if (config == null) {
         config = new CalDAVConfig();
@@ -228,7 +230,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#getDavHeader(edu.rpi.cct.webdav.servlet.shared.WebdavNsNode)
    */
   public String getDavHeader(WebdavNsNode node) throws WebdavException {
-    return "1, access-control, calendar-access, calendar-schedule, calendar-auto-schedule";
+    return super.getDavHeader(node) + ", calendar-access, calendar-schedule, calendar-auto-schedule";
   }
 
   protected CalDAVConfig getConfig() {
@@ -413,7 +415,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
       if (wi.isUser()) {
         nd = new CaldavUserNode(wi, sysi, null, debug);
       } else if (wi.isGroup()) {
-        nd = new CaldavGroupNode(wi, sysi, debug);
+        nd = new WebdavGroupNode(sysi.getUrlHandler(), wi.getPath(),
+                                 new BwGroup(wi.getEntityName()),
+                                 wi.isCollection(), debug);
       } else if (wi.isCollection()) {
         nd = new CaldavCalNode(wi, sysi, debug);
       } else if (wi.isResource()) {
@@ -530,8 +534,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
         }
 
         al.add(getNodeInt(uri + "/" + name,
-                               WebdavNsIntf.existanceDoesExist,
-                               nodeType, cal, ei, r));
+                          WebdavNsIntf.existanceDoesExist,
+                          nodeType, cal, ei, r));
       }
 
       return al;
@@ -1092,10 +1096,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
       return;
     }
 
-    BwCalendar toCal = toNode.getCalendar();
-
     if (!getSysi().copyMoveFile(from.getResource(),
-                            toCal, toNode.getEntityName(), copy,
+                                toNode.getPath(), toNode.getEntityName(), copy,
                             overwrite)) {
       resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
     } else {
@@ -1348,10 +1350,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#getPrincipals(java.lang.String, edu.rpi.cct.webdav.servlet.shared.PrincipalPropertySearch)
    */
-  public Collection<CaldavBwNode> getPrincipals(String resourceUri,
+  public Collection<WebdavPrincipalNode> getPrincipals(String resourceUri,
                                                 PrincipalPropertySearch pps)
           throws WebdavException {
-    ArrayList<CaldavBwNode> pnodes = new ArrayList<CaldavBwNode>();
+    ArrayList<WebdavPrincipalNode> pnodes = new ArrayList<WebdavPrincipalNode>();
 
     for (CalUserInfo cui: sysi.getPrincipals(resourceUri, pps)) {
       pnodes.add(new CaldavUserNode(new CaldavURI(cui.account,
@@ -1689,7 +1691,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
                           int depth) throws WebdavException {
     try {
       BwEvent fb = freeBusy.getFreeBusy(sysi, cnode.getCalendar(),
-                                        cnode.getOwner(),
+                                        cnode.getOwner().getAccount(),
                                         depth);
 
       cnode.setFreeBusy(fb);

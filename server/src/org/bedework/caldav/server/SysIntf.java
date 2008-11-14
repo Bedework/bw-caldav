@@ -581,7 +581,7 @@ public interface SysIntf {
    * Status is set on return
    *
    * @param from      Source resource
-   * @param to        Destination collection
+   * @param toPath    Destination collection path
    * @param name      String name of new entity
    * @param copy      true for copying
    * @param overwrite destination exists
@@ -589,7 +589,7 @@ public interface SysIntf {
    * @throws WebdavException
    */
   public boolean copyMoveFile(BwResource from,
-                              BwCalendar to,
+                              String toPath,
                               String name,
                               boolean copy,
                               boolean overwrite) throws WebdavException;

@@ -67,6 +67,7 @@ import org.bedework.icalendar.VFreeUtil;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavForbidden;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
+import edu.rpi.cmt.access.AccessPrincipal;
 import edu.rpi.cmt.access.PrivilegeDefs;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
 import edu.rpi.sss.util.xml.XmlEmit;
@@ -172,7 +173,7 @@ public class CaldavCalNode extends CaldavBwNode {
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getOwner()
    */
-  public String getOwner() throws WebdavException {
+  public AccessPrincipal getOwner() throws WebdavException {
     if (owner == null) {
       if (cal == null) {
         return null;
@@ -182,7 +183,7 @@ public class CaldavCalNode extends CaldavBwNode {
     }
 
     if (owner != null) {
-      return owner.getAccount();
+      return owner;
     }
 
     return null;
@@ -238,11 +239,11 @@ public class CaldavCalNode extends CaldavBwNode {
   }
 
   /**
-   * @param forMkCalendar
+   * @param methodTag - acts as a flag for the method type
    * @throws WebdavException
    */
-  public void setDefaults(boolean forMkCalendar) throws WebdavException {
-    if (!forMkCalendar) {
+  public void setDefaults(QName methodTag) throws WebdavException {
+    if (!CaldavTags.mkcalendar.equals(methodTag)) {
       return;
     }
 
@@ -477,8 +478,6 @@ public class CaldavCalNode extends CaldavBwNode {
       if (XmlUtil.nodeMatches(val, WebdavTags.resourcetype)) {
         Collection<Element> propVals = XmlUtil.getElements(val);
 
-        //boolean schedule = false;
-
         for (Element pval: propVals) {
           if (XmlUtil.nodeMatches(pval, WebdavTags.collection)) {
             // Fine
@@ -489,22 +488,8 @@ public class CaldavCalNode extends CaldavBwNode {
             // Fine again
             continue;
           }
-
-          if (XmlUtil.nodeMatches(pval, CaldavTags.scheduleCalendar)) {
-            //schedule = true;
-            continue;
-          }
         }
 
-        /*
-        if (exists) {
-          if ((cal.getCalType() == BwCalendar.calTypeSchedulingCollection) != schedule) {
-            throw new WebdavBadRequest();
-          }
-        } else if (schedule) {
-          cal.setCalType(BwCalendar.calTypeSchedulingCollection);
-        }
-        */
         return true;
       }
 

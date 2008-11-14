@@ -69,6 +69,7 @@ import org.w3c.dom.Element;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cct.webdav.servlet.shared.WebdavProperty;
+import edu.rpi.cmt.access.AccessPrincipal;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
 import edu.rpi.sss.util.xml.XmlEmit;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
@@ -242,7 +243,7 @@ public class CaldavComponentNode extends CaldavBwNode {
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getOwner()
    */
-  public String getOwner() throws WebdavException {
+  public AccessPrincipal getOwner() throws WebdavException {
     if (owner == null) {
       if (eventInfo == null) {
         return null;
@@ -255,7 +256,7 @@ public class CaldavComponentNode extends CaldavBwNode {
     }
 
     if (owner != null) {
-      return owner.getAccount();
+      return owner;
     }
 
     return null;

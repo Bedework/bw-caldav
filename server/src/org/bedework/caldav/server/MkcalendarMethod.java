@@ -68,13 +68,13 @@ public class MkcalendarMethod extends PropPatchMethod {
 
     boolean success = true;
 
-    node.setDefaults(true);
+    node.setDefaults(CaldavTags.mkcalendar);
 
     if (doc != null) {
       success = processDoc(req, resp, doc, node, CaldavTags.mkcalendar, true);
     }
 
-    // XXX Make calendar using properties sent in request
+    // Make calendar using properties sent in request
     if (success) {
       getNsIntf().makeCollection(req, resp, node);
     }

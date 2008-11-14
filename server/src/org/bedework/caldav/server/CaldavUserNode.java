@@ -1,33 +1,5 @@
-/*
- Copyright (c) 2000-2005 University of Washington.  All rights reserved.
-
- Redistribution and use of this distribution in source and binary forms,
- with or without modification, are permitted provided that:
-
-   The above copyright notice and this permission notice appear in
-   all copies and supporting documentation;
-
-   The name, identifiers, and trademarks of the University of Washington
-   are not used in advertising or publicity without the express prior
-   written permission of the University of Washington;
-
-   Recipients acknowledge that this distribution is made available as a
-   research courtesy, "as is", potentially with defects, without
-   any obligation on the part of the University of Washington to
-   provide support, services, or repair;
-
-   THE UNIVERSITY OF WASHINGTON DISCLAIMS ALL WARRANTIES, EXPRESS OR
-   IMPLIED, WITH REGARD TO THIS SOFTWARE, INCLUDING WITHOUT LIMITATION
-   ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
-   PARTICULAR PURPOSE, AND IN NO EVENT SHALL THE UNIVERSITY OF
-   WASHINGTON BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL
-   DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
-   PROFITS, WHETHER IN AN ACTION OF CONTRACT, TORT (INCLUDING
-   NEGLIGENCE) OR STRICT LIABILITY, ARISING OUT OF OR IN CONNECTION WITH
-   THE USE OR PERFORMANCE OF THIS SOFTWARE.
- */
 /* **********************************************************************
-    Copyright 2005 Rensselaer Polytechnic Institute. All worldwide rights reserved.
+    Copyright 2008 Rensselaer Polytechnic Institute. All worldwide rights reserved.
 
     Redistribution and use of this distribution in source and binary forms,
     with or without modification, are permitted provided that:
@@ -54,9 +26,11 @@
 
 package org.bedework.caldav.server;
 
+import org.bedework.calfacade.BwUser;
+
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
-import edu.rpi.cmt.access.Acl.CurrentAccess;
+import edu.rpi.cct.webdav.servlet.shared.WebdavUserNode;
 import edu.rpi.sss.util.xml.XmlEmit;
 import edu.rpi.sss.util.xml.tagdefs.CaldavDefs;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
@@ -70,9 +44,9 @@ import javax.xml.namespace.QName;
 /** Class to represent a user in caldav.
  *
  *
- *   @author Mike Douglass   douglm@rpi.edu
+ *   @author Mike Douglass   douglm  rpi.edu
  */
-public class CaldavUserNode extends CaldavPrincipalNode {
+public class CaldavUserNode extends WebdavUserNode {
   private SysIntf.CalUserInfo ui;
 
   private final static HashMap<QName, PropertyTagEntry> propertyNames =
@@ -92,94 +66,19 @@ public class CaldavUserNode extends CaldavPrincipalNode {
   public CaldavUserNode(CaldavURI cdURI, SysIntf sysi,
                         SysIntf.CalUserInfo ui,
                         boolean debug) throws WebdavException {
-    super(cdURI, sysi, debug);
+    super(sysi.getUrlHandler(), cdURI.getPath(),
+          new BwUser(cdURI.getEntityName()),
+          cdURI.isCollection(), debug);
     this.ui = ui;
 
     if (ui == null) {
       this.ui = sysi.getCalUserInfo(cdURI.getEntityName(), false);
     }
-    userPrincipal = true;
-  }
-
-  /* ====================================================================
-   *                   Abstract methods
-   * ==================================================================== */
-
-  public CurrentAccess getCurrentAccess() throws WebdavException {
-    return null;
-  }
-
-  public String getEtagValue(boolean strong) throws WebdavException {
-    String val = "1234567890";
-
-    if (strong) {
-      return "\"" + val + "\"";
-    }
-
-    return "W/\"" + val + "\"";
-  }
-
-  /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#trailSlash()
-   */
-  public boolean trailSlash() {
-    return true;
-  }
-
-  /* ====================================================================
-   *                   Required webdav properties
-   * ==================================================================== */
-
-  /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getContentLang()
-   */
-  public String getContentLang() throws WebdavException {
-    return null;
-  }
-
-  /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getContentLen()
-   */
-  public int getContentLen() throws WebdavException {
-    return 0;
-  }
-
-  /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getContentType()
-   */
-  public String getContentType() throws WebdavException {
-    return null;
-  }
-
-  /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getCreDate()
-   */
-  public String getCreDate() throws WebdavException {
-    return null;
-  }
-
-  /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getLastmodDate()
-   */
-  public String getLastmodDate() throws WebdavException {
-    return null;
   }
 
   /* ====================================================================
    *                   Property methods
    * ==================================================================== */
-
-  /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#knownProperty(edu.rpi.sss.util.xml.QName)
-   */
-  public boolean knownProperty(QName tag) {
-    if (propertyNames.get(tag) != null) {
-      return true;
-    }
-
-    // Not ours
-    return super.knownProperty(tag);
-  }
 
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#generatePropertyValue(edu.rpi.sss.util.xml.QName, edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf, boolean)
@@ -223,8 +122,4 @@ public class CaldavUserNode extends CaldavPrincipalNode {
 
     return res;
   }
-
-  /* ====================================================================
-   *                   Private methods
-   * ==================================================================== */
 }

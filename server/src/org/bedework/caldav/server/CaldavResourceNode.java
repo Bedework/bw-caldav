@@ -62,6 +62,7 @@ import org.bedework.calfacade.util.DateTimeUtil;
 import org.w3c.dom.Element;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
+import edu.rpi.cmt.access.AccessPrincipal;
 import edu.rpi.cmt.access.PrivilegeDefs;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
 
@@ -159,7 +160,7 @@ public class CaldavResourceNode extends CaldavBwNode {
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getOwner()
    */
-  public String getOwner() throws WebdavException {
+  public AccessPrincipal getOwner() throws WebdavException {
     if (owner == null) {
       if (resource == null) {
         return null;
@@ -169,7 +170,7 @@ public class CaldavResourceNode extends CaldavBwNode {
     }
 
     if (owner != null) {
-      return owner.getAccount();
+      return owner;
     }
 
     return null;
