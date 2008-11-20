@@ -57,7 +57,6 @@ package org.bedework.caldav.server;
 import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwResource;
 import org.bedework.calfacade.BwUser;
-import org.bedework.calfacade.util.DateTimeUtil;
 
 import org.w3c.dom.Element;
 
@@ -65,6 +64,7 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cmt.access.AccessPrincipal;
 import edu.rpi.cmt.access.PrivilegeDefs;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
+import edu.rpi.sss.util.DateTimeUtil;
 
 import javax.xml.namespace.QName;
 

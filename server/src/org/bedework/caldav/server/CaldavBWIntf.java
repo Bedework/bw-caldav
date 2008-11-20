@@ -47,8 +47,8 @@ import org.bedework.calfacade.configs.CalDAVConfig;
 import org.bedework.calfacade.env.CalOptionsFactory;
 import org.bedework.calfacade.svc.EventInfo;
 import org.bedework.calfacade.util.CalFacadeUtil;
-import org.bedework.calfacade.util.DateTimeUtil;
-import org.bedework.calfacade.util.DateTimeUtil.DatePeriod;
+import org.bedework.calfacade.util.BwDateTimeUtil;
+import org.bedework.calfacade.util.BwDateTimeUtil.DatePeriod;
 import org.bedework.icalendar.IcalTranslator;
 import org.bedework.icalendar.Icalendar;
 import org.bedework.icalendar.VFreeUtil;
@@ -1156,7 +1156,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       pars.contentType = "text/calendar; charset=UTF-8";
 
-      DatePeriod dp = DateTimeUtil.getPeriod(req.getParameter("start"),
+      DatePeriod dp = BwDateTimeUtil.getPeriod(req.getParameter("start"),
                                              req.getParameter("end"),
                                              java.util.Calendar.DATE, 31,
                                              java.util.Calendar.DATE, 32);
@@ -1215,7 +1215,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
                                HttpServletResponse resp,
                                RequestPars pars) throws WebdavException {
     try {
-      DatePeriod dp = DateTimeUtil.getPeriod(req.getParameter("start"),
+      DatePeriod dp = BwDateTimeUtil.getPeriod(req.getParameter("start"),
                                              req.getParameter("end"),
                                              java.util.Calendar.DATE, 31,
                                              java.util.Calendar.DATE, 32 * 3);

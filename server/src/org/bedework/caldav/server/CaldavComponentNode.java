@@ -59,7 +59,6 @@ import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.BwUser;
 import org.bedework.calfacade.svc.EventInfo;
-import org.bedework.calfacade.util.DateTimeUtil;
 
 import org.bedework.icalendar.ComponentWrapper;
 import org.bedework.icalendar.IcalTranslator;
@@ -71,6 +70,7 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cct.webdav.servlet.shared.WebdavProperty;
 import edu.rpi.cmt.access.AccessPrincipal;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
+import edu.rpi.sss.util.DateTimeUtil;
 import edu.rpi.sss.util.xml.XmlEmit;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 import edu.rpi.sss.util.xml.tagdefs.ICalTags;
