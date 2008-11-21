@@ -59,6 +59,9 @@ import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.BwResource;
 import org.bedework.calfacade.svc.EventInfo;
 
+import edu.rpi.cmt.access.Ace;
+import edu.rpi.cmt.access.PrincipalInfo;
+
 /** We map uris onto an object which may be a calendar or an
  * entity contained within that calendar.
  *
@@ -82,14 +85,16 @@ public class CaldavURI {
 
   EventInfo entity;
 
+  PrincipalInfo principal;
+
   String entityName;
   String path;  // for principals
 
-  boolean userUri; // entityname is user
+//  boolean userUri; // entityname is user
 
   boolean resourceUri; // entityname is resource
 
-  boolean groupUri;// entityname is group
+//  boolean groupUri;// entityname is group
 
   /** Reference to a collection
    *
@@ -123,16 +128,15 @@ public class CaldavURI {
     resourceUri = true;
   }
 
-  CaldavURI(String entityName, String path, boolean isUser) {
+  /**
+   * @param pi
+   */
+  CaldavURI(PrincipalInfo pi) {
+    principal = pi;
     exists = true;
     cal = null;
-    this.entityName = entityName;
-    if (isUser) {
-      userUri = true;
-    } else {
-      groupUri = true;
-    }
-    this.path = path;
+    entityName = pi.who;
+    path = pi.prefix + pi.who;;
   }
 
   private void init(BwCalendar cal, BwResource res,
@@ -191,8 +195,8 @@ public class CaldavURI {
    * @return String
    */
   public String getOwner() {
-    if (userUri || groupUri){
-      return entityName;
+    if (principal != null){
+      return principal.who;
     }
 
     if (entity != null) {
@@ -213,11 +217,7 @@ public class CaldavURI {
    * @return String
    */
   public String getPath() {
-    if (userUri) {
-      return path;
-    }
-
-    if (groupUri) {
+    if (principal != null) {
       return path;
     }
 
@@ -228,7 +228,8 @@ public class CaldavURI {
    * @return String
    */
   public String getUri() {
-    if (entityName == null) {
+    if ((entityName == null) ||
+        (principal != null)) {
       return getPath();
     }
     return getPath() + "/" + entityName;
@@ -252,14 +253,20 @@ public class CaldavURI {
    * @return true if this represents a user
    */
   public boolean isUser() {
-    return userUri;
+    if (principal == null) {
+      return false;
+    }
+    return principal.whoType == Ace.whoTypeUser;
   }
 
   /**
    * @return true if this represents a group
    */
   public boolean isGroup() {
-    return groupUri;
+    if (principal == null) {
+      return false;
+    }
+    return principal.whoType == Ace.whoTypeGroup;
   }
 
   /**
@@ -290,15 +297,11 @@ public class CaldavURI {
   }
 
   public int hashCode() {
+    if (principal != null) {
+      return  principal.hashCode();
+    }
+
     int hc = entityName.hashCode();
-
-    if (userUri) {
-      return hc * 1;
-    }
-
-    if (groupUri) {
-      return hc * 2;
-    }
 
     return hc * 3 + cal.getPath().hashCode();
   }
@@ -314,12 +317,8 @@ public class CaldavURI {
 
     CaldavURI that = (CaldavURI)o;
 
-    if (that.userUri != userUri) {
-      return false;
-    }
-
-    if (that.groupUri != groupUri) {
-      return false;
+    if (principal != null) {
+      return  principal.equals(that.principal);
     }
 
     if (cal == null) {

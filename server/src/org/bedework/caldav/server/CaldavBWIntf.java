@@ -1326,7 +1326,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
       String account = href.substring(pos + 1);
       String basePath = href.substring(0, pos);
 
-      res.add(new CaldavUserNode(new CaldavURI(account, basePath, true),
+      PrincipalInfo pi = new PrincipalInfo(Ace.whoTypeUser, account, basePath);
+      res.add(new CaldavUserNode(new CaldavURI(pi),
                                  getSysi(), null, debug));
     }
 
@@ -1356,9 +1357,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
     ArrayList<WebdavPrincipalNode> pnodes = new ArrayList<WebdavPrincipalNode>();
 
     for (CalUserInfo cui: sysi.getPrincipals(resourceUri, pps)) {
-      pnodes.add(new CaldavUserNode(new CaldavURI(cui.account,
-                                                  cui.principalPathPrefix,
-                                                  true),
+      PrincipalInfo pi = new PrincipalInfo(Ace.whoTypeUser,
+                                           cui.account,
+                                           cui.principalPathPrefix);
+      pnodes.add(new CaldavUserNode(new CaldavURI(pi),
                                     getSysi(), cui, debug));
     }
 
@@ -1798,8 +1800,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       if (isPrincipal) {
         PrincipalInfo pi = getSysi().getPrincipalInfo(uri);
 
-        return new CaldavURI(pi.who, pi.prefix,
-                             pi.whoType != Ace.whoTypeGroup);
+        return new CaldavURI(pi);
       }
 
       if (existance == WebdavNsIntf.existanceDoesExist) {
