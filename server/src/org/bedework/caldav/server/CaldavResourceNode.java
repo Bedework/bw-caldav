@@ -91,9 +91,8 @@ public class CaldavResourceNode extends CaldavBwNode {
    * @param debug
    */
   public CaldavResourceNode(SysIntf sysi, int status, String uri, boolean debug) {
-    super(true, sysi, debug);
+    super(true, sysi, uri, debug);
     setStatus(status);
-    this.uri = uri;
   }
 
   /** Constructor

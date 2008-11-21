@@ -417,7 +417,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       } else if (wi.isGroup()) {
         nd = new WebdavGroupNode(sysi.getUrlHandler(), wi.getPath(),
                                  new BwGroup(wi.getEntityName()),
-                                 wi.isCollection(), debug);
+                                 wi.isCollection(), wi.getUri(), debug);
       } else if (wi.isCollection()) {
         nd = new CaldavCalNode(wi, sysi, debug);
       } else if (wi.isResource()) {

@@ -68,7 +68,7 @@ public class CaldavUserNode extends WebdavUserNode {
                         boolean debug) throws WebdavException {
     super(sysi.getUrlHandler(), cdURI.getPath(),
           new BwUser(cdURI.getEntityName()),
-          cdURI.isCollection(), debug);
+          cdURI.isCollection(), cdURI.getUri(), debug);
     this.ui = ui;
 
     if (ui == null) {
