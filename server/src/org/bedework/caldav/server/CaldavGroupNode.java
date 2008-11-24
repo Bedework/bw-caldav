@@ -45,6 +45,5 @@ public class CaldavGroupNode extends CaldavPrincipalNode {
                         SysIntf.CalUserInfo ui,
                         boolean debug) throws WebdavException {
     super(cdURI, sysi, ui, false, debug);
-    groupPrincipal = true;
   }
 }
