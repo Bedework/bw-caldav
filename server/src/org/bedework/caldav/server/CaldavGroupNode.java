@@ -28,12 +28,12 @@ package org.bedework.caldav.server;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 
-/** Class to represent a user in caldav.
+/** Class to represent a group in caldav.
  *
  *
  *   @author Mike Douglass   douglm  rpi.edu
  */
-public class CaldavUserNode extends CaldavPrincipalNode {
+public class CaldavGroupNode extends CaldavPrincipalNode {
   /**
    * @param cdURI
    * @param sysi
@@ -41,10 +41,10 @@ public class CaldavUserNode extends CaldavPrincipalNode {
    * @param debug
    * @throws WebdavException
    */
-  public CaldavUserNode(CaldavURI cdURI, SysIntf sysi,
+  public CaldavGroupNode(CaldavURI cdURI, SysIntf sysi,
                         SysIntf.CalUserInfo ui,
                         boolean debug) throws WebdavException {
-    super(cdURI, sysi, ui, true, debug);
-    userPrincipal = true;
+    super(cdURI, sysi, ui, false, debug);
+    groupPrincipal = true;
   }
 }

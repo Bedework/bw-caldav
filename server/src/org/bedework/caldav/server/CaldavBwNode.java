@@ -30,9 +30,7 @@ import org.bedework.calfacade.BwCalendar;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
-import edu.rpi.sss.util.xml.XmlEmit;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
-import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -53,12 +51,6 @@ public abstract class CaldavBwNode extends WebdavNsNode {
   private final static Collection<QName> supportedReports = new ArrayList<QName>();
 
   static {
-    addPropEntry(propertyNames, CaldavTags.calendarHomeSet);
-    addPropEntry(propertyNames, CaldavTags.calendarUserAddressSet);
-    addPropEntry(propertyNames, CaldavTags.calendarHomeURL);
-    addPropEntry(propertyNames, CaldavTags.scheduleInboxURL);
-    addPropEntry(propertyNames, CaldavTags.scheduleOutboxURL);
-
     supportedReports.add(CaldavTags.calendarMultiget); // Calendar access
     supportedReports.add(CaldavTags.calendarQuery);    // Calendar access
   }
@@ -164,49 +156,7 @@ public abstract class CaldavBwNode extends WebdavNsNode {
   public boolean generatePropertyValue(QName tag,
                                        WebdavNsIntf intf,
                                        boolean allProp) throws WebdavException {
-    XmlEmit xml = intf.getXmlEmit();
-
     try {
-      if (tag.equals(CaldavTags.calendarUserAddressSet)) {
-        xml.openTag(tag);
-        xml.property(WebdavTags.href, sysi.userToCaladdr(getOwner().getAccount()));
-        xml.closeTag(tag);
-
-        return true;
-      }
-
-      if (tag.equals(CaldavTags.calendarHomeSet)) {
-        xml.openTag(tag);
-        generateHref(xml, sysi.getCalUserInfo(getOwner().getAccount(), false).userHomePath);
-        xml.closeTag(tag);
-
-        return true;
-      }
-
-      if (tag.equals(CaldavTags.calendarHomeURL)) {
-        xml.openTag(tag);
-        generateHref(xml, sysi.getCalUserInfo(intf.getAccount(), false).userHomePath);
-        xml.closeTag(tag);
-
-        return true;
-      }
-
-      if (tag.equals(CaldavTags.scheduleInboxURL)) {
-        xml.openTag(tag);
-        generateHref(xml, sysi.getCalUserInfo(intf.getAccount(), false).inboxPath);
-        xml.closeTag(tag);
-
-        return true;
-      }
-
-      if (tag.equals(CaldavTags.scheduleOutboxURL)) {
-        xml.openTag(tag);
-        generateHref(xml, sysi.getCalUserInfo(intf.getAccount(), false).outboxPath);
-        xml.closeTag(tag);
-
-        return true;
-      }
-
       // Not known - try higher
       return super.generatePropertyValue(tag, intf, allProp);
     } catch (WebdavException wde) {
