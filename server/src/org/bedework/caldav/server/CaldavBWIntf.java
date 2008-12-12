@@ -210,6 +210,14 @@ public class CaldavBWIntf extends WebdavNsIntf {
   public void reAuth(HttpServletRequest req,
                      String account) throws WebdavException {
     try {
+      if (sysi != null) {
+        try {
+          sysi.close();
+        } catch (Throwable t) {
+          throw new WebdavException(t);
+        }
+      }
+
       this.account = account;
 
       sysi = (SysIntf)CalFacadeUtil.getObject(config.getSysintfImpl(),
