@@ -444,16 +444,16 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
   public void delete(WebdavNsNode node) throws WebdavException {
     try {
-      CaldavBwNode uwnode = getBwnode(node);
+      CaldavBwNode bwnode = getBwnode(node);
 
-      if (uwnode instanceof CaldavResourceNode) {
-        CaldavResourceNode rnode = (CaldavResourceNode)uwnode;
+      if (bwnode instanceof CaldavResourceNode) {
+        CaldavResourceNode rnode = (CaldavResourceNode)bwnode;
 
         BwResource r = rnode.getResource();
 
         sysi.deleteFile(r);
-      } else if (uwnode instanceof CaldavComponentNode) {
-        CaldavComponentNode cnode = (CaldavComponentNode)uwnode;
+      } else if (bwnode instanceof CaldavComponentNode) {
+        CaldavComponentNode cnode = (CaldavComponentNode)bwnode;
 
         BwEvent ev = cnode.getEventInfo().getEvent();
 
@@ -461,18 +461,18 @@ public class CaldavBWIntf extends WebdavNsIntf {
           if (debug) {
             trace("About to delete event " + ev);
           }
-          sysi.deleteEvent(ev);
+          sysi.deleteEvent(ev, CalDavHeaders.scheduleReply(getRequest()));
         } else {
           if (debug) {
             trace("No event object available");
           }
         }
       } else {
-        if (!(uwnode instanceof CaldavCalNode)) {
+        if (!(bwnode instanceof CaldavCalNode)) {
           throw new WebdavUnauthorized();
         }
 
-        CaldavCalNode cnode = (CaldavCalNode)uwnode;
+        CaldavCalNode cnode = (CaldavCalNode)bwnode;
 
         BwCalendar cal = cnode.getCalendar();
 

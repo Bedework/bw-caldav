@@ -38,7 +38,7 @@
     <getJar name="commons-httpclient" version="3.0" />
     <getJar name="gdata-calendar" version="1.0" />
     <getJar name="gdata-client" version="1.0" />
-    <getJar name="ical4j" version="head" />
+    <getJar name="ical4j" version="head-20081217" />
     <getJar name="log4j" version="1.2.8" />
     <getJar name="servletapi" version="2.4" />
 

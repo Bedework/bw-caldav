@@ -379,9 +379,11 @@ public interface SysIntf {
 
   /**
    * @param ev
+   * @param scheduleReply - true if we want a schduling reply posted
    * @throws WebdavException
    */
-  public void deleteEvent(BwEvent ev) throws WebdavException;
+  public void deleteEvent(BwEvent ev,
+                          boolean scheduleReply) throws WebdavException;
 
   /**
    * @param cal

@@ -26,59 +26,29 @@
 
 package org.bedework.caldav.server;
 
-import edu.rpi.cct.webdav.servlet.common.WebdavServlet;
-import edu.rpi.cct.webdav.servlet.common.MethodBase.MethodInfo;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
-import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 
 import javax.servlet.http.HttpServletRequest;
 
-/** This class extends the webdav servlet class, implementing the abstract
- * methods and overriding others to extend/modify the behaviour.
+/** Retrieve and process CalDAV header values
  *
- * @author Mike Douglass   douglm  rpi.edu
+ *   @author Mike Douglass   douglm  rpi.edu
  */
-public class CaldavBWServlet extends WebdavServlet {
-  private String id = null;
-  /* ====================================================================
-   *                     Abstract servlet methods
-   * ==================================================================== */
-
-  public String getId() {
-    if (id != null) {
-      return id;
-    }
-
-    if (props == null) {
-      return getClass().getName();
-    }
-
-    id = props.getProperty("edu.rpi.cct.uwcal.appname");
-    if (id == null) {
-      id = getClass().getName();
-    }
-
-    return id;
-  }
-
-  /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.common.WebdavServlet#addMethods()
+public class CalDavHeaders {
+  /** Look for the Schedule-Reply header
+   *
+   * @param req    HttpServletRequest
+   * @return boolean true if present
+   * @throws WebdavException
    */
-  protected void addMethods() {
-    super.addMethods();
+  public static boolean scheduleReply(HttpServletRequest req)
+          throws WebdavException {
+    String hdrStr = req.getHeader("Schedule-Reply");
 
-    // Replace methods
-    methods.put("MKCALENDAR", new MethodInfo(MkcalendarMethod.class, true));
-    //methods.put("OPTIONS", new MethodInfo(CalDavOptionsMethod.class, false));
-    methods.put("POST", new MethodInfo(PostMethod.class, false));  // Allow unauth POST for freebusy etc. true));
-    methods.put("REPORT", new MethodInfo(CaldavReportMethod.class, false));
-  }
+    if (hdrStr == null) {
+      return true;
+    }
 
-  public WebdavNsIntf getNsIntf(HttpServletRequest req)
-      throws WebdavException {
-    CaldavBWIntf wi = new CaldavBWIntf();
-
-    wi.init(this, req, props, debug, methods, dumpContent);
-    return wi;
+    return "T".equals(hdrStr);
   }
 }

@@ -339,7 +339,11 @@ public class GoogleSysIntfImpl implements SysIntf {
     throw new WebdavException("unimplemented");
   }
 
-  public void deleteEvent(BwEvent ev) throws WebdavException {
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#deleteEvent(org.bedework.calfacade.BwEvent, boolean)
+   */
+  public void deleteEvent(BwEvent ev,
+                          boolean scheduleReply) throws WebdavException {
     throw new WebdavException("unimplemented");
   }
 

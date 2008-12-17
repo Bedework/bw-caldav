@@ -54,6 +54,7 @@
 
 package org.bedework.caldav.server;
 
+import org.bedework.caldav.server.SysIntf.CalUserInfo;
 import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.BwUser;
@@ -63,6 +64,7 @@ import org.bedework.icalendar.IcalTranslator;
 import org.bedework.icalendar.Icalendar;
 import org.bedework.icalendar.VFreeUtil;
 
+import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavForbidden;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
@@ -118,6 +120,8 @@ public class CaldavCalNode extends CaldavBwNode {
     addPropEntry(propertyNames, CaldavTags.maxInstances);
     addPropEntry(propertyNames, CaldavTags.maxResourceSize);
     addPropEntry(propertyNames, CaldavTags.minDateTime);
+    addPropEntry(propertyNames, CaldavTags.scheduleCalendarTransp);
+    addPropEntry(propertyNames, CaldavTags.scheduleDefaultCalendarURL);
     addPropEntry(propertyNames, CaldavTags.supportedCalendarComponentSet);
     addPropEntry(propertyNames, CaldavTags.supportedCalendarData);
     addPropEntry(propertyNames, AppleServerTags.getctag);
@@ -492,6 +496,20 @@ public class CaldavCalNode extends CaldavBwNode {
         return true;
       }
 
+      if (XmlUtil.nodeMatches(val, CaldavTags.scheduleCalendarTransp)) {
+        Element cval = XmlUtil.getOnlyElement(val);
+
+        if (XmlUtil.nodeMatches(cval, CaldavTags.opaque)) {
+          cal.setAffectsFreeBusy(true);
+        } else if (XmlUtil.nodeMatches(cval, CaldavTags.transparent)) {
+          cal.setAffectsFreeBusy(true);
+        } else {
+          throw new WebdavBadRequest();
+        }
+
+        return true;
+      }
+
       if (XmlUtil.nodeMatches(val, CaldavTags.calendarFreeBusySet)) {
         // Only valid for inbox
         if (cal.getCalType() != BwCalendar.calTypeInbox) {
@@ -568,16 +586,16 @@ public class CaldavCalNode extends CaldavBwNode {
 
     try {
       BwCalendar c = getCalendar(); // Unalias
+      int calType = c.getCalType();
 
       if (tag.equals(WebdavTags.resourcetype)) {
         // dav 13.9
-        xml.openTag(WebdavTags.resourcetype);
+        xml.openTag(tag);
         xml.emptyTag(WebdavTags.collection);
         if (debug) {
           debugMsg("generatePropResourcetype for " + cal);
         }
 
-        int calType = c.getCalType();
         //boolean isCollection = cal.getCalendarCollection();
 
         if (calType == BwCalendar.calTypeInbox) {
@@ -587,7 +605,36 @@ public class CaldavCalNode extends CaldavBwNode {
         } else if (calType == BwCalendar.calTypeCollection) {
           xml.emptyTag(CaldavTags.calendar);
         }
-        xml.closeTag(WebdavTags.resourcetype);
+        xml.closeTag(tag);
+
+        return true;
+      }
+
+      if (tag.equals(CaldavTags.scheduleCalendarTransp)) {
+        xml.openTag(tag);
+
+        if (c.getAffectsFreeBusy()) {
+          xml.emptyTag(CaldavTags.opaque);
+        } else {
+          xml.emptyTag(CaldavTags.transparent);
+        }
+
+        xml.closeTag(tag);
+
+        return true;
+      }
+
+      if (tag.equals(CaldavTags.scheduleDefaultCalendarURL) &&
+          (calType == BwCalendar.calTypeInbox)) {
+        xml.openTag(tag);
+
+        CalUserInfo cinfo = getSysi().getCalUserInfo(cal.getOwner().getAccount(),
+                                                     false);
+        if (cinfo.defaultCalendarPath != null) {
+          generateHref(xml, cinfo.defaultCalendarPath);
+        }
+
+        xml.closeTag(tag);
 
         return true;
       }
