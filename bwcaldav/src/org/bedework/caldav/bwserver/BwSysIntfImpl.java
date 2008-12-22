@@ -456,7 +456,7 @@ public class BwSysIntfImpl implements SysIntf {
         return getSvci().getScheduler().scheduleResponse(ei);
       }
 
-      return getSvci().getScheduler().schedule(ei, null, true);
+      return getSvci().getScheduler().schedule(ei, null, false);
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
