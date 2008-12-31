@@ -125,7 +125,7 @@ public class GoogleSysIntfImpl implements SysIntf {
       this.account = account;
       urlHandler = new UrlHandler(req, false);
 
-      CalTimezones timezones = new ResourceTimezones(debug, null);
+      CalTimezones timezones = new ResourceTimezones(debug);
       CalTimezones.setTimezones(timezones);
       CalTimezones.setDefaultTzid(defaultTimezone);
     } catch (Throwable t) {
@@ -662,7 +662,7 @@ public class GoogleSysIntfImpl implements SysIntf {
 
   private DateTime makeDateTime(BwDateTime dt) throws WebdavException {
     try {
-      TimeZone tz = CalTimezones.getTz(dt.getTzid(), null);
+      TimeZone tz = CalTimezones.getTz(dt.getTzid());
       long millis = dt.makeDate().getTime();
       return new DateTime(millis, tz.getOffset(millis) / 60000);
     } catch (Throwable t) {

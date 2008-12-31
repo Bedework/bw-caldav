@@ -205,7 +205,7 @@ public class DominoSysIntfImpl implements SysIntf {
                                  debug);
       urlHandler = new UrlHandler(req, false);
 
-      CalTimezones timezones = new ResourceTimezones(debug, null);
+      CalTimezones timezones = new ResourceTimezones(debug);
       CalTimezones.setTimezones(timezones);
       CalTimezones.setDefaultTzid(defaultTimezone);
     } catch (Throwable t) {
