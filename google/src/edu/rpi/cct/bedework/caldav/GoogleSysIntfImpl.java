@@ -44,7 +44,6 @@ import org.bedework.calfacade.configs.CalDAVConfig;
 import org.bedework.calfacade.filter.BwFilter;
 import org.bedework.calfacade.svc.EventInfo;
 import org.bedework.calfacade.timezones.CalTimezones;
-import org.bedework.calfacade.timezones.ResourceTimezones;
 import org.bedework.calfacade.util.ChangeTable;
 import org.bedework.icalendar.Icalendar;
 
@@ -125,8 +124,6 @@ public class GoogleSysIntfImpl implements SysIntf {
       this.account = account;
       urlHandler = new UrlHandler(req, false);
 
-      CalTimezones timezones = new ResourceTimezones(debug);
-      CalTimezones.setTimezones(timezones);
       CalTimezones.setDefaultTzid(defaultTimezone);
     } catch (Throwable t) {
       throw new WebdavException(t);
