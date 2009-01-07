@@ -42,12 +42,12 @@ import org.bedework.calfacade.ScheduleResult;
 import org.bedework.calfacade.RecurringRetrievalMode.Rmode;
 import org.bedework.calfacade.ScheduleResult.ScheduleRecipientResult;
 import org.bedework.calfacade.base.BwShareableDbentity;
+import org.bedework.calfacade.base.TimeRange;
 import org.bedework.calfacade.configs.CalDAVConfig;
 import org.bedework.calfacade.env.CalOptionsFactory;
 import org.bedework.calfacade.svc.EventInfo;
 import org.bedework.calfacade.util.CalFacadeUtil;
 import org.bedework.calfacade.util.BwDateTimeUtil;
-import org.bedework.calfacade.util.BwDateTimeUtil.DatePeriod;
 import org.bedework.icalendar.IcalTranslator;
 import org.bedework.icalendar.Icalendar;
 import org.bedework.icalendar.VFreeUtil;
@@ -1160,19 +1160,19 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       pars.contentType = "text/calendar; charset=UTF-8";
 
-      DatePeriod dp = BwDateTimeUtil.getPeriod(req.getParameter("start"),
-                                             req.getParameter("end"),
-                                             java.util.Calendar.DATE, 31,
-                                             java.util.Calendar.DATE, 32);
+      TimeRange tr = BwDateTimeUtil.getPeriod(req.getParameter("start"),
+                                              req.getParameter("end"),
+                                              java.util.Calendar.DATE, 31,
+                                              java.util.Calendar.DATE, 32);
 
-      if (dp == null) {
+      if (tr == null) {
         resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Date/times");
         return;
       }
 
       BwEvent ev = new BwEventObj();
-      ev.setDtstart(dp.start);
-      ev.setDtend(dp.end);
+      ev.setDtstart(tr.getStart());
+      ev.setDtend(tr.getEnd());
 
       ev.setEntityType(CalFacadeDefs.entityTypeFreeAndBusy);
 
@@ -1219,12 +1219,12 @@ public class CaldavBWIntf extends WebdavNsIntf {
                                HttpServletResponse resp,
                                RequestPars pars) throws WebdavException {
     try {
-      DatePeriod dp = BwDateTimeUtil.getPeriod(req.getParameter("start"),
-                                             req.getParameter("end"),
-                                             java.util.Calendar.DATE, 31,
-                                             java.util.Calendar.DATE, 32 * 3);
+      TimeRange tr = BwDateTimeUtil.getPeriod(req.getParameter("start"),
+                                              req.getParameter("end"),
+                                              java.util.Calendar.DATE, 31,
+                                              java.util.Calendar.DATE, 32 * 3);
 
-      if (dp == null) {
+      if (tr == null) {
         resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Date/times");
         return;
       }
