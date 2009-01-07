@@ -231,7 +231,7 @@ public class CaldavReportMethod extends ReportMethod {
 
         // Delay parsing until we see if we have a timezone
         Element filterNode = curnode;
-        TimeZone tz = null;
+        String tzid = null;
 
         if (chiter.hasNext()) {
           // Only timezone allowed
@@ -254,11 +254,11 @@ public class CaldavReportMethod extends ReportMethod {
             throw new WebdavBadRequest("Expected one timezone");
           }
 
-          tz = tzs.iterator().next();
+          tzid = tzs.iterator().next().getID();
         }
 
         filter = new Filter(debug);
-        filter.caldavParse(filterNode, tz);
+        filter.caldavParse(filterNode, tzid);
 
         if (debug) {
           trace("REPORT: query");

@@ -46,7 +46,6 @@ import java.util.Collection;
 import javax.servlet.http.HttpServletResponse;
 
 import net.fortuna.ical4j.model.Component;
-import net.fortuna.ical4j.model.TimeZone;
 
 import org.w3c.dom.Node;
 
@@ -146,14 +145,14 @@ public class Filter extends org.bedework.calfacade.filter.caldav.Filter {
   /** Parse for the caldav server.
    *
    * @param nd
-   * @param tz
+   * @param tzid or null for UTC
    * @throws WebdavException
    */
   public void caldavParse(Node nd,
-                          TimeZone tz) throws WebdavException {
+                          String tzid) throws WebdavException {
 
     try {
-      parse(nd, tz);
+      parse(nd, tzid);
     } catch (CalFacadeForbidden cf) {
       throw new WebdavForbidden(cf.getQname(), cf.getMessage());
     } catch (Throwable t) {
