@@ -1020,23 +1020,13 @@ public class BwSysIntfImpl implements SysIntf {
     }
 
     try {
-      String runAsUser = account;
-      boolean allowSuperUser = false;
-
-      if (account == null) {
-        runAsUser = conf.getRunAsUser();
-      } else if (account.equals("root")) {
-        allowSuperUser = true;
-      }
-
       /* account is what we authenticated with.
        * user, if non-null, is the user calendar we want to access.
        */
       CalSvcIPars pars = new CalSvcIPars(account,
-                                         runAsUser,
                                          null,    // calsuite
                                          false,   // publicAdmin
-                                         allowSuperUser,
+                                         "root".equals(account),  // allow SuperUser
                                          false,  // adminCanEditAllPublicCategories
                                          false,  // adminCanEditAllPublicLocations
                                          false,  // adminCanEditAllPublicSponsors
