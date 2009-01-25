@@ -338,12 +338,10 @@ public interface SysIntf {
   /** Update an event/todo/journal.
    *
    * @param event         updated BwEvent object
-   * @param overrides     overrides which may need changing
    * @param changes       help for recurrence rule changes to master
    * @throws WebdavException
    */
-  public void updateEvent(BwEvent event,
-                          Collection<BwEventProxy> overrides,
+  public void updateEvent(EventInfo event,
                           ChangeTable changes) throws WebdavException;
 
   /** Return the events for the current user in the given calendar using the
@@ -477,7 +475,6 @@ public interface SysIntf {
    * Status is set on return
    *
    * @param from      Source entity
-   * @param overrides Associated event overrides.
    * @param to        Destination calendar
    * @param name      String name of new entity
    * @param copy      true for copying
@@ -485,7 +482,7 @@ public interface SysIntf {
    * @return true if destination created (i.e. not updated)
    * @throws WebdavException
    */
-  public boolean copyMove(BwEvent from, Collection<BwEventProxy>overrides,
+  public boolean copyMove(EventInfo from,
                           BwCalendar to,
                           String name,
                           boolean copy,

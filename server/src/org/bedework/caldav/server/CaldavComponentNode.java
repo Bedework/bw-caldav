@@ -320,8 +320,7 @@ public class CaldavComponentNode extends CaldavBwNode {
    */
   public void update() throws WebdavException {
     if (eventInfo != null) {
-      getSysi().updateEvent(eventInfo.getEvent(),
-                            eventInfo.getOverrideProxies(),
+      getSysi().updateEvent(eventInfo,
                             eventInfo.getChangeset());
     }
   }

@@ -906,7 +906,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       if (debug) {
         debugMsg("putContent: update event " + ev);
       }
-      sysi.updateEvent(ev, evinfo.getOverrideProxies(), evinfo.getChangeset());
+      sysi.updateEvent(evinfo, evinfo.getChangeset());
     }
 
     return created;
@@ -1073,7 +1073,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
     EventInfo fromEi = from.getEventInfo();
     BwCalendar toCal = toNode.getCalendar();
 
-    if (!getSysi().copyMove(fromEi.getEvent(), fromEi.getOverrideProxies(),
+    if (!getSysi().copyMove(fromEi,
                             toCal, toNode.getEntityName(), copy,
                             overwrite)) {
       resp.setStatus(HttpServletResponse.SC_NO_CONTENT);

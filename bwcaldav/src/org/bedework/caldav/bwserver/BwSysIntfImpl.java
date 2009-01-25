@@ -501,14 +501,12 @@ public class BwSysIntfImpl implements SysIntf {
     }
   }
 
-  /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#updateEvent(org.bedework.calfacade.BwEvent, java.util.Collection, org.bedework.calfacade.util.ChangeTable)
-   */
-  public void updateEvent(BwEvent event,
-                          Collection<BwEventProxy> overrides,
+  public void updateEvent(EventInfo event,
                           ChangeTable changes) throws WebdavException {
     try {
-      getSvci().getEventsHandler().update(event, overrides, changes);
+      getSvci().getEventsHandler().update(event, false,
+                                          null,
+                                          null, changes);
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
@@ -717,17 +715,14 @@ public class BwSysIntfImpl implements SysIntf {
     throw new WebdavException("unimplemented");
   }
 
-  /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#copyMove(org.bedework.calfacade.BwEvent, org.bedework.calfacade.BwCalendar, java.lang.String, boolean)
-   */
-  public boolean copyMove(BwEvent from, Collection<BwEventProxy>overrides,
+  public boolean copyMove(EventInfo from,
                           BwCalendar to,
                           String name,
                           boolean copy,
                           boolean overwrite) throws WebdavException {
     CopyMoveStatus cms;
     try {
-      cms = getSvci().getEventsHandler().copyMoveNamed(from, overrides, to, name,
+      cms = getSvci().getEventsHandler().copyMoveNamed(from, to, name,
                                                        copy, overwrite, false);
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
@@ -747,7 +742,7 @@ public class BwSysIntfImpl implements SysIntf {
 
     if (cms == CopyMoveStatus.destinationExists) {
       if (name == null) {
-        name = from.getName();
+        name = from.getEvent().getName();
       }
       throw new WebdavForbidden("Destination exists: " + name);
     }

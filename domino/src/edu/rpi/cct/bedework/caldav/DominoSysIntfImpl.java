@@ -397,8 +397,10 @@ public class DominoSysIntfImpl implements SysIntf {
     throw new WebdavException("unimplemented");
   }
 
-  public void updateEvent(BwEvent event,
-                          Collection<BwEventProxy> overrides,
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#updateEvent(org.bedework.calfacade.svc.EventInfo, org.bedework.calfacade.util.ChangeTable)
+   */
+  public void updateEvent(EventInfo event,
                           ChangeTable changes) throws WebdavException {
     throw new WebdavException("unimplemented");
   }
@@ -578,9 +580,9 @@ public class DominoSysIntfImpl implements SysIntf {
   }
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#copyMove(org.bedework.calfacade.BwEvent, org.bedework.calfacade.BwCalendar, java.lang.String, boolean)
+   * @see org.bedework.caldav.server.SysIntf#copyMove(org.bedework.calfacade.svc.EventInfo, org.bedework.calfacade.BwCalendar, java.lang.String, boolean, boolean)
    */
-  public boolean copyMove(BwEvent from, Collection<BwEventProxy>overrides,
+  public boolean copyMove(EventInfo from,
                           BwCalendar to,
                           String name,
                           boolean copy,
