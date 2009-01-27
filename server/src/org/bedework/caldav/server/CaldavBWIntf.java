@@ -329,7 +329,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       return false;
     }
 
-    return sysi.checkAccess(ent, access, true).accessAllowed;
+    return sysi.checkAccess(ent, access, true).getAccessAllowed();
   }
 
   /* (non-Javadoc)
@@ -1409,9 +1409,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
     try {
       if (cdnode.isCollection()) {
-        acl = node.getCurrentAccess().acl;
+        acl = node.getCurrentAccess().getAcl();
       } else if (node instanceof CaldavComponentNode) {
-        acl = ((CaldavComponentNode)node).getEventInfo().getCurrentAccess().acl;
+        acl = ((CaldavComponentNode)node).getEventInfo().getCurrentAccess().getAcl();
       }
 
       if (acl != null) {
@@ -1429,7 +1429,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
     try {
       TreeSet<String> hrefs = new TreeSet<String>();
 
-      for (Ace ace: node.getCurrentAccess().acl.getAces()) {
+      for (Ace ace: node.getCurrentAccess().getAcl().getAces()) {
         AceWho who = ace.getWho();
 
         if (who.getWhoType() == WhoDefs.whoTypeUser) {
