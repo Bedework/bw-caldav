@@ -45,6 +45,8 @@ import javax.xml.namespace.QName;
 public abstract class CaldavBwNode extends WebdavNsNode {
 //  protected CaldavURI cdURI;
 
+  protected BwCalendar cal;
+
   private final static HashMap<QName, PropertyTagEntry> propertyNames =
     new HashMap<QName, PropertyTagEntry>();
 
@@ -77,18 +79,52 @@ public abstract class CaldavBwNode extends WebdavNsNode {
    *                         Public methods
    * ==================================================================== */
 
-  /**
-   * @return BwCalendar containing or represented by this entity
+  /** The node may refer to a collection object which may in fact be an alias to
+   * another. For deletions we want to remove the alias itself.
+   *
+   * <p>Move and rename are also targetted at the alias.
+   *
+   * <p>Other operations are probably intended to work on the underlying target
+   * of the alias.
+   *
+   * @param deref true if we want to act upon the target of an alias.
+   * @return Collection this node represents
    * @throws WebdavException
    */
-  public abstract BwCalendar getCalendar() throws WebdavException ;
+  public BwCalendar getCollection(boolean deref) throws WebdavException {
+    if (!deref) {
+      return cal;
+    }
+
+    BwCalendar curCal = cal;
+
+    if ((curCal != null) &&
+        (curCal.getCalType() == BwCalendar.calTypeAlias)) {
+      curCal = cal.getAliasTarget();
+      if (curCal == null) {
+        getSysi().resolveAlias(cal);
+        curCal = cal.getAliasTarget();
+      }
+    }
+
+    return curCal;
+  }
 
   /**
    * @return boolean if this is a calendar
    * @throws WebdavException
    */
   public boolean isCalendarCollection() throws WebdavException {
-    return (isCollection() && getCalendar().getCalendarCollection());
+    if (!isCollection()) {
+      return false;
+    }
+
+    BwCalendar c = getCollection(true);
+    if (c == null) {
+      return false;
+    }
+
+    return c.getCalendarCollection();
   }
 
   /** Return a collection of children objects. These will all be calendar

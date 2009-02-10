@@ -1,31 +1,3 @@
-/*
- Copyright (c) 2000-2005 University of Washington.  All rights reserved.
-
- Redistribution and use of this distribution in source and binary forms,
- with or without modification, are permitted provided that:
-
-   The above copyright notice and this permission notice appear in
-   all copies and supporting documentation;
-
-   The name, identifiers, and trademarks of the University of Washington
-   are not used in advertising or publicity without the express prior
-   written permission of the University of Washington;
-
-   Recipients acknowledge that this distribution is made available as a
-   research courtesy, "as is", potentially with defects, without
-   any obligation on the part of the University of Washington to
-   provide support, services, or repair;
-
-   THE UNIVERSITY OF WASHINGTON DISCLAIMS ALL WARRANTIES, EXPRESS OR
-   IMPLIED, WITH REGARD TO THIS SOFTWARE, INCLUDING WITHOUT LIMITATION
-   ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
-   PARTICULAR PURPOSE, AND IN NO EVENT SHALL THE UNIVERSITY OF
-   WASHINGTON BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL
-   DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
-   PROFITS, WHETHER IN AN ACTION OF CONTRACT, TORT (INCLUDING
-   NEGLIGENCE) OR STRICT LIABILITY, ARISING OUT OF OR IN CONNECTION WITH
-   THE USE OR PERFORMANCE OF THIS SOFTWARE.
- */
 /* **********************************************************************
     Copyright 2005 Rensselaer Polytechnic Institute. All worldwide rights reserved.
 
@@ -100,8 +72,6 @@ import org.w3c.dom.Element;
 public class CaldavCalNode extends CaldavBwNode {
   private Calendar ical;
 
-  private BwCalendar cal;
-
   private BwUser owner;
 
   private String vfreeBusyString;
@@ -155,24 +125,6 @@ public class CaldavCalNode extends CaldavBwNode {
     exists = cdURI.getExists();
   }
 
-  /**
-   * @return BwCalendar this node represents
-   */
-  public BwCalendar getCalendar() throws WebdavException {
-    BwCalendar curCal = cal;
-
-    if ((curCal != null) &&
-        (curCal.getCalType() == BwCalendar.calTypeAlias)) {
-      curCal = cal.getAliasTarget();
-      if (curCal == null) {
-        getSysi().resolveAlias(cal);
-        curCal = cal.getAliasTarget();
-      }
-    }
-
-    return curCal;
-  }
-
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getOwner()
    */
@@ -198,8 +150,12 @@ public class CaldavCalNode extends CaldavBwNode {
     }
   }
 
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getEtagValue(boolean)
+   */
   public String getEtagValue(boolean strong) throws WebdavException {
-    BwCalendar c = getCalendar(); // Unalias
+    /* We need the etag of the target if this is an alias */
+    BwCalendar c = getCollection(true); // deref
 
     if (c == null) {
       return null;
@@ -219,7 +175,8 @@ public class CaldavCalNode extends CaldavBwNode {
    * @throws WebdavException
    */
   public boolean getSchedulingAllowed() throws WebdavException {
-    BwCalendar c = getCalendar(); // Unalias
+    /* It's the alias target that matters */
+    BwCalendar c = getCollection(true); // deref
 
     if (c == null) {
       return false;
@@ -250,7 +207,7 @@ public class CaldavCalNode extends CaldavBwNode {
       return;
     }
 
-    BwCalendar c = getCalendar(); // Unalias
+    BwCalendar c = getCollection(false); // Don't deref
 
     c.setCalType(BwCalendar.calTypeCollection);
   }
@@ -262,7 +219,11 @@ public class CaldavCalNode extends CaldavBwNode {
        */
 
     try {
-      BwCalendar c = getCalendar(); // Unalias
+      BwCalendar c = getCollection(true); // deref
+
+      if (c == null) { // no access?
+        return null;
+      }
 
       if (!c.getCollectionInfo().entitiesAllowed) {
         if (debug) {
@@ -411,7 +372,7 @@ public class CaldavCalNode extends CaldavBwNode {
       return currentAccess;
     }
 
-    BwCalendar c = getCalendar(); // Unalias
+    BwCalendar c = getCollection(true); // We want access of underlying object?
 
     if (c == null) {
       return null;
@@ -585,7 +546,12 @@ public class CaldavCalNode extends CaldavBwNode {
     XmlEmit xml = intf.getXmlEmit();
 
     try {
-      BwCalendar c = getCalendar(); // Unalias
+      BwCalendar c = getCollection(true); // deref this
+      if (c == null) {
+        // Probably no access
+        return false;
+      }
+
       int calType = c.getCalType();
 
       if (tag.equals(WebdavTags.resourcetype)) {
@@ -760,14 +726,16 @@ public class CaldavCalNode extends CaldavBwNode {
     return res;
   }
 
-  /** Return a set of Qname defining reports this node supports.
-   *
-   * @return Collection of QName
-   * @throws WebdavException
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.CaldavBwNode#getSupportedReports()
    */
   public Collection<QName> getSupportedReports() throws WebdavException {
     Collection<QName> res = new ArrayList<QName>();
-    BwCalendar c = getCalendar(); // Unalias
+    BwCalendar c = getCollection(true); // deref
+
+    if (c == null) {
+      return res;
+    }
 
     res.addAll(super.getSupportedReports());
 

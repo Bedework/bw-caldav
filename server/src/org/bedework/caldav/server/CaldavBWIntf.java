@@ -322,7 +322,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       if (comp.getEventInfo() != null) {
         ent = comp.getEventInfo().getEvent();
       } else {
-        ent = comp.getCalendar();
+        ent = comp.getCollection(true); // deref - we're trying to put into the target
         access = PrivilegeDefs.privBind;
       }
     } else {
@@ -474,7 +474,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
         CaldavCalNode cnode = (CaldavCalNode)bwnode;
 
-        BwCalendar cal = cnode.getCalendar();
+        BwCalendar cal = cnode.getCollection(false); // Don't deref for delete
 
         sysi.deleteCalendar(cal);
       }
@@ -504,8 +504,14 @@ public class CaldavBWIntf extends WebdavNsIntf {
       }
 
       Collection children = wdnode.getChildren();
+
+      if (children == null) {
+        // Perhaps no access
+        return al;
+      }
+
       String uri = wdnode.getUri();
-      BwCalendar parent = wdnode.getCalendar();
+      BwCalendar parent = wdnode.getCollection(true);  // deref
 
       Iterator it = children.iterator();
 
@@ -709,7 +715,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       }
 
       CaldavComponentNode bwnode = (CaldavComponentNode)getBwnode(node);
-      BwCalendar cal = bwnode.getCalendar();
+      BwCalendar cal = bwnode.getCollection(true); // deref - put into target
 
       boolean calContent = false;
       if ((contentTypePars != null) && contentTypePars.length > 0) {
@@ -771,9 +777,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
       }
 
       CaldavResourceNode bwnode = (CaldavResourceNode)getBwnode(node);
-      BwCalendar cal = bwnode.getCalendar();
+      BwCalendar cal = bwnode.getCollection(true);
 
-      if (cal.getCalendarCollection()) {
+      if ((cal == null) || cal.getCalendarCollection()) {
         throw new WebdavException(HttpServletResponse.SC_PRECONDITION_FAILED);
       }
 
@@ -860,7 +866,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
                            String ifEtag) throws WebdavException {
     BwEvent ev = evinfo.getEvent();
     String entityName = bwnode.getEntityName();
-    BwCalendar cal = bwnode.getCalendar();
+    BwCalendar cal = bwnode.getCollection(true); // deref
     boolean created = false;
 
     if (debug) {
@@ -963,7 +969,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
        * A namepart of null means that the path already exists
        */
 
-      BwCalendar newCal = bwnode.getCalendar();
+      BwCalendar newCal = bwnode.getCollection(false); // No deref?
+
       BwCalendar parent = newCal.getCalendar();
       if (parent.getCalendarCollection()) {
         throw new WebdavForbidden(CaldavTags.calendarCollectionLocationOk);
@@ -1041,8 +1048,18 @@ public class CaldavBWIntf extends WebdavNsIntf {
       return;
     }
 
-    BwCalendar fromCal = fromCalNode.getCalendar();
-    BwCalendar toCal = toCalNode.getCalendar();
+    /* XXX This is NOT rename - we really move or copy.
+     * For the moment we'll deref both - but I think there are alias issues here
+     */
+    BwCalendar fromCal = fromCalNode.getCollection(true);
+    BwCalendar toCal = toCalNode.getCollection(true);
+
+    if ((fromCal == null) || (toCal == null)) {
+      // What do we do here?
+      resp.setStatus(HttpServletResponse.SC_PRECONDITION_FAILED);
+
+      return;
+    }
 
     getSysi().copyMove(fromCal, toCal, copy, overwrite);
     if (toCalNode.getExists()) {
@@ -1071,7 +1088,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
 
     EventInfo fromEi = from.getEventInfo();
-    BwCalendar toCal = toNode.getCalendar();
+
+    /* deref - copy/move into targetted collection */
+    BwCalendar toCal = toNode.getCollection(true);
 
     if (!getSysi().copyMove(fromEi,
                             toCal, toNode.getEntityName(), copy,
@@ -1389,7 +1408,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
     try {
       // May need a real principal hierarchy
       if (node instanceof CaldavCalNode) {
-        sysi.updateAccess(((CaldavCalNode)node).getCalendar(), info.acl);
+        // XXX to dref or not deref?
+        sysi.updateAccess(((CaldavCalNode)node).getCollection(true), info.acl);
       } else if (node instanceof CaldavComponentNode) {
         sysi.updateAccess(((CaldavComponentNode)node).getEventInfo().getEvent(),
                           info.acl);
@@ -1621,6 +1641,11 @@ public class CaldavBWIntf extends WebdavNsIntf {
      */
 
     Collection<WebdavNsNode> evnodes = new ArrayList<WebdavNsNode>();
+
+    if (events == null) {
+      return evnodes;
+    }
+
     //HashMap evnodeMap = new HashMap();
 
     try {
@@ -1692,7 +1717,15 @@ public class CaldavBWIntf extends WebdavNsIntf {
                           FreeBusyQuery freeBusy,
                           int depth) throws WebdavException {
     try {
-      BwEvent fb = freeBusy.getFreeBusy(sysi, cnode.getCalendar(),
+      /* We need to deref as the freebusy comes from the target */
+      BwCalendar c = cnode.getCollection(true);
+
+      if (c == null) {
+        // XXX - exception?
+        return;
+      }
+
+      BwEvent fb = freeBusy.getFreeBusy(sysi, c,
                                         cnode.getOwner().getAccount(),
                                         depth);
 

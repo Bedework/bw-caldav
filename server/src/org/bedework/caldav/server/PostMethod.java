@@ -259,7 +259,9 @@ public class PostMethod extends MethodBase {
         /* (CALDAV:supported-collection) */
         CaldavCalNode calnode = intf.getCalnode(node,
                                                 HttpServletResponse.SC_FORBIDDEN);
-        pars.cal = calnode.getCalendar();
+
+        /* Don't deref - this should be targetted at a real outbox */
+        pars.cal = calnode.getCollection(false);
 
         if (pars.cal.getCalType() != BwCalendar.calTypeOutbox) {
           if (debug) {
