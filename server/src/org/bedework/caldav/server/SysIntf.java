@@ -44,8 +44,8 @@ import org.bedework.icalendar.Icalendar;
 import edu.rpi.cct.webdav.servlet.shared.PrincipalPropertySearch;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode.UrlHandler;
+import edu.rpi.cmt.access.AccessPrincipal;
 import edu.rpi.cmt.access.Acl;
-import edu.rpi.cmt.access.PrincipalInfo;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
 
 import net.fortuna.ical4j.model.Calendar;
@@ -80,12 +80,12 @@ public interface SysIntf {
                    CalDAVConfig conf,
                    boolean debug) throws WebdavException;
 
-  /** Return the current account
+  /** Return the current principal
    *
    * @return String
    * @throws WebdavException
    */
-  public String getAccount() throws WebdavException;
+  public AccessPrincipal getPrincipal() throws WebdavException;
 
   /** Get a property handler
    *
@@ -126,7 +126,7 @@ public interface SysIntf {
    * @return PrincipalInfo
    * @throws WebdavException
    */
-  public PrincipalInfo getPrincipalInfo(String href) throws WebdavException;
+  public AccessPrincipal getPrincipal(String href) throws WebdavException;
 
   /**
    * @param id
@@ -168,10 +168,10 @@ public interface SysIntf {
    * userToCaladdr for the inverse.
    *
    * @param caladdr      calendar address
-   * @return account or null if not caladdr for this system
+   * @return AccessPrincipal or null if not caladdr for this system
    * @throws WebdavException  for errors
    */
-  public String caladdrToUser(String caladdr) throws WebdavException;
+  public AccessPrincipal caladdrToPrincipal(String caladdr) throws WebdavException;
 
   /** The inverse of caladdrToUser
    *
@@ -181,19 +181,14 @@ public interface SysIntf {
    */
   public String userToCaladdr(String account) throws WebdavException;
 
-  /**
+  /** XXX At the moment we are still asssuming the principal is a user.
+   *
    * @author Mike Douglass
    */
-  public static class CalUserInfo implements Serializable {
-    /** account as returned by caladdrToUser
-     *
-     * Currently tail end of principal path
+  public static class CalPrincipalInfo implements Serializable {
+    /** As supplied
      */
-    public String account;
-
-    /** principal path prefix
-     */
-    public String principalPathPrefix;
+    public AccessPrincipal principal;
 
     /** Path to user home
      */
@@ -216,20 +211,18 @@ public interface SysIntf {
     public BwUserInfo directoryInfo;
 
     /**
-     * @param account
-     * @param principalPathPrefix
+     * @param principal
      * @param userHomePath
      * @param defaultCalendarPath
      * @param inboxPath
      * @param outboxPath
      * @param directoryInfo
      */
-    public CalUserInfo(String account, String principalPathPrefix,
-                       String userHomePath,
-                       String defaultCalendarPath, String inboxPath,
-                       String outboxPath, BwUserInfo directoryInfo) {
-      this.account = account;
-      this.principalPathPrefix = principalPathPrefix;
+    public CalPrincipalInfo(AccessPrincipal principal,
+                            String userHomePath,
+                            String defaultCalendarPath, String inboxPath,
+                            String outboxPath, BwUserInfo directoryInfo) {
+      this.principal = principal;
       this.userHomePath = userHomePath;
       this.defaultCalendarPath = defaultCalendarPath;
       this.inboxPath = inboxPath;
@@ -238,16 +231,16 @@ public interface SysIntf {
     }
   }
 
-  /** Given a valid user account return the associated calendar user information
+  /** Given a valid AccessPrincipal return the associated calendar user information
    * needed for caldav interactions.
    *
-   * @param account     as returned by caladdrToUser
+   * @param principal     valid AccessPrincipal
    * @param getDirInfo  get directory info if true and available.
    * @return CalUserInfo or null if not caladdr for this system
    * @throws WebdavException  for errors
    */
-  public CalUserInfo getCalUserInfo(String account,
-                                    boolean getDirInfo) throws WebdavException;
+  public CalPrincipalInfo getCalPrincipalInfo(AccessPrincipal principal,
+                                              boolean getDirInfo) throws WebdavException;
 
   /** Given a uri returns a Collection of uris that allow search operations on
    * principals for that resource.
@@ -266,7 +259,7 @@ public interface SysIntf {
    * @return Collection of CalUserInfo
    * @throws WebdavException
    */
-  public Collection<CalUserInfo> getPrincipals(String resourceUri,
+  public Collection<CalPrincipalInfo> getPrincipals(String resourceUri,
                                   PrincipalPropertySearch pps)
           throws WebdavException;
 

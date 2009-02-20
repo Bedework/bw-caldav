@@ -32,6 +32,7 @@ import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwDateTime;
 import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.BwEventProxy;
+import org.bedework.calfacade.BwPrincipal;
 import org.bedework.calfacade.BwResource;
 import org.bedework.calfacade.BwSystem;
 import org.bedework.calfacade.BwUser;
@@ -63,9 +64,8 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavProperty;
 import edu.rpi.cct.webdav.servlet.shared.WebdavUnauthorized;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode.PropertyTagEntry;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode.UrlHandler;
-import edu.rpi.cmt.access.Ace;
+import edu.rpi.cmt.access.AccessPrincipal;
 import edu.rpi.cmt.access.Acl;
-import edu.rpi.cmt.access.PrincipalInfo;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
 import edu.rpi.sss.util.xml.XmlUtil;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
@@ -94,7 +94,7 @@ public class BwSysIntfImpl implements SysIntf {
 
   protected transient Logger log;
 
-  private String account;
+  protected AccessPrincipal currentPrincipal;
 
   /* These two set after a call to getSvci()
    */
@@ -110,24 +110,23 @@ public class BwSysIntfImpl implements SysIntf {
                    CalDAVConfig conf,
                    boolean debug) throws WebdavException {
     try {
-      this.account = account;
       this.conf = conf;
       this.debug = debug;
 
       urlHandler = new UrlHandler(req, true);
 
       // Call to set up ThreadLocal variables
-      getSvci();
+      currentPrincipal = getSvci(account).getUsersHandler().getUser(account);
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
   }
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#getAccount()
+   * @see org.bedework.caldav.server.SysIntf#getPrincipal()
    */
-  public String getAccount() throws WebdavException {
-    return account;
+  public AccessPrincipal getPrincipal() throws WebdavException {
+    return currentPrincipal;
   }
 
   private static class MyPropertyHandler extends PropertyHandler {
@@ -179,11 +178,11 @@ public class BwSysIntfImpl implements SysIntf {
   }
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#getPrincipalInfo(java.lang.String)
+   * @see org.bedework.caldav.server.SysIntf#getPrincipal(java.lang.String)
    */
-  public PrincipalInfo getPrincipalInfo(String href) throws WebdavException {
+  public AccessPrincipal getPrincipal(String href) throws WebdavException {
     try {
-      return getSvci().getDirectories().getPrincipalInfo(href);
+      return getSvci().getDirectories().getPrincipal(href);
     } catch (CalFacadeException cfe) {
       if (cfe.getMessage().equals(CalFacadeException.principalNotFound)) {
         throw new WebdavNotFound(href);
@@ -227,9 +226,15 @@ public class BwSysIntfImpl implements SysIntf {
   /* (non-Javadoc)
    * @see org.bedework.caldav.server.SysIntf#caladdrToUser(java.lang.String)
    */
-  public String caladdrToUser(String caladdr) throws WebdavException {
+  public AccessPrincipal caladdrToPrincipal(String caladdr) throws WebdavException {
     try {
-      return getSvci().getDirectories().caladdrToUser(caladdr);
+      // XXX This needs to work for groups.
+      String account = getSvci().getDirectories().caladdrToUser(caladdr);
+      if (account == null) {
+        return null;
+      }
+
+      return getSvci().getUsersHandler().getPrincipal(account);
     } catch (CalFacadeException cfe) {
       throw new WebdavException(cfe);
     } catch (Throwable t) {
@@ -251,16 +256,26 @@ public class BwSysIntfImpl implements SysIntf {
   }
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#getCalUserInfo(java.lang.String, boolean)
+   * @see org.bedework.caldav.server.SysIntf#getCalPrincipalInfo(edu.rpi.cmt.access.AccessPrincipal, boolean)
    */
-  public CalUserInfo getCalUserInfo(String account,
-                                    boolean getDirInfo) throws WebdavException {
+  public CalPrincipalInfo getCalPrincipalInfo(AccessPrincipal principal,
+                                              boolean getDirInfo) throws WebdavException {
     try {
-      if (account == null) {
+      if (principal == null) {
         return null;
       }
 
-      BwUser u = getSvci().getUsersHandler().get(account);
+      BwPrincipal p = getSvci().getUsersHandler().getPrincipal(principal.getPrincipalRef());
+      if (p == null) {
+        return null;
+      }
+
+      if (!(p instanceof BwUser)) {
+        // XXX Cannot handle this yet
+        return null;
+      }
+
+      BwUser u = (BwUser)p;
       if (u == null) {
         return null;
       }
@@ -286,17 +301,12 @@ public class BwSysIntfImpl implements SysIntf {
         dirInfo = getSvci().getDirectories().getDirInfo(u);
       }
 
-      // XXX Cheat at this - we should just use principals throughout.
-      String principalUri = getSvci().getDirectories().makePrincipalUri(account,
-                                                                        Ace.whoTypeUser);
-      String prefix = principalUri.substring(0, principalUri.length() - account.length());
-      return new CalUserInfo(account,
-                             prefix,
-                             userHomePath,
-                             defaultCalendarPath,
-                             inboxPath,
-                             outboxPath,
-                             dirInfo);
+      return new CalPrincipalInfo(p,
+                                  userHomePath,
+                                  defaultCalendarPath,
+                                  inboxPath,
+                                  outboxPath,
+                                  dirInfo);
     } catch (CalFacadeException cfe) {
       throw new WebdavException(cfe);
     } catch (Throwable t) {
@@ -317,10 +327,10 @@ public class BwSysIntfImpl implements SysIntf {
     }
   }
 
-  public Collection<CalUserInfo> getPrincipals(String resourceUri,
+  public Collection<CalPrincipalInfo> getPrincipals(String resourceUri,
                                                PrincipalPropertySearch pps)
           throws WebdavException {
-    ArrayList<CalUserInfo> principals = new ArrayList<CalUserInfo>();
+    ArrayList<CalPrincipalInfo> principals = new ArrayList<CalPrincipalInfo>();
 
     if (pps.applyToPrincipalCollectionSet) {
       /* I believe it's valid (if unhelpful) to return nothing
@@ -391,16 +401,16 @@ public class BwSysIntfImpl implements SysIntf {
       matchVal = mval;
     }
 
-    CalUserInfo cui = null;
+    CalPrincipalInfo cui = null;
 
     if (calendarUserAddressSet) {
-      cui = getCalUserInfo(caladdrToUser(matchVal), true);
+      cui = getCalPrincipalInfo(caladdrToPrincipal(matchVal), true);
     } else {
       String path = getUrlHandler().unprefix(matchVal);
 
       BwCalendar cal = getCalendar(path);
       if (cal != null) {
-        cui = getCalUserInfo(cal.getOwner().getAccount(), true);
+        cui = getCalPrincipalInfo(getPrincipal(cal.getOwnerHref()), true);
       }
     }
 
@@ -451,7 +461,7 @@ public class BwSysIntfImpl implements SysIntf {
   public ScheduleResult schedule(EventInfo ei) throws WebdavException {
     try {
       BwEvent ev = ei.getEvent();
-      ev.setOwner(svci.getUsersHandler().get(account));
+      ev.setOwnerHref(currentPrincipal.getPrincipalRef());
       if (Icalendar.itipReplyMethodType(ev.getScheduleMethod())) {
         return getSvci().getScheduler().scheduleResponse(ei);
       }
@@ -567,8 +577,8 @@ public class BwSysIntfImpl implements SysIntf {
   public ScheduleResult requestFreeBusy(EventInfo val) throws WebdavException {
     try {
       BwEvent ev = val.getEvent();
-      if (account != null) {
-        ev.setOwner(svci.getUsersHandler().get(account));
+      if (currentPrincipal != null) {
+        ev.setOwnerHref(currentPrincipal.getPrincipalRef());
       }
       if (Icalendar.itipReplyMethodType(ev.getScheduleMethod())) {
         return getSvci().getScheduler().scheduleResponse(val);
@@ -595,7 +605,7 @@ public class BwSysIntfImpl implements SysIntf {
                              BwDateTime start,
                              BwDateTime end) throws WebdavException {
     try {
-      BwUser user = getSvci().getUsersHandler().get(account);
+      BwUser user = getSvci().getUsersHandler().getUser(account);
       if (user == null) {
         throw new WebdavUnauthorized();
       }
@@ -1001,19 +1011,19 @@ public class BwSysIntfImpl implements SysIntf {
    * @throws WebdavException
    */
   private CalSvcI getSvci() throws WebdavException {
-    if (svci != null) {
-      if (!svci.isOpen()) {
-        try {
-          svci.open();
-          svci.beginTransaction();
-        } catch (Throwable t) {
-          throw new WebdavException(t);
-        }
+    if (!svci.isOpen()) {
+      try {
+        svci.open();
+        svci.beginTransaction();
+      } catch (Throwable t) {
+        throw new WebdavException(t);
       }
-
-      return svci;
     }
 
+    return svci;
+  }
+
+  private CalSvcI getSvci(String account) throws WebdavException {
     try {
       /* account is what we authenticated with.
        * user, if non-null, is the user calendar we want to access.

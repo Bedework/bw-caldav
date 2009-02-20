@@ -26,8 +26,6 @@
 
 package org.bedework.caldav.server;
 
-import org.bedework.calfacade.BwUser;
-
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cct.webdav.servlet.shared.WebdavPrincipalNode;
@@ -48,7 +46,7 @@ import javax.xml.namespace.QName;
  *   @author Mike Douglass   douglm  rpi.edu
  */
 public class CaldavPrincipalNode extends WebdavPrincipalNode {
-  private SysIntf.CalUserInfo ui;
+  private SysIntf.CalPrincipalInfo ui;
 
   /* for accessing calendars */
   private SysIntf sysi;
@@ -72,17 +70,17 @@ public class CaldavPrincipalNode extends WebdavPrincipalNode {
    * @throws WebdavException
    */
   public CaldavPrincipalNode(CaldavURI cdURI, SysIntf sysi,
-                        SysIntf.CalUserInfo ui,
-                        boolean isUser,
-                        boolean debug) throws WebdavException {
+                             SysIntf.CalPrincipalInfo ui,
+                             boolean isUser,
+                             boolean debug) throws WebdavException {
     super(sysi.getUrlHandler(), cdURI.getPath(),
-          new BwUser(cdURI.getEntityName()),
+          cdURI.getPrincipal(),
           cdURI.isCollection(), cdURI.getUri(), debug);
     this.sysi = sysi;
     this.ui = ui;
 
     if (ui == null) {
-      this.ui = sysi.getCalUserInfo(cdURI.getEntityName(), false);
+      this.ui = sysi.getCalPrincipalInfo(cdURI.getPrincipal(), false);
     }
   }
 

@@ -23,7 +23,7 @@
     special, consequential, or incidental damages related to the software,
     to the maximum extent the law permits.
 */
-package edu.rpi.cct.bedework.caldav;
+package edu.rpi.cct.bedework.caldav.exchange;
 
 import org.bedework.caldav.server.PropertyHandler;
 import org.bedework.caldav.server.SysIntf;
@@ -31,11 +31,8 @@ import org.bedework.caldav.server.PropertyHandler.PropertyType;
 import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwDateTime;
 import org.bedework.calfacade.BwEvent;
-import org.bedework.calfacade.BwEventObj;
 import org.bedework.calfacade.BwEventProxy;
-import org.bedework.calfacade.BwFreeBusyComponent;
 import org.bedework.calfacade.BwResource;
-import org.bedework.calfacade.BwUser;
 import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.ScheduleResult;
 import org.bedework.calfacade.base.BwShareableDbentity;
@@ -55,31 +52,21 @@ import edu.rpi.cct.webdav.servlet.shared.PrincipalPropertySearch;
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNotFound;
-import edu.rpi.cct.webdav.servlet.shared.WebdavServerError;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode.PropertyTagEntry;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode.UrlHandler;
+import edu.rpi.cmt.access.AccessPrincipal;
 import edu.rpi.cmt.access.Ace;
 import edu.rpi.cmt.access.Acl;
-import edu.rpi.cmt.access.PrincipalInfo;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
-import edu.rpi.sss.util.xml.XmlUtil;
 
 import net.fortuna.ical4j.model.Calendar;
-import net.fortuna.ical4j.model.DateTime;
-import net.fortuna.ical4j.model.Period;
 
 import org.apache.commons.httpclient.NoHttpResponseException;
 import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.Serializable;
-import java.io.StringReader;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.util.Arrays;
@@ -89,20 +76,17 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.namespace.QName;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 /** Domino implementation of SysIntf. This interacts with a servlet on Domino
  * which presents requested calendar information.
  *
  * @author Mike Douglass douglm at rpi.edu
  */
-public class DominoSysIntfImpl implements SysIntf {
+public class BexchangeSysIntfImpl implements SysIntf {
   /* There is one entry per host + port. Because we are likely to make a number
    * of calls to the same host + port combination it makes sense to preserve
    * the objects between calls.
@@ -115,21 +99,29 @@ public class DominoSysIntfImpl implements SysIntf {
   private static HashMap<String, Integer> toWho = new HashMap<String, Integer>();
   private static HashMap<Integer, String> fromWho = new HashMap<Integer, String>();
 
-  private String account;
-
   /* These could come from a db
    */
-  private static class DominoInfo implements Serializable {
+  private static class BexchangeInfo implements Serializable {
+    String account;
     String host;
     int port;
     String urlPrefix;
     boolean secure;
 
-    DominoInfo(String host, int port, String urlPrefix, boolean secure) {
+    BexchangeInfo(String account,
+                  String host, int port, String urlPrefix, boolean secure) {
+      this.account = account;
       this.host = host;
       this.port = port;
       this.urlPrefix = urlPrefix;
       this.secure= secure;
+    }
+
+    /**
+     * @return String
+     */
+    public String getAccount() {
+      return account;
     }
 
     /**
@@ -161,18 +153,24 @@ public class DominoSysIntfImpl implements SysIntf {
     }
   }
 
-  private static final DominoInfo egenconsultingInfo =
-    new DominoInfo("t1.egenconsulting.com", 80, "/servlet/Freetime", false);
-
-  private static final DominoInfo showcase2Info =
-    new DominoInfo("showcase2.notes.net", 443, "/servlet/Freetime", true);
-
-  private static final HashMap<String, DominoInfo> serversInfo =
-    new HashMap<String, DominoInfo>();
+  private static final HashMap<String, BexchangeInfo> serversInfo =
+    new HashMap<String, BexchangeInfo>();
 
   static {
-    serversInfo.put("egenconsulting", egenconsultingInfo);
-    serversInfo.put("showcase2", showcase2Info);
+    serversInfo.put("wenfang@calnet.local",
+                    new BexchangeInfo("wenfang@calnet.local",
+                                      "207.145.218.101", 80,
+                                      "/fbsrv/getfbsrv.asp?email=", false));
+
+    serversInfo.put("fbtester1@calnet.local",
+                    new BexchangeInfo("fbtester1@calnet.local",
+                                      "207.145.218.101", 80,
+                                      "/fbsrv/getfbsrv.asp?email=", false));
+
+    serversInfo.put("fbtester2@calnet.local",
+                    new BexchangeInfo("fbtester2@calnet.local",
+                                      "207.145.218.101", 80,
+                                      "/fbsrv/getfbsrv.asp?email=", false));
 
     initWhoMaps("/principals/users", Ace.whoTypeUser);
     initWhoMaps("/principals/groups", Ace.whoTypeGroup);
@@ -192,16 +190,17 @@ public class DominoSysIntfImpl implements SysIntf {
 
   //private String urlPrefix;
 
+  protected AccessPrincipal currentPrincipal;
+
   public void init(HttpServletRequest req,
                    String account,
                    CalDAVConfig conf,
                    boolean debug) throws WebdavException {
     try {
       this.debug = debug;
-      this.account = account;
+      this.currentPrincipal = new User(account);
 
-      trans = new IcalTranslator(new SAICalCallback(null),
-                                 debug);
+      trans = new IcalTranslator(new SAICalCallback(null), debug);
       urlHandler = new UrlHandler(req, false);
 
       CalTimezones.setDefaultTzid(defaultTimezone);
@@ -211,10 +210,10 @@ public class DominoSysIntfImpl implements SysIntf {
   }
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#getAccount()
+   * @see org.bedework.caldav.server.SysIntf#getPrincipal()
    */
-  public String getAccount() throws WebdavException {
-    return account;
+  public AccessPrincipal getPrincipal() throws WebdavException {
+    return currentPrincipal;
   }
 
   private static class MyPropertyHandler extends PropertyHandler {
@@ -261,12 +260,7 @@ public class DominoSysIntfImpl implements SysIntf {
     return val.startsWith("/principals");
   }
 
-  /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#getPrincipalInfo(java.lang.String)
-   */
-  public PrincipalInfo getPrincipalInfo(String href) throws WebdavException {
-    PrincipalInfo pi = new PrincipalInfo();
-
+  public AccessPrincipal getPrincipal(String href) throws WebdavException {
     try {
       String uri = new URI(href).getPath();
 
@@ -283,29 +277,40 @@ public class DominoSysIntfImpl implements SysIntf {
 
       String groupRoot = "/principals/groups";
       String userRoot = "/principals/users";
+      String who = null;
+      int whoType;
 
       if (uri.startsWith(userRoot)) {
         start = userRoot.length();
-        pi.prefix = userRoot;
-        pi.whoType = Ace.whoTypeUser;
+        whoType = Ace.whoTypeUser;
       } else if (uri.startsWith(groupRoot)) {
         start = groupRoot.length();
-        pi.prefix = groupRoot;
-        pi.whoType = Ace.whoTypeGroup;
+        whoType = Ace.whoTypeGroup;
       } else {
         throw new WebdavNotFound(uri);
       }
 
       if (start == end) {
         // Trying to browse user principals?
-        pi.who = null;
       } else if (uri.charAt(start) != '/') {
         throw new WebdavNotFound(uri);
       } else {
-        pi.who = uri.substring(start + 1, end);
+        who = uri.substring(start + 1, end);
       }
 
-      return pi;
+      AccessPrincipal ap = null;
+
+      if (who != null) {
+        if (whoType == Ace.whoTypeUser) {
+          ap = new User(who);
+          ap.setPrincipalRef(uri);
+        } else if (whoType == Ace.whoTypeGroup) {
+          ap = new Group(who);
+          ap.setPrincipalRef(uri);
+        }
+      }
+
+      return ap;
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
@@ -336,8 +341,11 @@ public class DominoSysIntfImpl implements SysIntf {
     return false;
   }
 
-  public String caladdrToUser(String caladdr) throws WebdavException {
-    return caladdr;
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#caladdrToPrincipal(java.lang.String)
+   */
+  public AccessPrincipal caladdrToPrincipal(String caladdr) throws WebdavException {
+    return new User(caladdr);
   }
 
   /* (non-Javadoc)
@@ -348,11 +356,12 @@ public class DominoSysIntfImpl implements SysIntf {
   }
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#getCalUserInfo(java.lang.String, boolean)
+   * @see org.bedework.caldav.server.SysIntf#getCalPrincipalInfo(edu.rpi.cmt.access.AccessPrincipal, boolean)
    */
-  public CalUserInfo getCalUserInfo(String account,
-                                    boolean getDirInfo) throws WebdavException {
-    return new CalUserInfo(account, "/principals/users", null, null, null, null, null);
+  public CalPrincipalInfo getCalPrincipalInfo(AccessPrincipal principal,
+                                              boolean getDirInfo) throws WebdavException {
+    return new CalPrincipalInfo(principal,
+                                null, null, null, null, null);
   }
 
   public Collection<String> getPrincipalCollectionSet(String resourceUri)
@@ -360,7 +369,7 @@ public class DominoSysIntfImpl implements SysIntf {
     throw new WebdavException("unimplemented");
   }
 
-  public Collection<CalUserInfo> getPrincipals(String resourceUri,
+  public Collection<CalPrincipalInfo> getPrincipals(String resourceUri,
                                                PrincipalPropertySearch pps)
           throws WebdavException {
     throw new WebdavException("unimplemented");
@@ -397,10 +406,7 @@ public class DominoSysIntfImpl implements SysIntf {
     throw new WebdavException("unimplemented");
   }
 
-  /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#updateEvent(org.bedework.calfacade.svc.EventInfo, org.bedework.calfacade.util.ChangeTable)
-   */
-  public void updateEvent(EventInfo event,
+  public void updateEvent(EventInfo ei,
                           ChangeTable changes) throws WebdavException {
     throw new WebdavException("unimplemented");
   }
@@ -408,7 +414,7 @@ public class DominoSysIntfImpl implements SysIntf {
   public Collection<EventInfo> getEvents(BwCalendar cal,
                                          BwFilter filter,
                                          RecurringRetrievalMode recurRetrieval)
-          throws WebdavException {
+            throws WebdavException {
     throw new WebdavException("unimplemented");
   }
 
@@ -444,101 +450,73 @@ public class DominoSysIntfImpl implements SysIntf {
     try {
       String serviceName = getServiceName(cal.getPath());
 
-      DominoInfo di = serversInfo.get(serviceName);
+      BexchangeInfo di = serversInfo.get(serviceName);
       if (di == null) {
-        throw new WebdavBadRequest("Unknwon service: " + serviceName);
+        throw new WebdavBadRequest("Unknown service" + serviceName);
       }
 
       DavReq req = new DavReq();
 
       req.setMethod("GET");
-      req.setUrl(di.getUrlPrefix() + "/" +
-                 cal.getOwner().getAccount() + "?" +
-                 "start-min=" + makeDateTime(start) + "&" +
-                 "start-max=" + makeDateTime(end));
 
-      req.addHeader("Accept",
-                    "text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5");
-      req.addHeader("Accept-Language", "en-us,en;q=0.7,es;q=0.3");
-      req.addHeader("Accept-Encoding", "gzip,deflate");
-      req.addHeader("Accept-Charset", "ISO-8859-1,utf-8;q=0.7,*;q=0.7");
+      /* At the moment we the requested date range is in local time - local to
+       * the exchange server.
+       * Get an extra day at front/back.
+       */
+      req.setUrl(di.getUrlPrefix() +
+                 serviceName + "&" +       // Really email
+                 "startdate=" +
+                 makeDate(start.addDur(BwDateTime.oneDayBack)) +
+                 "&enddate=" +
+                 makeDate(end.addDur(BwDateTime.oneDayBack)));
+
+//      req.addHeader("Accept",
+//                    "text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5");
+//      req.addHeader("Accept-Language", "en-us,en;q=0.7,es;q=0.3");
+//      req.addHeader("Accept-Encoding", "gzip,deflate");
+//      req.addHeader("Accept-Charset", "ISO-8859-1,utf-8;q=0.7,*;q=0.7");
+
       DavResp resp = send(req, di);
 
-      /* He switched to XML! - parse back to a vfreebusy object */
-
-      String vfb = makeVfb(new InputStreamReader(resp.getContentStream()));
-
+      if (debug) {
+        debugMsg("Got response \n" + resp.getResponseBodyAsString());
+      }
+      /*
+      BwEvent fb = makeFb(start, end,
+                             "000010110000111100001101" +
+                             "000010110000111100001101" +
+                             "000010110000111100001101" +
+                             "000010110000111100001101" +
+                             "000010110000111100001101",
+                             60);
+                             */
+/*      String vfb = makeVfb(new InputStreamReader(resp.getContentStream()));
       if (debug) {
         debugMsg(vfb);
       }
 
-      Icalendar ic = trans.fromIcal(null, new StringReader(vfb));
-
-      /* Domino returns free time - invert to get busy time
-       * First we'll order all the periods in the result.
-       */
-
-      TreeSet<Period> periods = new TreeSet<Period>();
+      Collection fbs = getTrans().getFreeBusy(new StringReader(vfb));
+      */
+      Icalendar ic = trans.fromIcal(null, new InputStreamReader(resp.getContentStream()));
       Iterator fbit = ic.iterator();
       while (fbit.hasNext()) {
         Object o = fbit.next();
 
         if (o instanceof BwEvent) {
-          BwEvent fb = (BwEvent)o;
-
-          Collection<BwFreeBusyComponent> times = fb.getFreeBusyPeriods();
-
-          if (times != null) {
-            for (BwFreeBusyComponent fbcomp: times) {
-              if (fbcomp.getType() != BwFreeBusyComponent.typeFree) {
-                throw new WebdavServerError();
-              }
-
-              for (Period p: fbcomp.getPeriods()) {
-                periods.add(p);
-              }
-            }
-          }
+          return (BwEvent)o;
         }
       }
 
-      BwEvent fb = new BwEventObj();
-
-      fb.setDtstart(start);
-      fb.setDtend(end);
-
-      BwFreeBusyComponent fbcomp = new BwFreeBusyComponent();
-
-      fb.addFreeBusyPeriod(fbcomp);
-
-      fbcomp.setType(BwFreeBusyComponent.typeBusy);
-
-      /* Fill in the gaps between the free periods with busy time. */
-
-      DateTime bstart = (DateTime)start.makeDate();
-
-      for (Period p: periods) {
-        if (!bstart.equals(p.getStart())) {
-          /* First free period may be at start of requested time */
-          Period busyp = new Period(bstart, p.getStart());
-          fbcomp.addPeriod(busyp.getStart(), busyp.getEnd());
-        }
-
-        bstart = p.getEnd();
-      }
-
-      /* Fill in to end of requested period */
-      DateTime bend = (DateTime)end.makeDate();
-
-      if (!bstart.equals(bend)) {
-        Period busyp = new Period(bstart, bend);
-        fbcomp.addPeriod(busyp.getStart(), busyp.getEnd());
-      }
-
-      return fb;
+      return null;
     } catch (WebdavException wde) {
+      if (debug) {
+        wde.printStackTrace();
+      }
       throw wde;
     } catch (Throwable t) {
+      if (debug) {
+        t.printStackTrace();
+      }
       throw new WebdavException(t);
     }
   }
@@ -595,7 +573,7 @@ public class DominoSysIntfImpl implements SysIntf {
     /* The path should always start with /server-name/user
      */
 
-    List l = splitUri(path, true);
+    List<String> l = splitUri(path, true);
 
     String namePart = (String)l.get(l.size() - 1);
 
@@ -605,7 +583,7 @@ public class DominoSysIntfImpl implements SysIntf {
 
     String owner = (String)l.get(1);
 
-    cal.setOwner(new BwUser(owner));
+    cal.setOwnerHref(owner);
 
     return cal;
   }
@@ -713,30 +691,115 @@ public class DominoSysIntfImpl implements SysIntf {
    *                         Private methods
    * ==================================================================== */
 
-  /* <?xml version="1.0" encoding="UTF-8"?>
-   <iCalendar>
-   <vcalendar method="REPLY" version="2.0" prodid="-//IBM Domino Freetime//NONSGML Prototype//EN">
-   <vfreebusy>
-   <attendee>John</attendee>
-   <url>http://t1.egenconsulting.com:80/servlet/Freetime/John</url>
-   <dtstamp>20060713T185253Z</dtstamp>
-   <dtstart>20060717T030000Z</dtstart>
-   <dtend>20060723T030000Z</dtend>
-   <freebusy fbtype="FREE">20060717T130000Z/20060717T160000Z</freebusy>
-   <freebusy fbtype="FREE">20060717T170000Z/20060717T210000Z</freebusy>
-   <freebusy fbtype="FREE">20060718T130000Z/20060718T160000Z</freebusy>
-   <freebusy fbtype="FREE">20060718T170000Z/20060718T210000Z</freebusy>
-   <freebusy fbtype="FREE">20060719T130000Z/20060719T160000Z</freebusy>
-   <freebusy fbtype="FREE">20060719T170000Z/20060719T210000Z</freebusy>
-   <freebusy fbtype="FREE">20060720T130000Z/20060720T160000Z</freebusy>
-   <freebusy fbtype="FREE">20060720T170000Z/20060720T210000Z</freebusy>
-   <freebusy fbtype="FREE">20060721T130000Z/20060721T160000Z</freebusy>
-   <freebusy fbtype="FREE">20060721T170000Z/20060721T210000Z</freebusy>
-   </vfreebusy>
+//  private static final char exchangeFBFree = '0';
+//  private static final char exchangeFBBusy = '1';
+//  private static final char exchangeFBBusyTentative = '2';
+//  private static final char exchangeFBOutOfOffice = '3';
 
-   </vcalendar>
-   </iCalendar>
-   */
+  /* The String is a number of digits representing the given time period
+   * from start to end in cellsize minute increments.
+   *
+   * <p>0 means free, 1 means busy, 2 means tentative, and 3 means out-of-office
+   *
+   * We return a BwFreeBusy object representing the information
+   * /
+  private BwFreeBusy makeFb(BwDateTime start,
+                            BwDateTime end,
+                            String val,
+                            int cellSize) throws WebdavException{
+    BwFreeBusy fb = new BwFreeBusy();
+
+    fb.setStart(start);
+    fb.setEnd(end);
+
+    char lastDigit = 0;
+
+    SimpleTimeZone utctz = new SimpleTimeZone(SimpleTimeZone.UTC_TIME, "UTC");
+    java.util.Calendar startCal = java.util.Calendar.getInstance(utctz);
+
+    java.util.Calendar endCal = java.util.Calendar.getInstance(utctz);
+
+    try {
+      startCal.setTime(start.makeDate());
+
+      endCal.setTime(start.makeDate());
+
+      DateTime startDt = null;
+
+      char[] digits = val.toCharArray();
+
+      for (int i = 0; i < digits.length; i++) {
+        char digit = digits[i];
+        endCal.add(java.util.Calendar.MINUTE, cellSize);
+
+        if ((lastDigit != digit) || (i == digits.length)) {
+          // End of period or end of freebusy
+
+          DateTime endDt = new DateTime(endCal.getTime());
+          endDt.setUtc(true);
+
+          if (startDt != null) {
+            if (lastDigit != exchangeFBFree) {
+              /* Just finished a non-free period * /
+              BwFreeBusyComponent fbcomp = new BwFreeBusyComponent();
+
+              fb.addTime(fbcomp);
+
+              int type = -1;
+              if (lastDigit == exchangeFBBusy) {
+                type = BwFreeBusyComponent.typeBusy;
+              } else if (lastDigit == exchangeFBBusyTentative) {
+                type = BwFreeBusyComponent.typeBusyTentative;
+              } else if (lastDigit == exchangeFBOutOfOffice) {
+                type = BwFreeBusyComponent.typeBusyUnavailable;
+              }
+
+              fbcomp.setType(type);
+
+              fbcomp.addPeriod(new Period(startDt, endDt));
+            }
+          }
+
+          startDt = endDt;
+        }
+
+        lastDigit = digit;
+      }
+
+      return fb;
+    } catch (Throwable t) {
+      if (debug) {
+        getLogger().error(this, t);
+      }
+
+      throw new WebdavException(t);
+    }
+  }*/
+
+  /* <?xml version='1.0' encoding='utf-8'?>
+<D:multistatus xmlns:D='DAV:' xmlns:C='urn:ietf:params:xml:ns:caldav'>
+<D:response>
+<D:href>http://207.145.218.101/fbsrv/</D:href>
+<D:status>HTTP/1.1 200 OK</D:status>
+<C:calendar-data>BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//CALNET DEMO//CalDAV Client//EN
+BEGIN:VFREEBUSY
+DTSTAMP:2006718T080000Z
+DTSTART:2006718T080000Z
+DTEND:2006722T080000Z
+FREEBUSE:2006718T090000Z/PT1H30M,
+2006719T100000Z/PT30M,
+2006719T110000Z/PT1H,
+2006720T100000Z/PT30M,
+2006720T133000Z/PT2H,
+2006721T100000Z/PT30M,
+END:VFREEBUSY
+END:VCALENDAR
+</C:calendar-data>
+</D:response>
+</D:multistatus>
+
   private String makeVfb(Reader rdr) throws WebdavException{
     try {
       DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -746,17 +809,8 @@ public class DominoSysIntfImpl implements SysIntf {
 
       Document doc = builder.parse(new InputSource(rdr));
 
-      StringBuffer sb = new StringBuffer();
-
-      sb.append("BEGIN:VCALENDAR\n");
-      sb.append("VERSION:2.0\n");
-      sb.append("PRODID:-//Bedework Domino/caldav interface//EN\n");
-      sb.append("BEGIN:VFREEBUSY\n");
-
-      Element root = doc.getDocumentElement(); // </iCalendar>
-      Element child = getOnlyChild(root);  //  </vcalendar>
-
-      child = getOnlyChild(child);  //  </vfreebusy>
+      Element root = doc.getDocumentElement(); // <D:multistatus>
+      Element child = getOnlyChild(root);  //  <D:response>
 
       Element[] children = getChildren(child);
 
@@ -765,36 +819,12 @@ public class DominoSysIntfImpl implements SysIntf {
 
         String nm = curnode.getLocalName();
 
-        if (nm.equals("attendee")) {
-          sb.append("ATTENDEE:");
-          sb.append(getElementContent(curnode));
-          sb.append("\n");
-        } else if (nm.equals("url")) {
-          sb.append("URL:");
-          sb.append(getElementContent(curnode));
-          sb.append("\n");
-        } else if (nm.equals("dtstamp")) {
-          sb.append("DTSTAMP:");
-          sb.append(getElementContent(curnode));
-          sb.append("\n");
-        } else if (nm.equals("dtstart")) {
-          sb.append("DTSTART:");
-          sb.append(getElementContent(curnode));
-          sb.append("\n");
-        } else if (nm.equals("dtend")) {
-          sb.append("DTEND:");
-          sb.append(getElementContent(curnode));
-          sb.append("\n");
-        } else if (nm.equals("freebusy")) {
-          sb.append("FREEBUSY;FBTYPE=FREE:");
-          sb.append(getElementContent(curnode));
-          sb.append("\n");
+        if (nm.equals("calendar-data")) {
+          return getElementContent(curnode);
         }
       }
-      sb.append("END:VFREEBUSY\n");
-      sb.append("END:VCALENDAR\n");
 
-      return sb.toString();
+      return null;
     } catch (SAXException e) {
       throw new WebdavException(HttpServletResponse.SC_BAD_REQUEST);
     } catch (Throwable t) {
@@ -843,29 +873,23 @@ public class DominoSysIntfImpl implements SysIntf {
       throw new WebdavException(t);
     }
   }
+  */
 
-  private String makeDateTime(BwDateTime dt) throws WebdavException {
+  private String makeDate(BwDateTime dt) throws WebdavException {
     try {
-      /*
       String utcdt = dt.getDate();
 
       StringBuffer sb = new StringBuffer();
 
-      // from 20060716T120000Z make 2006-07-16T12:00:00Z
+      // from 20060716T120000Z make 07/16/2006
       //      0   4 6    1 3
-      sb.append(utcdt.substring(0, 4));
-      sb.append("-");
       sb.append(utcdt.substring(4, 6));
-      sb.append("-");
-      sb.append(utcdt.substring(6, 11));
-      sb.append(":");
-      sb.append(utcdt.substring(11, 13));
-      sb.append(":");
-      sb.append(utcdt.substring(13));
+      sb.append("/");
+      sb.append(utcdt.substring(6, 8));
+      sb.append("/");
+      sb.append(utcdt.substring(0, 4));
 
       return sb.toString();
-      */
-      return dt.getDate();
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
@@ -885,7 +909,7 @@ public class DominoSysIntfImpl implements SysIntf {
   }
   */
 
-  private List splitUri(String uri, boolean decoded) throws WebdavException {
+  private List<String> splitUri(String uri, boolean decoded) throws WebdavException {
     try {
       /*Remove all "." and ".." components */
       if (decoded) {
@@ -914,7 +938,7 @@ public class DominoSysIntfImpl implements SysIntf {
         throw new WebdavBadRequest("Bad uri: " + uri);
       }
 
-      List l = Arrays.asList(ss);
+      List<String> l = Arrays.asList(ss);
       return l.subList(1, l.size());
     } catch (Throwable t) {
       if (debug) {
@@ -940,7 +964,7 @@ public class DominoSysIntfImpl implements SysIntf {
    * @return DavResp
    * @throws Throwable
    */
-  private DavResp send(DavReq r, DominoInfo di) throws Throwable {
+  private DavResp send(DavReq r, BexchangeInfo di) throws Throwable {
     DavClient cio = getCio(di.getHost(), di.getPort(), di.getSecure());
 
     int responseCode;

@@ -55,12 +55,10 @@
 package org.bedework.caldav.server;
 
 import org.bedework.calfacade.BwCalendar;
-import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.BwResource;
 import org.bedework.calfacade.svc.EventInfo;
 
-import edu.rpi.cmt.access.Ace;
-import edu.rpi.cmt.access.PrincipalInfo;
+import edu.rpi.cmt.access.AccessPrincipal;
 
 /** We map uris onto an object which may be a calendar or an
  * entity contained within that calendar.
@@ -85,7 +83,7 @@ public class CaldavURI {
 
   EventInfo entity;
 
-  PrincipalInfo principal;
+  AccessPrincipal principal;
 
   String entityName;
   String path;  // for principals
@@ -131,12 +129,12 @@ public class CaldavURI {
   /**
    * @param pi
    */
-  CaldavURI(PrincipalInfo pi) {
+  CaldavURI(AccessPrincipal pi) {
     principal = pi;
     exists = true;
     cal = null;
-    entityName = pi.who;
-    path = pi.prefix + pi.who;;
+    entityName = pi.getAccount();
+    path = pi.getPrincipalRef();
   }
 
   private void init(BwCalendar cal, BwResource res,
@@ -194,28 +192,6 @@ public class CaldavURI {
   /**
    * @return String
    */
-  public String getOwner() {
-    if (principal != null){
-      return principal.who;
-    }
-
-    if (entity != null) {
-      BwEvent ev = entity.getEvent();
-      if (ev != null) {
-        return ev.getOwner().getAccount();
-      }
-    } else if (cal != null) {
-      return cal.getOwner().getAccount();
-    } else if (resource != null) {
-      return resource.getOwner().getAccount();
-    }
-
-    return null;
-  }
-
-  /**
-   * @return String
-   */
   public String getPath() {
     if (principal != null) {
       return path;
@@ -250,23 +226,14 @@ public class CaldavURI {
   }
 
   /**
-   * @return true if this represents a user
+   * @return AccessPrincipal or null if not a principal uri
    */
-  public boolean isUser() {
+  public AccessPrincipal getPrincipal() {
     if (principal == null) {
-      return false;
+      return null;
     }
-    return principal.whoType == Ace.whoTypeUser;
-  }
 
-  /**
-   * @return true if this represents a group
-   */
-  public boolean isGroup() {
-    if (principal == null) {
-      return false;
-    }
-    return principal.whoType == Ace.whoTypeGroup;
+    return principal;
   }
 
   /**

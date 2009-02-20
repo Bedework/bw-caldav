@@ -26,7 +26,7 @@
 package org.bedework.caldav.server;
 
 import org.bedework.caldav.server.PostMethod.RequestPars;
-import org.bedework.caldav.server.SysIntf.CalUserInfo;
+import org.bedework.caldav.server.SysIntf.CalPrincipalInfo;
 import org.bedework.caldav.server.calquery.CalendarData;
 import org.bedework.caldav.server.calquery.FreeBusyQuery;
 import org.bedework.caldav.server.filter.Filter;
@@ -70,10 +70,10 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavServerError;
 import edu.rpi.cct.webdav.servlet.shared.WebdavUnauthorized;
 import edu.rpi.cct.webdav.servlet.shared.WebdavUnsupportedMediaType;
 import edu.rpi.cmt.access.AccessException;
+import edu.rpi.cmt.access.AccessPrincipal;
 import edu.rpi.cmt.access.Ace;
 import edu.rpi.cmt.access.AceWho;
 import edu.rpi.cmt.access.Acl;
-import edu.rpi.cmt.access.PrincipalInfo;
 import edu.rpi.cmt.access.PrivilegeDefs;
 import edu.rpi.cmt.access.WhoDefs;
 import edu.rpi.cmt.access.AccessXmlUtil.AccessXmlCb;
@@ -265,23 +265,17 @@ public class CaldavBWIntf extends WebdavNsIntf {
       }
     }
 
-    /* (non-Javadoc)
-     * @see edu.rpi.cmt.access.AccessXmlUtil.AccessXmlCb#getAccount()
-     */
-    public String getAccount() throws AccessException {
+    public AccessPrincipal getPrincipal() throws AccessException {
       try {
-        return sysi.getAccount();
+        return sysi.getPrincipal();
       } catch (Throwable t) {
         throw new AccessException(t);
       }
     }
 
-    /* (non-Javadoc)
-     * @see edu.rpi.cmt.access.AccessXmlUtil.AccessXmlCb#getPrincipalInfo(java.lang.String)
-     */
-    public PrincipalInfo getPrincipalInfo(String href) throws AccessException {
+    public AccessPrincipal getPrincipal(String href) throws AccessException {
       try {
-        return sysi.getPrincipalInfo(href);
+        return sysi.getPrincipal(href);
       } catch (Throwable t) {
         throw new AccessException(t);
       }
@@ -417,11 +411,14 @@ public class CaldavBWIntf extends WebdavNsIntf {
       }
 
       WebdavNsNode nd = null;
+      AccessPrincipal ap = wi.getPrincipal();
 
-      if (wi.isUser()) {
-        nd = new CaldavUserNode(wi, sysi, null, debug);
-      } else if (wi.isGroup()) {
-        nd = new CaldavGroupNode(wi, sysi, null, debug);
+      if (ap != null) {
+        if (ap.getKind() == Ace.whoTypeUser) {
+          nd = new CaldavUserNode(wi, sysi, null, debug);
+        } else if (ap.getKind() == Ace.whoTypeGroup) {
+          nd = new CaldavGroupNode(wi, sysi, null, debug);
+        }
       } else if (wi.isCollection()) {
         nd = new CaldavCalNode(wi, sysi, debug);
       } else if (wi.isResource()) {
@@ -1345,12 +1342,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
       if (href.endsWith("/")) {
         href = href.substring(0, href.length());
       }
-      int pos = href.lastIndexOf("/");
-      String account = href.substring(pos + 1);
-      String basePath = href.substring(0, pos);
 
-      PrincipalInfo pi = new PrincipalInfo(Ace.whoTypeUser, account, basePath);
-      res.add(new CaldavUserNode(new CaldavURI(pi),
+      res.add(new CaldavUserNode(new CaldavURI(getSysi().getPrincipal(href)),
                                  getSysi(), null, debug));
     }
 
@@ -1379,11 +1372,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
           throws WebdavException {
     ArrayList<WebdavPrincipalNode> pnodes = new ArrayList<WebdavPrincipalNode>();
 
-    for (CalUserInfo cui: sysi.getPrincipals(resourceUri, pps)) {
-      PrincipalInfo pi = new PrincipalInfo(Ace.whoTypeUser,
-                                           cui.account,
-                                           cui.principalPathPrefix);
-      pnodes.add(new CaldavUserNode(new CaldavURI(pi),
+    for (CalPrincipalInfo cui: sysi.getPrincipals(resourceUri, pps)) {
+      pnodes.add(new CaldavUserNode(new CaldavURI(cui.principal),
                                     getSysi(), cui, debug));
     }
 
@@ -1831,9 +1821,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       }
 
       if (isPrincipal) {
-        PrincipalInfo pi = getSysi().getPrincipalInfo(uri);
-
-        return new CaldavURI(pi);
+        return new CaldavURI(getSysi().getPrincipal(uri));
       }
 
       if (existance == WebdavNsIntf.existanceDoesExist) {

@@ -26,7 +26,6 @@
 package org.bedework.caldav.server;
 
 import org.bedework.calfacade.BwResource;
-import org.bedework.calfacade.BwUser;
 
 import org.w3c.dom.Element;
 
@@ -45,7 +44,7 @@ import javax.xml.namespace.QName;
 public class CaldavResourceNode extends CaldavBwNode {
   private BwResource resource;
 
-  private BwUser owner;
+  private AccessPrincipal owner;
 
   private String entityName;
 
@@ -115,7 +114,7 @@ public class CaldavResourceNode extends CaldavBwNode {
         return null;
       }
 
-      owner = resource.getOwner();
+      owner = getSysi().getPrincipal(resource.getOwnerHref());
     }
 
     if (owner != null) {

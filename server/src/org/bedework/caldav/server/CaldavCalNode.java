@@ -26,10 +26,9 @@
 
 package org.bedework.caldav.server;
 
-import org.bedework.caldav.server.SysIntf.CalUserInfo;
+import org.bedework.caldav.server.SysIntf.CalPrincipalInfo;
 import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwEvent;
-import org.bedework.calfacade.BwUser;
 import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.RecurringRetrievalMode.Rmode;
 import org.bedework.icalendar.IcalTranslator;
@@ -72,7 +71,7 @@ import org.w3c.dom.Element;
 public class CaldavCalNode extends CaldavBwNode {
   private Calendar ical;
 
-  private BwUser owner;
+  private AccessPrincipal owner;
 
   private String vfreeBusyString;
 
@@ -134,7 +133,7 @@ public class CaldavCalNode extends CaldavBwNode {
         return null;
       }
 
-      owner = cal.getOwner();
+      owner = getSysi().getPrincipal(cal.getOwnerHref());
     }
 
     if (owner != null) {
@@ -594,7 +593,7 @@ public class CaldavCalNode extends CaldavBwNode {
           (calType == BwCalendar.calTypeInbox)) {
         xml.openTag(tag);
 
-        CalUserInfo cinfo = getSysi().getCalUserInfo(cal.getOwner().getAccount(),
+        CalPrincipalInfo cinfo = getSysi().getCalPrincipalInfo(getOwner(),
                                                      false);
         if (cinfo.defaultCalendarPath != null) {
           generateHref(xml, cinfo.defaultCalendarPath);

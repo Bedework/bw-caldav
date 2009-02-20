@@ -25,7 +25,7 @@
 */
 package org.bedework.caldav.server;
 
-import org.bedework.caldav.server.SysIntf.CalUserInfo;
+import org.bedework.caldav.server.SysIntf.CalPrincipalInfo;
 import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.BwOrganizer;
@@ -42,6 +42,8 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavForbidden;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
+import edu.rpi.cmt.access.AccessPrincipal;
+import edu.rpi.cmt.access.Ace;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 
@@ -193,7 +195,7 @@ public class PostMethod extends MethodBase {
 
     pars.realTime = true;
 
-    if (intf.getSysi().getAccount() == null) {
+    if (intf.getSysi().getPrincipal() == null) {
       intf.reAuth(req, "realtime01");
     }
 
@@ -309,9 +311,10 @@ public class PostMethod extends MethodBase {
          *
          * Ensure the originator is a real calendar user
          */
-        String originatorAccount = sysi.caladdrToUser(pars.originator);
+        AccessPrincipal originatorAccount = sysi.caladdrToPrincipal(pars.originator);
         if ((originatorAccount == null) ||
-            !sysi.validUser(originatorAccount)) {
+            (originatorAccount.getKind() != Ace.whoTypeUser) ||
+            !sysi.validUser(originatorAccount.getAccount())) {
           if (debug) {
             debugMsg("No access for scheduling");
           }
@@ -379,7 +382,7 @@ public class PostMethod extends MethodBase {
         }
         */
         organizer.setOrganizerUri(sysi.getUrlHandler().unprefix(cn));
-        CalUserInfo organizerInfo = sysi.getCalUserInfo(sysi.caladdrToUser(cn),
+        CalPrincipalInfo organizerInfo = sysi.getCalPrincipalInfo(sysi.caladdrToPrincipal(cn),
                                                         false);
 
         if (debug) {

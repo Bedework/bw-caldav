@@ -27,7 +27,6 @@ package org.bedework.caldav.server;
 
 import org.bedework.caldav.server.calquery.CalendarData;
 import org.bedework.calfacade.BwEvent;
-import org.bedework.calfacade.BwUser;
 import org.bedework.calfacade.svc.EventInfo;
 
 import org.bedework.icalendar.ComponentWrapper;
@@ -64,7 +63,7 @@ public class CaldavComponentNode extends CaldavBwNode {
   /* The event if this component is an event */
   private EventInfo eventInfo;
 
-  private BwUser owner;
+  private AccessPrincipal owner;
 
   private String entityName;
 
@@ -200,7 +199,7 @@ public class CaldavComponentNode extends CaldavBwNode {
 
       BwEvent ev = eventInfo.getEvent();
       if (ev != null) {
-        owner = ev.getOwner();
+        owner = getSysi().getPrincipal(ev.getOwnerHref());
       }
     }
 

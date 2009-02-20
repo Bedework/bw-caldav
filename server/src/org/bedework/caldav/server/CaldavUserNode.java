@@ -42,7 +42,7 @@ public class CaldavUserNode extends CaldavPrincipalNode {
    * @throws WebdavException
    */
   public CaldavUserNode(CaldavURI cdURI, SysIntf sysi,
-                        SysIntf.CalUserInfo ui,
+                        SysIntf.CalPrincipalInfo ui,
                         boolean debug) throws WebdavException {
     super(cdURI, sysi, ui, true, debug);
   }
