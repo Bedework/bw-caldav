@@ -484,16 +484,15 @@ public class BwSysIntfImpl implements SysIntf {
    * ==================================================================== */
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#addEvent(org.bedework.calfacade.BwCalendar, org.bedework.calfacade.svc.EventInfo, boolean, boolean)
+   * @see org.bedework.caldav.server.SysIntf#addEvent(org.bedework.calfacade.svc.EventInfo, boolean, boolean)
    */
-  public Collection<BwEventProxy> addEvent(BwCalendar cal,
-                                           EventInfo ei,
+  public Collection<BwEventProxy> addEvent(EventInfo ei,
                                            boolean noInvites,
                                            boolean rollbackOnError) throws WebdavException {
     try {
       /* Is the event a scheduling object? */
 
-      return getSvci().getEventsHandler().add(cal, ei, noInvites,
+      return getSvci().getEventsHandler().add(ei, noInvites,
                                               false,  // scheduling - inbox
                                               rollbackOnError).failedOverrides;
     } catch (CalFacadeAccessException cfae) {
@@ -551,7 +550,7 @@ public class BwSysIntfImpl implements SysIntf {
                             RecurringRetrievalMode recurRetrieval)
               throws WebdavException {
     try {
-      return getSvci().getEventsHandler().get(cal, val, recurRetrieval);
+      return getSvci().getEventsHandler().get(cal.getPath(), val, recurRetrieval);
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
@@ -704,11 +703,11 @@ public class BwSysIntfImpl implements SysIntf {
         /* Move the from collection to the new location "to".
          * If the parent calendar is the same in both cases, this is just a rename.
          */
-        if ((from.getCalendar() == null) || (to.getCalendar() == null)) {
+        if ((from.getColPath() == null) || (to.getColPath() == null)) {
           throw new WebdavForbidden("Cannot move root");
         }
 
-        if (from.getCalendar().equals(to.getCalendar())) {
+        if (from.getColPath().equals(to.getColPath())) {
           // Rename
           getSvci().getCalendarsHandler().rename(from, to.getName());
           return;
@@ -918,7 +917,7 @@ public class BwSysIntfImpl implements SysIntf {
    */
   public void deleteFile(BwResource val) throws WebdavException {
     try {
-      getSvci().getResourcesHandler().delete(val.getCalendar().getPath() + "/" +
+      getSvci().getResourcesHandler().delete(val.getColPath() + "/" +
                                              val.getName());
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();

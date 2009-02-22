@@ -866,6 +866,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
     BwCalendar cal = bwnode.getCollection(true); // deref
     boolean created = false;
 
+    ev.setCalendar(cal);
+
     if (debug) {
       debugMsg("putContent: intf has event with name " + entityName +
                " and summary " + ev.getSummary() +
@@ -879,7 +881,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       boolean noInvites = false; // based on header?
 
       /* Collection<BwEventProxy>failedOverrides = */
-        sysi.addEvent(cal, evinfo, noInvites, true);
+      sysi.addEvent(evinfo, noInvites, true);
 
       /*StringBuffer sb = new StringBuffer(cdUri.getPath());
       sb.append("/");

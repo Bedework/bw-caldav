@@ -399,8 +399,7 @@ public class BexchangeSysIntfImpl implements SysIntf {
    *                   Events
    * ==================================================================== */
 
-  public Collection<BwEventProxy> addEvent(BwCalendar cal,
-                                           EventInfo ei,
+  public Collection<BwEventProxy> addEvent(EventInfo ei,
                                            boolean noInvites,
                                            boolean rollbackOnError) throws WebdavException {
     throw new WebdavException("unimplemented");
