@@ -367,10 +367,10 @@ public class GoogleSysIntfImpl implements SysIntf {
     throw new WebdavException("unimplemented");
   }
 
-  public BwEvent getFreeBusy(BwCalendar cal,
-                                String account,
-                                BwDateTime start,
-                                BwDateTime end) throws WebdavException {
+  public BwEvent getFreeBusy(final Collection<BwCalendar> cals,
+                             final String account,
+                             final BwDateTime start,
+                             final BwDateTime end) throws WebdavException {
     /* We get something like:
      *
 <feed>
@@ -411,6 +411,13 @@ public class GoogleSysIntfImpl implements SysIntf {
 </feed>
      */
     try {
+      /* XXX can only handle a single calendar at the moment */
+      if (cals.size() != 1) {
+        throw new WebdavBadRequest("Cannot handle multiple calendars");
+      }
+
+      //BwCalendar cal = cals.iterator().next();
+
       URL feedUrl = new URL(feedUrlPrefix + account + "@gmail.com/public/free-busy");
 
       CalendarQuery q = new CalendarQuery(feedUrl);

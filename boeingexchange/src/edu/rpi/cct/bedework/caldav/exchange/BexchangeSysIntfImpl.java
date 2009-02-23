@@ -439,14 +439,20 @@ public class BexchangeSysIntfImpl implements SysIntf {
     throw new WebdavException("unimplemented");
   }
 
-  public BwEvent getFreeBusy(BwCalendar cal,
-                             String account,
-                             BwDateTime start,
-                             BwDateTime end) throws WebdavException {
+  public BwEvent getFreeBusy(final Collection<BwCalendar> cals,
+                             final String account,
+                             final BwDateTime start,
+                             final BwDateTime end) throws WebdavException {
     /* Create a url something like:
      *  http://t1.egenconsulting.com:80/servlet/Freetime/John?start-min=2006-07-11T12:00:00Z&start-max=2006-07-16T12:00:00Z
      */
     try {
+      /* XXX can only handle a single calendar at the moment */
+      if (cals.size() != 1) {
+        throw new WebdavBadRequest("Cannot handle multiple calendars");
+      }
+
+      BwCalendar cal = cals.iterator().next();
       String serviceName = getServiceName(cal.getPath());
 
       BexchangeInfo di = serversInfo.get(serviceName);

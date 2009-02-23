@@ -117,12 +117,13 @@ public class CaldavURI {
 
   /** Reference to a contained resource
    *
+   * @param cal
    * @param res
    * @param exists        true if the referenced object exists
    */
-  CaldavURI(BwResource res,
+  CaldavURI(BwCalendar cal, BwResource res,
             boolean exists) {
-    init(res.getCalendar(), res, null, res.getName(), exists);
+    init(cal, res, null, res.getName(), exists);
     resourceUri = true;
   }
 

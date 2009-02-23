@@ -43,6 +43,9 @@ import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Node;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 /**
  * @author Mike Douglass douglm @ rpi.edu
  */
@@ -107,29 +110,33 @@ public class FreeBusyQuery {
         throw new WebdavForbidden(WebdavTags.supportedReport);
       }
 
-      if ((depth == 0) && (calType != BwCalendar.calTypeCollection)) {
+      Collection<BwCalendar> cals = new ArrayList<BwCalendar>();
+
+      if (calType == BwCalendar.calTypeCollection) {
+        cals.add(cal);
+      } else if (depth == 0) {
         /* Cannot return anything */
-        cal = null;
-      } else if ((depth == 1) && !cal.getCalendarCollection()) {
+      } else {
         /* Make new cal object with just calendar collections as children */
-        BwCalendar newCal = new BwCalendar();
 
         for (BwCalendar ch: sysi.getCalendars(cal)) {
-          if (ch.getCalType() == BwCalendar.calTypeCollection) {
-            newCal.addChild(ch);
+          // For depth 1 we only add calendar collections
+          if ((depth > 1) ||
+              (ch.getCalType() == BwCalendar.calTypeCollection)) {
+            cals.add(ch);
           }
         }
-        cal = newCal;
       }
 
       BwEvent fb;
-      if (cal == null) {
+      if (cals.isEmpty()) {
+        // Retiurn an empty object
         fb = new BwEventObj();
         fb.setEntityType(CalFacadeDefs.entityTypeFreeAndBusy);
         fb.setDtstart(timeRange.getStart());
         fb.setDtend(timeRange.getEnd());
       } else {
-        fb = sysi.getFreeBusy(cal, account,
+        fb = sysi.getFreeBusy(cals, account,
                               timeRange.getStart(),
                               timeRange.getEnd());
       }

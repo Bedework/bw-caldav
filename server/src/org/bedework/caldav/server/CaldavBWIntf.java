@@ -528,6 +528,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
             debugMsg("Found child " + cal);
           }
         } else if (o instanceof BwResource) {
+          cal = parent;
           r = (BwResource)o;
           name = r.getName();
           nodeType = WebdavNsIntf.nodeTypeEntity;
@@ -866,7 +867,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
     BwCalendar cal = bwnode.getCollection(true); // deref
     boolean created = false;
 
-    ev.setCalendar(cal);
+    ev.setColPath(cal.getPath());
 
     if (debug) {
       debugMsg("putContent: intf has event with name " + entityName +
@@ -970,7 +971,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       BwCalendar newCal = bwnode.getCollection(false); // No deref?
 
-      BwCalendar parent = newCal.getCalendar();
+      BwCalendar parent = getSysi().getCalendar(newCal.getColPath());
       if (parent.getCalendarCollection()) {
         throw new WebdavForbidden(CaldavTags.calendarCollectionLocationOk);
       }
@@ -1644,7 +1645,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       for (EventInfo ei: events) {
         BwEvent ev = ei.getEvent();
 
-        BwCalendar cal = ev.getCalendar();
+        BwCalendar cal = getSysi().getCalendar(ev.getColPath());
         String uri = cal.getPath();
 
         /* If no name was assigned use the guid */
@@ -1833,7 +1834,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
           name = ei.getEvent().getName();
           curi = new CaldavURI(cal, ei, name, true);
         } else if (rsrc != null) {
-          curi = new CaldavURI(rsrc, true);
+          curi = new CaldavURI(cal, rsrc, true);
         } else {
           curi = new CaldavURI(cal, ei, name, true);
         }
@@ -1901,7 +1902,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
         // Trying to create calendar/collection
         BwCalendar newCal = new BwCalendar();
 
-        newCal.setCalendar(cal);
+        newCal.setColPath(cal.getPath());
         newCal.setName(split.name);
         newCal.setPath(cal.getPath() + "/" + newCal.getName());
 
@@ -1944,10 +1945,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
         if (!exists) {
           rsrc = new BwResource();
           rsrc.setName(split.name);
-          rsrc.setCalendar(cal);
+          rsrc.setColPath(cal.getPath());
         }
 
-        curi = new CaldavURI(rsrc, exists);
+        curi = new CaldavURI(cal, rsrc, exists);
       }
 
       //putUriPath(curi);

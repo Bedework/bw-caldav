@@ -599,21 +599,17 @@ public class BwSysIntfImpl implements SysIntf {
     }
   }
 
-  public BwEvent getFreeBusy(BwCalendar cal,
-                             String account,
-                             BwDateTime start,
-                             BwDateTime end) throws WebdavException {
+  public BwEvent getFreeBusy(final Collection<BwCalendar> cals,
+                             final String account,
+                             final BwDateTime start,
+                             final BwDateTime end) throws WebdavException {
     try {
       BwUser user = getSvci().getUsersHandler().getUser(account);
       if (user == null) {
         throw new WebdavUnauthorized();
       }
 
-      if (getSvci().getCalendarsHandler().isUserRoot(cal)) {
-        cal = null;
-      }
-
-      return getSvci().getScheduler().getFreeBusy(cal, user, start, end);
+      return getSvci().getScheduler().getFreeBusy(cals, user, start, end);
     } catch (CalFacadeException cfe) {
       throw new WebdavException(cfe);
     } catch (WebdavException wde) {

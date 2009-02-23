@@ -394,17 +394,17 @@ public interface SysIntf {
   /** Generate a free busy object for the given time period which reflects
    * the state of the given calendar.
    *
-   * @param cal
+   * @param cals
    * @param account
    * @param start
    * @param end
    * @return BwEvent
    * @throws WebdavException
    */
-  public BwEvent getFreeBusy(BwCalendar cal,
-                             String account,
-                             BwDateTime start,
-                             BwDateTime end) throws WebdavException;
+  public BwEvent getFreeBusy(final Collection<BwCalendar> cals,
+                             final String account,
+                             final BwDateTime start,
+                             final BwDateTime end) throws WebdavException;
 
   /** Check the access for the given entity. Returns the current access
    * or null or optionally throws a no access exception.
