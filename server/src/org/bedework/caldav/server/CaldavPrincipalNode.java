@@ -80,7 +80,7 @@ public class CaldavPrincipalNode extends WebdavPrincipalNode {
     this.ui = ui;
 
     if (ui == null) {
-      this.ui = sysi.getCalPrincipalInfo(cdURI.getPrincipal(), false);
+      this.ui = sysi.getCalPrincipalInfo(cdURI.getPrincipal());
     }
   }
 

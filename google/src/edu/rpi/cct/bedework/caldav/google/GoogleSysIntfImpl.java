@@ -281,12 +281,11 @@ public class GoogleSysIntfImpl implements SysIntf {
   }
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#getCalPrincipalInfo(edu.rpi.cmt.access.AccessPrincipal, boolean)
+   * @see org.bedework.caldav.server.SysIntf#getCalPrincipalInfo(edu.rpi.cmt.access.AccessPrincipal)
    */
-  public CalPrincipalInfo getCalPrincipalInfo(AccessPrincipal principal,
-                                              boolean getDirInfo) throws WebdavException {
+  public CalPrincipalInfo getCalPrincipalInfo(AccessPrincipal principal) throws WebdavException {
     return new CalPrincipalInfo(principal,
-                                null, null, null, null, null);
+                                null, null, null, null);
   }
 
   public Collection<String> getPrincipalCollectionSet(String resourceUri)

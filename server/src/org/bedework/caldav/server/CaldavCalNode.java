@@ -593,8 +593,7 @@ public class CaldavCalNode extends CaldavBwNode {
           (calType == BwCalendar.calTypeInbox)) {
         xml.openTag(tag);
 
-        CalPrincipalInfo cinfo = getSysi().getCalPrincipalInfo(getOwner(),
-                                                     false);
+        CalPrincipalInfo cinfo = getSysi().getCalPrincipalInfo(getOwner());
         if (cinfo.defaultCalendarPath != null) {
           generateHref(xml, cinfo.defaultCalendarPath);
         }

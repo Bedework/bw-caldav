@@ -382,8 +382,7 @@ public class PostMethod extends MethodBase {
         }
         */
         organizer.setOrganizerUri(sysi.getUrlHandler().unprefix(cn));
-        CalPrincipalInfo organizerInfo = sysi.getCalPrincipalInfo(sysi.caladdrToPrincipal(cn),
-                                                        false);
+        CalPrincipalInfo organizerInfo = sysi.getCalPrincipalInfo(sysi.caladdrToPrincipal(cn));
 
         if (debug) {
           if (organizerInfo == null) {

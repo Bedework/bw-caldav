@@ -36,7 +36,6 @@ import org.bedework.calfacade.BwPrincipal;
 import org.bedework.calfacade.BwResource;
 import org.bedework.calfacade.BwSystem;
 import org.bedework.calfacade.BwUser;
-import org.bedework.calfacade.BwUserInfo;
 import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.ScheduleResult;
 import org.bedework.calfacade.base.BwShareableDbentity;
@@ -256,10 +255,9 @@ public class BwSysIntfImpl implements SysIntf {
   }
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#getCalPrincipalInfo(edu.rpi.cmt.access.AccessPrincipal, boolean)
+   * @see org.bedework.caldav.server.SysIntf#getCalPrincipalInfo(edu.rpi.cmt.access.AccessPrincipal)
    */
-  public CalPrincipalInfo getCalPrincipalInfo(AccessPrincipal principal,
-                                              boolean getDirInfo) throws WebdavException {
+  public CalPrincipalInfo getCalPrincipalInfo(AccessPrincipal principal) throws WebdavException {
     try {
       if (principal == null) {
         return null;
@@ -295,18 +293,11 @@ public class BwSysIntfImpl implements SysIntf {
       String inboxPath = userHomePath + sys.getUserInbox() + "/";
       String outboxPath = userHomePath + sys.getUserOutbox() + "/";
 
-      BwUserInfo dirInfo = null;
-
-      if (getDirInfo) {
-        dirInfo = getSvci().getDirectories().getDirInfo(u);
-      }
-
       return new CalPrincipalInfo(p,
                                   userHomePath,
                                   defaultCalendarPath,
                                   inboxPath,
-                                  outboxPath,
-                                  dirInfo);
+                                  outboxPath);
     } catch (CalFacadeException cfe) {
       throw new WebdavException(cfe);
     } catch (Throwable t) {
@@ -404,13 +395,13 @@ public class BwSysIntfImpl implements SysIntf {
     CalPrincipalInfo cui = null;
 
     if (calendarUserAddressSet) {
-      cui = getCalPrincipalInfo(caladdrToPrincipal(matchVal), true);
+      cui = getCalPrincipalInfo(caladdrToPrincipal(matchVal));
     } else {
       String path = getUrlHandler().unprefix(matchVal);
 
       BwCalendar cal = getCalendar(path);
       if (cal != null) {
-        cui = getCalPrincipalInfo(getPrincipal(cal.getOwnerHref()), true);
+        cui = getCalPrincipalInfo(getPrincipal(cal.getOwnerHref()));
       }
     }
 

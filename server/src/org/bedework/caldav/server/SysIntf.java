@@ -31,7 +31,6 @@ import org.bedework.calfacade.BwDateTime;
 import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.BwEventProxy;
 import org.bedework.calfacade.BwResource;
-import org.bedework.calfacade.BwUserInfo;
 import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.ScheduleResult;
 import org.bedework.calfacade.base.BwShareableDbentity;
@@ -206,28 +205,22 @@ public interface SysIntf {
      */
     public String outboxPath;
 
-    /** Some directory information for the user.
-     */
-    public BwUserInfo directoryInfo;
-
     /**
      * @param principal
      * @param userHomePath
      * @param defaultCalendarPath
      * @param inboxPath
      * @param outboxPath
-     * @param directoryInfo
      */
     public CalPrincipalInfo(AccessPrincipal principal,
                             String userHomePath,
                             String defaultCalendarPath, String inboxPath,
-                            String outboxPath, BwUserInfo directoryInfo) {
+                            String outboxPath) {
       this.principal = principal;
       this.userHomePath = userHomePath;
       this.defaultCalendarPath = defaultCalendarPath;
       this.inboxPath = inboxPath;
       this.outboxPath = outboxPath;
-      this.directoryInfo = directoryInfo;
     }
   }
 
@@ -235,12 +228,10 @@ public interface SysIntf {
    * needed for caldav interactions.
    *
    * @param principal     valid AccessPrincipal
-   * @param getDirInfo  get directory info if true and available.
    * @return CalUserInfo or null if not caladdr for this system
    * @throws WebdavException  for errors
    */
-  public CalPrincipalInfo getCalPrincipalInfo(AccessPrincipal principal,
-                                              boolean getDirInfo) throws WebdavException;
+  public CalPrincipalInfo getCalPrincipalInfo(AccessPrincipal principal) throws WebdavException;
 
   /** Given a uri returns a Collection of uris that allow search operations on
    * principals for that resource.
