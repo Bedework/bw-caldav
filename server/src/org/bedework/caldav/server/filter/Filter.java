@@ -25,9 +25,9 @@
 */
 package org.bedework.caldav.server.filter;
 
+import org.bedework.caldav.server.CalDAVCollection;
 import org.bedework.caldav.server.CaldavBwNode;
 import org.bedework.caldav.server.CaldavComponentNode;
-import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.CalFacadeDefs;
 import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.exc.CalFacadeException;
@@ -188,7 +188,7 @@ public class Filter extends org.bedework.calfacade.filter.caldav.Filter {
 
       Collection<EventInfo> events;
 
-      BwCalendar c = wdnode.getCollection(true);
+      CalDAVCollection c = (CalDAVCollection)wdnode.getCollection(true);
       if (c == null) {
         return null;
       }

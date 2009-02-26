@@ -25,26 +25,19 @@
 */
 package org.bedework.caldav.server.calquery;
 
+import org.bedework.caldav.server.CalDAVCollection;
 import org.bedework.caldav.server.SysIntf;
 import org.bedework.calfacade.base.TimeRange;
 import org.bedework.calfacade.util.xml.CalDavParseUtil;
-import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwEvent;
-import org.bedework.calfacade.BwEventObj;
-import org.bedework.calfacade.CalFacadeDefs;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
-import edu.rpi.cct.webdav.servlet.shared.WebdavForbidden;
 import edu.rpi.sss.util.xml.XmlUtil;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
-import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Node;
-
-import java.util.ArrayList;
-import java.util.Collection;
 
 /**
  * @author Mike Douglass douglm @ rpi.edu
@@ -94,52 +87,19 @@ public class FreeBusyQuery {
 
   /**
    * @param sysi
-   * @param cal
+   * @param col
    * @param account
    * @param depth
    * @return BwEvent
    * @throws WebdavException
    */
-  public BwEvent getFreeBusy(SysIntf sysi, BwCalendar cal,
+  public BwEvent getFreeBusy(SysIntf sysi, CalDAVCollection col,
                              String account,
                              int depth) throws WebdavException {
     try {
-      int calType = cal.getCalType();
-
-      if (!BwCalendar.collectionInfo[calType].allowFreeBusy) {
-        throw new WebdavForbidden(WebdavTags.supportedReport);
-      }
-
-      Collection<BwCalendar> cals = new ArrayList<BwCalendar>();
-
-      if (calType == BwCalendar.calTypeCollection) {
-        cals.add(cal);
-      } else if (depth == 0) {
-        /* Cannot return anything */
-      } else {
-        /* Make new cal object with just calendar collections as children */
-
-        for (BwCalendar ch: sysi.getCalendars(cal)) {
-          // For depth 1 we only add calendar collections
-          if ((depth > 1) ||
-              (ch.getCalType() == BwCalendar.calTypeCollection)) {
-            cals.add(ch);
-          }
-        }
-      }
-
-      BwEvent fb;
-      if (cals.isEmpty()) {
-        // Retiurn an empty object
-        fb = new BwEventObj();
-        fb.setEntityType(CalFacadeDefs.entityTypeFreeAndBusy);
-        fb.setDtstart(timeRange.getStart());
-        fb.setDtend(timeRange.getEnd());
-      } else {
-        fb = sysi.getFreeBusy(cals, account,
-                              timeRange.getStart(),
-                              timeRange.getEnd());
-      }
+      BwEvent fb = sysi.getFreeBusy(col, depth, account,
+                                    timeRange.getStart(),
+                                    timeRange.getEnd());
 
       if (debug) {
         trace("Got " + fb);

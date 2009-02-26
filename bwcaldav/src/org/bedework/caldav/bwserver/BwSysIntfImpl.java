@@ -25,17 +25,20 @@
 */
 package org.bedework.caldav.bwserver;
 
+import org.bedework.caldav.server.CalDAVCollection;
 import org.bedework.caldav.server.PropertyHandler;
 import org.bedework.caldav.server.SysIntf;
 import org.bedework.caldav.server.PropertyHandler.PropertyType;
 import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwDateTime;
 import org.bedework.calfacade.BwEvent;
+import org.bedework.calfacade.BwEventObj;
 import org.bedework.calfacade.BwEventProxy;
 import org.bedework.calfacade.BwPrincipal;
 import org.bedework.calfacade.BwResource;
 import org.bedework.calfacade.BwSystem;
 import org.bedework.calfacade.BwUser;
+import org.bedework.calfacade.CalFacadeDefs;
 import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.ScheduleResult;
 import org.bedework.calfacade.base.BwShareableDbentity;
@@ -399,9 +402,9 @@ public class BwSysIntfImpl implements SysIntf {
     } else {
       String path = getUrlHandler().unprefix(matchVal);
 
-      BwCalendar cal = getCalendar(path);
-      if (cal != null) {
-        cui = getCalPrincipalInfo(getPrincipal(cal.getOwnerHref()));
+      CalDAVCollection col = getCollection(path);
+      if (col != null) {
+        cui = getCalPrincipalInfo(col.getOwner());
       }
     }
 
@@ -519,12 +522,16 @@ public class BwSysIntfImpl implements SysIntf {
     }
   }
 
-  public Collection<EventInfo> getEvents(BwCalendar cal,
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#getEvents(org.bedework.caldav.server.CalDAVCollection, org.bedework.calfacade.filter.BwFilter, org.bedework.calfacade.RecurringRetrievalMode)
+   */
+  public Collection<EventInfo> getEvents(CalDAVCollection col,
                                          BwFilter filter,
                                          RecurringRetrievalMode recurRetrieval)
           throws WebdavException {
     try {
-      return getSvci().getEventsHandler().getEvents(cal, filter, null, null,
+      return getSvci().getEventsHandler().getEvents(unwrap(col), filter,
+                                                    null, null,
                                                     recurRetrieval);
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
@@ -537,11 +544,14 @@ public class BwSysIntfImpl implements SysIntf {
     }
   }
 
-  public EventInfo getEvent(BwCalendar cal, String val,
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#getEvent(org.bedework.caldav.server.CalDAVCollection, java.lang.String, org.bedework.calfacade.RecurringRetrievalMode)
+   */
+  public EventInfo getEvent(CalDAVCollection col, String val,
                             RecurringRetrievalMode recurRetrieval)
               throws WebdavException {
     try {
-      return getSvci().getEventsHandler().get(cal.getPath(), val, recurRetrieval);
+      return getSvci().getEventsHandler().get(col.getPath(), val, recurRetrieval);
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
@@ -551,14 +561,6 @@ public class BwSysIntfImpl implements SysIntf {
                           boolean scheduleReply) throws WebdavException {
     try {
       getSvci().getEventsHandler().delete(ev, scheduleReply);
-    } catch (Throwable t) {
-      throw new WebdavException(t);
-    }
-  }
-
-  public void deleteCalendar(BwCalendar cal) throws WebdavException {
-    try {
-      getSvci().getCalendarsHandler().delete(cal, true);
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
@@ -590,7 +592,11 @@ public class BwSysIntfImpl implements SysIntf {
     }
   }
 
-  public BwEvent getFreeBusy(final Collection<BwCalendar> cals,
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#getFreeBusy(org.bedework.caldav.server.CalDAVCollection, int, java.lang.String, org.bedework.calfacade.BwDateTime, org.bedework.calfacade.BwDateTime)
+   */
+  public BwEvent getFreeBusy(final CalDAVCollection col,
+                             final int depth,
                              final String account,
                              final BwDateTime start,
                              final BwDateTime end) throws WebdavException {
@@ -600,7 +606,44 @@ public class BwSysIntfImpl implements SysIntf {
         throw new WebdavUnauthorized();
       }
 
-      return getSvci().getScheduler().getFreeBusy(cals, user, start, end);
+      BwCalendar bwCol = unwrap(col);
+
+      int calType = bwCol.getCalType();
+
+      if (!BwCalendar.collectionInfo[calType].allowFreeBusy) {
+        throw new WebdavForbidden(WebdavTags.supportedReport);
+      }
+
+      Collection<BwCalendar> cals = new ArrayList<BwCalendar>();
+
+      if (calType == BwCalendar.calTypeCollection) {
+        cals.add(bwCol);
+      } else if (depth == 0) {
+        /* Cannot return anything */
+      } else {
+        /* Make new cal object with just calendar collections as children */
+
+        for (BwCalendar ch: getSvci().getCalendarsHandler().getChildren(bwCol)) {
+          // For depth 1 we only add calendar collections
+          if ((depth > 1) ||
+              (ch.getCalType() == BwCalendar.calTypeCollection)) {
+            cals.add(ch);
+          }
+        }
+      }
+
+      BwEvent fb;
+      if (cals.isEmpty()) {
+        // Retiurn an empty object
+        fb = new BwEventObj();
+        fb.setEntityType(CalFacadeDefs.entityTypeFreeAndBusy);
+        fb.setDtstart(start);
+        fb.setDtend(end);
+      } else {
+        fb = getSvci().getScheduler().getFreeBusy(cals, user, start, end);
+      }
+
+      return fb;
     } catch (CalFacadeException cfe) {
       throw new WebdavException(cfe);
     } catch (WebdavException wde) {
@@ -621,19 +664,6 @@ public class BwSysIntfImpl implements SysIntf {
     }
   }
 
-  public void updateAccess(BwCalendar cal,
-                           Acl acl) throws WebdavException {
-    try {
-      getSvci().changeAccess(cal, acl.getAces(), true);
-    } catch (CalFacadeAccessException cfae) {
-      throw new WebdavForbidden();
-    } catch (CalFacadeException cfe) {
-      throw new WebdavException(cfe);
-    } catch (Throwable t) {
-      throw new WebdavException(t);
-    }
-  }
-
   public void updateAccess(BwEvent ev,
                            Acl acl) throws WebdavException{
     try {
@@ -647,20 +677,63 @@ public class BwSysIntfImpl implements SysIntf {
     }
   }
 
+  /* ====================================================================
+   *                   Collections
+   * ==================================================================== */
+
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#makeCollection(org.bedework.calfacade.BwCalendar, boolean, java.lang.String)
+   * @see org.bedework.caldav.server.SysIntf#newCollectionObject(boolean, java.lang.String)
    */
-  public int makeCollection(BwCalendar cal,
-                            boolean calendarCollection,
-                            String parentPath) throws WebdavException {
-    if (calendarCollection) {
-      cal.setCalType(BwCalendar.calTypeCollection);
+  public CalDAVCollection newCollectionObject(boolean isCalendarCollection,
+                                              String parentPath) throws WebdavException {
+    BwCalendar col = new BwCalendar();
+
+    if (isCalendarCollection) {
+      col.setCalType(BwCalendar.calTypeCollection);
     } else {
-      cal.setCalType(BwCalendar.calTypeFolder);
+      col.setCalType(BwCalendar.calTypeFolder);
     }
 
+    col.setColPath(parentPath);
+
+    return new BwCalDAVCollection(this, col);
+  }
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#updateAccess(org.bedework.caldav.server.CalDAVCollection, edu.rpi.cmt.access.Acl)
+   */
+  public void updateAccess(CalDAVCollection col,
+                           Acl acl) throws WebdavException {
     try {
-      getSvci().getCalendarsHandler().add(cal, parentPath);
+      getSvci().changeAccess(unwrap(col), acl.getAces(), true);
+    } catch (CalFacadeAccessException cfae) {
+      throw new WebdavForbidden();
+    } catch (CalFacadeException cfe) {
+      throw new WebdavException(cfe);
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
+  }
+
+  public CurrentAccess checkAccess(CalDAVCollection col,
+                                   int desiredAccess,
+                                   boolean returnResult)
+          throws WebdavException {
+    try {
+      return getSvci().checkAccess(unwrap(col), desiredAccess, returnResult);
+    } catch (CalFacadeException cfe) {
+      throw new WebdavException(cfe);
+    }
+  }
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#makeCollection(org.bedework.caldav.server.CalDAVCollection)
+   */
+  public int makeCollection(CalDAVCollection col) throws WebdavException {
+    BwCalendar bwCol = unwrap(col);
+
+    try {
+      getSvci().getCalendarsHandler().add(bwCol, bwCol.getColPath());
       return HttpServletResponse.SC_CREATED;
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
@@ -679,24 +752,27 @@ public class BwSysIntfImpl implements SysIntf {
   }
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#copyMove(org.bedework.calfacade.BwCalendar, org.bedework.calfacade.BwCalendar, boolean)
+   * @see org.bedework.caldav.server.SysIntf#copyMove(org.bedework.caldav.server.CalDAVCollection, org.bedework.caldav.server.CalDAVCollection, boolean, boolean)
    */
-  public void copyMove(BwCalendar from,
-                       BwCalendar to,
+  public void copyMove(CalDAVCollection from,
+                       CalDAVCollection to,
                        boolean copy,
                        boolean overwrite) throws WebdavException {
     try {
+      BwCalendar bwFrom = unwrap(from);
+      BwCalendar bwTo = unwrap(to);
+
       if (!copy) {
         /* Move the from collection to the new location "to".
          * If the parent calendar is the same in both cases, this is just a rename.
          */
-        if ((from.getColPath() == null) || (to.getColPath() == null)) {
+        if ((bwFrom.getColPath() == null) || (bwTo.getColPath() == null)) {
           throw new WebdavForbidden("Cannot move root");
         }
 
-        if (from.getColPath().equals(to.getColPath())) {
+        if (bwFrom.getColPath().equals(bwTo.getColPath())) {
           // Rename
-          getSvci().getCalendarsHandler().rename(from, to.getName());
+          getSvci().getCalendarsHandler().rename(bwFrom, to.getName());
           return;
         }
       }
@@ -711,14 +787,17 @@ public class BwSysIntfImpl implements SysIntf {
     throw new WebdavException("unimplemented");
   }
 
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#copyMove(org.bedework.calfacade.svc.EventInfo, org.bedework.caldav.server.CalDAVCollection, java.lang.String, boolean, boolean)
+   */
   public boolean copyMove(EventInfo from,
-                          BwCalendar to,
+                          CalDAVCollection to,
                           String name,
                           boolean copy,
                           boolean overwrite) throws WebdavException {
     CopyMoveStatus cms;
     try {
-      cms = getSvci().getEventsHandler().copyMoveNamed(from, to, name,
+      cms = getSvci().getEventsHandler().copyMoveNamed(from, unwrap(to), name,
                                                        copy, overwrite, false);
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
@@ -755,11 +834,17 @@ public class BwSysIntfImpl implements SysIntf {
   }
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#getCalendar(java.lang.String)
+   * @see org.bedework.caldav.server.SysIntf#getCollection(java.lang.String)
    */
-  public BwCalendar getCalendar(String path) throws WebdavException {
+  public CalDAVCollection getCollection(String path) throws WebdavException {
     try {
-      return getSvci().getCalendarsHandler().get(path);
+      BwCalendar col = getSvci().getCalendarsHandler().get(path);
+
+      if (col == null) {
+        return null;
+      }
+
+      return new BwCalDAVCollection(this, col);
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
@@ -769,12 +854,9 @@ public class BwSysIntfImpl implements SysIntf {
     }
   }
 
-  /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#updateCalendar(org.bedework.calfacade.BwCalendar)
-   */
-  public void updateCalendar(BwCalendar val) throws WebdavException {
+  public void updateCollection(CalDAVCollection col) throws WebdavException {
     try {
-      getSvci().getCalendarsHandler().update(val);
+      getSvci().getCalendarsHandler().update(unwrap(col));
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
@@ -788,11 +870,34 @@ public class BwSysIntfImpl implements SysIntf {
   }
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#getCalendars(org.bedework.calfacade.BwCalendar)
+   * @see org.bedework.caldav.server.SysIntf#deleteCollection(org.bedework.caldav.server.CalDAVCollection)
    */
-  public Collection<BwCalendar> getCalendars(BwCalendar cal) throws WebdavException {
+  public void deleteCollection(CalDAVCollection col) throws WebdavException {
     try {
-      return getSvci().getCalendarsHandler().getChildren(cal);
+      getSvci().getCalendarsHandler().delete(unwrap(col), true);
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
+  }
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#getCollections(org.bedework.caldav.server.CalDAVCollection)
+   */
+  public Collection<CalDAVCollection> getCollections(CalDAVCollection col) throws WebdavException {
+    try {
+      Collection<BwCalendar> bwch = getSvci().getCalendarsHandler().getChildren(unwrap(col));
+
+      Collection<CalDAVCollection> ch = new ArrayList<CalDAVCollection>();
+
+      if (bwch == null) {
+        return ch;
+      }
+
+      for (BwCalendar c: bwch) {
+        ch.add(new BwCalDAVCollection(this, c));
+      }
+
+      return ch;
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
@@ -803,11 +908,11 @@ public class BwSysIntfImpl implements SysIntf {
   }
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#resolveAlias(org.bedework.calfacade.BwCalendar)
+   * @see org.bedework.caldav.server.SysIntf#resolveAlias(org.bedework.caldav.server.CalDAVCollection)
    */
-  public void resolveAlias(BwCalendar cal) throws WebdavException {
+  public void resolveAlias(CalDAVCollection col) throws WebdavException {
     try {
-      getSvci().getCalendarsHandler().resolveAlias(cal, true, false);
+      getSvci().getCalendarsHandler().resolveAlias(unwrap(col), true, false);
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
@@ -822,9 +927,9 @@ public class BwSysIntfImpl implements SysIntf {
    * ==================================================================== */
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#putFile(org.bedework.calfacade.BwCalendar, org.bedework.calfacade.BwResource)
+   * @see org.bedework.caldav.server.SysIntf#putFile(org.bedework.caldav.server.CalDAVCollection, org.bedework.calfacade.BwResource)
    */
-  public void putFile(BwCalendar coll,
+  public void putFile(CalDAVCollection coll,
                       BwResource val) throws WebdavException {
     try {
       getSvci().getResourcesHandler().save(coll.getPath(), val);
@@ -838,9 +943,9 @@ public class BwSysIntfImpl implements SysIntf {
   }
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#getFile(org.bedework.calfacade.BwCalendar, java.lang.String)
+   * @see org.bedework.caldav.server.SysIntf#getFile(org.bedework.caldav.server.CalDAVCollection, java.lang.String)
    */
-  public BwResource getFile(BwCalendar coll,
+  public BwResource getFile(CalDAVCollection coll,
                             String name) throws WebdavException {
     try {
       return getSvci().getResourcesHandler().get(coll.getPath() + "/" + name);
@@ -869,9 +974,9 @@ public class BwSysIntfImpl implements SysIntf {
   }
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#getFiles(org.bedework.calfacade.BwCalendar)
+   * @see org.bedework.caldav.server.SysIntf#getFiles(org.bedework.caldav.server.CalDAVCollection)
    */
-  public Collection<BwResource> getFiles(BwCalendar coll) throws WebdavException {
+  public Collection<BwResource> getFiles(CalDAVCollection coll) throws WebdavException {
     try {
       return getSvci().getResourcesHandler().getAll(coll.getPath());
     } catch (CalFacadeAccessException cfae) {
@@ -953,10 +1058,13 @@ public class BwSysIntfImpl implements SysIntf {
     }
   }
 
-  public Icalendar fromIcal(BwCalendar cal, Reader rdr) throws WebdavException {
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#fromIcal(org.bedework.caldav.server.CalDAVCollection, java.io.Reader)
+   */
+  public Icalendar fromIcal(CalDAVCollection col, Reader rdr) throws WebdavException {
     getSvci(); // Ensure open
     try {
-      return trans.fromIcal(cal, rdr);
+      return trans.fromIcal(unwrap(col), rdr);
     } catch (IcalMalformedException ime) {
       throw new WebdavBadRequest(ime.getMessage());
     } catch (Throwable t) {
@@ -991,6 +1099,15 @@ public class BwSysIntfImpl implements SysIntf {
   /* ====================================================================
    *                         Private methods
    * ==================================================================== */
+
+  private BwCalendar unwrap(CalDAVCollection col) throws WebdavException {
+    if (!(col instanceof BwCalDAVCollection)) {
+      throw new WebdavBadRequest("Unknown implemenation of BwCalDAVCollection" +
+                                 col.getClass());
+    }
+
+    return ((BwCalDAVCollection)col).col;
+  }
 
   /**
    * @return CalSvcI

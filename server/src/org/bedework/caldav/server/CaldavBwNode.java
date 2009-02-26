@@ -25,8 +25,7 @@
 */
 package org.bedework.caldav.server;
 
-import org.bedework.calfacade.BwCalendar;
-
+import edu.rpi.cct.webdav.servlet.shared.WdCollection;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
@@ -45,7 +44,7 @@ import javax.xml.namespace.QName;
 public abstract class CaldavBwNode extends WebdavNsNode {
 //  protected CaldavURI cdURI;
 
-  protected BwCalendar cal;
+  protected CalDAVCollection col;
 
   private final static HashMap<QName, PropertyTagEntry> propertyNames =
     new HashMap<QName, PropertyTagEntry>();
@@ -60,7 +59,7 @@ public abstract class CaldavBwNode extends WebdavNsNode {
   /* for accessing calendars */
   private SysIntf sysi;
 
-  CaldavBwNode(CaldavURI cdURI, SysIntf sysi, boolean debug) {
+  CaldavBwNode(CaldavURI cdURI, SysIntf sysi, boolean debug) throws WebdavException {
     super(sysi.getUrlHandler(), cdURI.getPath(), cdURI.isCollection(),
           cdURI.getUri(), debug);
 
@@ -79,35 +78,22 @@ public abstract class CaldavBwNode extends WebdavNsNode {
    *                         Public methods
    * ==================================================================== */
 
-  /** The node may refer to a collection object which may in fact be an alias to
-   * another. For deletions we want to remove the alias itself.
-   *
-   * <p>Move and rename are also targetted at the alias.
-   *
-   * <p>Other operations are probably intended to work on the underlying target
-   * of the alias.
-   *
-   * @param deref true if we want to act upon the target of an alias.
-   * @return Collection this node represents
-   * @throws WebdavException
-   */
-  public BwCalendar getCollection(boolean deref) throws WebdavException {
+  public WdCollection getCollection(boolean deref) throws WebdavException {
     if (!deref) {
-      return cal;
+      return col;
     }
 
-    BwCalendar curCal = cal;
+    WdCollection curCol = col;
 
-    if ((curCal != null) &&
-        (curCal.getCalType() == BwCalendar.calTypeAlias)) {
-      curCal = cal.getAliasTarget();
-      if (curCal == null) {
-        getSysi().resolveAlias(cal);
-        curCal = cal.getAliasTarget();
+    if ((curCol != null) && curCol.isAlias()) {
+      curCol = col.getAliasTarget();
+      if (curCol == null) {
+        getSysi().resolveAlias(col);
+        curCol = col.getAliasTarget();
       }
     }
 
-    return curCal;
+    return curCol;
   }
 
   /**
@@ -119,24 +105,12 @@ public abstract class CaldavBwNode extends WebdavNsNode {
       return false;
     }
 
-    BwCalendar c = getCollection(true);
+    CalDAVCollection c = (CalDAVCollection)getCollection(true);
     if (c == null) {
       return false;
     }
 
-    return c.getCalendarCollection();
-  }
-
-  /** Return a collection of children objects. These will all be calendar
-   * entities.
-   *
-   * <p>Default is to return null
-   *
-   * @return Collection
-   * @throws WebdavException
-   */
-  public Collection getChildren() throws WebdavException {
-    return null;
+    return c.getCalType() == CalDAVCollection.calTypeCalendarColl;
   }
 
   /**
@@ -168,6 +142,13 @@ public abstract class CaldavBwNode extends WebdavNsNode {
    */
   public boolean getContentBinary() throws WebdavException {
     return false;
+  }
+
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getChildren()
+   */
+  public Collection getChildren() throws WebdavException {
+    return null;
   }
 
   /* ====================================================================

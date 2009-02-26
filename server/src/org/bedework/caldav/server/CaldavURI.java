@@ -54,10 +54,10 @@
 
 package org.bedework.caldav.server;
 
-import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwResource;
 import org.bedework.calfacade.svc.EventInfo;
 
+import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cmt.access.AccessPrincipal;
 
 /** We map uris onto an object which may be a calendar or an
@@ -77,7 +77,7 @@ public class CaldavURI {
 
   /* For a resource or an entity, this is the containing collection
    */
-  BwCalendar cal;
+  CalDAVCollection col;
 
   BwResource resource;
 
@@ -88,42 +88,38 @@ public class CaldavURI {
   String entityName;
   String path;  // for principals
 
-//  boolean userUri; // entityname is user
-
   boolean resourceUri; // entityname is resource
-
-//  boolean groupUri;// entityname is group
 
   /** Reference to a collection
    *
-   * @param cal
+   * @param col
    * @param exists        true if the referenced object exists
    */
-  CaldavURI(BwCalendar cal, boolean exists) {
-    init(cal, null, null, null, exists);
+  CaldavURI(CalDAVCollection col, boolean exists) {
+    init(col, null, null, null, exists);
   }
 
   /** Reference to a contained entity
    *
-   * @param cal
+   * @param col
    * @param entity
    * @param entityName
    * @param exists        true if the referenced object exists
    */
-  CaldavURI(BwCalendar cal, EventInfo entity, String entityName,
+  CaldavURI(CalDAVCollection col, EventInfo entity, String entityName,
             boolean exists) {
-    init(cal, null, entity, entityName, exists);
+    init(col, null, entity, entityName, exists);
   }
 
   /** Reference to a contained resource
    *
-   * @param cal
+   * @param col
    * @param res
    * @param exists        true if the referenced object exists
    */
-  CaldavURI(BwCalendar cal, BwResource res,
+  CaldavURI(CalDAVCollection col, BwResource res,
             boolean exists) {
-    init(cal, res, null, res.getName(), exists);
+    init(col, res, null, res.getName(), exists);
     resourceUri = true;
   }
 
@@ -133,15 +129,15 @@ public class CaldavURI {
   CaldavURI(AccessPrincipal pi) {
     principal = pi;
     exists = true;
-    cal = null;
+    col = null;
     entityName = pi.getAccount();
     path = pi.getPrincipalRef();
   }
 
-  private void init(BwCalendar cal, BwResource res,
+  private void init(CalDAVCollection col, BwResource res,
                     EventInfo entity, String entityName,
                     boolean exists) {
-    this.cal = cal;
+    this.col = col;
     this.resource = res;
     this.entity = entity;
     this.entityName = entityName;
@@ -156,10 +152,10 @@ public class CaldavURI {
   }
 
   /**
-   * @return BwCalendar
+   * @return CalDAVCollection
    */
-  public BwCalendar getCal() {
-    return cal;
+  public CalDAVCollection getCol() {
+    return col;
   }
 
   /**
@@ -178,9 +174,10 @@ public class CaldavURI {
 
   /**
    * @return String
+   * @throws WebdavException
    */
-  public String getCalName() {
-    return cal.getName();
+  public String getCalName() throws WebdavException {
+    return col.getName();
   }
 
   /**
@@ -192,19 +189,21 @@ public class CaldavURI {
 
   /**
    * @return String
+   * @throws WebdavException
    */
-  public String getPath() {
+  public String getPath() throws WebdavException {
     if (principal != null) {
       return path;
     }
 
-    return cal.getPath();
+    return col.getPath();
   }
 
   /**
    * @return String
+   * @throws WebdavException
    */
-  public String getUri() {
+  public String getUri() throws WebdavException {
     if ((entityName == null) ||
         (principal != null)) {
       return getPath();
@@ -254,9 +253,14 @@ public class CaldavURI {
   }
 
   public String toString() {
-    StringBuffer sb = new StringBuffer("CaldavURI{path=");
+    StringBuilder sb = new StringBuilder("CaldavURI{path=");
 
-    sb.append(getPath());
+    try {
+      sb.append(getPath());
+    } catch (Throwable t) {
+      sb.append("Exception: ");
+      sb.append(t.getMessage());
+    }
     sb.append(", entityName=");
     sb.append(String.valueOf(entityName));
     sb.append("}");
@@ -265,13 +269,17 @@ public class CaldavURI {
   }
 
   public int hashCode() {
-    if (principal != null) {
-      return  principal.hashCode();
+    try {
+      if (principal != null) {
+        return  principal.hashCode();
+      }
+
+      int hc = entityName.hashCode();
+
+      return hc * 3 + col.getPath().hashCode();
+    } catch (Throwable t) {
+      throw new RuntimeException(t);
     }
-
-    int hc = entityName.hashCode();
-
-    return hc * 3 + cal.getPath().hashCode();
   }
 
   public boolean equals(Object o) {
@@ -289,19 +297,19 @@ public class CaldavURI {
       return  principal.equals(that.principal);
     }
 
-    if (cal == null) {
-      if (that.cal != null) {
+    if (col == null) {
+      if (that.col != null) {
         return false;
       }
 
       return true;
     }
 
-    if (that.cal == null) {
+    if (that.col == null) {
       return false;
     }
 
-    if (!cal.equals(that.cal)) {
+    if (!col.equals(that.col)) {
       return false;
     }
 

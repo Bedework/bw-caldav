@@ -27,7 +27,6 @@
 package org.bedework.caldav.server;
 
 import org.bedework.caldav.server.SysIntf.CalPrincipalInfo;
-import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.RecurringRetrievalMode.Rmode;
@@ -113,11 +112,12 @@ public class CaldavCalNode extends CaldavBwNode {
    * @param cdURI
    * @param sysi
    * @param debug
+   * @throws WebdavException
    */
-  public CaldavCalNode(CaldavURI cdURI, SysIntf sysi, boolean debug) {
+  public CaldavCalNode(CaldavURI cdURI, SysIntf sysi, boolean debug) throws WebdavException {
     super(cdURI, sysi, debug);
 
-    cal = cdURI.getCal();
+    col = cdURI.getCol();
     collection = true;
     allowsGet = false;
 
@@ -129,18 +129,14 @@ public class CaldavCalNode extends CaldavBwNode {
    */
   public AccessPrincipal getOwner() throws WebdavException {
     if (owner == null) {
-      if (cal == null) {
+      if (col == null) {
         return null;
       }
 
-      owner = getSysi().getPrincipal(cal.getOwnerHref());
+      owner = col.getOwner();
     }
 
-    if (owner != null) {
-      return owner;
-    }
-
-    return null;
+    return owner;
   }
 
   public void init(boolean content) throws WebdavException {
@@ -154,13 +150,13 @@ public class CaldavCalNode extends CaldavBwNode {
    */
   public String getEtagValue(boolean strong) throws WebdavException {
     /* We need the etag of the target if this is an alias */
-    BwCalendar c = getCollection(true); // deref
+    CalDAVCollection c = (CalDAVCollection)getCollection(true); // deref
 
     if (c == null) {
       return null;
     }
 
-    String val = c.getLastmod().getTagValue();
+    String val = c.getTagValue();
 
     if (strong) {
       return "\"" + val + "\"";
@@ -175,22 +171,22 @@ public class CaldavCalNode extends CaldavBwNode {
    */
   public boolean getSchedulingAllowed() throws WebdavException {
     /* It's the alias target that matters */
-    BwCalendar c = getCollection(true); // deref
+    CalDAVCollection c = (CalDAVCollection)getCollection(true); // deref
 
     if (c == null) {
       return false;
     }
 
     int type = c.getCalType();
-    if (type == BwCalendar.calTypeInbox) {
+    if (type == CalDAVCollection.calTypeInbox) {
       return true;
     }
 
-    if (type == BwCalendar.calTypeOutbox) {
+    if (type == CalDAVCollection.calTypeOutbox) {
       return true;
     }
 
-    if (type == BwCalendar.calTypeCollection) {
+    if (type == CalDAVCollection.calTypeCalendarColl) {
       return true;
     }
 
@@ -206,9 +202,9 @@ public class CaldavCalNode extends CaldavBwNode {
       return;
     }
 
-    BwCalendar c = getCollection(false); // Don't deref
+    CalDAVCollection c = (CalDAVCollection)getCollection(false); // Don't deref
 
-    c.setCalType(BwCalendar.calTypeCollection);
+    c.setCalType(CalDAVCollection.calTypeCalendarColl);
   }
 
   public Collection getChildren() throws WebdavException {
@@ -218,19 +214,19 @@ public class CaldavCalNode extends CaldavBwNode {
        */
 
     try {
-      BwCalendar c = getCollection(true); // deref
+      CalDAVCollection c = (CalDAVCollection)getCollection(true); // deref
 
       if (c == null) { // no access?
         return null;
       }
 
-      if (!c.getCollectionInfo().entitiesAllowed) {
+      if (!c.entitiesAllowed()) {
         if (debug) {
           debugMsg("POSSIBLE SEARCH: getChildren for cal " + c.getPath());
         }
 
         ArrayList ch = new ArrayList();
-        ch.addAll(getSysi().getCalendars(c));
+        ch.addAll(getSysi().getCollections(c));
         ch.addAll(getSysi().getFiles(c));
 
         return ch;
@@ -290,8 +286,8 @@ public class CaldavCalNode extends CaldavBwNode {
    */
   public void update() throws WebdavException {
     // ALIAS probably not unaliasing here
-    if (cal != null) {
-      getSysi().updateCalendar(cal);
+    if (col != null) {
+      getSysi().updateCollection(col);
     }
   }
 
@@ -339,11 +335,11 @@ public class CaldavCalNode extends CaldavBwNode {
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getDisplayname()
    */
   public String getDisplayname() throws WebdavException {
-    if (cal == null) {
+    if (col == null) {
       return null;
     }
 
-    return cal.getName();
+    return col.getName();
   }
 
   /* (non-Javadoc)
@@ -351,12 +347,12 @@ public class CaldavCalNode extends CaldavBwNode {
    */
   public String getLastmodDate() throws WebdavException {
     init(false);
-    if (cal == null) {
+    if (col == null) {
       return null;
     }
 
     try {
-      return DateTimeUtil.fromISODateTimeUTCtoRfc822(cal.getLastmod().getTimestamp());
+      return DateTimeUtil.fromISODateTimeUTCtoRfc822(col.getLastmod());
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
@@ -371,7 +367,7 @@ public class CaldavCalNode extends CaldavBwNode {
       return currentAccess;
     }
 
-    BwCalendar c = getCollection(true); // We want access of underlying object?
+    CalDAVCollection c = (CalDAVCollection)getCollection(true); // We want access of underlying object?
 
     if (c == null) {
       return null;
@@ -419,21 +415,21 @@ public class CaldavCalNode extends CaldavBwNode {
     try {
       if (XmlUtil.nodeMatches(val, WebdavTags.description)) {
         if (checkCalForSetProp(spr)) {
-          cal.setDescription(XmlUtil.getElementContent(val));
+          col.setDescription(XmlUtil.getElementContent(val));
         }
         return true;
       }
 
       if (XmlUtil.nodeMatches(val, CaldavTags.calendarDescription)) {
         if (checkCalForSetProp(spr)) {
-          cal.setDescription(XmlUtil.getElementContent(val));
+          col.setDescription(XmlUtil.getElementContent(val));
         }
         return true;
       }
 
       if (XmlUtil.nodeMatches(val, WebdavTags.displayname)) {
         if (checkCalForSetProp(spr)) {
-          cal.setSummary(XmlUtil.getElementContent(val));
+          col.setDisplayName(XmlUtil.getElementContent(val));
         }
         return true;
       }
@@ -460,9 +456,9 @@ public class CaldavCalNode extends CaldavBwNode {
         Element cval = XmlUtil.getOnlyElement(val);
 
         if (XmlUtil.nodeMatches(cval, CaldavTags.opaque)) {
-          cal.setAffectsFreeBusy(true);
+          col.setAffectsFreeBusy(true);
         } else if (XmlUtil.nodeMatches(cval, CaldavTags.transparent)) {
-          cal.setAffectsFreeBusy(true);
+          col.setAffectsFreeBusy(true);
         } else {
           throw new WebdavBadRequest();
         }
@@ -472,7 +468,7 @@ public class CaldavCalNode extends CaldavBwNode {
 
       if (XmlUtil.nodeMatches(val, CaldavTags.calendarFreeBusySet)) {
         // Only valid for inbox
-        if (cal.getCalType() != BwCalendar.calTypeInbox) {
+        if (col.getCalType() != CalDAVCollection.calTypeInbox) {
           throw new WebdavForbidden("Not on inbox");
         }
 
@@ -487,7 +483,7 @@ public class CaldavCalNode extends CaldavBwNode {
           StringReader sr = new StringReader(XmlUtil.getElementContent(val));
 
           // This call automatically saves the timezone in the db
-          Icalendar ic = getSysi().fromIcal(cal, sr);
+          Icalendar ic = getSysi().fromIcal(col, sr);
 
           if ((ic == null) ||
               (ic.size() != 0) || // No components other than timezones
@@ -500,7 +496,7 @@ public class CaldavCalNode extends CaldavBwNode {
 
           TimeZone tz = ic.getTimeZones().iterator().next();
 
-          cal.setTimezone(tz.getID());
+          col.setTimezone(tz.getID());
         } catch (WebdavException wde) {
           throw wde;
         } catch (Throwable t) {
@@ -511,7 +507,7 @@ public class CaldavCalNode extends CaldavBwNode {
       }
 
       if (XmlUtil.nodeMatches(val, AppleIcalTags.calendarColor)) {
-        cal.setColor(XmlUtil.getElementContent(val));
+        col.setColor(XmlUtil.getElementContent(val));
 
         return true;
       }
@@ -545,7 +541,7 @@ public class CaldavCalNode extends CaldavBwNode {
     XmlEmit xml = intf.getXmlEmit();
 
     try {
-      BwCalendar c = getCollection(true); // deref this
+      CalDAVCollection c = (CalDAVCollection)getCollection(true); // deref this
       if (c == null) {
         // Probably no access
         return false;
@@ -558,16 +554,16 @@ public class CaldavCalNode extends CaldavBwNode {
         xml.openTag(tag);
         xml.emptyTag(WebdavTags.collection);
         if (debug) {
-          debugMsg("generatePropResourcetype for " + cal);
+          debugMsg("generatePropResourcetype for " + col);
         }
 
         //boolean isCollection = cal.getCalendarCollection();
 
-        if (calType == BwCalendar.calTypeInbox) {
+        if (calType == CalDAVCollection.calTypeInbox) {
           xml.emptyTag(CaldavTags.scheduleInbox);
-        } else if (calType == BwCalendar.calTypeOutbox) {
+        } else if (calType == CalDAVCollection.calTypeOutbox) {
           xml.emptyTag(CaldavTags.scheduleOutbox);
-        } else if (calType == BwCalendar.calTypeCollection) {
+        } else if (calType == CalDAVCollection.calTypeCalendarColl) {
           xml.emptyTag(CaldavTags.calendar);
         }
         xml.closeTag(tag);
@@ -590,7 +586,7 @@ public class CaldavCalNode extends CaldavBwNode {
       }
 
       if (tag.equals(CaldavTags.scheduleDefaultCalendarURL) &&
-          (calType == BwCalendar.calTypeInbox)) {
+          (calType == CalDAVCollection.calTypeInbox)) {
         xml.openTag(tag);
 
         CalPrincipalInfo cinfo = getSysi().getCalPrincipalInfo(getOwner());
@@ -604,13 +600,13 @@ public class CaldavCalNode extends CaldavBwNode {
       }
 
       if (tag.equals(AppleServerTags.getctag)) {
-        xml.property(tag, cal.getLastmod().getTagValue());
+        xml.property(tag, col.getTagValue());
 
         return true;
       }
 
       if (tag.equals(AppleIcalTags.calendarColor)) {
-       String val = cal.getColor();
+       String val = col.getColor();
 
         if (val == null) {
           return false;
@@ -622,12 +618,12 @@ public class CaldavCalNode extends CaldavBwNode {
       }
 
       if (tag.equals(CaldavTags.calendarDescription)) {
-        xml.property(tag, cal.getDescription());
+        xml.property(tag, col.getDescription());
 
         return true;
       }
 
-      if ((cal.getCalType() == BwCalendar.calTypeInbox) &&
+      if ((col.getCalType() == CalDAVCollection.calTypeInbox) &&
           (tag.equals(CaldavTags.calendarFreeBusySet))) {
         xml.openTag(tag);
 
@@ -649,7 +645,7 @@ public class CaldavCalNode extends CaldavBwNode {
          *            <C:comp name="VTODO"/>
          *         </C:supported-calendar-component-set>
          */
-        if (!cal.getCalendarCollection()) {
+        if (calType != CalDAVCollection.calTypeCalendarColl) {
           return true;
         }
 
@@ -684,7 +680,7 @@ public class CaldavCalNode extends CaldavBwNode {
       }
 
       if (tag.equals(CaldavTags.calendarTimezone)) {
-        String tzid = cal.getTimezone();
+        String tzid = col.getTimezone();
 
         if (tzid == null) {
           return false;
@@ -729,7 +725,7 @@ public class CaldavCalNode extends CaldavBwNode {
    */
   public Collection<QName> getSupportedReports() throws WebdavException {
     Collection<QName> res = new ArrayList<QName>();
-    BwCalendar c = getCollection(true); // deref
+    CalDAVCollection c = (CalDAVCollection)getCollection(true); // deref
 
     if (c == null) {
       return res;
@@ -738,7 +734,7 @@ public class CaldavCalNode extends CaldavBwNode {
     res.addAll(super.getSupportedReports());
 
     /* Cannot do free-busy on in and outbox */
-    if (c.getCollectionInfo().allowFreeBusy) {
+    if (c.freebusyAllowed()) {
       res.add(CaldavTags.freeBusyQuery);    // Calendar access
     }
 
@@ -750,7 +746,7 @@ public class CaldavCalNode extends CaldavBwNode {
    * ==================================================================== */
 
   public String toString() {
-    StringBuffer sb = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
 
     sb.append("CaldavCalNode{cduri=");
     sb.append("path=");
@@ -771,7 +767,7 @@ public class CaldavCalNode extends CaldavBwNode {
    * ==================================================================== */
 
   private boolean checkCalForSetProp(SetPropertyResult spr) {
-    if (cal != null) {
+    if (col != null) {
       return true;
     }
 

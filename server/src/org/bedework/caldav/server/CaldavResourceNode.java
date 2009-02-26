@@ -74,7 +74,7 @@ public class CaldavResourceNode extends CaldavBwNode {
     super(cdURI, sysi, debug);
 
     resource = cdURI.getResource();
-    cal = cdURI.getCal();
+    col = cdURI.getCol();
     collection = false;
     allowsGet = true;
     entityName = cdURI.getEntityName();

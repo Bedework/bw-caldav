@@ -26,7 +26,6 @@
 package org.bedework.caldav.server;
 
 import org.bedework.caldav.server.SysIntf.CalPrincipalInfo;
-import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.BwOrganizer;
 import org.bedework.calfacade.ScheduleResult;
@@ -83,7 +82,7 @@ public class PostMethod extends MethodBase {
 
     Icalendar ic;
 
-    BwCalendar cal;
+    CalDAVCollection cal;
 
     /* true if this is a realtime request from some other server */
     boolean realTime;
@@ -259,13 +258,14 @@ public class PostMethod extends MethodBase {
         }
 
         /* (CALDAV:supported-collection) */
-        CaldavCalNode calnode = intf.getCalnode(node,
-                                                HttpServletResponse.SC_FORBIDDEN);
+        if (!(node instanceof CaldavCalNode)) {
+          throw new WebdavException(HttpServletResponse.SC_FORBIDDEN);
+        }
 
         /* Don't deref - this should be targetted at a real outbox */
-        pars.cal = calnode.getCollection(false);
+        pars.cal = (CalDAVCollection)node.getCollection(false);
 
-        if (pars.cal.getCalType() != BwCalendar.calTypeOutbox) {
+        if (pars.cal.getCalType() != CalDAVCollection.calTypeOutbox) {
           if (debug) {
             debugMsg("Not targetted at Outbox");
           }

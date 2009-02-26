@@ -26,7 +26,6 @@
 package org.bedework.caldav.server;
 
 import org.bedework.caldav.server.PropertyHandler.PropertyType;
-import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwDateTime;
 import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.BwEventProxy;
@@ -326,34 +325,34 @@ public interface SysIntf {
   public void updateEvent(EventInfo event,
                           ChangeTable changes) throws WebdavException;
 
-  /** Return the events for the current user in the given calendar using the
+  /** Return the events for the current user in the given collection using the
    * supplied filter. Stored freebusy objects are returned as BwEvent
    * objects with the appropriate entity type.
    *
    * <p>We flag the desired entity types.
    *
-   * @param cal
+   * @param col
    * @param filter - if non-null defines a search filter
    * @param recurRetrieval How recurring event is returned.
    * @return Collection  populated event value objects
    * @throws WebdavException
    */
-  public Collection<EventInfo> getEvents(BwCalendar cal,
+  public Collection<EventInfo> getEvents(CalDAVCollection col,
                                          BwFilter filter,
                                          RecurringRetrievalMode recurRetrieval)
           throws WebdavException;
 
-  /** Get events given the calendar and String name. Return null for not
+  /** Get events given the collection and String name. Return null for not
    * found. There should be only one event or none. For recurring, the
    * overrides and possibly the instances will be attached.
    *
-   * @param cal        BwCalendar object
+   * @param col        CalDAVCollection object
    * @param val        String possible name
    * @param recurRetrieval
    * @return EventInfo or null
    * @throws WebdavException
    */
-  public EventInfo getEvent(BwCalendar cal, String val,
+  public EventInfo getEvent(CalDAVCollection col, String val,
                             RecurringRetrievalMode recurRetrieval)
           throws WebdavException;
 
@@ -364,12 +363,6 @@ public interface SysIntf {
    */
   public void deleteEvent(BwEvent ev,
                           boolean scheduleReply) throws WebdavException;
-
-  /**
-   * @param cal
-   * @throws WebdavException
-   */
-  public void deleteCalendar(BwCalendar cal) throws WebdavException;
 
   /** Get the free busy for one or more principals based on the given VFREEBUSY
    * request.
@@ -383,16 +376,18 @@ public interface SysIntf {
           throws WebdavException;
 
   /** Generate a free busy object for the given time period which reflects
-   * the state of the given calendar.
+   * the state of the given collection.
    *
-   * @param cals
+   * @param col
+   * @param depth
    * @param account
    * @param start
    * @param end
    * @return BwEvent
    * @throws WebdavException
    */
-  public BwEvent getFreeBusy(final Collection<BwCalendar> cals,
+  public BwEvent getFreeBusy(final CalDAVCollection col,
+                             final int depth,
                              final String account,
                              final BwDateTime start,
                              final BwDateTime end) throws WebdavException;
@@ -412,14 +407,6 @@ public interface SysIntf {
           throws WebdavException;
 
   /**
-   * @param cal
-   * @param acl
-   * @throws WebdavException
-   */
-  public void updateAccess(BwCalendar cal,
-                           Acl acl) throws WebdavException;
-
-  /**
    * @param ev
    * @param acl
    * @throws WebdavException
@@ -427,37 +414,11 @@ public interface SysIntf {
   public void updateAccess(BwEvent ev,
                            Acl acl) throws WebdavException;
 
-  /**
-   * @param cal   Initialised collection object
-   *
-   * @param calendarCollection
-   * @param parentPath
-   * @return int status
-   * @throws WebdavException
-   */
-  public int makeCollection(BwCalendar cal,
-                            boolean calendarCollection,
-                            String parentPath) throws WebdavException;
-
-  /** Copy or move the collection to another location.
-   * Status is set on return
-   *
-   * @param from      Source calendar
-   * @param to        Destination calendar
-   * @param copy      true for copying
-   * @param overwrite destination exists
-   * @throws WebdavException
-   */
-  public void copyMove(BwCalendar from,
-                       BwCalendar to,
-                       boolean copy,
-                       boolean overwrite) throws WebdavException;
-
-  /** Copy or move the given entity to the destination calendar with the given name.
+  /** Copy or move the given entity to the destination collection with the given name.
    * Status is set on return
    *
    * @param from      Source entity
-   * @param to        Destination calendar
+   * @param to        Destination collection
    * @param name      String name of new entity
    * @param copy      true for copying
    * @param overwrite destination exists
@@ -465,43 +426,107 @@ public interface SysIntf {
    * @throws WebdavException
    */
   public boolean copyMove(EventInfo from,
-                          BwCalendar to,
+                          CalDAVCollection to,
                           String name,
                           boolean copy,
                           boolean overwrite) throws WebdavException;
 
-  /** Get a calendar given the path
+  /* ====================================================================
+   *                   Collections
+   * ==================================================================== */
+
+  /** Return a new object representing the parameters. No collection is
+   * created. makeCollection must be called subsequently with the object.
+   *
+   * @param isCalendarCollection
+   * @param parentPath
+   * @return CalDAVCollection
+   * @throws WebdavException
+   */
+  public CalDAVCollection newCollectionObject(boolean isCalendarCollection,
+                                              String parentPath) throws WebdavException;
+
+  /**
+   * @param col
+   * @param acl
+   * @throws WebdavException
+   */
+  public void updateAccess(CalDAVCollection col,
+                           Acl acl) throws WebdavException;
+
+  /** Check the access for the given entity. Returns the current access
+   * or null or optionally throws a no access exception.
+   *
+   * @param col
+   * @param desiredAccess
+   * @param returnResult
+   * @return CurrentAccess
+   * @throws WebdavException if returnResult false and no access
+   */
+  public CurrentAccess checkAccess(CalDAVCollection col,
+                                   int desiredAccess,
+                                   boolean returnResult)
+          throws WebdavException;
+
+  /**
+   * @param col   Initialised collection object
+   * @return int status
+   * @throws WebdavException
+   */
+  public int makeCollection(CalDAVCollection col) throws WebdavException;
+
+  /** Copy or move the collection to another location.
+   * Status is set on return
+   *
+   * @param from      Source collection
+   * @param to        Destination collection
+   * @param copy      true for copying
+   * @param overwrite destination exists
+   * @throws WebdavException
+   */
+  public void copyMove(CalDAVCollection from,
+                       CalDAVCollection to,
+                       boolean copy,
+                       boolean overwrite) throws WebdavException;
+
+  /** Get a collection given the path
    *
    * @param  path     String path of calendar
-   * @return BwCalendar null for unknown calendar
+   * @return CalDAVCollection null for unknown collection
    * @throws WebdavException
    */
-  public BwCalendar getCalendar(String path) throws WebdavException;
+  public CalDAVCollection getCollection(String path) throws WebdavException;
 
-  /** Update a calendar.
+  /** Update a collection.
    *
-   * @param val           updated BwCalendar object
+   * @param val           updated CalDAVCollection object
    * @throws WebdavException
    */
-  public void updateCalendar(BwCalendar val) throws WebdavException;
+  public void updateCollection(CalDAVCollection val) throws WebdavException;
 
-  /** Returns children of the given calendar to which the current user has
+  /**
+   * @param col
+   * @throws WebdavException
+   */
+  public void deleteCollection(CalDAVCollection col) throws WebdavException;
+
+  /** Returns children of the given collection to which the current user has
    * some access.
    *
-   * @param  cal          parent calendar
-   * @return Collection   of BwCalendar
+   * @param  col          parent collection
+   * @return Collection   of CalDAVCollection
    * @throws WebdavException
    */
-  public Collection<BwCalendar> getCalendars(BwCalendar cal)
+  public Collection<CalDAVCollection> getCollections(CalDAVCollection col)
           throws WebdavException;
 
   /** If the parameter is an alias and the target has not been resolved it will
-   * be fetched adn implanted in the paramater object.
+   * be fetched and implanted in the parameter object.
    *
-   * @param cal
+   * @param col
    * @throws WebdavException
    */
-  public void resolveAlias(BwCalendar cal) throws WebdavException;
+  public void resolveAlias(CalDAVCollection col) throws WebdavException;
 
   /* ====================================================================
    *                   Files
@@ -509,21 +534,21 @@ public interface SysIntf {
 
   /** PUT a file.
    *
-   * @param coll         BwCalendar defining recipient collection
+   * @param coll         CalDAVCollection defining recipient collection
    * @param val          BwResource
    * @throws WebdavException
    */
-  public void putFile(BwCalendar coll,
+  public void putFile(CalDAVCollection coll,
                       BwResource val) throws WebdavException;
 
   /** GET a file.
    *
-   * @param coll         BwCalendar containing file
+   * @param coll         CalDAVCollection containing file
    * @param name
    * @return BwResource
    * @throws WebdavException
    */
-  public BwResource getFile(BwCalendar coll,
+  public BwResource getFile(CalDAVCollection coll,
                             String name) throws WebdavException;
 
   /** Get resource content given the resource. It will be set in the resource
@@ -536,11 +561,11 @@ public interface SysIntf {
 
   /** Get the files in a collection.
    *
-   * @param coll         BwCalendar containing file
+   * @param coll         CalDAVCollection containing file
    * @return Collection of BwResource
    * @throws WebdavException
    */
-  public Collection<BwResource> getFiles(BwCalendar coll) throws WebdavException;
+  public Collection<BwResource> getFiles(CalDAVCollection coll) throws WebdavException;
 
   /** Update a file.
    *
@@ -595,12 +620,12 @@ public interface SysIntf {
 
   /** Convert the Icalendar reader to a Collection of Calendar objects
    *
-   * @param cal       calendar in which to place entities
+   * @param col       collection in which to place entities
    * @param rdr
    * @return Icalendar
    * @throws WebdavException
    */
-  public Icalendar fromIcal(BwCalendar cal, Reader rdr) throws WebdavException;
+  public Icalendar fromIcal(CalDAVCollection col, Reader rdr) throws WebdavException;
 
   /** Create a Calendar object from the named timezone and convert to
    * a String representation

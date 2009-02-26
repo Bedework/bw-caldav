@@ -163,7 +163,7 @@ public class CaldavComponentNode extends CaldavBwNode {
                              SysIntf sysi, boolean debug) throws WebdavException {
     super(cdURI, sysi, debug);
 
-    cal = cdURI.getCal();
+    col = cdURI.getCol();
     collection = false;
     allowsGet = true;
     entityName = cdURI.getEntityName();
