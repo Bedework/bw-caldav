@@ -1138,7 +1138,7 @@ public class BwSysIntfImpl implements SysIntf {
                                          false,  // adminCanEditAllPublicCategories
                                          false,  // adminCanEditAllPublicLocations
                                          false,  // adminCanEditAllPublicSponsors
-                                         true,    // caldav
+                                         true,    // sessionless
                                          null, // synchId
                                          conf,
                                          debug);
