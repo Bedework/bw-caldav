@@ -110,7 +110,7 @@ public abstract class CaldavBwNode extends WebdavNsNode {
       return false;
     }
 
-    return c.getCalType() == CalDAVCollection.calTypeCalendarColl;
+    return c.getCalType() == CalDAVCollection.calTypeCalendarCollection;
   }
 
   /**

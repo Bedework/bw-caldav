@@ -584,7 +584,7 @@ public class BexchangeSysIntfImpl implements SysIntf {
 
     String namePart = (String)l.get(l.size() - 1);
 
-    CalDAVCollectionBase col = new CalDAVCollectionBase(CalDAVCollection.calTypeCalendarColl,
+    CalDAVCollectionBase col = new CalDAVCollectionBase(CalDAVCollection.calTypeCalendarCollection,
                                                         true);
     col.setName(namePart);
     col.setPath(path);

@@ -41,7 +41,7 @@ public abstract class CalDAVCollection extends WdCollection {
   public final static int calTypeCollection = 0;
 
   /** Normal calendar collection */
-  public final static int calTypeCalendarColl = 1;
+  public final static int calTypeCalendarCollection = 1;
 
   /** Inbox  */
   public final static int calTypeInbox = 2;

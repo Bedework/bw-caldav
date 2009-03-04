@@ -186,7 +186,7 @@ public class CaldavCalNode extends CaldavBwNode {
       return true;
     }
 
-    if (type == CalDAVCollection.calTypeCalendarColl) {
+    if (type == CalDAVCollection.calTypeCalendarCollection) {
       return true;
     }
 
@@ -204,7 +204,7 @@ public class CaldavCalNode extends CaldavBwNode {
 
     CalDAVCollection c = (CalDAVCollection)getCollection(false); // Don't deref
 
-    c.setCalType(CalDAVCollection.calTypeCalendarColl);
+    c.setCalType(CalDAVCollection.calTypeCalendarCollection);
   }
 
   public Collection getChildren() throws WebdavException {
@@ -563,7 +563,7 @@ public class CaldavCalNode extends CaldavBwNode {
           xml.emptyTag(CaldavTags.scheduleInbox);
         } else if (calType == CalDAVCollection.calTypeOutbox) {
           xml.emptyTag(CaldavTags.scheduleOutbox);
-        } else if (calType == CalDAVCollection.calTypeCalendarColl) {
+        } else if (calType == CalDAVCollection.calTypeCalendarCollection) {
           xml.emptyTag(CaldavTags.calendar);
         }
         xml.closeTag(tag);
@@ -645,7 +645,7 @@ public class CaldavCalNode extends CaldavBwNode {
          *            <C:comp name="VTODO"/>
          *         </C:supported-calendar-component-set>
          */
-        if (calType != CalDAVCollection.calTypeCalendarColl) {
+        if (calType != CalDAVCollection.calTypeCalendarCollection) {
           return true;
         }
 

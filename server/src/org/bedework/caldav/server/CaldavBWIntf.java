@@ -660,7 +660,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
         calContent = contentTypePars[0].equals("text/calendar");
       }
 
-      if ((col.getCalType() != CalDAVCollection.calTypeCalendarColl) ||
+      if ((col.getCalType() != CalDAVCollection.calTypeCalendarCollection) ||
           !calContent) {
         throw new WebdavForbidden(CaldavTags.supportedCalendarData);
       }
@@ -719,7 +719,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       CalDAVCollection col = (CalDAVCollection)node.getCollection(true);
 
       if ((col == null) ||
-          (col.getCalType() == CalDAVCollection.calTypeCalendarColl)) {
+          (col.getCalType() == CalDAVCollection.calTypeCalendarCollection)) {
         throw new WebdavException(HttpServletResponse.SC_PRECONDITION_FAILED);
       }
 
@@ -919,7 +919,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       CalDAVCollection newCol = (CalDAVCollection)bwnode.getCollection(false); // No deref?
 
       CalDAVCollection parent = getSysi().getCollection(newCol.getParentPath());
-      if (parent.getCalType() == CalDAVCollection.calTypeCalendarColl) {
+      if (parent.getCalType() == CalDAVCollection.calTypeCalendarCollection) {
         throw new WebdavForbidden(CaldavTags.calendarCollectionLocationOk);
       }
 
@@ -1835,7 +1835,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
         return curi;
       }
 
-      if (col.getCalType() == CalDAVCollection.calTypeCalendarColl) {
+      if (col.getCalType() == CalDAVCollection.calTypeCalendarCollection) {
         if (debug) {
           debugMsg("find event(s) - cal=\"" + col.getPath() + "\" name=\"" +
                    split.name + "\"");

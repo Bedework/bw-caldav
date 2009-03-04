@@ -610,13 +610,13 @@ public class BwSysIntfImpl implements SysIntf {
 
       int calType = bwCol.getCalType();
 
-      if (!BwCalendar.collectionInfo[calType].allowFreeBusy) {
+      if (!bwCol.getCollectionInfo().allowFreeBusy) {
         throw new WebdavForbidden(WebdavTags.supportedReport);
       }
 
       Collection<BwCalendar> cals = new ArrayList<BwCalendar>();
 
-      if (calType == BwCalendar.calTypeCollection) {
+      if (calType == BwCalendar.calTypeCalendarCollection) {
         cals.add(bwCol);
       } else if (depth == 0) {
         /* Cannot return anything */
@@ -626,7 +626,7 @@ public class BwSysIntfImpl implements SysIntf {
         for (BwCalendar ch: getSvci().getCalendarsHandler().getChildren(bwCol)) {
           // For depth 1 we only add calendar collections
           if ((depth > 1) ||
-              (ch.getCalType() == BwCalendar.calTypeCollection)) {
+              (ch.getCalType() == BwCalendar.calTypeCalendarCollection)) {
             cals.add(ch);
           }
         }
@@ -634,7 +634,7 @@ public class BwSysIntfImpl implements SysIntf {
 
       BwEvent fb;
       if (cals.isEmpty()) {
-        // Retiurn an empty object
+        // Return an empty object
         fb = new BwEventObj();
         fb.setEntityType(CalFacadeDefs.entityTypeFreeAndBusy);
         fb.setDtstart(start);
@@ -689,7 +689,7 @@ public class BwSysIntfImpl implements SysIntf {
     BwCalendar col = new BwCalendar();
 
     if (isCalendarCollection) {
-      col.setCalType(BwCalendar.calTypeCollection);
+      col.setCalType(BwCalendar.calTypeCalendarCollection);
     } else {
       col.setCalType(BwCalendar.calTypeFolder);
     }

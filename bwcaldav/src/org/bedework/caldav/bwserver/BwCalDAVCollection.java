@@ -57,7 +57,7 @@ public class BwCalDAVCollection  extends CalDAVCollection {
    * ==================================================================== */
 
   public boolean isAlias() throws WebdavException {
-    return getCol().getCalType() == BwCalendar.calTypeAlias;
+    return getCol().getInternalAlias();
   }
 
   public WdCollection getAliasTarget() throws WebdavException {
@@ -72,7 +72,29 @@ public class BwCalDAVCollection  extends CalDAVCollection {
   }
 
   public int getCalType() throws WebdavException {
-    return getCol().getCalType();
+    int calType = getCol().getCalType();
+
+    if (calType == BwCalendar.calTypeFolder) {
+      // Broken alias
+      return CalDAVCollection.calTypeCollection;
+    }
+
+    if (calType == BwCalendar.calTypeCalendarCollection) {
+      // Broken alias
+      return CalDAVCollection.calTypeCalendarCollection;
+    }
+
+    if (calType == BwCalendar.calTypeInbox) {
+      // Broken alias
+      return CalDAVCollection.calTypeInbox;
+    }
+
+    if (calType == BwCalendar.calTypeOutbox) {
+      // Broken alias
+      return CalDAVCollection.calTypeOutbox;
+    }
+
+    return CalDAVCollection.calTypeUnknown;
   }
 
   public boolean freebusyAllowed() throws WebdavException {

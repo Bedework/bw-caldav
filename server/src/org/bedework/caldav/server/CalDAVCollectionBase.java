@@ -100,7 +100,7 @@ public class CalDAVCollectionBase extends CalDAVCollection {
    * @see org.bedework.caldav.server.CalDAVCollection#entitiesAllowed()
    */
   public boolean entitiesAllowed() throws WebdavException {
-    return (calType == calTypeCalendarColl) ||
+    return (calType == calTypeCalendarCollection) ||
            (calType == calTypeInbox) ||
            (calType == calTypeOutbox);
   }

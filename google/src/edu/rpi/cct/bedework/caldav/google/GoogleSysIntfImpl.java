@@ -564,7 +564,7 @@ public class GoogleSysIntfImpl implements SysIntf {
       owner = path.substring(1, endName);
     }
 
-    CalDAVCollectionBase col = new CalDAVCollectionBase(CalDAVCollection.calTypeCalendarColl,
+    CalDAVCollectionBase col = new CalDAVCollectionBase(CalDAVCollection.calTypeCalendarCollection,
                                                         true);
     col.setName(namePart);
     col.setPath(path);
