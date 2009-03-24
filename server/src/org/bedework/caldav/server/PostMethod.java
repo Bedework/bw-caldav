@@ -31,7 +31,6 @@ import org.bedework.calfacade.BwOrganizer;
 import org.bedework.calfacade.ScheduleResult;
 import org.bedework.calfacade.ScheduleResult.ScheduleRecipientResult;
 import org.bedework.calfacade.configs.CalDAVConfig;
-import org.bedework.calfacade.exc.CalFacadeException;
 import org.bedework.calfacade.svc.EventInfo;
 import org.bedework.icalendar.IcalTranslator;
 import org.bedework.icalendar.Icalendar;
@@ -444,7 +443,6 @@ public class PostMethod extends MethodBase {
 
     if (pars.realTime) {
       ScheduleResult sr = intf.getSysi().schedule(ei);
-      checkStatus(sr);
 
       resp.setStatus(HttpServletResponse.SC_OK);
       resp.setContentType("text/xml; charset=UTF-8");
@@ -503,7 +501,6 @@ public class PostMethod extends MethodBase {
     if (debug) {
       debugMsg("ScheduleResult: " + sr);
     }
-    checkStatus(sr);
 
     resp.setStatus(HttpServletResponse.SC_OK);
     resp.setContentType("text/xml; charset=UTF-8");
@@ -539,35 +536,6 @@ public class PostMethod extends MethodBase {
     }
 
     closeTag(CaldavTags.scheduleResponse);
-  }
-
-  /**
-   * @param sr
-   * @return boolean
-   * @throws WebdavException
-   */
-  public static boolean checkStatus(ScheduleResult sr) throws WebdavException {
-    if (sr.errorCode == null) {
-      return true;
-    }
-
-    if (sr.errorCode == CalFacadeException.schedulingBadMethod) {
-      throw new WebdavForbidden(CaldavTags.validCalendarData, "Bad METHOD");
-    }
-
-    if (sr.errorCode == CalFacadeException.schedulingBadAttendees) {
-      throw new WebdavForbidden(CaldavTags.attendeeAllowed, "Bad attendees");
-    }
-
-    if (sr.errorCode == CalFacadeException.schedulingAttendeeAccessDisallowed) {
-      throw new WebdavForbidden(CaldavTags.attendeeAllowed, "attendeeAccessDisallowed");
-    }
-
-    if (sr.errorCode == CalFacadeException.schedulingNoRecipients) {
-      return false;
-    }
-
-    throw new WebdavForbidden(sr.errorCode);
   }
 
   private void setReqstat(int status) throws WebdavException {

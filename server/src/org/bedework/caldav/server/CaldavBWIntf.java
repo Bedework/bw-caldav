@@ -31,24 +31,17 @@ import org.bedework.caldav.server.calquery.CalendarData;
 import org.bedework.caldav.server.calquery.FreeBusyQuery;
 import org.bedework.caldav.server.filter.Filter;
 import org.bedework.calfacade.BwEvent;
-import org.bedework.calfacade.BwEventObj;
-import org.bedework.calfacade.BwOrganizer;
 import org.bedework.calfacade.BwResource;
 import org.bedework.calfacade.BwResourceContent;
-import org.bedework.calfacade.CalFacadeDefs;
 import org.bedework.calfacade.RecurringRetrievalMode;
-import org.bedework.calfacade.ScheduleResult;
 import org.bedework.calfacade.RecurringRetrievalMode.Rmode;
-import org.bedework.calfacade.ScheduleResult.ScheduleRecipientResult;
 import org.bedework.calfacade.base.TimeRange;
 import org.bedework.calfacade.configs.CalDAVConfig;
 import org.bedework.calfacade.env.CalOptionsFactory;
 import org.bedework.calfacade.svc.EventInfo;
-import org.bedework.calfacade.util.CalFacadeUtil;
 import org.bedework.calfacade.util.BwDateTimeUtil;
 import org.bedework.icalendar.IcalTranslator;
 import org.bedework.icalendar.Icalendar;
-import org.bedework.icalendar.VFreeUtil;
 
 import edu.rpi.cct.webdav.servlet.common.AccessUtil;
 import edu.rpi.cct.webdav.servlet.common.Headers;
@@ -83,7 +76,6 @@ import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 
 import net.fortuna.ical4j.model.Calendar;
-import net.fortuna.ical4j.model.component.VFreeBusy;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -186,8 +178,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
         config = new CalDAVConfig();
       }
 
-      sysi = (SysIntf)CalFacadeUtil.getObject(config.getSysintfImpl(),
-                                              SysIntf.class);
+      sysi = getSysi(config.getSysintfImpl());
 
       sysi.init(req, account, config, debug);
 
@@ -218,8 +209,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       this.account = account;
 
-      sysi = (SysIntf)CalFacadeUtil.getObject(config.getSysintfImpl(),
-                                              SysIntf.class);
+      sysi = getSysi(config.getSysintfImpl());
 
       sysi.init(req, account, config, debug);
 
@@ -1103,9 +1093,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
       }
 
       String cua = req.getParameter("cua");
+      String user = null;
 
       if (cua == null) {
-        String user = req.getParameter("user");
+        user = req.getParameter("user");
         if (user == null) {
           if (account == null) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing user/cua");
@@ -1114,13 +1105,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
           user = account;
         }
-
-        cua = getSysi().userToCaladdr(user);
       }
-
-      pars.recipients.add(cua);
-      BwOrganizer org = new BwOrganizer();
-      org.setOrganizerUri(cua);
 
       pars.contentType = "text/calendar; charset=UTF-8";
 
@@ -1134,44 +1119,11 @@ public class CaldavBWIntf extends WebdavNsIntf {
         return;
       }
 
-      BwEvent ev = new BwEventObj();
-      ev.setDtstart(tr.getStart());
-      ev.setDtend(tr.getEnd());
-
-      ev.setEntityType(CalFacadeDefs.entityTypeFreeAndBusy);
-
-      ev.setScheduleMethod(Icalendar.methodTypeRequest);
-
-      ev.setRecipients(pars.recipients);
-      ev.setOriginator(pars.originator);
-      ev.setOrganizer(org);
-
       resp.setHeader("Content-Disposition",
                      "Attachment; Filename=\"freebusy.ics\"");
       resp.setContentType("text/calendar; charset=UTF-8");
 
-      ScheduleResult sr = getSysi().requestFreeBusy(new EventInfo(ev));
-      PostMethod.checkStatus(sr);
-
-      for (ScheduleRecipientResult srr: sr.recipientResults) {
-        // We expect one only
-        BwEvent rfb = srr.freeBusy;
-        if (rfb != null) {
-          rfb.setOrganizer(org);
-
-          try {
-            VFreeBusy vfreeBusy = VFreeUtil.toVFreeBusy(rfb);
-            net.fortuna.ical4j.model.Calendar ical = IcalTranslator.newIcal(Icalendar.methodTypeReply);
-            ical.getComponents().add(vfreeBusy);
-            IcalTranslator.writeCalendar(ical, resp.getWriter());
-          } catch (Throwable t) {
-            if (debug) {
-              error(t);
-            }
-            throw new WebdavException(t);
-          }
-        }
-      }
+      getSysi().getSpecialFreeBusy(cua, user, pars, tr, resp.getWriter());
     } catch (WebdavException wde) {
       throw wde;
     } catch (Throwable t) {
@@ -1642,6 +1594,28 @@ public class CaldavBWIntf extends WebdavNsIntf {
   /* ====================================================================
    *                         Private methods
    * ==================================================================== */
+
+  private SysIntf getSysi(String className) throws WebdavException {
+    try {
+      Object o = Class.forName(className).newInstance();
+
+      if (o == null) {
+        throw new WebdavException("Class " + className + " not found");
+      }
+
+      if (!SysIntf.class.isInstance(o)) {
+        throw new WebdavException("Class " + className +
+                                  " is not a subclass of " +
+                                  SysIntf.class.getName());
+      }
+
+      return (SysIntf)o;
+    } catch (WebdavException we) {
+      throw we;
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
+  }
 
   private WebdavNsNode getNodeInt(String uri,
                                   int existance,

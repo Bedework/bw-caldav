@@ -109,18 +109,43 @@
         </then>
       </if>
 
+      <!-- if org.bedework.getjar.finished is true we found a local file,
+          otherwise we need to check the repository. -->
+
       <if>
         <equals arg1="${org.bedework.getjar.finished}" arg2="false" />
         <then>
-          <echo message="Fetch ${org.bedework.getjar.jarname} from archive" />
-          <get src="@{src}/${org.bedework.getjar.jarname}"
-               dest="@{libcache}/${org.bedework.getjar.jarname}"
-               ignoreerrors="true"
-               verbose="true"
-               usetimestamp="true"/>
+          <if>
+            <equals arg1="${org.bedework.offline.build}" arg2="yes" />
+            <then>
+              <echo message="Offline: skip check for ${org.bedework.getjar.jarname}" />
+            </then>
+            <else>
+              <!-- Not offline - check repository -->
+              <echo message="Fetch ${org.bedework.getjar.jarname} from archive" />
+              <get src="@{src}/${org.bedework.getjar.jarname}"
+                   dest="@{libcache}/${org.bedework.getjar.jarname}"
+                   ignoreerrors="true"
+                   verbose="true"
+                   usetimestamp="true"/>
+            </else>
+          </if>
 
-          <copy file="@{libcache}/${org.bedework.getjar.jarname}"
-                todir="@{lib}" overwrite="yes" />
+          <if>
+            <not>
+              <available file="@{libcache}/${org.bedework.getjar.jarname}" />
+            </not>
+            <then>
+              <echo message="******************************************************" />
+              <echo message="File ${org.bedework.getjar.jarname} is not available" />
+              <echo message="******************************************************" />
+            </then>
+            <else>
+              <copy file="@{libcache}/${org.bedework.getjar.jarname}"
+                    todir="@{lib}" overwrite="yes" />
+            </else>
+          </if>
+
         </then>
       </if>
 

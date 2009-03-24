@@ -29,6 +29,7 @@ import org.bedework.caldav.server.CalDAVCollection;
 import org.bedework.caldav.server.CalDAVCollectionBase;
 import org.bedework.caldav.server.PropertyHandler;
 import org.bedework.caldav.server.SysIntf;
+import org.bedework.caldav.server.PostMethod.RequestPars;
 import org.bedework.caldav.server.PropertyHandler.PropertyType;
 import org.bedework.calfacade.BwDateTime;
 import org.bedework.calfacade.BwEvent;
@@ -39,6 +40,7 @@ import org.bedework.calfacade.BwResource;
 import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.ScheduleResult;
 import org.bedework.calfacade.base.BwShareableDbentity;
+import org.bedework.calfacade.base.TimeRange;
 import org.bedework.calfacade.configs.CalDAVConfig;
 import org.bedework.calfacade.filter.BwFilter;
 import org.bedework.calfacade.svc.EventInfo;
@@ -82,6 +84,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.Serializable;
 import java.io.StringReader;
+import java.io.Writer;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.util.Arrays;
@@ -444,6 +447,13 @@ public class DominoSysIntfImpl implements SysIntf {
   }
 
   public ScheduleResult requestFreeBusy(EventInfo ei) throws WebdavException {
+    throw new WebdavException("unimplemented");
+  }
+
+  public void getSpecialFreeBusy(String cua, String user,
+                                 RequestPars pars,
+                                 TimeRange tr,
+                                 Writer wtr) throws WebdavException {
     throw new WebdavException("unimplemented");
   }
 

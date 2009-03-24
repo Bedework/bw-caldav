@@ -25,6 +25,7 @@
 */
 package org.bedework.caldav.server;
 
+import org.bedework.caldav.server.PostMethod.RequestPars;
 import org.bedework.caldav.server.PropertyHandler.PropertyType;
 import org.bedework.calfacade.BwDateTime;
 import org.bedework.calfacade.BwEvent;
@@ -33,6 +34,7 @@ import org.bedework.calfacade.BwResource;
 import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.ScheduleResult;
 import org.bedework.calfacade.base.BwShareableDbentity;
+import org.bedework.calfacade.base.TimeRange;
 import org.bedework.calfacade.configs.CalDAVConfig;
 import org.bedework.calfacade.filter.BwFilter;
 import org.bedework.calfacade.svc.EventInfo;
@@ -50,6 +52,7 @@ import net.fortuna.ical4j.model.Calendar;
 
 import java.io.Reader;
 import java.io.Serializable;
+import java.io.Writer;
 import java.util.Collection;
 
 import javax.servlet.http.HttpServletRequest;
@@ -374,6 +377,20 @@ public interface SysIntf {
    */
   public ScheduleResult requestFreeBusy(EventInfo val)
           throws WebdavException;
+
+  /** Handle the special freebusy resquests, i.e. non-CalDAV
+   *
+   * @param cua
+   * @param user
+   * @param pars
+   * @param tr
+   * @param wtr
+   * @throws WebdavException
+   */
+  public void getSpecialFreeBusy(String cua, String user,
+                                 RequestPars pars,
+                                 TimeRange tr,
+                                 Writer wtr) throws WebdavException;
 
   /** Generate a free busy object for the given time period which reflects
    * the state of the given collection.
