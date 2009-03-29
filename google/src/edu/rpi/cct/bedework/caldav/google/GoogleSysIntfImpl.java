@@ -38,7 +38,6 @@ import org.bedework.calfacade.BwEventProxy;
 import org.bedework.calfacade.BwFreeBusyComponent;
 import org.bedework.calfacade.BwResource;
 import org.bedework.calfacade.CalFacadeDefs;
-import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.ScheduleResult;
 import org.bedework.calfacade.base.BwShareableDbentity;
 import org.bedework.calfacade.base.TimeRange;
@@ -47,7 +46,9 @@ import org.bedework.calfacade.filter.BwFilter;
 import org.bedework.calfacade.svc.EventInfo;
 import org.bedework.calfacade.timezones.CalTimezones;
 import org.bedework.calfacade.util.ChangeTable;
+import org.bedework.icalendar.IcalTranslator;
 import org.bedework.icalendar.Icalendar;
+import org.bedework.icalendar.VFreeUtil;
 
 import edu.rpi.cct.bedework.caldav.exchange.Group;
 import edu.rpi.cct.bedework.caldav.exchange.User;
@@ -64,6 +65,7 @@ import edu.rpi.cmt.access.Acl.CurrentAccess;
 
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.TimeZone;
+import net.fortuna.ical4j.model.component.VFreeBusy;
 
 import org.apache.log4j.Logger;
 
@@ -343,13 +345,13 @@ public class GoogleSysIntfImpl implements SysIntf {
 
   public Collection<EventInfo> getEvents(CalDAVCollection col,
                                          BwFilter filter,
-                                         RecurringRetrievalMode recurRetrieval)
+                                         RetrievalMode recurRetrieval)
           throws WebdavException {
     throw new WebdavException("unimplemented");
   }
 
   public EventInfo getEvent(CalDAVCollection col, String val,
-                            RecurringRetrievalMode recurRetrieval)
+                            RetrievalMode recurRetrieval)
               throws WebdavException {
     throw new WebdavException("unimplemented");
   }
@@ -377,11 +379,11 @@ public class GoogleSysIntfImpl implements SysIntf {
     throw new WebdavException("unimplemented");
   }
 
-  public BwEvent getFreeBusy(final CalDAVCollection col,
-                             int depth,
-                             final String account,
-                             final BwDateTime start,
-                             final BwDateTime end) throws WebdavException {
+  public Calendar getFreeBusy(final CalDAVCollection col,
+                              int depth,
+                              final String account,
+                              final BwDateTime start,
+                              final BwDateTime end) throws WebdavException {
     /* We get something like:
      *
 <feed>
@@ -491,7 +493,15 @@ public class GoogleSysIntfImpl implements SysIntf {
         fb.addFreeBusyPeriod(fbc);
       }
 
-      return fb;
+      VFreeBusy vfreeBusy = VFreeUtil.toVFreeBusy(fb);
+      if (vfreeBusy != null) {
+        Calendar ical = IcalTranslator.newIcal(Icalendar.methodTypeNone);
+        ical.getComponents().add(vfreeBusy);
+
+        return ical;
+      }
+
+      return null;
     } catch (Throwable t) {
       throw new WebdavException(t);
     }

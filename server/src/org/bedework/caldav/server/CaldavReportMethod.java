@@ -26,13 +26,14 @@
 
 package org.bedework.caldav.server;
 
+import org.bedework.caldav.server.SysIntf.RetrievalMode;
 import org.bedework.caldav.server.calquery.CalendarData;
 import org.bedework.caldav.server.calquery.ExpandRecurrenceSet;
 import org.bedework.caldav.server.calquery.FreeBusyQuery;
 import org.bedework.caldav.server.calquery.LimitRecurrenceSet;
 import org.bedework.caldav.server.filter.Filter;
-import org.bedework.calfacade.RecurringRetrievalMode;
-import org.bedework.calfacade.RecurringRetrievalMode.Rmode;
+//import org.bedework.calfacade.RecurringRetrievalMode;
+//import org.bedework.calfacade.RecurringRetrievalMode.Rmode;
 import org.bedework.icalendar.Icalendar;
 
 import edu.rpi.cct.webdav.servlet.common.ReportMethod;
@@ -413,27 +414,22 @@ public class CaldavReportMethod extends ReportMethod {
 
     CaldavBWIntf intf = (CaldavBWIntf)getNsIntf();
 
-    RecurringRetrievalMode rrm;
+    RetrievalMode rm = null;
 
-    if (caldata == null) {
-      rrm = new RecurringRetrievalMode(Rmode.overrides);
-    } else if (caldata.getErs() != null) {
-      /* expand with time range */
-      ExpandRecurrenceSet ers = caldata.getErs();
+    if (caldata != null) {
+      if (caldata.getErs() != null) {
+        /* expand with time range */
+        ExpandRecurrenceSet ers = caldata.getErs();
 
-      rrm = new RecurringRetrievalMode(Rmode.expanded,
-                                       ers.getStart(), ers.getEnd());
-    } else if (caldata.getLrs() != null) {
-      /* Only return master event and overrides in range */
-      LimitRecurrenceSet lrs = caldata.getLrs();
-      rrm = new RecurringRetrievalMode(Rmode.overrides,
-                                       lrs.getStart(), lrs.getEnd());
-    } else {
-      /* Return master + overrides */
-      rrm = new RecurringRetrievalMode(Rmode.overrides);
+        rm = RetrievalMode.getExpanded(ers.getStart(), ers.getEnd());
+      } else if (caldata.getLrs() != null) {
+        /* Only return master event and overrides in range */
+        LimitRecurrenceSet lrs = caldata.getLrs();
+        rm = RetrievalMode.getLimited(lrs.getStart(), lrs.getEnd());
+      }
     }
 
-    return intf.query(node, rrm, filter);
+    return intf.query(node, rm, filter);
   }
 
   private Collection<WebdavNsNode> doNodeAndChildren(WebdavNsNode node,

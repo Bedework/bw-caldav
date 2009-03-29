@@ -27,14 +27,13 @@ package org.bedework.caldav.server;
 
 import org.bedework.caldav.server.PostMethod.RequestPars;
 import org.bedework.caldav.server.SysIntf.CalPrincipalInfo;
+import org.bedework.caldav.server.SysIntf.RetrievalMode;
 import org.bedework.caldav.server.calquery.CalendarData;
 import org.bedework.caldav.server.calquery.FreeBusyQuery;
 import org.bedework.caldav.server.filter.Filter;
 import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.BwResource;
 import org.bedework.calfacade.BwResourceContent;
-import org.bedework.calfacade.RecurringRetrievalMode;
-import org.bedework.calfacade.RecurringRetrievalMode.Rmode;
 import org.bedework.calfacade.base.TimeRange;
 import org.bedework.calfacade.configs.CalDAVConfig;
 import org.bedework.calfacade.env.CalOptionsFactory;
@@ -1479,7 +1478,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
    * @throws WebdavException
    */
   public Collection<WebdavNsNode> query(WebdavNsNode wdnode,
-                                        RecurringRetrievalMode retrieveRecur,
+                                        RetrievalMode retrieveRecur,
                                         Filter fltr) throws WebdavException {
     CaldavBwNode node = (CaldavBwNode)wdnode;
     Collection<EventInfo> events;
@@ -1579,11 +1578,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
         return;
       }
 
-      BwEvent fb = freeBusy.getFreeBusy(sysi, c,
-                                        cnode.getOwner().getAccount(),
-                                        depth);
-
-      cnode.setFreeBusy(fb);
+      cnode.setFreeBusy(freeBusy.getFreeBusy(sysi, c,
+                                             cnode.getOwner().getAccount(),
+                                             depth));
     } catch (WebdavException we) {
       throw we;
     } catch (Throwable t) {
@@ -1815,9 +1812,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
                    split.name + "\"");
         }
 
-        RecurringRetrievalMode rrm =
-          new RecurringRetrievalMode(Rmode.overrides);
-        ei = sysi.getEvent(col, split.name, rrm);
+        ei = sysi.getEvent(col, split.name, null);
 
         if ((existance == WebdavNsIntf.existanceMust) && (ei == null)) {
           throw new WebdavNotFound(uri);

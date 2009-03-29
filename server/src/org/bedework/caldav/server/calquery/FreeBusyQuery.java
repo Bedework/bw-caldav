@@ -29,12 +29,13 @@ import org.bedework.caldav.server.CalDAVCollection;
 import org.bedework.caldav.server.SysIntf;
 import org.bedework.calfacade.base.TimeRange;
 import org.bedework.calfacade.util.xml.CalDavParseUtil;
-import org.bedework.calfacade.BwEvent;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.sss.util.xml.XmlUtil;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
+
+import net.fortuna.ical4j.model.Calendar;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Node;
@@ -93,19 +94,13 @@ public class FreeBusyQuery {
    * @return BwEvent
    * @throws WebdavException
    */
-  public BwEvent getFreeBusy(SysIntf sysi, CalDAVCollection col,
+  public Calendar getFreeBusy(SysIntf sysi, CalDAVCollection col,
                              String account,
                              int depth) throws WebdavException {
     try {
-      BwEvent fb = sysi.getFreeBusy(col, depth, account,
-                                    timeRange.getStart(),
-                                    timeRange.getEnd());
-
-      if (debug) {
-        trace("Got " + fb);
-      }
-
-      return fb;
+      return sysi.getFreeBusy(col, depth, account,
+                              timeRange.getStart(),
+                              timeRange.getEnd());
     } catch (WebdavException wde) {
       throw wde;
     } catch (Throwable t) {

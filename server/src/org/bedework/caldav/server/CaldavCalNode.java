@@ -27,12 +27,7 @@
 package org.bedework.caldav.server;
 
 import org.bedework.caldav.server.SysIntf.CalPrincipalInfo;
-import org.bedework.calfacade.BwEvent;
-import org.bedework.calfacade.RecurringRetrievalMode;
-import org.bedework.calfacade.RecurringRetrievalMode.Rmode;
-import org.bedework.icalendar.IcalTranslator;
 import org.bedework.icalendar.Icalendar;
-import org.bedework.icalendar.VFreeUtil;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
@@ -51,7 +46,6 @@ import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.TimeZone;
-import net.fortuna.ical4j.model.component.VFreeBusy;
 
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -114,7 +108,9 @@ public class CaldavCalNode extends CaldavBwNode {
    * @param debug
    * @throws WebdavException
    */
-  public CaldavCalNode(CaldavURI cdURI, SysIntf sysi, boolean debug) throws WebdavException {
+  public CaldavCalNode(CaldavURI cdURI,
+                       SysIntf sysi,
+                       boolean debug) throws WebdavException {
     super(cdURI, sysi, debug);
 
     col = cdURI.getCol();
@@ -237,28 +233,26 @@ public class CaldavCalNode extends CaldavBwNode {
         debugMsg("Get all resources in calendar " + c.getPath());
       }
 
-      RecurringRetrievalMode rrm = new RecurringRetrievalMode(
-                           Rmode.overrides);
-      return getSysi().getEvents(c, null, rrm);
+      return getSysi().getEvents(c, null, null);
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
   }
 
   /**
-   * @param fb
+   * @param fbcal
    * @throws WebdavException
    */
-  public void setFreeBusy(BwEvent fb) throws WebdavException {
+  public void setFreeBusy(Calendar fbcal) throws WebdavException {
     try {
-      VFreeBusy vfreeBusy = VFreeUtil.toVFreeBusy(fb);
-      if (vfreeBusy != null) {
-        ical = IcalTranslator.newIcal(Icalendar.methodTypeNone);
-        ical.getComponents().add(vfreeBusy);
+      ical = fbcal;
+
+      if (ical != null) {
         vfreeBusyString = ical.toString();
       } else {
         vfreeBusyString = null;
       }
+
       allowsGet = true;
     } catch (Throwable t) {
       if (debug) {

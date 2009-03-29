@@ -37,7 +37,6 @@ import org.bedework.calfacade.BwEventObj;
 import org.bedework.calfacade.BwEventProxy;
 import org.bedework.calfacade.BwFreeBusyComponent;
 import org.bedework.calfacade.BwResource;
-import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.ScheduleResult;
 import org.bedework.calfacade.base.BwShareableDbentity;
 import org.bedework.calfacade.base.TimeRange;
@@ -52,6 +51,7 @@ import org.bedework.http.client.dav.DavResp;
 import org.bedework.icalendar.IcalTranslator;
 import org.bedework.icalendar.Icalendar;
 import org.bedework.icalendar.SAICalCallback;
+import org.bedework.icalendar.VFreeUtil;
 
 import edu.rpi.cct.bedework.caldav.exchange.Group;
 import edu.rpi.cct.bedework.caldav.exchange.User;
@@ -71,6 +71,7 @@ import edu.rpi.sss.util.xml.XmlUtil;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.Period;
+import net.fortuna.ical4j.model.component.VFreeBusy;
 
 import org.apache.commons.httpclient.NoHttpResponseException;
 import org.apache.log4j.Logger;
@@ -423,13 +424,13 @@ public class DominoSysIntfImpl implements SysIntf {
 
   public Collection<EventInfo> getEvents(CalDAVCollection col,
                                          BwFilter filter,
-                                         RecurringRetrievalMode recurRetrieval)
+                                         RetrievalMode recurRetrieval)
           throws WebdavException {
     throw new WebdavException("unimplemented");
   }
 
   public EventInfo getEvent(CalDAVCollection col, String val,
-                            RecurringRetrievalMode recurRetrieval)
+                            RetrievalMode recurRetrieval)
               throws WebdavException {
     throw new WebdavException("unimplemented");
   }
@@ -457,11 +458,11 @@ public class DominoSysIntfImpl implements SysIntf {
     throw new WebdavException("unimplemented");
   }
 
-  public BwEvent getFreeBusy(final CalDAVCollection col,
-                             final int depth,
-                             final String account,
-                             final BwDateTime start,
-                             final BwDateTime end) throws WebdavException {
+  public Calendar getFreeBusy(final CalDAVCollection col,
+                              final int depth,
+                              final String account,
+                              final BwDateTime start,
+                              final BwDateTime end) throws WebdavException {
     /* Create a url something like:
      *  http://t1.egenconsulting.com:80/servlet/Freetime/John?start-min=2006-07-11T12:00:00Z&start-max=2006-07-16T12:00:00Z
      */
@@ -559,7 +560,15 @@ public class DominoSysIntfImpl implements SysIntf {
         fbcomp.addPeriod(busyp.getStart(), busyp.getEnd());
       }
 
-      return fb;
+      VFreeBusy vfreeBusy = VFreeUtil.toVFreeBusy(fb);
+      if (vfreeBusy != null) {
+        Calendar ical = IcalTranslator.newIcal(Icalendar.methodTypeNone);
+        ical.getComponents().add(vfreeBusy);
+
+        return ical;
+      }
+
+      return null;
     } catch (WebdavException wde) {
       throw wde;
     } catch (Throwable t) {

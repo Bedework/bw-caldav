@@ -31,7 +31,6 @@ import org.bedework.calfacade.BwDateTime;
 import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.BwEventProxy;
 import org.bedework.calfacade.BwResource;
-import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.ScheduleResult;
 import org.bedework.calfacade.base.BwShareableDbentity;
 import org.bedework.calfacade.base.TimeRange;
@@ -328,6 +327,82 @@ public interface SysIntf {
   public void updateEvent(EventInfo event,
                           ChangeTable changes) throws WebdavException;
 
+  /** */
+  public static class RetrievalMode implements Serializable {
+    /**
+     * Values which define how to retrieve recurring events. We have the
+     * following choices
+     *   No limits
+     *   Limit Recurrence set - with range
+     *   Expand recurrences
+     */
+
+    /** */
+    public boolean expanded;
+
+    /** */
+    public boolean limitRecurrenceSet;
+
+    /** Limit expansion and recurrences.
+     */
+    public BwDateTime start;
+
+    /** Limit expansion and recurrences.
+     */
+    public BwDateTime end;
+
+    /** Factory
+     *
+     * @param start
+     * @param end
+     * @return RetrievalMode
+     */
+    public static RetrievalMode getExpanded(BwDateTime start, BwDateTime end) {
+      RetrievalMode rm = new RetrievalMode();
+
+      rm.expanded = true;
+      rm.start = start;
+      rm.end = end;
+
+      return rm;
+    }
+
+    /** Factory
+     *
+     * @param start
+     * @param end
+     * @return RetrievalMode
+     */
+    public static RetrievalMode getLimited(BwDateTime start, BwDateTime end) {
+      RetrievalMode rm = new RetrievalMode();
+
+      rm.limitRecurrenceSet = true;
+      rm.start = start;
+      rm.end = end;
+
+      return rm;
+    }
+
+    public String toString() {
+      StringBuilder sb = new StringBuilder("RetrievalMode{");
+
+      if (expanded) {
+        sb.append("expanded, ");
+      } else {
+        sb.append("limited, ");
+      }
+
+      sb.append(", start=");
+      sb.append(start);
+
+      sb.append(", end=");
+      sb.append(end);
+
+      sb.append("}");
+      return sb.toString();
+    }
+  }
+
   /** Return the events for the current user in the given collection using the
    * supplied filter. Stored freebusy objects are returned as BwEvent
    * objects with the appropriate entity type.
@@ -342,7 +417,7 @@ public interface SysIntf {
    */
   public Collection<EventInfo> getEvents(CalDAVCollection col,
                                          BwFilter filter,
-                                         RecurringRetrievalMode recurRetrieval)
+                                         RetrievalMode recurRetrieval)
           throws WebdavException;
 
   /** Get events given the collection and String name. Return null for not
@@ -356,7 +431,7 @@ public interface SysIntf {
    * @throws WebdavException
    */
   public EventInfo getEvent(CalDAVCollection col, String val,
-                            RecurringRetrievalMode recurRetrieval)
+                            RetrievalMode recurRetrieval)
           throws WebdavException;
 
   /**
@@ -400,14 +475,14 @@ public interface SysIntf {
    * @param account
    * @param start
    * @param end
-   * @return BwEvent
+   * @return Calendar
    * @throws WebdavException
    */
-  public BwEvent getFreeBusy(final CalDAVCollection col,
-                             final int depth,
-                             final String account,
-                             final BwDateTime start,
-                             final BwDateTime end) throws WebdavException;
+  public Calendar getFreeBusy(final CalDAVCollection col,
+                              final int depth,
+                              final String account,
+                              final BwDateTime start,
+                              final BwDateTime end) throws WebdavException;
 
   /** Check the access for the given entity. Returns the current access
    * or null or optionally throws a no access exception.

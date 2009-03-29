@@ -43,6 +43,7 @@ import org.bedework.calfacade.BwUser;
 import org.bedework.calfacade.CalFacadeDefs;
 import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.ScheduleResult;
+import org.bedework.calfacade.RecurringRetrievalMode.Rmode;
 import org.bedework.calfacade.ScheduleResult.ScheduleRecipientResult;
 import org.bedework.calfacade.base.BwShareableDbentity;
 import org.bedework.calfacade.base.TimeRange;
@@ -536,16 +537,16 @@ public class BwSysIntfImpl implements SysIntf {
   }
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#getEvents(org.bedework.caldav.server.CalDAVCollection, org.bedework.calfacade.filter.BwFilter, org.bedework.calfacade.RecurringRetrievalMode)
+   * @see org.bedework.caldav.server.SysIntf#getEvents(org.bedework.caldav.server.CalDAVCollection, org.bedework.calfacade.filter.BwFilter, org.bedework.caldav.server.SysIntf.RetrievalMode)
    */
   public Collection<EventInfo> getEvents(CalDAVCollection col,
                                          BwFilter filter,
-                                         RecurringRetrievalMode recurRetrieval)
+                                         RetrievalMode recurRetrieval)
           throws WebdavException {
     try {
       return getSvci().getEventsHandler().getEvents(unwrap(col), filter,
                                                     null, null,
-                                                    recurRetrieval);
+                                                    getRrm(recurRetrieval));
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
@@ -558,13 +559,14 @@ public class BwSysIntfImpl implements SysIntf {
   }
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#getEvent(org.bedework.caldav.server.CalDAVCollection, java.lang.String, org.bedework.calfacade.RecurringRetrievalMode)
+   * @see org.bedework.caldav.server.SysIntf#getEvent(org.bedework.caldav.server.CalDAVCollection, java.lang.String, org.bedework.caldav.server.SysIntf.RetrievalMode)
    */
   public EventInfo getEvent(CalDAVCollection col, String val,
-                            RecurringRetrievalMode recurRetrieval)
+                            RetrievalMode recurRetrieval)
               throws WebdavException {
     try {
-      return getSvci().getEventsHandler().get(col.getPath(), val, recurRetrieval);
+      return getSvci().getEventsHandler().get(col.getPath(), val,
+                                              getRrm(recurRetrieval));
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
@@ -663,7 +665,7 @@ public class BwSysIntfImpl implements SysIntf {
   /* (non-Javadoc)
    * @see org.bedework.caldav.server.SysIntf#getFreeBusy(org.bedework.caldav.server.CalDAVCollection, int, java.lang.String, org.bedework.calfacade.BwDateTime, org.bedework.calfacade.BwDateTime)
    */
-  public BwEvent getFreeBusy(final CalDAVCollection col,
+  public Calendar getFreeBusy(final CalDAVCollection col,
                              final int depth,
                              final String account,
                              final BwDateTime start,
@@ -711,7 +713,15 @@ public class BwSysIntfImpl implements SysIntf {
         fb = getSvci().getScheduler().getFreeBusy(cals, user, start, end);
       }
 
-      return fb;
+      VFreeBusy vfreeBusy = VFreeUtil.toVFreeBusy(fb);
+      if (vfreeBusy != null) {
+        Calendar ical = IcalTranslator.newIcal(Icalendar.methodTypeNone);
+        ical.getComponents().add(vfreeBusy);
+
+        return ical;
+      }
+
+      return null;
     } catch (CalFacadeException cfe) {
       throw new WebdavException(cfe);
     } catch (WebdavException wde) {
@@ -1277,6 +1287,28 @@ public class BwSysIntfImpl implements SysIntf {
       svci = null;
       throw new WebdavException(t);
     }
+  }
+
+  private RecurringRetrievalMode getRrm(RetrievalMode rm) {
+    if (rm == null) {
+      return new RecurringRetrievalMode(Rmode.overrides);
+    }
+
+    if (rm.expanded) {
+      /* expand with time range */
+      return new RecurringRetrievalMode(Rmode.expanded,
+                                        rm.start, rm.end);
+    }
+
+    if (rm.limitRecurrenceSet) {
+      /* Only return master event and overrides in range */
+
+      return new RecurringRetrievalMode(Rmode.overrides,
+                                        rm.start, rm.end);
+    }
+
+    /* Return master + overrides */
+    return new RecurringRetrievalMode(Rmode.overrides);
   }
 
   /* ====================================================================

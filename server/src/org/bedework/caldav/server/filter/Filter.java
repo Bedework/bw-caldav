@@ -28,8 +28,8 @@ package org.bedework.caldav.server.filter;
 import org.bedework.caldav.server.CalDAVCollection;
 import org.bedework.caldav.server.CaldavBwNode;
 import org.bedework.caldav.server.CaldavComponentNode;
+import org.bedework.caldav.server.SysIntf.RetrievalMode;
 import org.bedework.calfacade.CalFacadeDefs;
-import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.exc.CalFacadeException;
 import org.bedework.calfacade.exc.CalFacadeForbidden;
 import org.bedework.calfacade.filter.caldav.CompFilter;
@@ -172,7 +172,7 @@ public class Filter extends org.bedework.calfacade.filter.caldav.Filter {
    * @throws WebdavException
    */
   public Collection<EventInfo> query(CaldavBwNode wdnode,
-                                     RecurringRetrievalMode retrieveRecur) throws WebdavException {
+                                     RetrievalMode retrieveRecur) throws WebdavException {
     try {
       eventq = getQuery();
 
