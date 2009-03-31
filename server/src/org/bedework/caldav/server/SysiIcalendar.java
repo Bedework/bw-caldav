@@ -25,6 +25,7 @@
 */
 package org.bedework.caldav.server;
 
+import edu.rpi.cct.webdav.servlet.shared.WdEntity;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cmt.calendar.ScheduleMethods;
 import edu.rpi.cmt.calendar.IcalDefs.IcalComponentType;
@@ -40,7 +41,9 @@ import java.util.Iterator;
  * @author Mike Douglass douglm   rpi.edu
  * @version 1.0
  */
-public abstract class SysiIcalendar implements ScheduleMethods, Serializable {
+public abstract class SysiIcalendar implements ScheduleMethods,
+                                               Iterator<WdEntity>,
+                                               Iterable<WdEntity>, Serializable {
   /**
    * @return String
    */

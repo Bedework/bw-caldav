@@ -1478,6 +1478,8 @@ public class BwSysIntfImpl implements SysIntf {
     private Icalendar ic;
     private BwSysIntfImpl sysi;
 
+    private Iterator icIterator;
+
     private MySysiIcalendar(BwSysIntfImpl sysi, Icalendar ic) {
       this.ic = ic;
     }
@@ -1550,7 +1552,7 @@ public class BwSysIntfImpl implements SysIntf {
     }
 
     public Iterator iterator() {
-      return ic.iterator();
+      return this;
     }
 
     public int size() {
@@ -1579,6 +1581,46 @@ public class BwSysIntfImpl implements SysIntf {
 
     public boolean validItipMethodType(int val) {
       return Icalendar.validItipMethodType(val);
+    }
+
+    /* ====================================================================
+     *                        Iterator methods
+     * ==================================================================== */
+
+    public boolean hasNext() {
+      return getIcIterator().hasNext();
+    }
+
+    public WdEntity next() {
+      Object o = getIcIterator().next();
+
+      if (!(o instanceof EventInfo)) {
+        return null;
+      }
+
+      EventInfo ei = (EventInfo)o;
+
+      if (ei == null) {
+        return null;
+      }
+
+      try {
+        return new BwCalDAVEvent(sysi, ei);
+      } catch (Throwable t) {
+        throw new RuntimeException(t);
+      }
+    }
+
+    public void remove() {
+      throw new UnsupportedOperationException();
+    }
+
+    private Iterator getIcIterator() {
+      if (icIterator == null) {
+        icIterator = ic.iterator();
+      }
+
+      return icIterator;
     }
   }
 

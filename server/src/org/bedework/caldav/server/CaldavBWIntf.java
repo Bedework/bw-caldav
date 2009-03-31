@@ -79,7 +79,6 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Properties;
 import java.util.TreeSet;
 
@@ -131,7 +130,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
    *                     Interface methods
    * ==================================================================== */
 
-  /** Called before any other method is called to allow initialisation to
+  /** Called before any other method is called to allow initialization to
    * take place at the first or subsequent requests
    *
    * @param servlet
@@ -550,20 +549,15 @@ public class CaldavBWIntf extends WebdavNsIntf {
         throw new WebdavForbidden(CaldavTags.supportedCalendarData);
       }
 
-      SysiIcalendar ic = sysi.fromIcal(col, contentRdr);
-
       /** We can only put a single resource - that resource will be an ics file
        * containing freebusy information or an event or todo and possible overrides.
        */
 
-      Iterator it = ic.iterator();
       boolean fail = false;
 
-      while (it.hasNext()) {
-        Object o = it.next();
-
-        if (o instanceof CalDAVEvent) {
-          pcr.created = putEvent(bwnode, (CalDAVEvent)o, create, ifEtag);
+      for (WdEntity ent: sysi.fromIcal(col, contentRdr)) {
+        if (ent instanceof CalDAVEvent) {
+          pcr.created = putEvent(bwnode, (CalDAVEvent)ent, create, ifEtag);
         } else {
           fail = true;
           break;
@@ -695,13 +689,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       /* Collection<BwEventProxy>failedOverrides = */
       sysi.addEvent(ev, noInvites, true);
-
-      /*StringBuffer sb = new StringBuffer(cdUri.getPath());
-      sb.append("/");
-      sb.append(entityName);
-      if (!entityName.toLowerCase().endsWith(".ics")) {
-        sb.append(".ics");
-      }*/
 
       bwnode.setEvent(ev);
     } else if (create) {

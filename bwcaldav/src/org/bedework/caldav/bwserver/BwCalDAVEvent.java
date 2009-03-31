@@ -575,6 +575,22 @@ public class BwCalDAVEvent extends CalDAVEvent {
     return 1;
   }
 
+  public void setPrevLastmod(String val) throws WebdavException {
+    getEvinfo().setPrevLastmod(val);
+  }
+
+  public String getPrevLastmod() throws WebdavException {
+    return getEvinfo().getPrevLastmod();
+  }
+
+  public void setPrevSequence(int val) throws WebdavException {
+    getEvinfo().setPrevSeq(val);
+  }
+
+  public int getPrevSequence() throws WebdavException {
+    return getEvinfo().getPrevSeq();
+  }
+
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WdCollection#setDescription(java.lang.String)
    */
