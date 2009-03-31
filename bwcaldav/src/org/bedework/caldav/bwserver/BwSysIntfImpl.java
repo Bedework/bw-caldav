@@ -26,8 +26,13 @@
 package org.bedework.caldav.bwserver;
 
 import org.bedework.caldav.server.CalDAVCollection;
+import org.bedework.caldav.server.CalDAVEvent;
+import org.bedework.caldav.server.CalDAVResource;
+import org.bedework.caldav.server.Organizer;
 import org.bedework.caldav.server.PropertyHandler;
 import org.bedework.caldav.server.SysIntf;
+import org.bedework.caldav.server.SysIntfReader;
+import org.bedework.caldav.server.SysiIcalendar;
 import org.bedework.caldav.server.PostMethod.RequestPars;
 import org.bedework.caldav.server.PropertyHandler.PropertyType;
 import org.bedework.calfacade.BwCalendar;
@@ -45,7 +50,6 @@ import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.ScheduleResult;
 import org.bedework.calfacade.RecurringRetrievalMode.Rmode;
 import org.bedework.calfacade.ScheduleResult.ScheduleRecipientResult;
-import org.bedework.calfacade.base.BwShareableDbentity;
 import org.bedework.calfacade.base.TimeRange;
 import org.bedework.calfacade.configs.CalDAVConfig;
 import org.bedework.calfacade.exc.CalFacadeAccessException;
@@ -53,7 +57,6 @@ import org.bedework.calfacade.exc.CalFacadeException;
 import org.bedework.calfacade.exc.CalFacadeStaleStateException;
 import org.bedework.calfacade.filter.BwFilter;
 import org.bedework.calfacade.svc.EventInfo;
-import org.bedework.calfacade.util.ChangeTable;
 import org.bedework.calsvci.CalSvcFactoryDefault;
 import org.bedework.calsvci.CalSvcI;
 import org.bedework.calsvci.CalSvcIPars;
@@ -64,6 +67,7 @@ import org.bedework.icalendar.Icalendar;
 import org.bedework.icalendar.VFreeUtil;
 
 import edu.rpi.cct.webdav.servlet.shared.PrincipalPropertySearch;
+import edu.rpi.cct.webdav.servlet.shared.WdEntity;
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavForbidden;
@@ -75,20 +79,24 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode.UrlHandler;
 import edu.rpi.cmt.access.AccessPrincipal;
 import edu.rpi.cmt.access.Acl;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
+import edu.rpi.cmt.calendar.IcalDefs.IcalComponentType;
 import edu.rpi.sss.util.xml.XmlUtil;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 
 import net.fortuna.ical4j.model.Calendar;
+import net.fortuna.ical4j.model.TimeZone;
 import net.fortuna.ical4j.model.component.VFreeBusy;
 
 import org.apache.log4j.Logger;
 
 import java.io.Reader;
+import java.io.StringReader;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -460,21 +468,19 @@ public class BwSysIntfImpl implements SysIntf {
     }
   }
 
-  public ScheduleResult schedule(EventInfo ei) throws WebdavException {
+  public Collection<SchedRecipientResult> schedule(CalDAVEvent ev) throws WebdavException {
     try {
       ScheduleResult sr;
 
-      BwEvent ev = ei.getEvent();
-      ev.setOwnerHref(currentPrincipal.getPrincipalRef());
-      if (Icalendar.itipReplyMethodType(ev.getScheduleMethod())) {
-        sr = getSvci().getScheduler().scheduleResponse(ei);
+      BwEvent event = getEvent(ev);
+      event.setOwnerHref(currentPrincipal.getPrincipalRef());
+      if (Icalendar.itipReplyMethodType(event.getScheduleMethod())) {
+        sr = getSvci().getScheduler().scheduleResponse(getEvinfo(ev));
       } else {
-        sr = getSvci().getScheduler().schedule(ei, null, false);
+        sr = getSvci().getScheduler().schedule(getEvinfo(ev), null, false);
       }
 
-      checkStatus(sr);
-
-      return sr;
+      return checkStatus(sr);
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
@@ -492,17 +498,30 @@ public class BwSysIntfImpl implements SysIntf {
    * ==================================================================== */
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#addEvent(org.bedework.calfacade.svc.EventInfo, boolean, boolean)
+   * @see org.bedework.caldav.server.SysIntf#addEvent(org.bedework.caldav.server.CalDAVEvent, boolean, boolean)
    */
-  public Collection<BwEventProxy> addEvent(EventInfo ei,
-                                           boolean noInvites,
-                                           boolean rollbackOnError) throws WebdavException {
+  public Collection<CalDAVEvent> addEvent(CalDAVEvent ev,
+                                          boolean noInvites,
+                                          boolean rollbackOnError) throws WebdavException {
     try {
       /* Is the event a scheduling object? */
 
-      return getSvci().getEventsHandler().add(ei, noInvites,
+      Collection<BwEventProxy> bwevs =
+             getSvci().getEventsHandler().add(getEvinfo(ev), noInvites,
                                               false,  // scheduling - inbox
                                               rollbackOnError).failedOverrides;
+
+      if (bwevs == null) {
+        return null;
+      }
+
+      Collection<CalDAVEvent> evs = new ArrayList<CalDAVEvent>();
+
+      for (BwEvent bwev: bwevs) {
+        evs.add(new BwCalDAVEvent(this, new EventInfo(bwev)));
+      }
+
+      return evs;
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
@@ -518,12 +537,13 @@ public class BwSysIntfImpl implements SysIntf {
     }
   }
 
-  public void updateEvent(EventInfo event,
-                          ChangeTable changes) throws WebdavException {
+  public void updateEvent(CalDAVEvent event) throws WebdavException {
     try {
-      getSvci().getEventsHandler().update(event, false,
+      EventInfo ei = getEvinfo(event);
+
+      getSvci().getEventsHandler().update(ei, false,
                                           null,
-                                          null, changes);
+                                          null, ei.getChangeset());
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
@@ -539,14 +559,27 @@ public class BwSysIntfImpl implements SysIntf {
   /* (non-Javadoc)
    * @see org.bedework.caldav.server.SysIntf#getEvents(org.bedework.caldav.server.CalDAVCollection, org.bedework.calfacade.filter.BwFilter, org.bedework.caldav.server.SysIntf.RetrievalMode)
    */
-  public Collection<EventInfo> getEvents(CalDAVCollection col,
-                                         BwFilter filter,
-                                         RetrievalMode recurRetrieval)
+  public Collection<CalDAVEvent> getEvents(CalDAVCollection col,
+                                           BwFilter filter,
+                                           RetrievalMode recurRetrieval)
           throws WebdavException {
     try {
-      return getSvci().getEventsHandler().getEvents(unwrap(col), filter,
+      Collection<EventInfo> bwevs =
+             getSvci().getEventsHandler().getEvents(unwrap(col), filter,
                                                     null, null,
                                                     getRrm(recurRetrieval));
+
+      if (bwevs == null) {
+        return null;
+      }
+
+      Collection<CalDAVEvent> evs = new ArrayList<CalDAVEvent>();
+
+      for (EventInfo ei: bwevs) {
+        evs.add(new BwCalDAVEvent(this, ei));
+      }
+
+      return evs;
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
@@ -561,44 +594,55 @@ public class BwSysIntfImpl implements SysIntf {
   /* (non-Javadoc)
    * @see org.bedework.caldav.server.SysIntf#getEvent(org.bedework.caldav.server.CalDAVCollection, java.lang.String, org.bedework.caldav.server.SysIntf.RetrievalMode)
    */
-  public EventInfo getEvent(CalDAVCollection col, String val,
-                            RetrievalMode recurRetrieval)
+  public CalDAVEvent getEvent(CalDAVCollection col, String val,
+                              RetrievalMode recurRetrieval)
               throws WebdavException {
     try {
-      return getSvci().getEventsHandler().get(col.getPath(), val,
-                                              getRrm(recurRetrieval));
+      EventInfo ei = getSvci().getEventsHandler().get(col.getPath(), val,
+                                                      getRrm(recurRetrieval));
+
+      if (ei == null) {
+        return null;
+      }
+
+      return new BwCalDAVEvent(this, ei);
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
   }
 
-  public void deleteEvent(BwEvent ev,
+  public void deleteEvent(CalDAVEvent ev,
                           boolean scheduleReply) throws WebdavException {
     try {
-      getSvci().getEventsHandler().delete(ev, scheduleReply);
+      if (ev == null) {
+        return;
+      }
+
+      getSvci().getEventsHandler().delete(getEvent(ev), scheduleReply);
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
   }
 
-  public ScheduleResult requestFreeBusy(EventInfo val) throws WebdavException {
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#requestFreeBusy(org.bedework.caldav.server.CalDAVEvent)
+   */
+  public Collection<SchedRecipientResult> requestFreeBusy(CalDAVEvent val) throws WebdavException {
     try {
       ScheduleResult sr;
 
-      BwEvent ev = val.getEvent();
+      BwEvent ev = getEvent(val);
       if (currentPrincipal != null) {
         ev.setOwnerHref(currentPrincipal.getPrincipalRef());
       }
 
       if (Icalendar.itipReplyMethodType(ev.getScheduleMethod())) {
-        sr = getSvci().getScheduler().scheduleResponse(val);
+        sr = getSvci().getScheduler().scheduleResponse(getEvinfo(val));
       } else {
-        sr = getSvci().getScheduler().schedule(val, null, false);
+        sr = getSvci().getScheduler().schedule(getEvinfo(val), null, false);
       }
 
-      checkStatus(sr);
-
-      return sr;
+      return checkStatus(sr);
     } catch (CalFacadeAccessException cfae) {
       if (debug) {
         error(cfae);
@@ -639,16 +683,17 @@ public class BwSysIntfImpl implements SysIntf {
     ev.setOriginator(pars.originator);
     ev.setOrganizer(org);
 
-    ScheduleResult sr = requestFreeBusy(new EventInfo(ev));
+    Collection<SchedRecipientResult> srrs = requestFreeBusy(
+                         new BwCalDAVEvent(this, new EventInfo(ev)));
 
-    for (ScheduleRecipientResult srr: sr.recipientResults) {
+    for (SchedRecipientResult srr: srrs) {
       // We expect one only
-      BwEvent rfb = srr.freeBusy;
+      BwCalDAVEvent rfb = (BwCalDAVEvent)srr.freeBusy;
       if (rfb != null) {
-        rfb.setOrganizer(org);
+        rfb.getEv().setOrganizer(org);
 
         try {
-          VFreeBusy vfreeBusy = VFreeUtil.toVFreeBusy(rfb);
+          VFreeBusy vfreeBusy = VFreeUtil.toVFreeBusy(rfb.getEv());
           net.fortuna.ical4j.model.Calendar ical = IcalTranslator.newIcal(Icalendar.methodTypeReply);
           ical.getComponents().add(vfreeBusy);
           IcalTranslator.writeCalendar(ical, wtr);
@@ -731,21 +776,36 @@ public class BwSysIntfImpl implements SysIntf {
     }
   }
 
-  public CurrentAccess checkAccess(BwShareableDbentity ent,
+  public CurrentAccess checkAccess(WdEntity ent,
                                    int desiredAccess,
                                    boolean returnResult)
           throws WebdavException {
     try {
-      return getSvci().checkAccess(ent, desiredAccess, returnResult);
+      if (ent instanceof CalDAVCollection) {
+        return getSvci().checkAccess(unwrap((CalDAVCollection)ent),
+                                     desiredAccess, returnResult);
+      }
+
+      if (ent instanceof CalDAVEvent) {
+        return getSvci().checkAccess(getEvent((CalDAVEvent)ent),
+                                     desiredAccess, returnResult);
+      }
+
+      if (ent instanceof CalDAVResource) {
+        return getSvci().checkAccess(getRsrc((CalDAVResource)ent),
+                                     desiredAccess, returnResult);
+      }
+
+      throw new WebdavBadRequest();
     } catch (CalFacadeException cfe) {
       throw new WebdavException(cfe);
     }
   }
 
-  public void updateAccess(BwEvent ev,
+  public void updateAccess(CalDAVEvent ev,
                            Acl acl) throws WebdavException{
     try {
-      getSvci().changeAccess(ev, acl.getAces(), true);
+      getSvci().changeAccess(getEvent(ev), acl.getAces(), true);
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
@@ -790,17 +850,6 @@ public class BwSysIntfImpl implements SysIntf {
       throw new WebdavException(cfe);
     } catch (Throwable t) {
       throw new WebdavException(t);
-    }
-  }
-
-  public CurrentAccess checkAccess(CalDAVCollection col,
-                                   int desiredAccess,
-                                   boolean returnResult)
-          throws WebdavException {
-    try {
-      return getSvci().checkAccess(unwrap(col), desiredAccess, returnResult);
-    } catch (CalFacadeException cfe) {
-      throw new WebdavException(cfe);
     }
   }
 
@@ -866,16 +915,17 @@ public class BwSysIntfImpl implements SysIntf {
   }
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#copyMove(org.bedework.calfacade.svc.EventInfo, org.bedework.caldav.server.CalDAVCollection, java.lang.String, boolean, boolean)
+   * @see org.bedework.caldav.server.SysIntf#copyMove(org.bedework.caldav.server.CalDAVEvent, org.bedework.caldav.server.CalDAVCollection, java.lang.String, boolean, boolean)
    */
-  public boolean copyMove(EventInfo from,
+  public boolean copyMove(CalDAVEvent from,
                           CalDAVCollection to,
                           String name,
                           boolean copy,
                           boolean overwrite) throws WebdavException {
     CopyMoveStatus cms;
     try {
-      cms = getSvci().getEventsHandler().copyMoveNamed(from, unwrap(to), name,
+      cms = getSvci().getEventsHandler().copyMoveNamed(getEvinfo(from),
+                                                       unwrap(to), name,
                                                        copy, overwrite, false);
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
@@ -895,7 +945,7 @@ public class BwSysIntfImpl implements SysIntf {
 
     if (cms == CopyMoveStatus.destinationExists) {
       if (name == null) {
-        name = from.getEvent().getName();
+        name = from.getName();
       }
       throw new WebdavForbidden("Destination exists: " + name);
     }
@@ -1005,12 +1055,23 @@ public class BwSysIntfImpl implements SysIntf {
    * ==================================================================== */
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#putFile(org.bedework.caldav.server.CalDAVCollection, org.bedework.calfacade.BwResource)
+   * @see org.bedework.caldav.server.SysIntf#newResourceObject(java.lang.String)
+   */
+  public CalDAVResource newResourceObject(String parentPath) throws WebdavException {
+    CalDAVResource r = new BwCalDAVResource(this, null);
+
+    r.setParentPath(parentPath);
+
+    return r;
+  }
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#putFile(org.bedework.caldav.server.CalDAVCollection, org.bedework.caldav.server.CalDAVResource)
    */
   public void putFile(CalDAVCollection coll,
-                      BwResource val) throws WebdavException {
+                      CalDAVResource val) throws WebdavException {
     try {
-      getSvci().getResourcesHandler().save(coll.getPath(), val);
+      getSvci().getResourcesHandler().save(coll.getPath(), getRsrc(val));
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
@@ -1023,10 +1084,17 @@ public class BwSysIntfImpl implements SysIntf {
   /* (non-Javadoc)
    * @see org.bedework.caldav.server.SysIntf#getFile(org.bedework.caldav.server.CalDAVCollection, java.lang.String)
    */
-  public BwResource getFile(CalDAVCollection coll,
-                            String name) throws WebdavException {
+  public CalDAVResource getFile(CalDAVCollection coll,
+                                String name) throws WebdavException {
     try {
-      return getSvci().getResourcesHandler().get(coll.getPath() + "/" + name);
+      BwResource rsrc = getSvci().getResourcesHandler().get(coll.getPath() +
+                                                            "/" + name);
+
+      if (rsrc == null) {
+        return null;
+      }
+
+      return new BwCalDAVResource(this, rsrc);
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
@@ -1037,11 +1105,11 @@ public class BwSysIntfImpl implements SysIntf {
   }
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#getContent(org.bedework.calfacade.BwResource)
+   * @see org.bedework.caldav.server.SysIntf#getFileContent(org.bedework.caldav.server.CalDAVResource)
    */
-  public void getFileContent(BwResource val) throws WebdavException {
+  public void getFileContent(CalDAVResource val) throws WebdavException {
     try {
-      getSvci().getResourcesHandler().getContent(val);
+      getSvci().getResourcesHandler().getContent(getRsrc(val));
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
@@ -1054,9 +1122,22 @@ public class BwSysIntfImpl implements SysIntf {
   /* (non-Javadoc)
    * @see org.bedework.caldav.server.SysIntf#getFiles(org.bedework.caldav.server.CalDAVCollection)
    */
-  public Collection<BwResource> getFiles(CalDAVCollection coll) throws WebdavException {
+  public Collection<CalDAVResource> getFiles(CalDAVCollection coll) throws WebdavException {
     try {
-      return getSvci().getResourcesHandler().getAll(coll.getPath());
+      Collection<BwResource> bwrs =
+            getSvci().getResourcesHandler().getAll(coll.getPath());
+
+      if (bwrs == null) {
+        return  null;
+      }
+
+      Collection<CalDAVResource> rs = new ArrayList<CalDAVResource>();
+
+      for (BwResource r: bwrs) {
+        rs.add(new BwCalDAVResource(this, r));
+      }
+
+      return rs;
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
@@ -1067,12 +1148,12 @@ public class BwSysIntfImpl implements SysIntf {
   }
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#updateFile(org.bedework.calfacade.BwResource, boolean)
+   * @see org.bedework.caldav.server.SysIntf#updateFile(org.bedework.caldav.server.CalDAVResource, boolean)
    */
-  public void updateFile(BwResource val,
+  public void updateFile(CalDAVResource val,
                          boolean updateContent) throws WebdavException {
     try {
-      getSvci().getResourcesHandler().update(val, updateContent);
+      getSvci().getResourcesHandler().update(getRsrc(val), updateContent);
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
@@ -1083,11 +1164,11 @@ public class BwSysIntfImpl implements SysIntf {
   }
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#deleteFile(org.bedework.calfacade.BwResource)
+   * @see org.bedework.caldav.server.SysIntf#deleteFile(org.bedework.caldav.server.CalDAVResource)
    */
-  public void deleteFile(BwResource val) throws WebdavException {
+  public void deleteFile(CalDAVResource val) throws WebdavException {
     try {
-      getSvci().getResourcesHandler().delete(val.getColPath() + "/" +
+      getSvci().getResourcesHandler().delete(val.getParentPath() + "/" +
                                              val.getName());
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
@@ -1099,15 +1180,16 @@ public class BwSysIntfImpl implements SysIntf {
   }
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#copyMoveFile(org.bedework.calfacade.BwResource, java.lang.String, java.lang.String, boolean, boolean)
+   * @see org.bedework.caldav.server.SysIntf#copyMoveFile(org.bedework.caldav.server.CalDAVResource, java.lang.String, java.lang.String, boolean, boolean)
    */
-  public boolean copyMoveFile(BwResource from,
+  public boolean copyMoveFile(CalDAVResource from,
                               String toPath,
                               String name,
                               boolean copy,
                               boolean overwrite) throws WebdavException {
     try {
-      return getSvci().getResourcesHandler().copyMove(from, toPath, name,
+      return getSvci().getResourcesHandler().copyMove(getRsrc(from),
+                                                      toPath, name,
                                                       copy,
                                                       overwrite);
     } catch (CalFacadeAccessException cfae) {
@@ -1119,18 +1201,31 @@ public class BwSysIntfImpl implements SysIntf {
     }
   }
 
-  public Calendar toCalendar(EventInfo ev) throws WebdavException {
+  public Calendar toCalendar(CalDAVEvent ev) throws WebdavException {
     try {
-      return trans.toIcal(ev, ev.getEvent().getScheduleMethod());
+      return trans.toIcal(getEvinfo(ev), getEvent(ev).getScheduleMethod());
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
   }
 
-  public Calendar toCalendar(Collection<EventInfo> evs,
-                             int method) throws WebdavException {
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#writeCalendar(java.util.Collection, int, java.io.Writer)
+   */
+  public void writeCalendar(Collection<CalDAVEvent> evs,
+                            int method,
+                            Writer wtr) throws WebdavException {
     try {
-      return trans.toIcal(evs, method);
+      Collection<EventInfo> bwevs = new ArrayList<EventInfo>();
+
+      for (CalDAVEvent cde: evs) {
+        BwCalDAVEvent bcde = (BwCalDAVEvent)cde;
+
+        bwevs.add(bcde.getEvinfo());
+      }
+
+      Calendar ical = trans.toIcal(bwevs, method);
+      IcalTranslator.writeCalendar(ical, wtr);
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
@@ -1139,10 +1234,12 @@ public class BwSysIntfImpl implements SysIntf {
   /* (non-Javadoc)
    * @see org.bedework.caldav.server.SysIntf#fromIcal(org.bedework.caldav.server.CalDAVCollection, java.io.Reader)
    */
-  public Icalendar fromIcal(CalDAVCollection col, Reader rdr) throws WebdavException {
+  public SysiIcalendar fromIcal(CalDAVCollection col, Reader rdr) throws WebdavException {
     getSvci(); // Ensure open
     try {
-      return trans.fromIcal(unwrap(col), rdr);
+      Icalendar ic = trans.fromIcal(unwrap(col), new SysIntfReader(rdr, debug));
+
+      return new MySysiIcalendar(this, ic);
     } catch (IcalMalformedException ime) {
       throw new WebdavBadRequest(ime.getMessage());
     } catch (Throwable t) {
@@ -1157,6 +1254,31 @@ public class BwSysIntfImpl implements SysIntf {
       throw new WebdavException(cfe);
     } catch (Throwable t) {
       throw new WebdavException(t);
+    }
+  }
+
+  public String tzidFromTzdef(String val) throws WebdavException {
+    try {
+      getSvci(); // Ensure open
+      StringReader sr = new StringReader(val);
+
+      // This call automatically saves the timezone in the db
+      Icalendar ic = trans.fromIcal(null, sr);
+
+      if ((ic == null) ||
+          (ic.size() != 0) || // No components other than timezones
+          (ic.getTimeZones().size() != 1)) {
+        if (debug) {
+          debugMsg("Not icalendar");
+        }
+        throw new WebdavForbidden(CaldavTags.validCalendarData, "Not icalendar");
+      }
+
+      TimeZone tz = ic.getTimeZones().iterator().next();
+
+      return tz.getID();
+    } catch (CalFacadeException cfe) {
+      throw new WebdavException(cfe);
     }
   }
 
@@ -1180,11 +1302,28 @@ public class BwSysIntfImpl implements SysIntf {
 
   /**
    * @param sr
+   * @return recipient results
    * @throws WebdavException
    */
-  private void checkStatus(ScheduleResult sr) throws WebdavException {
-    if (sr.errorCode == null) {
-      return;
+  private Collection<SchedRecipientResult> checkStatus(ScheduleResult sr) throws WebdavException {
+    if ((sr.errorCode == null) ||
+        (sr.errorCode == CalFacadeException.schedulingNoRecipients)) {
+      Collection<SchedRecipientResult> srrs = new ArrayList<SchedRecipientResult>();
+
+      for (ScheduleRecipientResult bwsrr: sr.recipientResults) {
+        SchedRecipientResult srr = new SchedRecipientResult();
+
+        srr.recipient = bwsrr.recipient;
+        srr.status = bwsrr.status;
+
+        if (bwsrr.freeBusy != null) {
+          srr.freeBusy = new BwCalDAVEvent(this, new EventInfo(bwsrr.freeBusy));
+        }
+
+        srrs.add(srr);
+      }
+
+      return srrs;
     }
 
     if (sr.errorCode == CalFacadeException.schedulingBadMethod) {
@@ -1199,10 +1338,6 @@ public class BwSysIntfImpl implements SysIntf {
       throw new WebdavForbidden(CaldavTags.attendeeAllowed, "attendeeAccessDisallowed");
     }
 
-    if (sr.errorCode == CalFacadeException.schedulingNoRecipients) {
-      return;
-    }
-
     throw new WebdavForbidden(sr.errorCode);
   }
 
@@ -1212,7 +1347,31 @@ public class BwSysIntfImpl implements SysIntf {
                                  col.getClass());
     }
 
-    return ((BwCalDAVCollection)col).col;
+    return ((BwCalDAVCollection)col).getCol();
+  }
+
+  private EventInfo getEvinfo(CalDAVEvent ev) throws WebdavException {
+    if (ev == null) {
+      return null;
+    }
+
+    return ((BwCalDAVEvent)ev).getEvinfo();
+  }
+
+  private BwEvent getEvent(CalDAVEvent ev) throws WebdavException {
+    if (ev == null) {
+      return null;
+    }
+
+    return ((BwCalDAVEvent)ev).getEv();
+  }
+
+  private BwResource getRsrc(CalDAVResource rsrc) throws WebdavException {
+    if (rsrc == null) {
+      return null;
+    }
+
+    return ((BwCalDAVResource)rsrc).getRsrc();
   }
 
   /**
@@ -1309,6 +1468,118 @@ public class BwSysIntfImpl implements SysIntf {
 
     /* Return master + overrides */
     return new RecurringRetrievalMode(Rmode.overrides);
+  }
+
+  /**
+   * @author douglm
+   *
+   */
+  private static class MySysiIcalendar extends SysiIcalendar {
+    private Icalendar ic;
+    private BwSysIntfImpl sysi;
+
+    private MySysiIcalendar(BwSysIntfImpl sysi, Icalendar ic) {
+      this.ic = ic;
+    }
+
+    public String getProdid() {
+      return ic.getProdid();
+    }
+
+    public String getVersion() {
+      return ic.getVersion();
+    }
+
+    public String getCalscale() {
+      return ic.getCalscale();
+    }
+
+    public String getMethod() {
+      return ic.getMethod();
+    }
+
+    public Collection<TimeZone> getTimeZones() {
+      return ic.getTimeZones();
+    }
+
+    public Collection<Object> getComponents() {
+      return ic.getComponents();
+    }
+
+    public IcalComponentType getComponentType() {
+      return ic.getComponentType();
+    }
+
+    public int getMethodType() {
+      return ic.getMethodType();
+    }
+
+    public int getMethodType(String val) {
+      return Icalendar.getMethodType(val);
+    }
+
+    public String getMethodName(int mt) {
+      return Icalendar.getMethodName(mt);
+    }
+
+    public Organizer getOrganizer() {
+      BwOrganizer bworg = ic.getOrganizer();
+
+      if (bworg == null) {
+        return null;
+      }
+
+      return new Organizer(bworg.getCn(), bworg.getDir(),
+                           bworg.getLanguage(),
+                           bworg.getSentBy(),
+                           bworg.getOrganizerUri());
+    }
+
+    public CalDAVEvent getEvent() throws WebdavException {
+      //if ((size() != 1) || (getComponentType() != ComponentType.event)) {
+      //  throw new RuntimeException("org.bedework.icalendar.component.not.event");
+      //}
+
+      EventInfo ei = (EventInfo)iterator().next();
+
+      if (ei == null) {
+        return null;
+      }
+
+      return new BwCalDAVEvent(sysi, ei);
+    }
+
+    public Iterator iterator() {
+      return ic.iterator();
+    }
+
+    public int size() {
+      return ic.size();
+    }
+
+    public boolean validItipMethodType() {
+      return validItipMethodType(getMethodType());
+    }
+
+    public boolean requestMethodType() {
+      return itipRequestMethodType(getMethodType());
+    }
+
+    public boolean replyMethodType() {
+      return itipReplyMethodType(getMethodType());
+    }
+
+    public boolean itipRequestMethodType(int mt) {
+      return Icalendar.itipRequestMethodType(mt);
+    }
+
+    public boolean itipReplyMethodType(int mt) {
+      return Icalendar.itipReplyMethodType(mt);
+    }
+
+    public boolean validItipMethodType(int val) {
+      return Icalendar.validItipMethodType(val);
+    }
   }
 
   /* ====================================================================

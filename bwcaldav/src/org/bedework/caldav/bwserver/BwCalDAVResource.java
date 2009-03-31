@@ -25,8 +25,9 @@
 */
 package org.bedework.caldav.bwserver;
 
-import org.bedework.caldav.server.CalDAVCollection;
-import org.bedework.calfacade.BwCalendar;
+import org.bedework.caldav.server.CalDAVResource;
+import org.bedework.calfacade.BwResource;
+import org.bedework.calfacade.BwResourceContent;
 
 import edu.rpi.cct.webdav.servlet.shared.WdEntity;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
@@ -37,19 +38,19 @@ import edu.rpi.cmt.access.AccessPrincipal;
  * @author douglm
  *
  */
-public class BwCalDAVCollection extends CalDAVCollection {
+public class BwCalDAVResource extends CalDAVResource {
   private BwSysIntfImpl intf;
 
-  private BwCalendar col;
+  private BwResource rsrc;
 
   /**
    * @param intf
-   * @param col
+   * @param rsrc
    * @throws WebdavException
    */
-  BwCalDAVCollection(BwSysIntfImpl intf, BwCalendar col) throws WebdavException {
+  BwCalDAVResource(BwSysIntfImpl intf, BwResource rsrc) throws WebdavException {
     this.intf = intf;
-    this.col = col;
+    this.rsrc = rsrc;
   }
 
   /* ====================================================================
@@ -60,100 +61,86 @@ public class BwCalDAVCollection extends CalDAVCollection {
    * @see edu.rpi.cct.webdav.servlet.shared.WdEntity#isAlias()
    */
   public boolean isAlias() throws WebdavException {
-    return getCol().getInternalAlias();
+    return false;
   }
 
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WdEntity#getAliasTarget()
    */
   public WdEntity getAliasTarget() throws WebdavException {
-    return new BwCalDAVCollection(intf, col.getAliasTarget());
+    return this;
   }
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.CalDAVCollection#setCalType(int)
+   * @see org.bedework.caldav.server.CalDAVEvent#getNewEvent()
    */
-  public void setCalType(int val) throws WebdavException {
-    getCol().setCalType(val);
+  public boolean isNew() throws WebdavException {
+    return getRsrc().unsaved();
   }
 
-  public int getCalType() throws WebdavException {
-    int calType = getCol().getCalType();
+  public void setBinaryContent(byte[] val) throws WebdavException {
+    BwResource r = getRsrc();
 
-    if (calType == BwCalendar.calTypeFolder) {
-      // Broken alias
-      return CalDAVCollection.calTypeCollection;
+    BwResourceContent rc = r.getContent();
+
+    if (rc == null) {
+      if (!isNew()) {
+        intf.getFileContent(this);
+        rc = r.getContent();
+      }
+
+      if (rc == null) {
+        rc = new BwResourceContent();
+        r.setContent(rc);
+      }
     }
 
-    if (calType == BwCalendar.calTypeCalendarCollection) {
-      // Broken alias
-      return CalDAVCollection.calTypeCalendarCollection;
+    rc.setValue(val);
+    r.setContentLength(val.length);
+  }
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.CalDAVResource#getBinaryContent()
+   */
+  public byte[] getBinaryContent() throws WebdavException {
+    if (rsrc == null) {
+      return null;
     }
 
-    if (calType == BwCalendar.calTypeInbox) {
-      // Broken alias
-      return CalDAVCollection.calTypeInbox;
+    if (rsrc.getContent() == null) {
+      intf.getFileContent(this);
     }
 
-    if (calType == BwCalendar.calTypeOutbox) {
-      // Broken alias
-      return CalDAVCollection.calTypeOutbox;
+    return rsrc.getContent().getValue();
+  }
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.CalDAVResource#getContentLen()
+   */
+  public int getContentLen() throws WebdavException {
+    if (rsrc == null) {
+      return 0;
     }
 
-    return CalDAVCollection.calTypeUnknown;
-  }
-
-  public boolean freebusyAllowed() throws WebdavException {
-    return getCol().getCollectionInfo().allowFreeBusy;
+    return rsrc.getContentLength();
   }
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.CalDAVCollection#entitiesAllowed()
+   * @see org.bedework.caldav.server.CalDAVResource#setContentType(java.lang.String)
    */
-  public boolean entitiesAllowed() throws WebdavException {
-    return getCol().getCollectionInfo().entitiesAllowed;
+  public void setContentType(String val) throws WebdavException {
+    getRsrc().setContentType(val);
   }
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.CalDAVCollection#setAffectsFreeBusy(boolean)
+   * @see org.bedework.caldav.server.CalDAVResource#getContentType()
    */
-  public void setAffectsFreeBusy(boolean val) throws WebdavException {
-    getCol().setAffectsFreeBusy(val);
-  }
+  public String getContentType() throws WebdavException {
+    if (rsrc == null) {
+      return null;
+    }
 
-  /* (non-Javadoc)
-   * @see org.bedework.caldav.server.CalDAVCollection#getAffectsFreeBusy()
-   */
-  public boolean getAffectsFreeBusy() throws WebdavException {
-    return getCol().getAffectsFreeBusy();
-  }
-
-  /* (non-Javadoc)
-   * @see org.bedework.caldav.server.CalDAVCollection#setTimezone(java.lang.String)
-   */
-  public void setTimezone(String val) throws WebdavException {
-    getCol().setTimezone(val);
-  }
-
-  /* (non-Javadoc)
-   * @see org.bedework.caldav.server.CalDAVCollection#getTimezone()
-   */
-  public String getTimezone() throws WebdavException {
-    return getCol().getTimezone();
-  }
-
-  /* (non-Javadoc)
-   * @see org.bedework.caldav.server.CalDAVCollection#setColor(java.lang.String)
-   */
-  public void setColor(String val) throws WebdavException {
-    getCol().setColor(val);
-  }
-
-  /* (non-Javadoc)
-   * @see org.bedework.caldav.server.CalDAVCollection#getColor()
-   */
-  public String getColor() throws WebdavException {
-    return getCol().getColor();
+    return rsrc.getContentType();
   }
 
   /* ====================================================================
@@ -164,119 +151,118 @@ public class BwCalDAVCollection extends CalDAVCollection {
    * @see edu.rpi.cct.webdav.servlet.shared.WdCollection#setName(java.lang.String)
    */
   public void setName(String val) throws WebdavException {
-    getCol().setName(val);
+    getRsrc().setName(val);
   }
 
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WdCollection#getName()
    */
   public String getName() throws WebdavException {
-    return getCol().getName();
+    return getRsrc().getName();
   }
 
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WdCollection#setDisplayName(java.lang.String)
    */
   public void setDisplayName(String val) throws WebdavException {
-    getCol().setSummary(val);
+    // No display name
   }
 
   /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WdCollection#getDisplayName()
+   * @see edu.rpi.cct.webdav.servlet.shared.WdEntity#getDisplayName()
    */
   public String getDisplayName() throws WebdavException {
-    return getCol().getSummary();
+    return getRsrc().getName();
   }
 
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WdCollection#setPath(java.lang.String)
    */
   public void setPath(String val) throws WebdavException {
-    getCol().setPath(val);
+    // Not actually saved
   }
 
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WdCollection#getPath()
    */
   public String getPath() throws WebdavException {
-    return getCol().getPath();
+    return getRsrc().getColPath() + "/" + getRsrc().getName();
   }
 
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WdCollection#setParentPath(java.lang.String)
    */
   public void setParentPath(String val) throws WebdavException {
-    getCol().setColPath(val);
+    getRsrc().setColPath(val);
   }
 
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WdCollection#getParentPath()
    */
   public String getParentPath() throws WebdavException {
-    return getCol().getColPath();
+    return getRsrc().getColPath();
   }
 
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WdCollection#setOwner(edu.rpi.cmt.access.AccessPrincipal)
    */
   public void setOwner(AccessPrincipal val) throws WebdavException {
-    getCol().setOwnerHref(val.getPrincipalRef());
+    getRsrc().setOwnerHref(val.getPrincipalRef());
   }
 
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WdCollection#getOwner()
    */
   public AccessPrincipal getOwner() throws WebdavException {
-    return intf.getPrincipal(getCol().getOwnerHref());
+    return intf.getPrincipal(getRsrc().getOwnerHref());
   }
 
   public void setCreated(String val) throws WebdavException {
-    getCol().setCreated(val);
+    getRsrc().setCreated(val);
   }
 
   public String getCreated() throws WebdavException {
-    return getCol().getCreated();
+    return getRsrc().getCreated();
   }
 
   public void setLastmod(String val) throws WebdavException {
-    getCol().getLastmod().setTimestamp(val);
+    getRsrc().setLastmod(val);
   }
 
   public String getLastmod() throws WebdavException {
-    return getCol().getLastmod().getTimestamp();
+    return getRsrc().getLastmod();
   }
 
   public void setSequence(int val) throws WebdavException {
-    getCol().getLastmod().setSequence(val);
   }
 
   public int getSequence() throws WebdavException {
-    return getCol().getLastmod().getSequence();
+    return 1;
   }
 
   /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WdCollection#setDescription(java.lang.String)
+   * @see edu.rpi.cct.webdav.servlet.shared.WdEntity#setDescription(java.lang.String)
    */
   public void setDescription(String val) throws WebdavException {
-    getCol().setDescription(val);
+    // No description
   }
 
   /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WdCollection#getDescription()
+   * @see edu.rpi.cct.webdav.servlet.shared.WdEntity#getDescription()
    */
   public String getDescription() throws WebdavException {
-    return getCol().getDescription();
+    return getRsrc().getName();
   }
 
   /* ====================================================================
    *                      Private methods
    * ==================================================================== */
 
-  BwCalendar getCol() throws WebdavException {
-    if (col == null) {
-      col = new BwCalendar();
+  BwResource getRsrc() throws WebdavException {
+    if (rsrc == null) {
+      rsrc = new BwResource();
     }
 
-    return col;
+    return rsrc;
   }
 }

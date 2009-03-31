@@ -26,8 +26,6 @@
 package org.bedework.caldav.server;
 
 import org.bedework.caldav.server.calquery.CalendarData;
-import org.bedework.calfacade.BwEvent;
-import org.bedework.calfacade.svc.EventInfo;
 
 import org.bedework.icalendar.ComponentWrapper;
 import org.bedework.icalendar.IcalTranslator;
@@ -38,12 +36,12 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cct.webdav.servlet.shared.WebdavProperty;
 import edu.rpi.cmt.access.AccessPrincipal;
+import edu.rpi.cmt.access.PrivilegeDefs;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
 import edu.rpi.sss.util.DateTimeUtil;
 import edu.rpi.sss.util.xml.XmlEmit;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 import edu.rpi.sss.util.xml.tagdefs.ICalTags;
-import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
@@ -61,9 +59,11 @@ import javax.xml.namespace.QName;
  */
 public class CaldavComponentNode extends CaldavBwNode {
   /* The event if this component is an event */
-  private EventInfo eventInfo;
+  private CalDAVEvent event;
 
   private AccessPrincipal owner;
+
+  private CurrentAccess currentAccess;
 
   private String entityName;
 
@@ -168,7 +168,7 @@ public class CaldavComponentNode extends CaldavBwNode {
     allowsGet = true;
     entityName = cdURI.getEntityName();
 
-    eventInfo = cdURI.getEntity();
+    event = cdURI.getEntity();
   }
 
   public void init(boolean content) throws WebdavException {
@@ -177,7 +177,7 @@ public class CaldavComponentNode extends CaldavBwNode {
     }
 
     try {
-      if ((eventInfo == null) && exists) {
+      if ((event == null) && exists) {
         if (entityName == null) {
           exists = false;
           return;
@@ -193,21 +193,14 @@ public class CaldavComponentNode extends CaldavBwNode {
    */
   public AccessPrincipal getOwner() throws WebdavException {
     if (owner == null) {
-      if (eventInfo == null) {
+      if (event == null) {
         return null;
       }
 
-      BwEvent ev = eventInfo.getEvent();
-      if (ev != null) {
-        owner = getSysi().getPrincipal(ev.getOwnerHref());
-      }
+      owner = event.getOwner();
     }
 
-    if (owner != null) {
-      return owner;
-    }
-
-    return null;
+    return owner;
   }
 
   /* (non-Javadoc)
@@ -242,9 +235,9 @@ public class CaldavComponentNode extends CaldavBwNode {
     init(true);
 
     try {
-      if ((eventInfo != null) && (comp == null)) {
+      if ((event != null) && (comp == null)) {
         if (ical == null) {
-          ical = getSysi().toCalendar(eventInfo);
+          ical = getSysi().toCalendar(event);
         }
         ComponentList cl = ical.getComponents();
 
@@ -268,9 +261,8 @@ public class CaldavComponentNode extends CaldavBwNode {
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#update()
    */
   public void update() throws WebdavException {
-    if (eventInfo != null) {
-      getSysi().updateEvent(eventInfo,
-                            eventInfo.getChangeset());
+    if (event != null) {
+      getSysi().updateEvent(event);
     }
   }
 
@@ -308,8 +300,8 @@ public class CaldavComponentNode extends CaldavBwNode {
  * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#generatePropertyValue(edu.rpi.sss.util.xml.QName, edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf, boolean)
  */
 public boolean generatePropertyValue(QName tag,
-                                      WebdavNsIntf intf,
-                                      boolean allProp) throws WebdavException {
+                                     WebdavNsIntf intf,
+                                     boolean allProp) throws WebdavException {
     PropVal pv = new PropVal();
     XmlEmit xml = intf.getXmlEmit();
 
@@ -323,294 +315,12 @@ public boolean generatePropertyValue(QName tag,
     }
 
     try {
-      BwEvent ev = checkEv(pv);
+      CalDAVEvent ev = checkEv(pv);
       if (ev == null) {
         return true;
       }
 
-      if (tag.equals(CaldavTags.scheduleState)) {
-        xml.openTag(tag);
-        if (ev.getScheduleState() == BwEvent.scheduleStateNotProcessed) {
-          xml.emptyTag(CaldavTags.notProcessed);
-        } else {
-          xml.emptyTag(CaldavTags.processed);
-        }
-        xml.closeTag(tag);
-        return true;
-      }
-
-      if (tag.equals(CaldavTags.originator)) {
-        if (ev.getOriginator() != null) {
-          xml.openTag(tag);
-          xml.property(WebdavTags.href, ev.getOriginator());
-          xml.closeTag(tag);
-        }
-        return true;
-      }
-
-      if (tag.equals(CaldavTags.recipient)) {
-        Collection<String> r = ev.getRecipients();
-        if ((r == null) || (r.isEmpty())) {
-          return true;
-        }
-
-        xml.openTag(tag);
-        for (String recip: r) {
-          xml.property(WebdavTags.href, recip);
-        }
-        xml.closeTag(tag);
-        return true;
-      }
-
-      /* =============== ICalTags follow ================= */
-
-      if (tag.equals(ICalTags.action)) {
-        // PROPTODO
-        return true;
-      }
-
-      if (tag.equals(ICalTags.attach)) {
-        // PROPTODO
-        return true;
-      }
-
-      if (tag.equals(ICalTags.attendee)) {
-        // PROPTODO
-        return true;
-      }
-
-      if (tag.equals(ICalTags.categories)) {
-        // PROPTODO
-        return true;
-      }
-
-      if (tag.equals(ICalTags._class)) {
-        // PROPTODO
-        return true;
-      }
-
-      if (tag.equals(ICalTags.comment)) {
-        // PROPTODO
-        return true;
-      }
-
-      if (tag.equals(ICalTags.completed)) {
-        // PROPTODO
-        return true;
-      }
-
-      if (tag.equals(ICalTags.contact)) {
-        // PROPTODO
-        return true;
-      }
-
-      if (tag.equals(ICalTags.created)) {
-        xml.property(tag, ev.getCreated());
-        return true;
-      }
-
-      if (tag.equals(ICalTags.description)) {
-        if (ev.getDescription() != null) {
-          xml.property(tag, ev.getDescription());
-        }
-        return true;
-      }
-
-      if (tag.equals(ICalTags.dtend)) {
-        xml.property(tag, ev.getDtend().getDate());
-        return true;
-      }
-
-      if (tag.equals(ICalTags.dtstamp)) {
-        xml.property(tag, ev.getDtstamp());
-        return true;
-      }
-
-      if (tag.equals(ICalTags.dtstart)) {
-        xml.property(tag, ev.getDtstart().getDate());
-        return true;
-      }
-
-      /* TODO
-       if (tag.equals(ICalTags.due)) {
-       pv.val = ev.
-       return pv;
-       }
-       */
-
-      if (tag.equals(ICalTags.duration)) {
-        xml.property(tag, ev.getDuration());
-        return true;
-      }
-
-      if (tag.equals(ICalTags.exdate)) {
-        // PROPTODO
-        return true;
-      }
-
-      if (tag.equals(ICalTags.exrule)) {
-        // PROPTODO
-        return true;
-      }
-
-      if (tag.equals(ICalTags.freebusy)) {
-        // PROPTODO
-        return true;
-      }
-
-      if (tag.equals(ICalTags.geo)) {
-        // PROPTODO
-        return true;
-      }
-
-      /*
-       if (tag.equals(ICalTags.hasRecurrence)) {
-       pv.val = ev
-       return pv;
-       }
-
-       if (tag.equals(ICalTags.hasAlarm)) {
-       pv.val = ev
-       return pv;
-       }
-
-       if (tag.equals(ICalTags.hasAttachment)) {
-       pv.val = ev
-       return pv;
-       }*/
-
-      if (tag.equals(ICalTags.lastModified)) {
-        // PROPTODO
-        return true;
-      }
-
-      if (tag.equals(ICalTags.lastModified)) {
-        xml.property(tag, ev.getLastmod());
-        return true;
-      }
-
-      if (tag.equals(ICalTags.location)) {
-        // PROPTODO
-        return true;
-      }
-
-      if (tag.equals(ICalTags.organizer)) {
-        // PROPTODO
-        return true;
-      }
-
-      if (tag.equals(ICalTags.organizer)) {
-        if (ev.getOrganizer() != null) {
-          xml.property(tag, ev.getOrganizer().getOrganizerUri());
-        }
-        return true;
-      }
-
-      if (tag.equals(ICalTags.percentComplete)) {
-        // PROPTODO
-        return true;
-      }
-
-      if (tag.equals(ICalTags.priority)) {
-        Integer val = ev.getPriority();
-        if ((val != null) && (val != 0)) {
-          xml.property(tag, String.valueOf(val));
-        }
-
-        return true;
-      }
-
-      if (tag.equals(ICalTags.rdate)) {
-        // PROPTODO
-        return true;
-      }
-
-      if (tag.equals(ICalTags.recurrenceId)) {
-        // PROPTODO
-        return true;
-      }
-
-      if (tag.equals(ICalTags.recurrenceId)) {
-        if (ev.getRecurrenceId() != null) {
-          xml.property(tag, ev.getRecurrenceId());
-        }
-        return true;
-      }
-
-      if (tag.equals(ICalTags.relatedTo)) {
-        // PROPTODO
-        return true;
-      }
-
-      if (tag.equals(ICalTags.repeat)) {
-        // PROPTODO
-        return true;
-      }
-
-      if (tag.equals(ICalTags.resources)) {
-        // PROPTODO
-        return true;
-      }
-
-      if (tag.equals(ICalTags.requestStatus)) {
-        // PROPTODO
-        /*
-        if (ev.getRequestStatus() != null) {
-          xml.property(tag, ev.getRequestStatus().strVal());
-        }
-        */
-        return true;
-      }
-
-      if (tag.equals(ICalTags.rrule)) {
-        // PROPTODO
-        return true;
-      }
-
-      if (tag.equals(ICalTags.sequence)) {
-        xml.property(tag, String.valueOf(ev.getSequence()));
-
-        return true;
-      }
-
-      if (tag.equals(ICalTags.status)) {
-        xml.property(tag, ev.getStatus());
-        return true;
-      }
-
-      if (tag.equals(ICalTags.summary)) {
-        xml.property(tag, ev.getSummary());
-        return true;
-      }
-
-      if (tag.equals(ICalTags.transp)) {
-        xml.property(tag, ev.getTransparency());
-        return true;
-      }
-
-      if (tag.equals(ICalTags.trigger)) {
-        // PROPTODO
-        return true;
-      }
-
-      if (tag.equals(ICalTags.uid)) {
-        xml.property(tag, ev.getUid());
-        return true;
-      }
-
-      if (tag.equals(ICalTags.url)) {
-        if (ev.getLink() != null) {
-          xml.property(tag, ev.getLink());
-        }
-        return true;
-      }
-
-      if (tag.equals(ICalTags.version)) {
-        // PROPTODO
-        return true;
-      }
-
-      return false;
+      return ev.generatePropertyValue(tag, xml);
     } catch (WebdavException wde) {
       throw wde;
     } catch (Throwable t) {
@@ -633,19 +343,19 @@ public boolean generatePropertyValue(QName tag,
   /**
    * @param val
    */
-  public void setEventInfo(EventInfo val) {
-    eventInfo = val;
+  public void setEvent(CalDAVEvent val) {
+    event = val;
   }
 
   /** Returns the only event or the master event for a recurrence
    *
-   * @return EventInfo
+   * @return CalDAVEvent
    * @throws WebdavException
    */
-  public EventInfo getEventInfo() throws WebdavException {
+  public CalDAVEvent getEvent() throws WebdavException {
     init(true);
 
-    return eventInfo;
+    return event;
   }
 
   /**
@@ -657,7 +367,7 @@ public boolean generatePropertyValue(QName tag,
 
     try {
       if (ical == null) {
-        ical = getSysi().toCalendar(eventInfo);
+        ical = getSysi().toCalendar(event);
       }
       if ((compString == null)) {
         compString = IcalTranslator.toIcalString(ical);
@@ -715,22 +425,38 @@ public boolean generatePropertyValue(QName tag,
    * ==================================================================== */
 
   public CurrentAccess getCurrentAccess() throws WebdavException {
-    if (eventInfo == null) {
+    if (currentAccess != null) {
+      return currentAccess;
+    }
+
+    if (event == null) {
       return null;
     }
 
-    return eventInfo.getCurrentAccess();
+    try {
+      currentAccess = getSysi().checkAccess(event, PrivilegeDefs.privAny, true);
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
+
+    return currentAccess;
   }
 
   public String getEtagValue(boolean strong) throws WebdavException {
     init(true);
 
-    BwEvent ev = getEvent();
+    CalDAVEvent ev = getEvent();
     if (ev == null) {
       return null;
     }
 
-    return makeEtag(ev.getLastmod(), ev.getSeq(), strong);
+    String val = ev.getTagValue();
+
+    if (strong) {
+      return "\"" + val + "\"";
+    }
+
+    return "W/\"" + val + "\"";
   }
 
   /**
@@ -741,27 +467,18 @@ public boolean generatePropertyValue(QName tag,
   public String getPrevEtagValue(boolean strong) throws WebdavException {
     init(true);
 
-    EventInfo ei = getEventInfo();
-    if (ei == null) {
+    CalDAVEvent ev = getEvent();
+    if (ev == null) {
       return null;
     }
 
-    return makeEtag(ei.getPrevLastmod(), ei.getPrevSeq(), strong);
-  }
+    String val = ev.getPrevTagValue();
 
-  private String makeEtag(String lastmod, int seq, boolean strong) {
-    StringBuilder val = new StringBuilder();
-    if (!strong) {
-      val.append("W");
+    if (strong) {
+      return "\"" + val + "\"";
     }
 
-    val.append("\"");
-    val.append(lastmod);
-    val.append("-");
-    val.append(seq);
-    val.append("\"");
-
-    return val.toString();
+    return "W/\"" + val + "\"";
   }
 
   public String toString() {
@@ -811,7 +528,7 @@ public boolean generatePropertyValue(QName tag,
    */
   public String getCreDate() throws WebdavException {
     init(false);
-    BwEvent ev = getEvent();
+    CalDAVEvent ev = getEvent();
     if (ev == null) {
       return null;
     }
@@ -831,7 +548,7 @@ public boolean generatePropertyValue(QName tag,
    */
   public String getLastmodDate() throws WebdavException {
     init(false);
-    BwEvent ev = getEvent();
+    CalDAVEvent ev = getEvent();
     if (ev == null) {
       return null;
     }
@@ -878,18 +595,8 @@ public boolean generatePropertyValue(QName tag,
     return false;
   }
 
-  private BwEvent getEvent() throws WebdavException {
-    EventInfo ei = getEventInfo();
-
-    if (ei == null) {
-      return null;
-    }
-
-    return ei.getEvent();
-  }
-
-  private BwEvent checkEv(PropVal pv) throws WebdavException {
-    BwEvent ev = getEvent();
+  private CalDAVEvent checkEv(PropVal pv) throws WebdavException {
+    CalDAVEvent ev = getEvent();
 
     if (ev == null) {
       pv.notFound = true;

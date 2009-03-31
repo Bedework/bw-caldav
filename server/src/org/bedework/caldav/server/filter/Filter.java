@@ -26,16 +26,15 @@
 package org.bedework.caldav.server.filter;
 
 import org.bedework.caldav.server.CalDAVCollection;
+import org.bedework.caldav.server.CalDAVEvent;
 import org.bedework.caldav.server.CaldavBwNode;
 import org.bedework.caldav.server.CaldavComponentNode;
 import org.bedework.caldav.server.SysIntf.RetrievalMode;
-import org.bedework.calfacade.CalFacadeDefs;
 import org.bedework.calfacade.exc.CalFacadeException;
 import org.bedework.calfacade.exc.CalFacadeForbidden;
 import org.bedework.calfacade.filter.caldav.CompFilter;
 import org.bedework.calfacade.filter.caldav.EventQuery;
 import org.bedework.calfacade.filter.caldav.PropFilter;
-import org.bedework.calfacade.svc.EventInfo;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavForbidden;
@@ -168,11 +167,11 @@ public class Filter extends org.bedework.calfacade.filter.caldav.Filter {
    *
    * @param wdnode    WebdavNsNode defining root of search
    * @param retrieveRecur  How we retrieve recurring events
-   * @return Collection of result nodes (empty for no result)
+   * @return Collection of event objects (null or empty for no result)
    * @throws WebdavException
    */
-  public Collection<EventInfo> query(CaldavBwNode wdnode,
-                                     RetrievalMode retrieveRecur) throws WebdavException {
+  public Collection<CalDAVEvent> query(CaldavBwNode wdnode,
+                                       RetrievalMode retrieveRecur) throws WebdavException {
     try {
       eventq = getQuery();
 
@@ -186,15 +185,14 @@ public class Filter extends org.bedework.calfacade.filter.caldav.Filter {
       }
     }*/
 
-      Collection<EventInfo> events;
-
       CalDAVCollection c = (CalDAVCollection)wdnode.getCollection(true);
       if (c == null) {
         return null;
       }
 
-      events = wdnode.getSysi().getEvents(c,
-                                          eventq.filter, retrieveRecur);
+      Collection<CalDAVEvent> events = wdnode.getSysi().getEvents(c,
+                                                                  eventq.filter,
+                                                                  retrieveRecur);
 
       if (debug) {
         trace("Query returned " + events.size());
@@ -243,18 +241,16 @@ public class Filter extends org.bedework.calfacade.filter.caldav.Filter {
         } else {
           curnode = (CaldavComponentNode)node;
 
-          int entityType = curnode.getEventInfo().getEvent().getEntityType();
+          int entityType = curnode.getEvent().getEntityType();
 
           Collection<PropFilter> pfs = null;
 
-          if (entityType == CalFacadeDefs.entityTypeEvent) {
+          if (entityType == CalDAVEvent.entityTypeEvent) {
             pfs = eventq.eventFilters;
-          } else if (entityType == CalFacadeDefs.entityTypeTodo) {
+          } else if (entityType == CalDAVEvent.entityTypeTodo) {
             pfs = eventq.todoFilters;
-          } else if (entityType == CalFacadeDefs.entityTypeJournal) {
+          } else if (entityType == CalDAVEvent.entityTypeJournal) {
             pfs = eventq.journalFilters;
-            //} else if (entityType == CalFacadeDefs.entityTypeAlarm) {
-            //  pfs = addPropFilter(eq.alarmFilters, pf);
           }
 
           if (!WebdavUtils.emptyCollection(pfs)) {

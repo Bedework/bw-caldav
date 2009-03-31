@@ -28,7 +28,8 @@ package org.bedework.caldav.server;
 import edu.rpi.cct.webdav.servlet.shared.WdCollection;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 
-/** Simple implementation of class to represent a collection in CalDAV
+/** Simple implementation of class to represent a collection in CalDAV, used
+ * by the simpler interfaces.
  *
  * @author douglm
  *

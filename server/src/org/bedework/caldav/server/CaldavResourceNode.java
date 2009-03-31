@@ -25,8 +25,6 @@
 */
 package org.bedework.caldav.server;
 
-import org.bedework.calfacade.BwResource;
-
 import org.w3c.dom.Element;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
@@ -42,7 +40,7 @@ import javax.xml.namespace.QName;
  *   @author Mike Douglass   douglm rpi.edu
  */
 public class CaldavResourceNode extends CaldavBwNode {
-  private BwResource resource;
+  private CalDAVResource resource;
 
   private AccessPrincipal owner;
 
@@ -80,9 +78,9 @@ public class CaldavResourceNode extends CaldavBwNode {
     entityName = cdURI.getEntityName();
 
     if (resource != null) {
-      exists = !resource.unsaved();
-      resource.setPrevLastmod(resource.getLastmod());
-      resource.setPrevSeq(resource.getPrevSeq());
+      exists = !resource.isNew();
+      //resource.setPrevLastmod(resource.getLastmod());
+      //resource.setPrevSeq(resource.getPrevSeq());
     } else {
       exists = false;
     }
@@ -114,14 +112,10 @@ public class CaldavResourceNode extends CaldavBwNode {
         return null;
       }
 
-      owner = getSysi().getPrincipal(resource.getOwnerHref());
+      owner = resource.getOwner();
     }
 
-    if (owner != null) {
-      return owner;
-    }
-
-    return null;
+    return owner;
   }
 
   /* (non-Javadoc)
@@ -184,16 +178,16 @@ public class CaldavResourceNode extends CaldavBwNode {
   /**
    * @param val
    */
-  public void setResource(BwResource val) {
+  public void setResource(CalDAVResource val) {
     resource = val;
   }
 
   /** Returns the resource object
    *
-   * @return BwResource
+   * @return CalDAVResource
    * @throws WebdavException
    */
-  public BwResource getResource() throws WebdavException {
+  public CalDAVResource getResource() throws WebdavException {
     init(true);
 
     return resource;
@@ -228,14 +222,20 @@ public class CaldavResourceNode extends CaldavBwNode {
       return null;
     }
 
-    return makeEtag(resource.getLastmod(), resource.getSeq(), strong);
+    String val = resource.getTagValue();
+
+    if (strong) {
+      return "\"" + val + "\"";
+    }
+
+    return "W/\"" + val + "\"";
   }
 
-  /**
+  /* *
    * @param strong
    * @return etag before changes
    * @throws WebdavException
-   */
+   * /
   public String getPrevEtagValue(boolean strong) throws WebdavException {
     init(true);
 
@@ -244,25 +244,10 @@ public class CaldavResourceNode extends CaldavBwNode {
     }
 
     return makeEtag(resource.getPrevLastmod(), resource.getPrevSeq(), strong);
-  }
-
-  private String makeEtag(String lastmod, int seq, boolean strong) {
-    StringBuilder val = new StringBuilder();
-    if (!strong) {
-      val.append("W");
-    }
-
-    val.append("\"");
-    val.append(lastmod);
-    val.append("-");
-    val.append(seq);
-    val.append("\"");
-
-    return val.toString();
-  }
+  }*/
 
   public String toString() {
-    StringBuffer sb = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
 
     sb.append("CaldavResourceNode{");
     sb.append("path=");
@@ -299,11 +284,11 @@ public class CaldavResourceNode extends CaldavBwNode {
   public byte[] getBinaryContent() throws WebdavException {
     init(true);
 
-    if ((resource == null) || (resource.getContent() == null)) {
+    if (resource == null) {
       return null;
     }
 
-    return resource.getContent().getValue();
+    return resource.getBinaryContent();
   }
 
   /* (non-Javadoc)
@@ -323,7 +308,7 @@ public class CaldavResourceNode extends CaldavBwNode {
       return 0;
     }
 
-    return resource.getContentLength();
+    return resource.getContentLen();
   }
 
   /* (non-Javadoc)

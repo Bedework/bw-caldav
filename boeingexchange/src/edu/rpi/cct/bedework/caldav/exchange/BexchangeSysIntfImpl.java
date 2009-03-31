@@ -27,22 +27,19 @@ package edu.rpi.cct.bedework.caldav.exchange;
 
 import org.bedework.caldav.server.CalDAVCollection;
 import org.bedework.caldav.server.CalDAVCollectionBase;
+import org.bedework.caldav.server.CalDAVEvent;
+import org.bedework.caldav.server.CalDAVResource;
 import org.bedework.caldav.server.PropertyHandler;
 import org.bedework.caldav.server.SysIntf;
+import org.bedework.caldav.server.SysiIcalendar;
 import org.bedework.caldav.server.PostMethod.RequestPars;
 import org.bedework.caldav.server.PropertyHandler.PropertyType;
 import org.bedework.calfacade.BwDateTime;
 import org.bedework.calfacade.BwEvent;
-import org.bedework.calfacade.BwEventProxy;
-import org.bedework.calfacade.BwResource;
-import org.bedework.calfacade.ScheduleResult;
-import org.bedework.calfacade.base.BwShareableDbentity;
 import org.bedework.calfacade.base.TimeRange;
 import org.bedework.calfacade.configs.CalDAVConfig;
 import org.bedework.calfacade.filter.BwFilter;
-import org.bedework.calfacade.svc.EventInfo;
 import org.bedework.calfacade.timezones.CalTimezones;
-import org.bedework.calfacade.util.ChangeTable;
 import org.bedework.http.client.dav.DavClient;
 import org.bedework.http.client.dav.DavReq;
 import org.bedework.http.client.dav.DavResp;
@@ -52,6 +49,7 @@ import org.bedework.icalendar.SAICalCallback;
 import org.bedework.icalendar.VFreeUtil;
 
 import edu.rpi.cct.webdav.servlet.shared.PrincipalPropertySearch;
+import edu.rpi.cct.webdav.servlet.shared.WdEntity;
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNotFound;
@@ -391,11 +389,17 @@ public class BexchangeSysIntfImpl implements SysIntf {
    *                   Scheduling
    * ==================================================================== */
 
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#getFreebusySet()
+   */
   public Collection<String> getFreebusySet() throws WebdavException {
     throw new WebdavException("unimplemented");
   }
 
-  public ScheduleResult schedule(EventInfo ei) throws WebdavException {
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#schedule(org.bedework.caldav.server.CalDAVEvent)
+   */
+  public Collection<SchedRecipientResult> schedule(CalDAVEvent ev) throws WebdavException {
     throw new WebdavException("unimplemented");
   }
 
@@ -403,43 +407,60 @@ public class BexchangeSysIntfImpl implements SysIntf {
    *                   Events
    * ==================================================================== */
 
-  public Collection<BwEventProxy> addEvent(EventInfo ei,
-                                           boolean noInvites,
-                                           boolean rollbackOnError) throws WebdavException {
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#addEvent(org.bedework.caldav.server.CalDAVEvent, boolean, boolean)
+   */
+  public Collection<CalDAVEvent> addEvent(CalDAVEvent ev,
+                                          boolean noInvites,
+                                          boolean rollbackOnError) throws WebdavException {
     throw new WebdavException("unimplemented");
   }
 
-  public void updateEvent(EventInfo ei,
-                          ChangeTable changes) throws WebdavException {
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#updateEvent(org.bedework.caldav.server.CalDAVEvent)
+   */
+  public void updateEvent(CalDAVEvent ev) throws WebdavException {
     throw new WebdavException("unimplemented");
   }
 
-  public Collection<EventInfo> getEvents(CalDAVCollection col,
-                                         BwFilter filter,
-                                         RetrievalMode recurRetrieval)
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#getEvents(org.bedework.caldav.server.CalDAVCollection, org.bedework.calfacade.filter.BwFilter, org.bedework.caldav.server.SysIntf.RetrievalMode)
+   */
+  public Collection<CalDAVEvent> getEvents(CalDAVCollection col,
+                                           BwFilter filter,
+                                           RetrievalMode recurRetrieval)
             throws WebdavException {
     throw new WebdavException("unimplemented");
   }
 
-  public EventInfo getEvent(CalDAVCollection col, String val,
-                            RetrievalMode recurRetrieval)
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#getEvent(org.bedework.caldav.server.CalDAVCollection, java.lang.String, org.bedework.caldav.server.SysIntf.RetrievalMode)
+   */
+  public CalDAVEvent getEvent(CalDAVCollection col, String val,
+                              RetrievalMode recurRetrieval)
               throws WebdavException {
     throw new WebdavException("unimplemented");
   }
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#deleteEvent(org.bedework.calfacade.BwEvent, boolean)
+   * @see org.bedework.caldav.server.SysIntf#deleteEvent(org.bedework.caldav.server.CalDAVEvent, boolean)
    */
-  public void deleteEvent(BwEvent ev,
+  public void deleteEvent(CalDAVEvent ev,
                           boolean scheduleReply) throws WebdavException {
     throw new WebdavException("unimplemented");
   }
 
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#deleteCollection(org.bedework.caldav.server.CalDAVCollection)
+   */
   public void deleteCollection(CalDAVCollection col) throws WebdavException {
     throw new WebdavException("unimplemented");
   }
 
-  public ScheduleResult requestFreeBusy(EventInfo ei) throws WebdavException {
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#requestFreeBusy(org.bedework.caldav.server.CalDAVEvent)
+   */
+  public Collection<SchedRecipientResult> requestFreeBusy(CalDAVEvent ev) throws WebdavException {
     throw new WebdavException("unimplemented");
   }
 
@@ -540,14 +561,10 @@ public class BexchangeSysIntfImpl implements SysIntf {
     }
   }
 
-  public CurrentAccess checkAccess(BwShareableDbentity ent,
-                                   int desiredAccess,
-                                   boolean returnResult)
-          throws WebdavException {
-    throw new WebdavException("unimplemented");
-  }
-
-  public CurrentAccess checkAccess(CalDAVCollection col,
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#checkAccess(edu.rpi.cct.webdav.servlet.shared.WdEntity, int, boolean)
+   */
+  public CurrentAccess checkAccess(WdEntity ent,
                                    int desiredAccess,
                                    boolean returnResult)
           throws WebdavException {
@@ -559,7 +576,10 @@ public class BexchangeSysIntfImpl implements SysIntf {
     throw new WebdavException("unimplemented");
   }
 
-  public void updateAccess(BwEvent ev,
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#updateAccess(org.bedework.caldav.server.CalDAVEvent, edu.rpi.cmt.access.Acl)
+   */
+  public void updateAccess(CalDAVEvent ev,
                            Acl acl) throws WebdavException{
     throw new WebdavException("unimplemented");
   }
@@ -584,9 +604,9 @@ public class BexchangeSysIntfImpl implements SysIntf {
   }
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#copyMove(org.bedework.calfacade.svc.EventInfo, org.bedework.calfacade.BwCalendar, java.lang.String, boolean, boolean)
+   * @see org.bedework.caldav.server.SysIntf#copyMove(org.bedework.caldav.server.CalDAVEvent, org.bedework.caldav.server.CalDAVCollection, java.lang.String, boolean, boolean)
    */
-  public boolean copyMove(EventInfo from,
+  public boolean copyMove(CalDAVEvent from,
                           CalDAVCollection to,
                           String name,
                           boolean copy,
@@ -638,54 +658,61 @@ public class BexchangeSysIntfImpl implements SysIntf {
    * ==================================================================== */
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#putFile(org.bedework.calfacade.BwCalendar, org.bedework.calfacade.BwResource)
+   * @see org.bedework.caldav.server.SysIntf#newResourceObject(java.lang.String)
+   */
+  public CalDAVResource newResourceObject(String parentPath) throws WebdavException {
+    throw new WebdavException("unimplemented");
+  }
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#putFile(org.bedework.caldav.server.CalDAVCollection, org.bedework.caldav.server.CalDAVResource)
    */
   public void putFile(CalDAVCollection col,
-                      BwResource val) throws WebdavException {
+                      CalDAVResource val) throws WebdavException {
     throw new WebdavException("unimplemented");
   }
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#getFile(org.bedework.calfacade.BwCalendar, java.lang.String)
+   * @see org.bedework.caldav.server.SysIntf#getFile(org.bedework.caldav.server.CalDAVCollection, java.lang.String)
    */
-  public BwResource getFile(CalDAVCollection col,
-                            String name) throws WebdavException {
+  public CalDAVResource getFile(CalDAVCollection col,
+                                String name) throws WebdavException {
     throw new WebdavException("unimplemented");
   }
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#getContent(org.bedework.calfacade.BwResource)
+   * @see org.bedework.caldav.server.SysIntf#getFileContent(org.bedework.caldav.server.CalDAVResource)
    */
-  public void getFileContent(BwResource val) throws WebdavException {
+  public void getFileContent(CalDAVResource val) throws WebdavException {
     throw new WebdavException("unimplemented");
   }
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#getFiles(org.bedework.calfacade.BwCalendar)
+   * @see org.bedework.caldav.server.SysIntf#getFiles(org.bedework.caldav.server.CalDAVCollection)
    */
-  public Collection<BwResource> getFiles(CalDAVCollection coll) throws WebdavException {
+  public Collection<CalDAVResource> getFiles(CalDAVCollection coll) throws WebdavException {
     throw new WebdavException("unimplemented");
   }
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#updateFile(org.bedework.calfacade.BwResource, boolean)
+   * @see org.bedework.caldav.server.SysIntf#updateFile(org.bedework.caldav.server.CalDAVResource, boolean)
    */
-  public void updateFile(BwResource val,
+  public void updateFile(CalDAVResource val,
                          boolean updateContent) throws WebdavException {
     throw new WebdavException("unimplemented");
   }
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#deleteFile(org.bedework.calfacade.BwResource)
+   * @see org.bedework.caldav.server.SysIntf#deleteFile(org.bedework.caldav.server.CalDAVResource)
    */
-  public void deleteFile(BwResource val) throws WebdavException {
+  public void deleteFile(CalDAVResource val) throws WebdavException {
     throw new WebdavException("unimplemented");
   }
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#copyMoveFile(org.bedework.calfacade.BwResource, java.lang.String, java.lang.String, boolean, boolean)
+   * @see org.bedework.caldav.server.SysIntf#copyMoveFile(org.bedework.caldav.server.CalDAVResource, java.lang.String, java.lang.String, boolean, boolean)
    */
-  public boolean copyMoveFile(BwResource from,
+  public boolean copyMoveFile(CalDAVResource from,
                               String toPath,
                               String name,
                               boolean copy,
@@ -693,21 +720,29 @@ public class BexchangeSysIntfImpl implements SysIntf {
     throw new WebdavException("unimplemented");
   }
 
-  public Calendar toCalendar(EventInfo ev) throws WebdavException {
+  public Calendar toCalendar(CalDAVEvent ev) throws WebdavException {
     throw new WebdavException("unimplemented");
   }
 
-  public Calendar toCalendar(Collection<EventInfo> evs,
-                             int method) throws WebdavException {
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.SysIntf#writeCalendar(java.util.Collection, int, java.io.Writer)
+   */
+  public void writeCalendar(Collection<CalDAVEvent> evs,
+                            int method,
+                            Writer wtr) throws WebdavException {
     throw new WebdavException("unimplemented");
   }
 
-  public Icalendar fromIcal(CalDAVCollection col,
+  public SysiIcalendar fromIcal(CalDAVCollection col,
                             Reader rdr) throws WebdavException {
     throw new WebdavException("unimplemented");
   }
 
   public String toStringTzCalendar(String tzid) throws WebdavException {
+    throw new WebdavException("unimplemented");
+  }
+
+  public String tzidFromTzdef(String val) throws WebdavException {
     throw new WebdavException("unimplemented");
   }
 

@@ -27,8 +27,8 @@
 package org.bedework.caldav.server;
 
 import org.bedework.caldav.server.SysIntf.CalPrincipalInfo;
-import org.bedework.icalendar.Icalendar;
 
+import edu.rpi.cct.webdav.servlet.shared.WdEntity;
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavForbidden;
@@ -45,9 +45,7 @@ import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 
 import net.fortuna.ical4j.model.Calendar;
-import net.fortuna.ical4j.model.TimeZone;
 
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -203,7 +201,10 @@ public class CaldavCalNode extends CaldavBwNode {
     c.setCalType(CalDAVCollection.calTypeCalendarCollection);
   }
 
-  public Collection getChildren() throws WebdavException {
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.CaldavBwNode#getChildren()
+   */
+  public Collection<? extends WdEntity> getChildren() throws WebdavException {
     /* For the moment we're going to do this the inefficient way.
        We really need to have calendar defs that can be expressed as a search
        allowing us to retrieve all the ids of objects within a calendar.
@@ -221,7 +222,7 @@ public class CaldavCalNode extends CaldavBwNode {
           debugMsg("POSSIBLE SEARCH: getChildren for cal " + c.getPath());
         }
 
-        ArrayList ch = new ArrayList();
+        Collection<WdEntity> ch = new ArrayList<WdEntity>();
         ch.addAll(getSysi().getCollections(c));
         ch.addAll(getSysi().getFiles(c));
 
@@ -473,29 +474,7 @@ public class CaldavCalNode extends CaldavBwNode {
       }
 
       if (XmlUtil.nodeMatches(val, CaldavTags.calendarTimezone)) {
-        try {
-          StringReader sr = new StringReader(XmlUtil.getElementContent(val));
-
-          // This call automatically saves the timezone in the db
-          Icalendar ic = getSysi().fromIcal(col, sr);
-
-          if ((ic == null) ||
-              (ic.size() != 0) || // No components other than timezones
-              (ic.getTimeZones().size() != 1)) {
-            if (debug) {
-              debugMsg("Not icalendar");
-            }
-            throw new WebdavForbidden(CaldavTags.validCalendarData, "Not icalendar");
-          }
-
-          TimeZone tz = ic.getTimeZones().iterator().next();
-
-          col.setTimezone(tz.getID());
-        } catch (WebdavException wde) {
-          throw wde;
-        } catch (Throwable t) {
-          throw new WebdavForbidden(CaldavTags.validCalendarData, "Not icalendar");
-        }
+        col.setTimezone(getSysi().tzidFromTzdef(XmlUtil.getElementContent(val)));
 
         return true;
       }

@@ -26,6 +26,7 @@
 package org.bedework.caldav.server;
 
 import edu.rpi.cct.webdav.servlet.shared.WdCollection;
+import edu.rpi.cct.webdav.servlet.shared.WdEntity;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
@@ -147,7 +148,7 @@ public abstract class CaldavBwNode extends WebdavNsNode {
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getChildren()
    */
-  public Collection getChildren() throws WebdavException {
+  public Collection<? extends WdEntity> getChildren() throws WebdavException {
     return null;
   }
 

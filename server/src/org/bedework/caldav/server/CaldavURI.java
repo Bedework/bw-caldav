@@ -1,33 +1,5 @@
-/*
- Copyright (c) 2000-2005 University of Washington.  All rights reserved.
-
- Redistribution and use of this distribution in source and binary forms,
- with or without modification, are permitted provided that:
-
-   The above copyright notice and this permission notice appear in
-   all copies and supporting documentation;
-
-   The name, identifiers, and trademarks of the University of Washington
-   are not used in advertising or publicity without the express prior
-   written permission of the University of Washington;
-
-   Recipients acknowledge that this distribution is made available as a
-   research courtesy, "as is", potentially with defects, without
-   any obligation on the part of the University of Washington to
-   provide support, services, or repair;
-
-   THE UNIVERSITY OF WASHINGTON DISCLAIMS ALL WARRANTIES, EXPRESS OR
-   IMPLIED, WITH REGARD TO THIS SOFTWARE, INCLUDING WITHOUT LIMITATION
-   ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
-   PARTICULAR PURPOSE, AND IN NO EVENT SHALL THE UNIVERSITY OF
-   WASHINGTON BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL
-   DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
-   PROFITS, WHETHER IN AN ACTION OF CONTRACT, TORT (INCLUDING
-   NEGLIGENCE) OR STRICT LIABILITY, ARISING OUT OF OR IN CONNECTION WITH
-   THE USE OR PERFORMANCE OF THIS SOFTWARE.
- */
 /* **********************************************************************
-    Copyright 2005 Rensselaer Polytechnic Institute. All worldwide rights reserved.
+    Copyright 2009 Rensselaer Polytechnic Institute. All worldwide rights reserved.
 
     Redistribution and use of this distribution in source and binary forms,
     with or without modification, are permitted provided that:
@@ -51,11 +23,7 @@
     special, consequential, or incidental damages related to the software,
     to the maximum extent the law permits.
 */
-
 package org.bedework.caldav.server;
-
-import org.bedework.calfacade.BwResource;
-import org.bedework.calfacade.svc.EventInfo;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cmt.access.AccessPrincipal;
@@ -79,9 +47,9 @@ public class CaldavURI {
    */
   CalDAVCollection col;
 
-  BwResource resource;
+  CalDAVResource resource;
 
-  EventInfo entity;
+  CalDAVEvent entity;
 
   AccessPrincipal principal;
 
@@ -106,7 +74,7 @@ public class CaldavURI {
    * @param entityName
    * @param exists        true if the referenced object exists
    */
-  CaldavURI(CalDAVCollection col, EventInfo entity, String entityName,
+  CaldavURI(CalDAVCollection col, CalDAVEvent entity, String entityName,
             boolean exists) {
     init(col, null, entity, entityName, exists);
   }
@@ -116,9 +84,10 @@ public class CaldavURI {
    * @param col
    * @param res
    * @param exists        true if the referenced object exists
+   * @throws WebdavException
    */
-  CaldavURI(CalDAVCollection col, BwResource res,
-            boolean exists) {
+  CaldavURI(CalDAVCollection col, CalDAVResource res,
+            boolean exists) throws WebdavException {
     init(col, res, null, res.getName(), exists);
     resourceUri = true;
   }
@@ -134,8 +103,8 @@ public class CaldavURI {
     path = pi.getPrincipalRef();
   }
 
-  private void init(CalDAVCollection col, BwResource res,
-                    EventInfo entity, String entityName,
+  private void init(CalDAVCollection col, CalDAVResource res,
+                    CalDAVEvent entity, String entityName,
                     boolean exists) {
     this.col = col;
     this.resource = res;
@@ -159,16 +128,16 @@ public class CaldavURI {
   }
 
   /**
-   * @return BwResource
+   * @return CalDAVResource
    */
-  public BwResource getResource() {
+  public CalDAVResource getResource() {
     return resource;
   }
 
   /**
-   * @return Object
+   * @return CalDAVEvent
    */
-  public EventInfo getEntity() {
+  public CalDAVEvent getEntity() {
     return entity;
   }
 
