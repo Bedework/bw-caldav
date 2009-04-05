@@ -526,10 +526,10 @@ public class BwSysIntfImpl implements SysIntf {
       throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
       if (CalFacadeException.duplicateGuid.equals(cfe.getMessage())) {
-        throw new WebdavBadRequest("Duplicate-guid");
+        throw new WebdavForbidden(CaldavTags.noUidConflict);
       }
       if (CalFacadeException.duplicateName.equals(cfe.getMessage())) {
-        throw new WebdavForbidden(CaldavTags.noUidConflict);
+        throw new WebdavBadRequest("Duplicate-name");
       }
       throw new WebdavException(cfe);
     } catch (Throwable t) {
