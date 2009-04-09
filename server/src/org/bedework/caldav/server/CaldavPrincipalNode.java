@@ -117,6 +117,10 @@ public class CaldavPrincipalNode extends WebdavPrincipalNode {
 
     try {
       if (tag.equals(CaldavTags.calendarHomeSet)) {
+        if (ui == null) {
+          return false;
+        }
+
         xml.openTag(tag);
         generateHref(xml, ui.userHomePath);
         xml.closeTag(tag);
@@ -133,6 +137,10 @@ public class CaldavPrincipalNode extends WebdavPrincipalNode {
       }
 
       if (tag.equals(CaldavTags.scheduleInboxURL)) {
+        if (ui == null) {
+          return false;
+        }
+
         xml.openTag(tag);
         generateHref(xml, ui.inboxPath);
         xml.closeTag(tag);
@@ -141,6 +149,10 @@ public class CaldavPrincipalNode extends WebdavPrincipalNode {
       }
 
       if (tag.equals(CaldavTags.scheduleOutboxURL)) {
+        if (ui == null) {
+          return false;
+        }
+
         xml.openTag(tag);
         generateHref(xml, ui.outboxPath);
         xml.closeTag(tag);

@@ -67,7 +67,12 @@ public class BwCalDAVCollection extends CalDAVCollection {
    * @see edu.rpi.cct.webdav.servlet.shared.WdEntity#getAliasTarget()
    */
   public WdEntity getAliasTarget() throws WebdavException {
-    return new BwCalDAVCollection(intf, col.getAliasTarget());
+    BwCalendar c = col.getAliasTarget();
+    if (c == null) {
+      return null;
+    }
+
+    return new BwCalDAVCollection(intf, c);
   }
 
   /* (non-Javadoc)
