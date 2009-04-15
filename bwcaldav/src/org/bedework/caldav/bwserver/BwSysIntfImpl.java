@@ -247,12 +247,7 @@ public class BwSysIntfImpl implements SysIntf {
   public AccessPrincipal caladdrToPrincipal(String caladdr) throws WebdavException {
     try {
       // XXX This needs to work for groups.
-      String account = getSvci().getDirectories().caladdrToUser(caladdr);
-      if (account == null) {
-        return null;
-      }
-
-      return getSvci().getUsersHandler().getPrincipal(account);
+      return getSvci().getDirectories().caladdrToPrincipal(caladdr);
     } catch (CalFacadeException cfe) {
       throw new WebdavException(cfe);
     } catch (Throwable t) {
@@ -282,7 +277,8 @@ public class BwSysIntfImpl implements SysIntf {
         return null;
       }
 
-      BwPrincipal p = getSvci().getUsersHandler().getPrincipal(principal.getPrincipalRef());
+      BwPrincipal p = getSvci().getUsersHandler().getPrincipal(principal.getPrincipalRef(),
+                                                               false);
       if (p == null) {
         return null;
       }
