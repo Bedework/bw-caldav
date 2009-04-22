@@ -614,7 +614,7 @@ public class BwSysIntfImpl implements SysIntf {
         return;
       }
 
-      getSvci().getEventsHandler().delete(getEvent(ev), scheduleReply);
+      getSvci().getEventsHandler().delete(getEvinfo(ev), scheduleReply);
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
