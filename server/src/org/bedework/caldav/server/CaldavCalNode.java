@@ -618,8 +618,10 @@ public class CaldavCalNode extends CaldavBwNode {
          *            <C:comp name="VTODO"/>
          *         </C:supported-calendar-component-set>
          */
-        if (calType != CalDAVCollection.calTypeCalendarCollection) {
-          return true;
+        if ((calType != CalDAVCollection.calTypeCalendarCollection) &&
+            (calType != CalDAVCollection.calTypeInbox) &&
+            (calType != CalDAVCollection.calTypeOutbox)) {
+          return false;
         }
 
         xml.openTag(tag);
