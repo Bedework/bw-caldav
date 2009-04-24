@@ -26,6 +26,9 @@
 
 package org.bedework.caldav.server;
 
+import org.bedework.caldav.server.sysinterface.CalPrincipalInfo;
+import org.bedework.caldav.server.sysinterface.SysIntf;
+
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 
 /** Class to represent a group in caldav.
@@ -42,8 +45,8 @@ public class CaldavGroupNode extends CaldavPrincipalNode {
    * @throws WebdavException
    */
   public CaldavGroupNode(CaldavURI cdURI, SysIntf sysi,
-                        SysIntf.CalPrincipalInfo ui,
-                        boolean debug) throws WebdavException {
+                         CalPrincipalInfo ui,
+                         boolean debug) throws WebdavException {
     super(cdURI, sysi, ui, false, debug);
   }
 }

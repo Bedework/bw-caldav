@@ -1,5 +1,5 @@
 /* **********************************************************************
-    Copyright 2008 Rensselaer Polytechnic Institute. All worldwide rights reserved.
+    Copyright 2009 Rensselaer Polytechnic Institute. All worldwide rights reserved.
 
     Redistribution and use of this distribution in source and binary forms,
     with or without modification, are permitted provided that:
@@ -23,30 +23,52 @@
     special, consequential, or incidental damages related to the software,
     to the maximum extent the law permits.
 */
+package org.bedework.caldav.server.sysinterface;
 
-package org.bedework.caldav.server;
+import edu.rpi.cmt.access.AccessPrincipal;
 
-import org.bedework.caldav.server.sysinterface.CalPrincipalInfo;
-import org.bedework.caldav.server.sysinterface.SysIntf;
+import java.io.Serializable;
 
-import edu.rpi.cct.webdav.servlet.shared.WebdavException;
-
-/** Class to represent a user in caldav.
+/**
+ * @author douglm
  *
- *
- *   @author Mike Douglass   douglm  rpi.edu
  */
-public class CaldavUserNode extends CaldavPrincipalNode {
-  /**
-   * @param cdURI
-   * @param sysi
-   * @param ui    User Info
-   * @param debug
-   * @throws WebdavException
+public class CalPrincipalInfo implements Serializable {
+  /** As supplied
    */
-  public CaldavUserNode(CaldavURI cdURI, SysIntf sysi,
-                        CalPrincipalInfo ui,
-                        boolean debug) throws WebdavException {
-    super(cdURI, sysi, ui, true, debug);
+  public AccessPrincipal principal;
+
+  /** Path to user home
+   */
+  public String userHomePath;
+
+  /** Path to default calendar
+   */
+  public String defaultCalendarPath;
+
+  /** Path to inbox. null for no scheduling permitted (or supported)
+   */
+  public String inboxPath;
+
+  /** Path to outbox. null for no scheduling permitted (or supported)
+   */
+  public String outboxPath;
+
+  /**
+   * @param principal
+   * @param userHomePath
+   * @param defaultCalendarPath
+   * @param inboxPath
+   * @param outboxPath
+   */
+  public CalPrincipalInfo(AccessPrincipal principal,
+                          String userHomePath,
+                          String defaultCalendarPath, String inboxPath,
+                          String outboxPath) {
+    this.principal = principal;
+    this.userHomePath = userHomePath;
+    this.defaultCalendarPath = defaultCalendarPath;
+    this.inboxPath = inboxPath;
+    this.outboxPath = outboxPath;
   }
 }

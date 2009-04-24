@@ -23,8 +23,13 @@
     special, consequential, or incidental damages related to the software,
     to the maximum extent the law permits.
 */
-package org.bedework.caldav.server;
+package org.bedework.caldav.server.sysinterface;
 
+import org.bedework.caldav.server.CalDAVCollection;
+import org.bedework.caldav.server.CalDAVEvent;
+import org.bedework.caldav.server.CalDAVResource;
+import org.bedework.caldav.server.PropertyHandler;
+import org.bedework.caldav.server.SysiIcalendar;
 import org.bedework.caldav.server.PostMethod.RequestPars;
 import org.bedework.caldav.server.PropertyHandler.PropertyType;
 import org.bedework.calfacade.BwDateTime;
@@ -44,7 +49,6 @@ import edu.rpi.cmt.calendar.ScheduleStates;
 import net.fortuna.ical4j.model.Calendar;
 
 import java.io.Reader;
-import java.io.Serializable;
 import java.io.Writer;
 import java.util.Collection;
 
@@ -60,7 +64,7 @@ import javax.servlet.http.HttpServletRequest;
  * @author Mike Douglass douglm at rpi.edu
  */
 public interface SysIntf {
-  /** Called before any other method is called to allow initialisation to
+  /** Called before any other method is called to allow initialization to
    * take place at the first or subsequent requests
    *
    * @param req
@@ -73,6 +77,13 @@ public interface SysIntf {
                    String account,
                    CalDAVConfig conf,
                    boolean debug) throws WebdavException;
+
+  /** Return CalDAV relevant properties about the system.
+   *
+   * @return SystemProperties object - never null.
+   * @throws WebdavException
+   */
+  public SystemProperties getSystemProperties() throws WebdavException;
 
   /** Return the current principal
    *
@@ -174,50 +185,6 @@ public interface SysIntf {
    * @throws WebdavException
    */
   public String userToCaladdr(String account) throws WebdavException;
-
-  /** XXX At the moment we are still asssuming the principal is a user.
-   *
-   * @author Mike Douglass
-   */
-  public static class CalPrincipalInfo implements Serializable {
-    /** As supplied
-     */
-    public AccessPrincipal principal;
-
-    /** Path to user home
-     */
-    public String userHomePath;
-
-    /** Path to default calendar
-     */
-    public String defaultCalendarPath;
-
-    /** Path to inbox. null for no scheduling permitted (or supported)
-     */
-    public String inboxPath;
-
-    /** Path to outbox. null for no scheduling permitted (or supported)
-     */
-    public String outboxPath;
-
-    /**
-     * @param principal
-     * @param userHomePath
-     * @param defaultCalendarPath
-     * @param inboxPath
-     * @param outboxPath
-     */
-    public CalPrincipalInfo(AccessPrincipal principal,
-                            String userHomePath,
-                            String defaultCalendarPath, String inboxPath,
-                            String outboxPath) {
-      this.principal = principal;
-      this.userHomePath = userHomePath;
-      this.defaultCalendarPath = defaultCalendarPath;
-      this.inboxPath = inboxPath;
-      this.outboxPath = outboxPath;
-    }
-  }
 
   /** Given a valid AccessPrincipal return the associated calendar user information
    * needed for caldav interactions.
@@ -351,82 +318,6 @@ public interface SysIntf {
    * @throws WebdavException
    */
   public void updateEvent(CalDAVEvent event) throws WebdavException;
-
-  /** */
-  public static class RetrievalMode implements Serializable {
-    /**
-     * Values which define how to retrieve recurring events. We have the
-     * following choices
-     *   No limits
-     *   Limit Recurrence set - with range
-     *   Expand recurrences
-     */
-
-    /** */
-    public boolean expanded;
-
-    /** */
-    public boolean limitRecurrenceSet;
-
-    /** Limit expansion and recurrences.
-     */
-    public BwDateTime start;
-
-    /** Limit expansion and recurrences.
-     */
-    public BwDateTime end;
-
-    /** Factory
-     *
-     * @param start
-     * @param end
-     * @return RetrievalMode
-     */
-    public static RetrievalMode getExpanded(BwDateTime start, BwDateTime end) {
-      RetrievalMode rm = new RetrievalMode();
-
-      rm.expanded = true;
-      rm.start = start;
-      rm.end = end;
-
-      return rm;
-    }
-
-    /** Factory
-     *
-     * @param start
-     * @param end
-     * @return RetrievalMode
-     */
-    public static RetrievalMode getLimited(BwDateTime start, BwDateTime end) {
-      RetrievalMode rm = new RetrievalMode();
-
-      rm.limitRecurrenceSet = true;
-      rm.start = start;
-      rm.end = end;
-
-      return rm;
-    }
-
-    public String toString() {
-      StringBuilder sb = new StringBuilder("RetrievalMode{");
-
-      if (expanded) {
-        sb.append("expanded, ");
-      } else {
-        sb.append("limited, ");
-      }
-
-      sb.append(", start=");
-      sb.append(start);
-
-      sb.append(", end=");
-      sb.append(end);
-
-      sb.append("}");
-      return sb.toString();
-    }
-  }
 
   /** Return the events for the current user in the given collection using the
    * supplied filter. Stored freebusy objects are returned as BwEvent

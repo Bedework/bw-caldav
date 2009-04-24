@@ -26,7 +26,8 @@
 
 package org.bedework.caldav.server;
 
-import org.bedework.caldav.server.SysIntf.CalPrincipalInfo;
+import org.bedework.caldav.server.sysinterface.CalPrincipalInfo;
+import org.bedework.caldav.server.sysinterface.SysIntf;
 
 import edu.rpi.cct.webdav.servlet.shared.WdEntity;
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
@@ -606,6 +607,96 @@ public class CaldavCalNode extends CaldavBwNode {
           xml.property(WebdavTags.href, href);
         }
         xml.closeTag(tag);
+
+        return true;
+      }
+
+      if (tag.equals(CaldavTags.maxAttendeesPerInstance)) {
+        if ((calType != CalDAVCollection.calTypeCalendarCollection) &&
+            (calType != CalDAVCollection.calTypeInbox) &&
+            (calType != CalDAVCollection.calTypeOutbox)) {
+          return false;
+        }
+
+        Integer val = getSysi().getSystemProperties().getMaxAttendeesPerInstance();
+
+        if (val == null) {
+          return false;
+        }
+
+        xml.property(tag, String.valueOf(val));
+
+        return true;
+      }
+
+      if (tag.equals(CaldavTags.maxDateTime)) {
+        if ((calType != CalDAVCollection.calTypeCalendarCollection) &&
+            (calType != CalDAVCollection.calTypeInbox) &&
+            (calType != CalDAVCollection.calTypeOutbox)) {
+          return false;
+        }
+
+        Integer val = getSysi().getSystemProperties().getMaxAttendeesPerInstance();
+
+        if (val == null) {
+          return false;
+        }
+
+        xml.property(tag, String.valueOf(val));
+
+        return true;
+      }
+
+      if (tag.equals(CaldavTags.maxInstances)) {
+        if ((calType != CalDAVCollection.calTypeCalendarCollection) &&
+            (calType != CalDAVCollection.calTypeInbox) &&
+            (calType != CalDAVCollection.calTypeOutbox)) {
+          return false;
+        }
+
+        Integer val = getSysi().getSystemProperties().getMaxInstances();
+
+        if (val == null) {
+          return false;
+        }
+
+        xml.property(tag, String.valueOf(val));
+
+        return true;
+      }
+
+      if (tag.equals(CaldavTags.maxResourceSize)) {
+        if ((calType != CalDAVCollection.calTypeCalendarCollection) &&
+            (calType != CalDAVCollection.calTypeInbox) &&
+            (calType != CalDAVCollection.calTypeOutbox)) {
+          return false;
+        }
+
+        Integer val = getSysi().getSystemProperties().getMaxUserEntitySize();
+
+        if (val == null) {
+          return false;
+        }
+
+        xml.property(tag, String.valueOf(val));
+
+        return true;
+      }
+
+      if (tag.equals(CaldavTags.minDateTime)) {
+        if ((calType != CalDAVCollection.calTypeCalendarCollection) &&
+            (calType != CalDAVCollection.calTypeInbox) &&
+            (calType != CalDAVCollection.calTypeOutbox)) {
+          return false;
+        }
+
+        String val = getSysi().getSystemProperties().getMinDateTime();
+
+        if (val == null) {
+          return false;
+        }
+
+        xml.property(tag, val);
 
         return true;
       }

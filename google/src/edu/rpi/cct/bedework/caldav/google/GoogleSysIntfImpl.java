@@ -30,10 +30,13 @@ import org.bedework.caldav.server.CalDAVCollectionBase;
 import org.bedework.caldav.server.CalDAVEvent;
 import org.bedework.caldav.server.CalDAVResource;
 import org.bedework.caldav.server.PropertyHandler;
-import org.bedework.caldav.server.SysIntf;
 import org.bedework.caldav.server.SysiIcalendar;
 import org.bedework.caldav.server.PostMethod.RequestPars;
 import org.bedework.caldav.server.PropertyHandler.PropertyType;
+import org.bedework.caldav.server.sysinterface.CalPrincipalInfo;
+import org.bedework.caldav.server.sysinterface.RetrievalMode;
+import org.bedework.caldav.server.sysinterface.SysIntf;
+import org.bedework.caldav.server.sysinterface.SystemProperties;
 import org.bedework.calfacade.BwDateTime;
 import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.BwEventObj;
@@ -106,6 +109,8 @@ public class GoogleSysIntfImpl implements SysIntf {
 
   private UrlHandler urlHandler;
 
+  private SystemProperties sysProperties = new SystemProperties();
+
   protected AccessPrincipal currentPrincipal;
 
   private static HashMap<String, Integer> toWho = new HashMap<String, Integer>();
@@ -133,6 +138,13 @@ public class GoogleSysIntfImpl implements SysIntf {
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
+  }
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.sysinterface.SysIntf#getSystemProperties()
+   */
+  public SystemProperties getSystemProperties() throws WebdavException {
+    return sysProperties;
   }
 
   /* (non-Javadoc)

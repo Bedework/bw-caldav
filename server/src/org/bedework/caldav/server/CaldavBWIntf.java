@@ -26,11 +26,12 @@
 package org.bedework.caldav.server;
 
 import org.bedework.caldav.server.PostMethod.RequestPars;
-import org.bedework.caldav.server.SysIntf.CalPrincipalInfo;
-import org.bedework.caldav.server.SysIntf.RetrievalMode;
 import org.bedework.caldav.server.calquery.CalendarData;
 import org.bedework.caldav.server.calquery.FreeBusyQuery;
 import org.bedework.caldav.server.filter.Filter;
+import org.bedework.caldav.server.sysinterface.SysIntf;
+import org.bedework.caldav.server.sysinterface.CalPrincipalInfo;
+import org.bedework.caldav.server.sysinterface.RetrievalMode;
 import org.bedework.calfacade.base.TimeRange;
 import org.bedework.calfacade.configs.CalDAVConfig;
 import org.bedework.calfacade.env.CalOptionsFactory;

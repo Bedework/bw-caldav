@@ -30,11 +30,14 @@ import org.bedework.caldav.server.CalDAVEvent;
 import org.bedework.caldav.server.CalDAVResource;
 import org.bedework.caldav.server.Organizer;
 import org.bedework.caldav.server.PropertyHandler;
-import org.bedework.caldav.server.SysIntf;
 import org.bedework.caldav.server.SysIntfReader;
 import org.bedework.caldav.server.SysiIcalendar;
 import org.bedework.caldav.server.PostMethod.RequestPars;
 import org.bedework.caldav.server.PropertyHandler.PropertyType;
+import org.bedework.caldav.server.sysinterface.CalPrincipalInfo;
+import org.bedework.caldav.server.sysinterface.RetrievalMode;
+import org.bedework.caldav.server.sysinterface.SysIntf;
+import org.bedework.caldav.server.sysinterface.SystemProperties;
 import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwDateTime;
 import org.bedework.calfacade.BwEvent;
@@ -121,6 +124,8 @@ public class BwSysIntfImpl implements SysIntf {
 
   private UrlHandler urlHandler;
 
+  private SystemProperties sysProperties = new SystemProperties();
+
   private CalDAVConfig conf;
 
   public void init(HttpServletRequest req,
@@ -134,10 +139,27 @@ public class BwSysIntfImpl implements SysIntf {
       urlHandler = new UrlHandler(req, true);
 
       // Call to set up ThreadLocal variables
-      currentPrincipal = getSvci(account).getUsersHandler().getUser(account);
+
+      CalSvcI svc = getSvci(account);
+
+      currentPrincipal = svc.getUsersHandler().getUser(account);
+
+      BwSystem sys = svc.getSysparsHandler().get();
+
+      if (sys != null) {
+        sysProperties.setMaxUserEntitySize(sys.getMaxUserEntitySize());
+        sysProperties.setMaxInstances(sys.getMaxInstances());
+      }
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
+  }
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.sysinterface.SysIntf#getSystemProperties()
+   */
+  public SystemProperties getSystemProperties() throws WebdavException {
+    return sysProperties;
   }
 
   /* (non-Javadoc)

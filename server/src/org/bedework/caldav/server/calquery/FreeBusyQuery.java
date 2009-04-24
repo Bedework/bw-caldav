@@ -26,7 +26,7 @@
 package org.bedework.caldav.server.calquery;
 
 import org.bedework.caldav.server.CalDAVCollection;
-import org.bedework.caldav.server.SysIntf;
+import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.calfacade.base.TimeRange;
 import org.bedework.calfacade.util.xml.CalDavParseUtil;
 

@@ -26,12 +26,12 @@
 
 package org.bedework.caldav.server;
 
-import org.bedework.caldav.server.SysIntf.RetrievalMode;
 import org.bedework.caldav.server.calquery.CalendarData;
 import org.bedework.caldav.server.calquery.ExpandRecurrenceSet;
 import org.bedework.caldav.server.calquery.FreeBusyQuery;
 import org.bedework.caldav.server.calquery.LimitRecurrenceSet;
 import org.bedework.caldav.server.filter.Filter;
+import org.bedework.caldav.server.sysinterface.RetrievalMode;
 
 import edu.rpi.cct.webdav.servlet.common.ReportMethod;
 import edu.rpi.cct.webdav.servlet.common.PropFindMethod.PropRequest;

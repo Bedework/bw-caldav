@@ -29,7 +29,7 @@ import org.bedework.caldav.server.CalDAVCollection;
 import org.bedework.caldav.server.CalDAVEvent;
 import org.bedework.caldav.server.CaldavBwNode;
 import org.bedework.caldav.server.CaldavComponentNode;
-import org.bedework.caldav.server.SysIntf.RetrievalMode;
+import org.bedework.caldav.server.sysinterface.RetrievalMode;
 import org.bedework.calfacade.exc.CalFacadeException;
 import org.bedework.calfacade.exc.CalFacadeForbidden;
 import org.bedework.calfacade.filter.caldav.CompFilter;

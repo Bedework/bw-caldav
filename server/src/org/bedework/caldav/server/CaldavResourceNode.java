@@ -25,6 +25,8 @@
 */
 package org.bedework.caldav.server;
 
+import org.bedework.caldav.server.sysinterface.SysIntf;
+
 import org.w3c.dom.Element;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
