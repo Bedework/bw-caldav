@@ -1647,7 +1647,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
         return curi;
       }
 
-      if (col.getCalType() == CalDAVCollection.calTypeCalendarCollection) {
+      if ((col.getCalType() == CalDAVCollection.calTypeCalendarCollection) ||
+          (col.getCalType() == CalDAVCollection.calTypeInbox) ||
+          (col.getCalType() == CalDAVCollection.calTypeOutbox)) {
         if (debug) {
           debugMsg("find event(s) - cal=\"" + col.getPath() + "\" name=\"" +
                    split.name + "\"");
