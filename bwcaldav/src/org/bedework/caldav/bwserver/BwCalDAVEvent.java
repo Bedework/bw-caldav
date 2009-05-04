@@ -572,7 +572,7 @@ public class BwCalDAVEvent extends CalDAVEvent {
   }
 
   public int getSequence() throws WebdavException {
-    return 1;
+    return 0;
   }
 
   public void setPrevLastmod(String val) throws WebdavException {
@@ -584,11 +584,10 @@ public class BwCalDAVEvent extends CalDAVEvent {
   }
 
   public void setPrevSequence(int val) throws WebdavException {
-    getEvinfo().setPrevSeq(val);
   }
 
   public int getPrevSequence() throws WebdavException {
-    return getEvinfo().getPrevSeq();
+    return 0;
   }
 
   /* (non-Javadoc)
