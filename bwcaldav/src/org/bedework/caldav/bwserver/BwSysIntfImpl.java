@@ -559,7 +559,7 @@ public class BwSysIntfImpl implements SysIntf {
     try {
       EventInfo ei = getEvinfo(event);
 
-      getSvci().getEventsHandler().update(ei, false, false,
+      getSvci().getEventsHandler().update(ei, false,
                                           ei.getChangeset());
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
