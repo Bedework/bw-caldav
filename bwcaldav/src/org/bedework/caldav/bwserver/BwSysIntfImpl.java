@@ -559,9 +559,8 @@ public class BwSysIntfImpl implements SysIntf {
     try {
       EventInfo ei = getEvinfo(event);
 
-      getSvci().getEventsHandler().update(ei, false,
-                                          null,
-                                          null, ei.getChangeset());
+      getSvci().getEventsHandler().update(ei, false, false,
+                                          ei.getChangeset());
     } catch (CalFacadeAccessException cfae) {
       throw new WebdavForbidden();
     } catch (CalFacadeException cfe) {
