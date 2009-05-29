@@ -495,7 +495,7 @@ public class BwSysIntfImpl implements SysIntf {
       if (Icalendar.itipReplyMethodType(event.getScheduleMethod())) {
         sr = getSvci().getScheduler().scheduleResponse(getEvinfo(ev));
       } else {
-        sr = getSvci().getScheduler().schedule(getEvinfo(ev), null, false);
+        sr = getSvci().getScheduler().schedule(getEvinfo(ev), null, null, false);
       }
 
       return checkStatus(sr);
@@ -656,7 +656,7 @@ public class BwSysIntfImpl implements SysIntf {
       if (Icalendar.itipReplyMethodType(ev.getScheduleMethod())) {
         sr = getSvci().getScheduler().scheduleResponse(getEvinfo(val));
       } else {
-        sr = getSvci().getScheduler().schedule(getEvinfo(val), null, false);
+        sr = getSvci().getScheduler().schedule(getEvinfo(val), null, null, false);
       }
 
       return checkStatus(sr);
