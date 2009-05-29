@@ -510,9 +510,9 @@ public class BexchangeSysIntfImpl implements SysIntf {
       req.setUrl(di.getUrlPrefix() +
                  serviceName + "&" +       // Really email
                  "startdate=" +
-                 makeDate(start.addDur(BwDateTime.oneDayBack)) +
+                 makeDate(start.getPreviousDay()) +
                  "&enddate=" +
-                 makeDate(end.addDur(BwDateTime.oneDayBack)));
+                 makeDate(end.getNextDay()));
 
 //      req.addHeader("Accept",
 //                    "text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5");
