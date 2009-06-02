@@ -1559,13 +1559,7 @@ public class BwSysIntfImpl implements SysIntf {
       //  throw new RuntimeException("org.bedework.icalendar.component.not.event");
       //}
 
-      EventInfo ei = (EventInfo)iterator().next();
-
-      if (ei == null) {
-        return null;
-      }
-
-      return new BwCalDAVEvent(sysi, ei);
+      return (CalDAVEvent)iterator().next();
     }
 
     public Iterator iterator() {
