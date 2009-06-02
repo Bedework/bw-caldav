@@ -1254,7 +1254,12 @@ public class BwSysIntfImpl implements SysIntf {
   public SysiIcalendar fromIcal(CalDAVCollection col, Reader rdr) throws WebdavException {
     getSvci(); // Ensure open
     try {
-      Icalendar ic = trans.fromIcal(unwrap(col), new SysIntfReader(rdr, debug));
+      BwCalendar bwcol = null;
+      if (col != null) {
+        bwcol = unwrap(col);
+      }
+
+      Icalendar ic = trans.fromIcal(bwcol, new SysIntfReader(rdr, debug));
 
       return new MySysiIcalendar(this, ic);
     } catch (IcalMalformedException ime) {
