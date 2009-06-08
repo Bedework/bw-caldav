@@ -68,6 +68,7 @@ import org.bedework.icalendar.IcalMalformedException;
 import org.bedework.icalendar.IcalTranslator;
 import org.bedework.icalendar.Icalendar;
 import org.bedework.icalendar.VFreeUtil;
+import org.bedework.icalendar.Icalendar.TimeZoneInfo;
 
 import edu.rpi.cct.webdav.servlet.shared.PrincipalPropertySearch;
 import edu.rpi.cct.webdav.servlet.shared.WdEntity;
@@ -1284,7 +1285,6 @@ public class BwSysIntfImpl implements SysIntf {
       getSvci(); // Ensure open
       StringReader sr = new StringReader(val);
 
-      // This call automatically saves the timezone in the db
       Icalendar ic = trans.fromIcal(null, sr);
 
       if ((ic == null) ||
@@ -1296,7 +1296,9 @@ public class BwSysIntfImpl implements SysIntf {
         throw new WebdavForbidden(CaldavTags.validCalendarData, "Not icalendar");
       }
 
-      TimeZone tz = ic.getTimeZones().iterator().next();
+      /* This should be the only timezone ion the Calendar object
+       */
+      TimeZone tz = ic.getTimeZones().iterator().next().tz;
 
       return tz.getID();
     } catch (CalFacadeException cfe) {
@@ -1523,7 +1525,13 @@ public class BwSysIntfImpl implements SysIntf {
     }
 
     public Collection<TimeZone> getTimeZones() {
-      return ic.getTimeZones();
+      Collection<TimeZone> tzs = new ArrayList<TimeZone>();
+
+      for (TimeZoneInfo tzi: ic.getTimeZones()) {
+        tzs.add(tzi.tz);
+      }
+
+      return tzs;
     }
 
     public Collection<Object> getComponents() {
