@@ -32,8 +32,8 @@ import org.bedework.caldav.server.PropertyHandler;
 import org.bedework.caldav.server.SysiIcalendar;
 import org.bedework.caldav.server.PostMethod.RequestPars;
 import org.bedework.caldav.server.PropertyHandler.PropertyType;
+import org.bedework.caldav.util.CalDAVConfig;
 import org.bedework.caldav.util.TimeRange;
-import org.bedework.calfacade.configs.CalDAVConfig;
 import org.bedework.calfacade.filter.BwFilter;
 
 import edu.rpi.cct.webdav.servlet.shared.PrincipalPropertySearch;

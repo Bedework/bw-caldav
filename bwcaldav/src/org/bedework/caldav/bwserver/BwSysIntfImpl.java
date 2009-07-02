@@ -38,6 +38,7 @@ import org.bedework.caldav.server.sysinterface.CalPrincipalInfo;
 import org.bedework.caldav.server.sysinterface.RetrievalMode;
 import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.caldav.server.sysinterface.SystemProperties;
+import org.bedework.caldav.util.CalDAVConfig;
 import org.bedework.caldav.util.TimeRange;
 import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwDateTime;
@@ -54,7 +55,7 @@ import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.ScheduleResult;
 import org.bedework.calfacade.RecurringRetrievalMode.Rmode;
 import org.bedework.calfacade.ScheduleResult.ScheduleRecipientResult;
-import org.bedework.calfacade.configs.CalDAVConfig;
+import org.bedework.calfacade.configs.DbConfig;
 import org.bedework.calfacade.exc.CalFacadeAccessException;
 import org.bedework.calfacade.exc.CalFacadeException;
 import org.bedework.calfacade.exc.CalFacadeStaleStateException;
@@ -128,14 +129,17 @@ public class BwSysIntfImpl implements SysIntf {
 
   private SystemProperties sysProperties = new SystemProperties();
 
-  private CalDAVConfig conf;
+  //private CalDAVConfig conf;
 
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.sysinterface.SysIntf#init(javax.servlet.http.HttpServletRequest, java.lang.String, org.bedework.caldav.util.CalDAVConfig, boolean)
+   */
   public void init(HttpServletRequest req,
                    String account,
                    CalDAVConfig conf,
                    boolean debug) throws WebdavException {
     try {
-      this.conf = conf;
+      //this.conf = conf;
       this.debug = debug;
 
       urlHandler = new UrlHandler(req, true);
@@ -1425,6 +1429,8 @@ public class BwSysIntfImpl implements SysIntf {
       /* account is what we authenticated with.
        * user, if non-null, is the user calendar we want to access.
        */
+      DbConfig dbconf = new DbConfig();
+
       CalSvcIPars pars = new CalSvcIPars(account,
                                          null,    // calsuite
                                          false,   // publicAdmin
@@ -1434,7 +1440,7 @@ public class BwSysIntfImpl implements SysIntf {
                                          false,  // adminCanEditAllPublicSponsors
                                          true,    // sessionless
                                          null, // synchId
-                                         conf,
+                                         dbconf,
                                          debug);
       svci = new CalSvcFactoryDefault().getSvc(pars);
 

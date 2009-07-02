@@ -28,7 +28,7 @@ package org.bedework.caldav.server;
 import org.bedework.caldav.server.sysinterface.CalPrincipalInfo;
 import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.caldav.server.sysinterface.SysIntf.SchedRecipientResult;
-import org.bedework.calfacade.configs.CalDAVConfig;
+import org.bedework.caldav.util.CalDAVConfig;
 
 import edu.rpi.cct.webdav.servlet.common.MethodBase;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;

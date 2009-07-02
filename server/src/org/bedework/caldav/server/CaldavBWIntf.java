@@ -32,10 +32,9 @@ import org.bedework.caldav.server.filter.Filter;
 import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.caldav.server.sysinterface.CalPrincipalInfo;
 import org.bedework.caldav.server.sysinterface.RetrievalMode;
+import org.bedework.caldav.util.CalDAVConfig;
 import org.bedework.caldav.util.ParseUtil;
 import org.bedework.caldav.util.TimeRange;
-import org.bedework.calfacade.configs.CalDAVConfig;
-import org.bedework.calfacade.env.CalOptionsFactory;
 
 import edu.rpi.cct.webdav.servlet.common.AccessUtil;
 import edu.rpi.cct.webdav.servlet.common.Headers;
@@ -163,7 +162,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       namespacePrefix = WebdavUtils.getUrlPrefix(req);
       namespace = namespacePrefix + "/schema";
 
-      OptionsI opts = CalOptionsFactory.getOptions(debug);
+      OptionsI opts = CalDAVOptionsFactory.getOptions(debug);
       config = (CalDAVConfig)opts.getAppProperty(appName);
       if (config == null) {
         config = new CalDAVConfig();
