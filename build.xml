@@ -61,6 +61,7 @@
               location="${project.home}/domino" />
     <property name="org.bedework.caldav.google.base" location="${project.home}/google" />
     <property name="org.bedework.caldav.server.base" location="${project.home}/server" />
+    <property name="org.bedework.caldav.util.base" location="${project.home}/util" />
     <property name="org.bedework.caldav.client.base" location="${project.home}/client" />
 
     <mkdir dir="${dist.home}" />
@@ -93,6 +94,9 @@
 
     <property name="server.jar"
               location="${dist.home}/${edu.rpi.cmt.caldav.server.jar}-${project.version}.jar" />
+
+    <property name="util.jar"
+              location="${dist.home}/${edu.rpi.cmt.caldav.util.jar}-${project.version}.jar" />
 
     <!-- ==================== Compilation Classpath ==================== -->
 
@@ -133,17 +137,17 @@
 
   <!-- ========================== Base build Targets ===================
        Here we have one target building the classes and interfaces that make
-       up the access control suite.
+       up the caldav server.
        ================================================================= -->
 
   <target name="clean-build" depends="clean,build"
-          description="Clean and compile webdav classes"/>
+          description="Clean and compile caldav classes"/>
 
   <target name="clean-build-all" depends="clean,build-all"
-          description="Clean and compile webdav classes"/>
+          description="Clean and compile caldav classes"/>
 
   <target name="build" depends="init,build-source,cleanup"
-          description="Compile webdav classes"/>
+          description="Compile caldav classes"/>
 
   <target name="build-all" depends="init,build-source,cleanup"
           description="Compile webdav classes"/>
@@ -152,7 +156,8 @@
      This target builds jar files ready for the deploy target.
      =================================================================== -->
 
-  <target name="build-source" depends="bld.server,
+  <target name="build-source" depends="bld.util,
+  	                                   bld.server,
                                        bld.bwcaldav,
                                        bld.boeingexchange,
                                        bld.domino,
@@ -217,6 +222,11 @@
 
   <target name="bld.google" >
       <ant antfile="${org.bedework.caldav.google.base}/build.xml" inheritrefs="true"
+           target="build" />
+  </target>
+
+  <target name="bld.util">
+      <ant antfile="${org.bedework.caldav.util.base}/build.xml" inheritrefs="true"
            target="build" />
   </target>
 

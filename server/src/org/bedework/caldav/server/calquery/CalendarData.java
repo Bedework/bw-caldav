@@ -26,7 +26,7 @@
 package org.bedework.caldav.server.calquery;
 
 import org.bedework.caldav.server.CaldavComponentNode;
-import org.bedework.calfacade.base.TimeRange;
+import org.bedework.calfacade.base.BwTimeRange;
 import org.bedework.calfacade.BwDateTime;
 import org.bedework.calfacade.util.BwDateTimeUtil;
 
@@ -449,7 +449,7 @@ public class CalendarData extends WebdavProperty {
   }
 
   private void parseTimeRange(Node nd,
-              TimeRange tr) throws WebdavException {
+              BwTimeRange tr) throws WebdavException {
     BwDateTime start = null;
     BwDateTime end = null;
 

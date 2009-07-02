@@ -32,8 +32,7 @@ import org.bedework.caldav.server.PropertyHandler;
 import org.bedework.caldav.server.SysiIcalendar;
 import org.bedework.caldav.server.PostMethod.RequestPars;
 import org.bedework.caldav.server.PropertyHandler.PropertyType;
-import org.bedework.calfacade.BwDateTime;
-import org.bedework.calfacade.base.TimeRange;
+import org.bedework.caldav.util.TimeRange;
 import org.bedework.calfacade.configs.CalDAVConfig;
 import org.bedework.calfacade.filter.BwFilter;
 
@@ -389,16 +388,14 @@ public interface SysIntf {
    * @param col
    * @param depth
    * @param account
-   * @param start
-   * @param end
+   * @param timeRange
    * @return Calendar
    * @throws WebdavException
    */
   public Calendar getFreeBusy(final CalDAVCollection col,
                               final int depth,
                               final String account,
-                              final BwDateTime start,
-                              final BwDateTime end) throws WebdavException;
+                              final TimeRange timeRange) throws WebdavException;
 
   /** Check the access for the given entity. Returns the current access
    * or null or optionally throws a no access exception.

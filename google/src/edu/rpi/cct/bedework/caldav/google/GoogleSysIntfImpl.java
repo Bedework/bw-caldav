@@ -37,12 +37,12 @@ import org.bedework.caldav.server.sysinterface.CalPrincipalInfo;
 import org.bedework.caldav.server.sysinterface.RetrievalMode;
 import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.caldav.server.sysinterface.SystemProperties;
+import org.bedework.caldav.util.TimeRange;
 import org.bedework.calfacade.BwDateTime;
 import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.BwEventObj;
 import org.bedework.calfacade.BwFreeBusyComponent;
 import org.bedework.calfacade.CalFacadeDefs;
-import org.bedework.calfacade.base.TimeRange;
 import org.bedework.calfacade.configs.CalDAVConfig;
 import org.bedework.calfacade.filter.BwFilter;
 import org.bedework.calfacade.timezones.CalTimezones;
@@ -65,7 +65,6 @@ import edu.rpi.cmt.access.Acl;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
 
 import net.fortuna.ical4j.model.Calendar;
-import net.fortuna.ical4j.model.TimeZone;
 import net.fortuna.ical4j.model.component.VFreeBusy;
 
 import org.apache.log4j.Logger;
@@ -402,6 +401,9 @@ public class GoogleSysIntfImpl implements SysIntf {
     throw new WebdavException("unimplemented");
   }
 
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.sysinterface.SysIntf#getSpecialFreeBusy(java.lang.String, java.lang.String, org.bedework.caldav.server.PostMethod.RequestPars, org.bedework.caldav.util.TimeRange, java.io.Writer)
+   */
   public void getSpecialFreeBusy(String cua, String user,
                                  RequestPars pars,
                                  TimeRange tr,
@@ -409,11 +411,13 @@ public class GoogleSysIntfImpl implements SysIntf {
     throw new WebdavException("unimplemented");
   }
 
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.sysinterface.SysIntf#getFreeBusy(org.bedework.caldav.server.CalDAVCollection, int, java.lang.String, org.bedework.caldav.util.TimeRange)
+   */
   public Calendar getFreeBusy(final CalDAVCollection col,
-                              int depth,
+                              final int depth,
                               final String account,
-                              final BwDateTime start,
-                              final BwDateTime end) throws WebdavException {
+                              final TimeRange timeRange) throws WebdavException {
     /* We get something like:
      *
 <feed>
@@ -457,8 +461,8 @@ public class GoogleSysIntfImpl implements SysIntf {
       URL feedUrl = new URL(feedUrlPrefix + account + "@gmail.com/public/free-busy");
 
       CalendarQuery q = new CalendarQuery(feedUrl);
-      q.setMinimumStartTime(makeDateTime(start));
-      q.setMaximumStartTime(makeDateTime(end));
+      q.setMinimumStartTime(new DateTime(timeRange.getStart().getTime()));
+      q.setMaximumStartTime(new DateTime(timeRange.getEnd().getTime()));
 
       CalendarService svc = getCalendarService();
 
@@ -469,8 +473,8 @@ public class GoogleSysIntfImpl implements SysIntf {
 
       fb.setEntityType(CalFacadeDefs.entityTypeFreeAndBusy);
       fb.setOwnerHref(account);
-      fb.setDtstart(start);
-      fb.setDtend(end);
+      fb.setDtstart(getBwDt(timeRange.getStart()));
+      fb.setDtend(getBwDt(timeRange.getEnd()));
       //assignGuid(fb);
 
       for (Entry e: resultFeed.getEntries()) {
@@ -763,11 +767,16 @@ public class GoogleSysIntfImpl implements SysIntf {
     return new CalendarService("org.bedework-caldav-1");
   }
 
-  private DateTime makeDateTime(BwDateTime dt) throws WebdavException {
+  private BwDateTime getBwDt(net.fortuna.ical4j.model.DateTime dt) throws WebdavException {
     try {
-      TimeZone tz = CalTimezones.getTz(dt.getTzid());
-      long millis = dt.makeDate().getTime();
-      return new DateTime(millis, tz.getOffset(millis) / 60000);
+      if (dt == null) {
+        return null;
+      }
+
+      BwDateTime bwdt = new BwDateTime();
+      bwdt.init(false, dt.toString(), null, null);
+
+      return bwdt;
     } catch (Throwable t) {
       throw new WebdavException(t);
     }

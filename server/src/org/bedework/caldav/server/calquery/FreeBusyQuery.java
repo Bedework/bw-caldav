@@ -27,8 +27,8 @@ package org.bedework.caldav.server.calquery;
 
 import org.bedework.caldav.server.CalDAVCollection;
 import org.bedework.caldav.server.sysinterface.SysIntf;
-import org.bedework.calfacade.base.TimeRange;
-import org.bedework.calfacade.util.xml.CalDavParseUtil;
+import org.bedework.caldav.util.ParseUtil;
+import org.bedework.caldav.util.TimeRange;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
@@ -74,7 +74,7 @@ public class FreeBusyQuery {
         throw new WebdavBadRequest();
       }
 
-      timeRange = CalDavParseUtil.parseTimeRange(nd, null);
+      timeRange = ParseUtil.parseTimeRange(nd);
 
       if (debug) {
         trace("Parsed time range " + timeRange);
@@ -98,9 +98,7 @@ public class FreeBusyQuery {
                              String account,
                              int depth) throws WebdavException {
     try {
-      return sysi.getFreeBusy(col, depth, account,
-                              timeRange.getStart(),
-                              timeRange.getEnd());
+      return sysi.getFreeBusy(col, depth, account, timeRange);
     } catch (WebdavException wde) {
       throw wde;
     } catch (Throwable t) {

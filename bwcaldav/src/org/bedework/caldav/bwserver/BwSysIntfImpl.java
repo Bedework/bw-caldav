@@ -38,6 +38,7 @@ import org.bedework.caldav.server.sysinterface.CalPrincipalInfo;
 import org.bedework.caldav.server.sysinterface.RetrievalMode;
 import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.caldav.server.sysinterface.SystemProperties;
+import org.bedework.caldav.util.TimeRange;
 import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwDateTime;
 import org.bedework.calfacade.BwEvent;
@@ -53,7 +54,6 @@ import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.ScheduleResult;
 import org.bedework.calfacade.RecurringRetrievalMode.Rmode;
 import org.bedework.calfacade.ScheduleResult.ScheduleRecipientResult;
-import org.bedework.calfacade.base.TimeRange;
 import org.bedework.calfacade.configs.CalDAVConfig;
 import org.bedework.calfacade.exc.CalFacadeAccessException;
 import org.bedework.calfacade.exc.CalFacadeException;
@@ -89,6 +89,7 @@ import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 
 import net.fortuna.ical4j.model.Calendar;
+import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.TimeZone;
 import net.fortuna.ical4j.model.component.VFreeBusy;
 
@@ -676,6 +677,9 @@ public class BwSysIntfImpl implements SysIntf {
     }
   }
 
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.sysinterface.SysIntf#getSpecialFreeBusy(java.lang.String, java.lang.String, org.bedework.caldav.server.PostMethod.RequestPars, org.bedework.caldav.util.TimeRange, java.io.Writer)
+   */
   public void getSpecialFreeBusy(String cua, String user,
                                  RequestPars pars,
                                  TimeRange tr,
@@ -690,8 +694,8 @@ public class BwSysIntfImpl implements SysIntf {
     org.setOrganizerUri(cua);
 
     BwEvent ev = new BwEventObj();
-    ev.setDtstart(tr.getStart());
-    ev.setDtend(tr.getEnd());
+    ev.setDtstart(getBwDt(tr.getStart()));
+    ev.setDtend(getBwDt(tr.getEnd()));
 
     ev.setEntityType(CalFacadeDefs.entityTypeFreeAndBusy);
 
@@ -726,13 +730,12 @@ public class BwSysIntfImpl implements SysIntf {
   }
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#getFreeBusy(org.bedework.caldav.server.CalDAVCollection, int, java.lang.String, org.bedework.calfacade.BwDateTime, org.bedework.calfacade.BwDateTime)
+   * @see org.bedework.caldav.server.sysinterface.SysIntf#getFreeBusy(org.bedework.caldav.server.CalDAVCollection, int, java.lang.String, org.bedework.caldav.util.TimeRange)
    */
   public Calendar getFreeBusy(final CalDAVCollection col,
-                             final int depth,
-                             final String account,
-                             final BwDateTime start,
-                             final BwDateTime end) throws WebdavException {
+                              final int depth,
+                              final String account,
+                              final TimeRange timeRange) throws WebdavException {
     try {
       BwUser user = getSvci().getUsersHandler().getUser(account);
       if (user == null) {
@@ -770,10 +773,12 @@ public class BwSysIntfImpl implements SysIntf {
         // Return an empty object
         fb = new BwEventObj();
         fb.setEntityType(CalFacadeDefs.entityTypeFreeAndBusy);
-        fb.setDtstart(start);
-        fb.setDtend(end);
+        fb.setDtstart(getBwDt(timeRange.getStart()));
+        fb.setDtend(getBwDt(timeRange.getEnd()));
       } else {
-        fb = getSvci().getScheduler().getFreeBusy(cals, user, start, end);
+        fb = getSvci().getScheduler().getFreeBusy(cals, user,
+                                                  getBwDt(timeRange.getStart()),
+                                                  getBwDt(timeRange.getEnd()));
       }
 
       VFreeBusy vfreeBusy = VFreeUtil.toVFreeBusy(fb);
@@ -1645,6 +1650,21 @@ public class BwSysIntfImpl implements SysIntf {
       }
 
       return icIterator;
+    }
+  }
+
+  private BwDateTime getBwDt(DateTime dt) throws WebdavException {
+    try {
+      if (dt == null) {
+        return null;
+      }
+
+      BwDateTime bwdt = new BwDateTime();
+      bwdt.init(false, dt.toString(), null, null);
+
+      return bwdt;
+    } catch (Throwable t) {
+      throw new WebdavException(t);
     }
   }
 

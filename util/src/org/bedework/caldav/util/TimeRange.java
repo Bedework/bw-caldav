@@ -1,5 +1,5 @@
 /* **********************************************************************
-    Copyright 2005 Rensselaer Polytechnic Institute. All worldwide rights reserved.
+    Copyright 2009 Rensselaer Polytechnic Institute. All worldwide rights reserved.
 
     Redistribution and use of this distribution in source and binary forms,
     with or without modification, are permitted provided that:
@@ -23,44 +23,92 @@
     special, consequential, or incidental damages related to the software,
     to the maximum extent the law permits.
 */
-package org.bedework.caldav.server.calquery;
-
-import org.bedework.calfacade.base.BwTimeRange;
-import org.bedework.calfacade.BwDateTime;
+package org.bedework.caldav.util;
 
 import org.apache.log4j.Logger;
 
-/**
- * @author Mike Douglass douglm @ rpi.edu
- */
-public class LimitFreebusySet extends BwTimeRange {
-  /** Constructor
-   */
-  public LimitFreebusySet() {
-  }
+import net.fortuna.ical4j.model.DateTime;
+import net.fortuna.ical4j.model.Property;
+import net.fortuna.ical4j.model.property.DateProperty;
 
-  /** Constructor
-   *
+/** Express the CalDAV time-range element.
+ * @author douglm
+ *
+ */
+public class TimeRange {
+  /** */
+  public DateTime start;
+  /** */
+  public DateTime end;
+
+  /**
    * @param start
    * @param end
    */
-  public LimitFreebusySet(BwDateTime start, BwDateTime end) {
-    super(start, end);
+  public TimeRange(DateTime start, DateTime end) {
+    this.start = start;
+    this.end = end;
   }
 
   /**
+   * @return DateTime start
+   */
+  public DateTime getStart() {
+    return start;
+  }
+
+  /**
+   * @return DateTime end
+   */
+  public DateTime getEnd() {
+    return end;
+  }
+
+  /** Test if the given property falls in the timerange
+   *
+   * @param candidate
+   * @return boolean true if in range
+   */
+  public boolean matches(Property candidate) {
+    if (!(candidate instanceof DateProperty)) {
+      return false;
+    }
+
+    // XXX later
+    return true;
+  }
+
+  /** Debug
+   *
    * @param log
    * @param indent
    */
   public void dump(Logger log, String indent) {
-    StringBuffer sb = new StringBuffer(indent);
+    log.debug(indent + toString());
+  }
 
-    sb.append("<limit-freebusy-set ");
-    super.toStringSegment(sb);
+  protected void toStringSegment(StringBuilder sb) {
+    if (start != null) {
+      sb.append("start=");
+      sb.append(start);
+    }
+
+    if (end != null) {
+      if (start != null) {
+        sb.append(" ");
+      }
+      sb.append("end=");
+      sb.append(end);
+    }
+  }
+
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+
+    sb.append("<time-range ");
+    toStringSegment(sb);
     sb.append("/>");
 
-    log.debug(sb.toString());
+    return sb.toString();
   }
 }
-
-

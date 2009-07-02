@@ -37,11 +37,12 @@ import org.bedework.caldav.server.sysinterface.CalPrincipalInfo;
 import org.bedework.caldav.server.sysinterface.RetrievalMode;
 import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.caldav.server.sysinterface.SystemProperties;
+import org.bedework.caldav.util.TimeRange;
 import org.bedework.calfacade.BwDateTime;
 import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.BwEventObj;
 import org.bedework.calfacade.BwFreeBusyComponent;
-import org.bedework.calfacade.base.TimeRange;
+import org.bedework.calfacade.CalFacadeDefs;
 import org.bedework.calfacade.configs.CalDAVConfig;
 import org.bedework.calfacade.filter.BwFilter;
 import org.bedework.calfacade.timezones.CalTimezones;
@@ -482,7 +483,7 @@ public class DominoSysIntfImpl implements SysIntf {
   }
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#getSpecialFreeBusy(java.lang.String, java.lang.String, org.bedework.caldav.server.PostMethod.RequestPars, org.bedework.calfacade.base.TimeRange, java.io.Writer)
+   * @see org.bedework.caldav.server.sysinterface.SysIntf#getSpecialFreeBusy(java.lang.String, java.lang.String, org.bedework.caldav.server.PostMethod.RequestPars, org.bedework.caldav.util.TimeRange, java.io.Writer)
    */
   public void getSpecialFreeBusy(String cua, String user,
                                  RequestPars pars,
@@ -492,13 +493,12 @@ public class DominoSysIntfImpl implements SysIntf {
   }
 
   /* (non-Javadoc)
-   * @see org.bedework.caldav.server.SysIntf#getFreeBusy(org.bedework.caldav.server.CalDAVCollection, int, java.lang.String, org.bedework.calfacade.BwDateTime, org.bedework.calfacade.BwDateTime)
+   * @see org.bedework.caldav.server.sysinterface.SysIntf#getFreeBusy(org.bedework.caldav.server.CalDAVCollection, int, java.lang.String, org.bedework.caldav.util.TimeRange)
    */
   public Calendar getFreeBusy(final CalDAVCollection col,
                               final int depth,
                               final String account,
-                              final BwDateTime start,
-                              final BwDateTime end) throws WebdavException {
+                              final TimeRange timeRange) throws WebdavException {
     /* Create a url something like:
      *  http://t1.egenconsulting.com:80/servlet/Freetime/John?start-min=2006-07-11T12:00:00Z&start-max=2006-07-16T12:00:00Z
      */
@@ -515,8 +515,8 @@ public class DominoSysIntfImpl implements SysIntf {
       req.setMethod("GET");
       req.setUrl(di.getUrlPrefix() + "/" +
                  col.getOwner().getPrincipalRef() + "?" +
-                 "start-min=" + makeDateTime(start) + "&" +
-                 "start-max=" + makeDateTime(end));
+                 "start-min=" + makeDateTime(timeRange.getStart()) + "&" +
+                 "start-max=" + makeDateTime(timeRange.getEnd()));
 
       req.addHeader("Accept",
                     "text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5");
@@ -565,8 +565,9 @@ public class DominoSysIntfImpl implements SysIntf {
 
       BwEvent fb = new BwEventObj();
 
-      fb.setDtstart(start);
-      fb.setDtend(end);
+      fb.setEntityType(CalFacadeDefs.entityTypeFreeAndBusy);
+      fb.setDtstart(getBwDt(timeRange.getStart()));
+      fb.setDtend(getBwDt(timeRange.getEnd()));
 
       BwFreeBusyComponent fbcomp = new BwFreeBusyComponent();
 
@@ -576,7 +577,7 @@ public class DominoSysIntfImpl implements SysIntf {
 
       /* Fill in the gaps between the free periods with busy time. */
 
-      DateTime bstart = (DateTime)start.makeDate();
+      DateTime bstart = timeRange.getStart();
 
       for (Period p: periods) {
         if (!bstart.equals(p.getStart())) {
@@ -589,7 +590,7 @@ public class DominoSysIntfImpl implements SysIntf {
       }
 
       /* Fill in to end of requested period */
-      DateTime bend = (DateTime)end.makeDate();
+      DateTime bend = timeRange.getEnd();
 
       if (!bstart.equals(bend)) {
         Period busyp = new Period(bstart, bend);
@@ -945,7 +946,7 @@ public class DominoSysIntfImpl implements SysIntf {
     }
   }
 
-  private String makeDateTime(BwDateTime dt) throws WebdavException {
+  private String makeDateTime(DateTime dt) throws WebdavException {
     try {
       /*
       String utcdt = dt.getDate();
@@ -966,25 +967,26 @@ public class DominoSysIntfImpl implements SysIntf {
 
       return sb.toString();
       */
-      return dt.getDate();
+      return dt.toString();
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
   }
 
-  /*
-  private net.fortuna.ical4j.model.DateTime makeIcalDateTime(String val)
-          throws WebdavException {
+  private BwDateTime getBwDt(DateTime dt) throws WebdavException {
     try {
-      net.fortuna.ical4j.model.DateTime icaldt =
-        new net.fortuna.ical4j.model.DateTime(val);
-      //icaldt.setUtc(true);
-      return icaldt;
+      if (dt == null) {
+        return null;
+      }
+
+      BwDateTime bwdt = new BwDateTime();
+      bwdt.init(false, dt.toString(), null, null);
+
+      return bwdt;
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
   }
-  */
 
   private List splitUri(String uri, boolean decoded) throws WebdavException {
     try {

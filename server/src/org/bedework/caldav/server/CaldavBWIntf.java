@@ -32,10 +32,10 @@ import org.bedework.caldav.server.filter.Filter;
 import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.caldav.server.sysinterface.CalPrincipalInfo;
 import org.bedework.caldav.server.sysinterface.RetrievalMode;
-import org.bedework.calfacade.base.TimeRange;
+import org.bedework.caldav.util.ParseUtil;
+import org.bedework.caldav.util.TimeRange;
 import org.bedework.calfacade.configs.CalDAVConfig;
 import org.bedework.calfacade.env.CalOptionsFactory;
-import org.bedework.calfacade.util.BwDateTimeUtil;
 
 import edu.rpi.cct.webdav.servlet.common.AccessUtil;
 import edu.rpi.cct.webdav.servlet.common.Headers;
@@ -979,10 +979,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       pars.contentType = "text/calendar; charset=UTF-8";
 
-      TimeRange tr = BwDateTimeUtil.getPeriod(req.getParameter("start"),
-                                              req.getParameter("end"),
-                                              java.util.Calendar.DATE, 31,
-                                              java.util.Calendar.DATE, 32);
+      TimeRange tr = ParseUtil.getPeriod(req.getParameter("start"),
+                                         req.getParameter("end"),
+                                         java.util.Calendar.DATE, 31,
+                                         java.util.Calendar.DATE, 32);
 
       if (tr == null) {
         resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Date/times");
@@ -1005,10 +1005,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
                                HttpServletResponse resp,
                                RequestPars pars) throws WebdavException {
     try {
-      TimeRange tr = BwDateTimeUtil.getPeriod(req.getParameter("start"),
-                                              req.getParameter("end"),
-                                              java.util.Calendar.DATE, 31,
-                                              java.util.Calendar.DATE, 32 * 3);
+      TimeRange tr = ParseUtil.getPeriod(req.getParameter("start"),
+                                         req.getParameter("end"),
+                                         java.util.Calendar.DATE, 31,
+                                         java.util.Calendar.DATE, 32 * 3);
 
       if (tr == null) {
         resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Date/times");

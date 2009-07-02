@@ -25,7 +25,7 @@
 */
 package org.bedework.caldav.server.calquery;
 
-import org.bedework.calfacade.base.TimeRange;
+import org.bedework.calfacade.base.BwTimeRange;
 import org.bedework.calfacade.BwDateTime;
 
 import org.apache.log4j.Logger;
@@ -33,7 +33,7 @@ import org.apache.log4j.Logger;
 /**
  * @author Mike Douglass douglm @ rpi.edu
  */
-public class ExpandRecurrenceSet extends TimeRange {
+public class ExpandRecurrenceSet extends BwTimeRange {
   /** Constructor
    */
   public ExpandRecurrenceSet() {
