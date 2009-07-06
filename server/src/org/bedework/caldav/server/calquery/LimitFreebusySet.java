@@ -25,27 +25,20 @@
 */
 package org.bedework.caldav.server.calquery;
 
-import org.bedework.calfacade.base.BwTimeRange;
-import org.bedework.calfacade.BwDateTime;
+import org.bedework.caldav.util.TimeRange;
 
 import org.apache.log4j.Logger;
 
 /**
  * @author Mike Douglass douglm @ rpi.edu
  */
-public class LimitFreebusySet extends BwTimeRange {
-  /** Constructor
-   */
-  public LimitFreebusySet() {
-  }
-
+public class LimitFreebusySet extends TimeRange {
   /** Constructor
    *
-   * @param start
-   * @param end
+   * @param tr
    */
-  public LimitFreebusySet(BwDateTime start, BwDateTime end) {
-    super(start, end);
+  public LimitFreebusySet(TimeRange tr) {
+    super(tr.getStart(), tr.getEnd());
   }
 
   /**
@@ -53,7 +46,7 @@ public class LimitFreebusySet extends BwTimeRange {
    * @param indent
    */
   public void dump(Logger log, String indent) {
-    StringBuffer sb = new StringBuffer(indent);
+    StringBuilder sb = new StringBuilder(indent);
 
     sb.append("<limit-freebusy-set ");
     super.toStringSegment(sb);

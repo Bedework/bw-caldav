@@ -25,7 +25,7 @@
 */
 package org.bedework.caldav.server.sysinterface;
 
-import org.bedework.calfacade.BwDateTime;
+import net.fortuna.ical4j.model.DateTime;
 
 import java.io.Serializable;
 
@@ -50,11 +50,11 @@ public class RetrievalMode implements Serializable {
 
   /** Limit expansion and recurrences.
    */
-  public BwDateTime start;
+  public DateTime start;
 
   /** Limit expansion and recurrences.
    */
-  public BwDateTime end;
+  public DateTime end;
 
   /** Factory
    *
@@ -62,7 +62,7 @@ public class RetrievalMode implements Serializable {
    * @param end
    * @return RetrievalMode
    */
-  public static RetrievalMode getExpanded(BwDateTime start, BwDateTime end) {
+  public static RetrievalMode getExpanded(DateTime start, DateTime end) {
     RetrievalMode rm = new RetrievalMode();
 
     rm.expanded = true;
@@ -78,7 +78,7 @@ public class RetrievalMode implements Serializable {
    * @param end
    * @return RetrievalMode
    */
-  public static RetrievalMode getLimited(BwDateTime start, BwDateTime end) {
+  public static RetrievalMode getLimited(DateTime start, DateTime end) {
     RetrievalMode rm = new RetrievalMode();
 
     rm.limitRecurrenceSet = true;

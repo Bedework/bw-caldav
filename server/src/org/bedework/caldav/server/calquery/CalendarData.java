@@ -26,9 +26,7 @@
 package org.bedework.caldav.server.calquery;
 
 import org.bedework.caldav.server.CaldavComponentNode;
-import org.bedework.calfacade.base.BwTimeRange;
-import org.bedework.calfacade.BwDateTime;
-import org.bedework.calfacade.util.BwDateTimeUtil;
+import org.bedework.caldav.util.TimeRange;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
@@ -46,6 +44,7 @@ import javax.xml.namespace.QName;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
 import net.fortuna.ical4j.model.ComponentList;
+import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.component.VEvent;
 import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.PropertyList;
@@ -247,22 +246,19 @@ public class CalendarData extends WebdavProperty {
             throw new WebdavBadRequest();
           }
 
-          ers = new ExpandRecurrenceSet();
-           parseTimeRange(curnode, ers);
+          ers = new ExpandRecurrenceSet(parseTimeRange(curnode));
         } else if (XmlUtil.nodeMatches(curnode, CaldavTags.limitRecurrenceSet)) {
           if (lrs != null) {
             throw new WebdavBadRequest();
           }
 
-          lrs = new LimitRecurrenceSet();
-           parseTimeRange(curnode, lrs);
+          lrs = new LimitRecurrenceSet(parseTimeRange(curnode));
         } else if (XmlUtil.nodeMatches(curnode, CaldavTags.limitFreebusySet)) {
           if (lfs != null) {
             throw new WebdavBadRequest();
           }
 
-          lfs = new LimitFreebusySet();
-           parseTimeRange(curnode, lfs);
+          lfs = new LimitFreebusySet(parseTimeRange(curnode));
         } else {
           throw new WebdavBadRequest();
         }
@@ -448,10 +444,9 @@ public class CalendarData extends WebdavProperty {
     return c;
   }
 
-  private void parseTimeRange(Node nd,
-              BwTimeRange tr) throws WebdavException {
-    BwDateTime start = null;
-    BwDateTime end = null;
+  private TimeRange parseTimeRange(Node nd) throws WebdavException {
+    DateTime start = null;
+    DateTime end = null;
 
     NamedNodeMap nnm = nd.getAttributes();
 
@@ -466,7 +461,7 @@ public class CalendarData extends WebdavProperty {
         throw new WebdavBadRequest();
       }
 
-      start = BwDateTimeUtil.getDateTimeUTC(nmAttr.getNodeValue());
+      start = new DateTime(nmAttr.getNodeValue());
 
       nmAttr = nnm.getNamedItem("end");
 
@@ -474,13 +469,12 @@ public class CalendarData extends WebdavProperty {
         throw new WebdavBadRequest();
       }
 
-      end = BwDateTimeUtil.getDateTimeUTC(nmAttr.getNodeValue());
+      end = new DateTime(nmAttr.getNodeValue());
     } catch (Throwable t) {
       throw new WebdavBadRequest();
     }
 
-    tr.setStart(start);
-    tr.setEnd(end);
+    return new TimeRange(start, end);
   }
 
   private Prop parseProp(Node nd) throws WebdavException {

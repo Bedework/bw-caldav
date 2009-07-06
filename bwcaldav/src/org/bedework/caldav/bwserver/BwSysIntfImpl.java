@@ -1497,7 +1497,7 @@ public class BwSysIntfImpl implements SysIntf {
     }
   }
 
-  private RecurringRetrievalMode getRrm(RetrievalMode rm) {
+  private RecurringRetrievalMode getRrm(RetrievalMode rm) throws WebdavException {
     if (rm == null) {
       return new RecurringRetrievalMode(Rmode.overrides);
     }
@@ -1505,14 +1505,14 @@ public class BwSysIntfImpl implements SysIntf {
     if (rm.expanded) {
       /* expand with time range */
       return new RecurringRetrievalMode(Rmode.expanded,
-                                        rm.start, rm.end);
+                                        getBwDt(rm.start), getBwDt(rm.end));
     }
 
     if (rm.limitRecurrenceSet) {
       /* Only return master event and overrides in range */
 
       return new RecurringRetrievalMode(Rmode.overrides,
-                                        rm.start, rm.end);
+                                        getBwDt(rm.start), getBwDt(rm.end));
     }
 
     /* Return master + overrides */
