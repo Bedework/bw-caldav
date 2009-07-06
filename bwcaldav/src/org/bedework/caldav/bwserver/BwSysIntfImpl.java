@@ -1228,9 +1228,23 @@ public class BwSysIntfImpl implements SysIntf {
     }
   }
 
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.sysinterface.SysIntf#toCalendar(org.bedework.caldav.server.CalDAVEvent)
+   */
   public Calendar toCalendar(CalDAVEvent ev) throws WebdavException {
     try {
       return trans.toIcal(getEvinfo(ev), getEvent(ev).getScheduleMethod());
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
+  }
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.sysinterface.SysIntf#toIcalString(net.fortuna.ical4j.model.Calendar)
+   */
+  public String toIcalString(Calendar cal) throws WebdavException {
+    try {
+      return IcalTranslator.toIcalString(cal);
     } catch (Throwable t) {
       throw new WebdavException(t);
     }

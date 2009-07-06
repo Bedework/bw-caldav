@@ -608,6 +608,14 @@ public interface SysIntf {
    */
   public Calendar toCalendar(CalDAVEvent ev) throws WebdavException;
 
+  /** Convert a Calendar to it's string form
+   *
+   * @param cal Calendar to convert
+   * @return String representation
+   * @throws WebdavException
+   */
+  public String toIcalString(Calendar cal) throws WebdavException;
+
   /** Write a collection of events as an ical calendar.
    *
    * @param evs

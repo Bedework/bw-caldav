@@ -783,6 +783,13 @@ public class DominoSysIntfImpl implements SysIntf {
   }
 
   /* (non-Javadoc)
+   * @see org.bedework.caldav.server.sysinterface.SysIntf#toIcalString(net.fortuna.ical4j.model.Calendar)
+   */
+  public String toIcalString(Calendar cal) throws WebdavException {
+    throw new WebdavException("unimplemented");
+  }
+
+  /* (non-Javadoc)
    * @see org.bedework.caldav.server.SysIntf#writeCalendar(java.util.Collection, int, java.io.Writer)
    */
   public void writeCalendar(Collection<CalDAVEvent> evs,
