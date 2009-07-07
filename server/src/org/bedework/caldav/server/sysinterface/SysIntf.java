@@ -34,7 +34,8 @@ import org.bedework.caldav.server.PostMethod.RequestPars;
 import org.bedework.caldav.server.PropertyHandler.PropertyType;
 import org.bedework.caldav.util.CalDAVConfig;
 import org.bedework.caldav.util.TimeRange;
-import org.bedework.calfacade.filter.BwFilter;
+import org.bedework.caldav.util.filter.Filter;
+//import org.bedework.calfacade.filter.BwFilter;
 
 import edu.rpi.cct.webdav.servlet.shared.PrincipalPropertySearch;
 import edu.rpi.cct.webdav.servlet.shared.WdEntity;
@@ -331,7 +332,7 @@ public interface SysIntf {
    * @throws WebdavException
    */
   public Collection<CalDAVEvent> getEvents(CalDAVCollection col,
-                                           BwFilter filter,
+                                           Filter filter,
                                            RetrievalMode recurRetrieval)
           throws WebdavException;
 

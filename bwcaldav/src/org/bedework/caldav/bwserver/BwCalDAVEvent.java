@@ -30,7 +30,6 @@ import org.bedework.caldav.server.Organizer;
 import org.bedework.calfacade.BwEvent;
 import org.bedework.calfacade.BwEventObj;
 import org.bedework.calfacade.BwOrganizer;
-import org.bedework.calfacade.CalFacadeDefs;
 import org.bedework.calfacade.svc.EventInfo;
 import org.bedework.icalendar.IcalTranslator;
 
@@ -108,29 +107,7 @@ public class BwCalDAVEvent extends CalDAVEvent {
    * @see org.bedework.caldav.server.CalDAVEvent#getEntityType()
    */
   public int getEntityType() throws WebdavException {
-    int entityType = getEv().getEntityType();
-
-    if (entityType == CalFacadeDefs.entityTypeEvent) {
-      return entityTypeEvent;
-    }
-
-    if (entityType == CalFacadeDefs.entityTypeTodo) {
-      return entityTypeTodo;
-    }
-
-    if (entityType == CalFacadeDefs.entityTypeJournal) {
-      return entityTypeJournal;
-    }
-
-    if (entityType == CalFacadeDefs.entityTypeFreeAndBusy) {
-      return entityTypeFreeAndBusy;
-    }
-
-    if (entityType == CalFacadeDefs.entityTypeVavailability) {
-      return entityTypeVavailability;
-    }
-
-    return -1;
+    return getEv().getEntityType();
   }
 
   /* (non-Javadoc)

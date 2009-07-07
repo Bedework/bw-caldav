@@ -59,27 +59,8 @@ public abstract class CalDAVEvent extends WdEntity {
    */
   public abstract boolean isNew() throws WebdavException;
 
-  /* Integer values associated with each type of calendar entity. Used as a
-  code for db entries.
-   */
-
-  /** */
-  public static final int entityTypeEvent = 0;
-
-  /** */
-  public static final int entityTypeTodo = 1;
-
-  /** */
-  public static final int entityTypeJournal = 2;
-
-  /** */
-  public static final int entityTypeFreeAndBusy = 3;
-
-  /** */
-  public static final int entityTypeVavailability = 4;
-
   /**
-   * @return entity type defined above
+   * @return entity type defined in edu.rpi.cmt.calendar.IcalDefs
    * @throws WebdavException
    */
   public abstract int getEntityType() throws WebdavException;

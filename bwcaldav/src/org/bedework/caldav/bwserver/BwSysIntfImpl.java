@@ -40,6 +40,7 @@ import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.caldav.server.sysinterface.SystemProperties;
 import org.bedework.caldav.util.CalDAVConfig;
 import org.bedework.caldav.util.TimeRange;
+import org.bedework.caldav.util.filter.Filter;
 import org.bedework.calfacade.BwCalendar;
 import org.bedework.calfacade.BwDateTime;
 import org.bedework.calfacade.BwEvent;
@@ -50,7 +51,6 @@ import org.bedework.calfacade.BwPrincipal;
 import org.bedework.calfacade.BwResource;
 import org.bedework.calfacade.BwSystem;
 import org.bedework.calfacade.BwUser;
-import org.bedework.calfacade.CalFacadeDefs;
 import org.bedework.calfacade.RecurringRetrievalMode;
 import org.bedework.calfacade.ScheduleResult;
 import org.bedework.calfacade.RecurringRetrievalMode.Rmode;
@@ -59,7 +59,6 @@ import org.bedework.calfacade.configs.DbConfig;
 import org.bedework.calfacade.exc.CalFacadeAccessException;
 import org.bedework.calfacade.exc.CalFacadeException;
 import org.bedework.calfacade.exc.CalFacadeStaleStateException;
-import org.bedework.calfacade.filter.BwFilter;
 import org.bedework.calfacade.svc.EventInfo;
 import org.bedework.calsvci.CalSvcFactoryDefault;
 import org.bedework.calsvci.CalSvcI;
@@ -84,6 +83,7 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode.UrlHandler;
 import edu.rpi.cmt.access.AccessPrincipal;
 import edu.rpi.cmt.access.Acl;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
+import edu.rpi.cmt.calendar.IcalDefs;
 import edu.rpi.cmt.calendar.IcalDefs.IcalComponentType;
 import edu.rpi.sss.util.xml.XmlUtil;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
@@ -583,7 +583,7 @@ public class BwSysIntfImpl implements SysIntf {
    * @see org.bedework.caldav.server.SysIntf#getEvents(org.bedework.caldav.server.CalDAVCollection, org.bedework.calfacade.filter.BwFilter, org.bedework.caldav.server.SysIntf.RetrievalMode)
    */
   public Collection<CalDAVEvent> getEvents(CalDAVCollection col,
-                                           BwFilter filter,
+                                           Filter filter,
                                            RetrievalMode recurRetrieval)
           throws WebdavException {
     try {
@@ -701,7 +701,7 @@ public class BwSysIntfImpl implements SysIntf {
     ev.setDtstart(getBwDt(tr.getStart()));
     ev.setDtend(getBwDt(tr.getEnd()));
 
-    ev.setEntityType(CalFacadeDefs.entityTypeFreeAndBusy);
+    ev.setEntityType(IcalDefs.entityTypeFreeAndBusy);
 
     ev.setScheduleMethod(Icalendar.methodTypeRequest);
 
@@ -776,7 +776,7 @@ public class BwSysIntfImpl implements SysIntf {
       if (cals.isEmpty()) {
         // Return an empty object
         fb = new BwEventObj();
-        fb.setEntityType(CalFacadeDefs.entityTypeFreeAndBusy);
+        fb.setEntityType(IcalDefs.entityTypeFreeAndBusy);
         fb.setDtstart(getBwDt(timeRange.getStart()));
         fb.setDtend(getBwDt(timeRange.getEnd()));
       } else {

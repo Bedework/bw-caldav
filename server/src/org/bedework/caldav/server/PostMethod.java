@@ -403,7 +403,7 @@ public class PostMethod extends MethodBase {
                                     "No access for scheduling");
         }
       } else {
-        /* This must have only one attendee - request must be targetted at attendees outbox*/
+        /* This must have only one attendee - request must be targeted at attendees outbox*/
       }
 
       if (pars.ic.getComponentType() == IcalComponentType.event) {

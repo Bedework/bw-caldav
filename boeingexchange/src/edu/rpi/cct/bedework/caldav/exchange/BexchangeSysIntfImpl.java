@@ -39,8 +39,8 @@ import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.caldav.server.sysinterface.SystemProperties;
 import org.bedework.caldav.util.CalDAVConfig;
 import org.bedework.caldav.util.TimeRange;
+import org.bedework.caldav.util.filter.Filter;
 import org.bedework.calfacade.BwEvent;
-import org.bedework.calfacade.filter.BwFilter;
 import org.bedework.calfacade.timezones.CalTimezones;
 import org.bedework.http.client.dav.DavClient;
 import org.bedework.http.client.dav.DavReq;
@@ -438,7 +438,7 @@ public class BexchangeSysIntfImpl implements SysIntf {
    * @see org.bedework.caldav.server.SysIntf#getEvents(org.bedework.caldav.server.CalDAVCollection, org.bedework.calfacade.filter.BwFilter, org.bedework.caldav.server.SysIntf.RetrievalMode)
    */
   public Collection<CalDAVEvent> getEvents(CalDAVCollection col,
-                                           BwFilter filter,
+                                           Filter filter,
                                            RetrievalMode recurRetrieval)
             throws WebdavException {
     throw new WebdavException("unimplemented");

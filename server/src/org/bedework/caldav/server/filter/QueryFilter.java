@@ -30,16 +30,16 @@ import org.bedework.caldav.server.CalDAVEvent;
 import org.bedework.caldav.server.CaldavBwNode;
 import org.bedework.caldav.server.CaldavComponentNode;
 import org.bedework.caldav.server.sysinterface.RetrievalMode;
-import org.bedework.calfacade.exc.CalFacadeException;
-import org.bedework.calfacade.exc.CalFacadeForbidden;
-import org.bedework.calfacade.filter.caldav.CompFilter;
-import org.bedework.calfacade.filter.caldav.EventQuery;
-import org.bedework.calfacade.filter.caldav.PropFilter;
+import org.bedework.caldav.util.filter.parse.CompFilter;
+import org.bedework.caldav.util.filter.parse.EventQuery;
+import org.bedework.caldav.util.filter.parse.PropFilter;
+import org.bedework.caldav.util.filter.parse.QueryFilterBase;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavForbidden;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
 import edu.rpi.cct.webdav.servlet.common.WebdavUtils;
+import edu.rpi.cmt.calendar.IcalDefs;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -130,7 +130,7 @@ import org.w3c.dom.Node;
  *
  *   @author Mike Douglass   douglm @ rpi.edu
  */
-public class Filter extends org.bedework.calfacade.filter.caldav.Filter {
+public class QueryFilter extends QueryFilterBase {
   /* Query we executed */
   private EventQuery eventq;
 
@@ -138,27 +138,8 @@ public class Filter extends org.bedework.calfacade.filter.caldav.Filter {
    *
    * @param debug
    */
-  public Filter(boolean debug) {
+  public QueryFilter(boolean debug) {
     super(debug);
-  }
-
-  /** Parse for the caldav server.
-   *
-   * @param nd
-   * @param tzid or null for UTC
-   * @throws WebdavException
-   */
-  public void caldavParse(Node nd,
-                          String tzid) throws WebdavException {
-
-    try {
-      parse(nd, tzid);
-    } catch (CalFacadeForbidden cf) {
-      throw new WebdavForbidden(cf.getQname(), cf.getMessage());
-    } catch (Throwable t) {
-      error(t);
-      throw new WebdavException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-    }
   }
 
   /** Use the given query to return a collection of nodes. An exception will
@@ -199,8 +180,8 @@ public class Filter extends org.bedework.calfacade.filter.caldav.Filter {
       }
 
       return events;
-    } catch (CalFacadeForbidden cf) {
-      throw new WebdavForbidden(cf.getQname(), cf.getMessage());
+    } catch (WebdavForbidden cf) {
+      throw cf;
     } catch (Throwable t) {
       error(t);
       throw new WebdavException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -215,60 +196,56 @@ public class Filter extends org.bedework.calfacade.filter.caldav.Filter {
    */
   public Collection<WebdavNsNode> postFilter(
                    Collection<WebdavNsNode> nodes) throws WebdavException {
-    try {
-      if (!eventq.postFilter) {
-        return nodes;
-      }
+    if (!eventq.postFilter) {
+      return nodes;
+    }
 
-      if (debug) {
-        trace("post filtering needed");
-      }
+    if (debug) {
+      trace("post filtering needed");
+    }
 
-      CompFilter cfltr = filter;
+    CompFilter cfltr = filter;
 
-      // Currently only handle VCALENDAR for top level.
-      if (!"VCALENDAR".equals(cfltr.getName())) {
-        return new ArrayList<WebdavNsNode>();
-      }
+    // Currently only handle VCALENDAR for top level.
+    if (!"VCALENDAR".equals(cfltr.getName())) {
+      return new ArrayList<WebdavNsNode>();
+    }
 
-      ArrayList<WebdavNsNode> filtered = new ArrayList<WebdavNsNode>();
+    ArrayList<WebdavNsNode> filtered = new ArrayList<WebdavNsNode>();
 
-      for (WebdavNsNode node: nodes) {
-        CaldavComponentNode curnode = null;
+    for (WebdavNsNode node: nodes) {
+      CaldavComponentNode curnode = null;
 
-        if (!(node instanceof CaldavComponentNode)) {
-          // Cannot match to anything - don't pass it?
-        } else {
-          curnode = (CaldavComponentNode)node;
+      if (!(node instanceof CaldavComponentNode)) {
+        // Cannot match to anything - don't pass it?
+      } else {
+        curnode = (CaldavComponentNode)node;
 
-          int entityType = curnode.getEvent().getEntityType();
+        int entityType = curnode.getEvent().getEntityType();
 
-          Collection<PropFilter> pfs = null;
+        Collection<PropFilter> pfs = null;
 
-          if (entityType == CalDAVEvent.entityTypeEvent) {
-            pfs = eventq.eventFilters;
-          } else if (entityType == CalDAVEvent.entityTypeTodo) {
-            pfs = eventq.todoFilters;
-          } else if (entityType == CalDAVEvent.entityTypeJournal) {
-            pfs = eventq.journalFilters;
-          }
+        if (entityType == IcalDefs.entityTypeEvent) {
+          pfs = eventq.eventFilters;
+        } else if (entityType == IcalDefs.entityTypeTodo) {
+          pfs = eventq.todoFilters;
+        } else if (entityType == IcalDefs.entityTypeJournal) {
+          pfs = eventq.journalFilters;
+        }
 
-          if (!WebdavUtils.emptyCollection(pfs)) {
-            Component comp = curnode.getComponent();
+        if (!WebdavUtils.emptyCollection(pfs)) {
+          Component comp = curnode.getComponent();
 
-            for (PropFilter pf: pfs) {
-              if (pf.filter(comp)) {
-                filtered.add(curnode);
-                break;
-              }
+          for (PropFilter pf: pfs) {
+            if (pf.filter(comp)) {
+              filtered.add(curnode);
+              break;
             }
           }
         }
       }
-
-      return filtered;
-    } catch (CalFacadeException cfe) {
-      throw new WebdavException(cfe);
     }
+
+    return filtered;
   }
 }
