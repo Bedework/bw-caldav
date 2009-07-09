@@ -41,7 +41,7 @@ import java.util.Calendar;
  * @author Mike Douglass douglm @ rpi.edu
  */
 public class ParseUtil {
-  /** The given node must be a time-range element
+  /** The given node must be a time-range style element
    *  <!ELEMENT time-range EMPTY>
    *
    *  <!ATTLIST time-range start CDATA
@@ -54,24 +54,28 @@ public class ParseUtil {
    *
    * @param nd
    * @param tzid - timezone to use if specified
+   * @param required - if true start and end MUST be present
    * @return TimeRange
    * @throws WebdavException
    */
-  public static TimeRange parseTimeRange(Node nd) throws WebdavException {
+  public static TimeRange parseTimeRange(Node nd,
+                                         boolean required) throws WebdavException {
     DateTime start = null;
     DateTime end = null;
 
     NamedNodeMap nnm = nd.getAttributes();
 
-    /* draft 5 has neither attribute required - the intent is that either
-       may be absent */
-
-    if ((nnm == null) || (nnm.getLength() == 0)) {
+    if (nnm == null) {
       // Infinite time-range?
       throw new WebdavBadRequest("Infinite time range");
     }
 
     int attrCt = nnm.getLength();
+
+    if (attrCt == 0 || (required && (attrCt != 2))) {
+      // Infinite time-range?
+      throw new WebdavBadRequest("Infinite/bad time range");
+    }
 
     try {
       Node nmAttr = nnm.getNamedItem("start");
@@ -79,6 +83,8 @@ public class ParseUtil {
       if (nmAttr != null) {
         attrCt--;
         start = new DateTime(nmAttr.getNodeValue());
+      } else if (required) {
+        throw new WebdavBadRequest();
       }
 
       nmAttr = nnm.getNamedItem("end");
@@ -86,6 +92,8 @@ public class ParseUtil {
       if (nmAttr != null) {
         attrCt--;
         end = new DateTime(nmAttr.getNodeValue());
+      } else if (required) {
+        throw new WebdavBadRequest();
       }
     } catch (Throwable t) {
       throw new WebdavBadRequest();

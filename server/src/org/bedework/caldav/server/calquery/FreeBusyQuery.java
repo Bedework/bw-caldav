@@ -74,7 +74,7 @@ public class FreeBusyQuery {
         throw new WebdavBadRequest();
       }
 
-      timeRange = ParseUtil.parseTimeRange(nd);
+      timeRange = ParseUtil.parseTimeRange(nd, false);
 
       if (debug) {
         trace("Parsed time range " + timeRange);

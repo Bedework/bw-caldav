@@ -36,30 +36,15 @@
     <mkdir dir="${lib.dir}" />
 
     <getJar name="commons-httpclient" version="3.0" />
-    <getJar name="gdata-calendar" version="1.0" />
-    <getJar name="gdata-client" version="1.0" />
     <getJar name="ical4j" version="head-dev" />
     <getJar name="log4j" version="1.2.8" />
     <getJar name="servletapi" version="2.4" />
 
-    <getJar name="bw-annotations" version="3.5" project="calendarapi" />
-    <getJar name="bw-apiutil" version="3.5" project="calendarapi" />
-    <getJar name="bw-calfacade" version="3.5" project="calendarapi" />
-    <getJar name="bw-calsvci" version="3.5" project="calendarapi" />
-    <getJar name="bw-client" version="3.5" project="calendarapi" />
     <getJar name="bw-davio" version="3.5" project="davutil" />
-    <getJar name="bw-icalendar" version="3.5" project="calendarapi" />
-    <getJar name="bw-webdavserver" version="3.5" project="webdav" />
+    <getJar name="bw-webdavserver" version="3.6" project="webdav" />
     <getJar name="rpiaccess" version="3.5" project="access" />
     <getJar name="rpiutil" version="3.5" project="rpiutil" />
 
-    <property name="org.bedework.caldav.boeingexchange.base"
-              location="${project.home}/boeingexchange" />
-    <property name="org.bedework.caldav.bwcaldav.base"
-              location="${project.home}/bwcaldav" />
-    <property name="org.bedework.caldav.domino.base"
-              location="${project.home}/domino" />
-    <property name="org.bedework.caldav.google.base" location="${project.home}/google" />
     <property name="org.bedework.caldav.server.base" location="${project.home}/server" />
     <property name="org.bedework.caldav.util.base" location="${project.home}/util" />
     <property name="org.bedework.caldav.client.base" location="${project.home}/client" />
@@ -79,18 +64,6 @@
     <!-- default to empty -->
     <fileset id="buildjar.resource.files" refid="empty.fileset" />
     <fileset id="buildjar.generated.java.sources" refid="empty.fileset" />
-
-    <property name="boeingexchange.jar"
-              location="${dist.home}/${edu.rpi.cmt.caldav.boeingexchange.jar}-${project.version}.jar" />
-
-    <property name="bwcaldav.jar"
-              location="${dist.home}/${edu.rpi.cmt.caldav.bwcaldav.jar}-${project.version}.jar" />
-
-    <property name="domino.jar"
-              location="${dist.home}/${edu.rpi.cmt.caldav.domino.jar}-${project.version}.jar" />
-
-    <property name="google.jar"
-              location="${dist.home}/${edu.rpi.cmt.caldav.google.jar}-${project.version}.jar" />
 
     <property name="server.jar"
               location="${dist.home}/${edu.rpi.cmt.caldav.server.jar}-${project.version}.jar" />
@@ -157,11 +130,7 @@
      =================================================================== -->
 
   <target name="build-source" depends="bld.util,
-  	                                   bld.server,
-                                       bld.bwcaldav,
-                                       bld.boeingexchange,
-                                       bld.domino,
-                                       bld.google" />
+                                       bld.server" />
 
 <!-- ==================== Javadoc Target ===============================
      The "javadoc" target creates Javadoc API documentation for the Java
@@ -175,10 +144,7 @@
     <property name="destdir" location="${dist.home}/docs/api"/>
     <mkdir dir="${destdir}"/>
 
-    <javadoc sourcepath="${org.bedework.caldav.boeingexchange.base}/src:
-                         ${org.bedework.caldav.bwcaldav.base}/src:
-                         ${org.bedework.caldav.domino.base}/src:
-                         ${org.bedework.caldav.google.base}/src:
+    <javadoc sourcepath="${org.bedework.caldav.util.base}/src:
                          ${org.bedework.caldav.server.base}/src:"
            classpathref="compile.classpath"
                 destdir="${destdir}"
@@ -192,7 +158,6 @@
       <doctitle><![CDATA[${project.name} ${project.version}<br/>API Documentation]]></doctitle>
       <header><![CDATA[${project.name} ${project.version}<br/>API Documentation]]></header>
       <link href="../../access/api" />
-      <link href="../../calendarapi/api" />
       <link href="../../davutil/api" />
       <link href="../../rpiutil/api" />
       <link href="../../webdav/api" />
@@ -202,28 +167,6 @@
 
   <!-- ===================== internal build targets ====================
        ================================================================= -->
-
-  <target name="bld.boeingexchange" >
-    <echo message="org.bedework.build.caldav.bexchange=${org.bedework.build.caldav.bexchange}" />
-      <ant antfile="${org.bedework.caldav.boeingexchange.base}/build.xml" inheritrefs="true"
-           target="build" />
-  </target>
-
-  <target name="bld.bwcaldav" >
-      <ant antfile="${org.bedework.caldav.bwcaldav.base}/build.xml"
-           inheritrefs="true"
-           target="build" />
-  </target>
-
-  <target name="bld.domino" >
-      <ant antfile="${org.bedework.caldav.domino.base}/build.xml" inheritrefs="true"
-           target="build" />
-  </target>
-
-  <target name="bld.google" >
-      <ant antfile="${org.bedework.caldav.google.base}/build.xml" inheritrefs="true"
-           target="build" />
-  </target>
 
   <target name="bld.util">
       <ant antfile="${org.bedework.caldav.util.base}/build.xml" inheritrefs="true"

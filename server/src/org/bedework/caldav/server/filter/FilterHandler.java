@@ -33,7 +33,7 @@ import org.bedework.caldav.server.sysinterface.RetrievalMode;
 import org.bedework.caldav.util.filter.parse.CompFilter;
 import org.bedework.caldav.util.filter.parse.EventQuery;
 import org.bedework.caldav.util.filter.parse.PropFilter;
-import org.bedework.caldav.util.filter.parse.QueryFilterBase;
+import org.bedework.caldav.util.filter.parse.QueryFilter;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavForbidden;
@@ -46,8 +46,6 @@ import java.util.Collection;
 import javax.servlet.http.HttpServletResponse;
 
 import net.fortuna.ical4j.model.Component;
-
-import org.w3c.dom.Node;
 
 /** Class to represent a calendar-query filter
  *  <pre>
@@ -130,7 +128,7 @@ import org.w3c.dom.Node;
  *
  *   @author Mike Douglass   douglm @ rpi.edu
  */
-public class QueryFilter extends QueryFilterBase {
+public class FilterHandler extends QueryFilter {
   /* Query we executed */
   private EventQuery eventq;
 
@@ -138,7 +136,7 @@ public class QueryFilter extends QueryFilterBase {
    *
    * @param debug
    */
-  public QueryFilter(boolean debug) {
+  public FilterHandler(boolean debug) {
     super(debug);
   }
 

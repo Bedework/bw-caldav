@@ -28,7 +28,7 @@ package org.bedework.caldav.server;
 import org.bedework.caldav.server.PostMethod.RequestPars;
 import org.bedework.caldav.server.calquery.CalendarData;
 import org.bedework.caldav.server.calquery.FreeBusyQuery;
-import org.bedework.caldav.server.filter.QueryFilter;
+import org.bedework.caldav.server.filter.FilterHandler;
 import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.caldav.server.sysinterface.CalPrincipalInfo;
 import org.bedework.caldav.server.sysinterface.RetrievalMode;
@@ -1349,7 +1349,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
    */
   public Collection<WebdavNsNode> query(WebdavNsNode wdnode,
                                         RetrievalMode retrieveRecur,
-                                        QueryFilter fltr) throws WebdavException {
+                                        FilterHandler fltr) throws WebdavException {
     CaldavBwNode node = (CaldavBwNode)wdnode;
 
     Collection<CalDAVEvent> events = fltr.query(node, retrieveRecur);

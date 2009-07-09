@@ -30,7 +30,7 @@ import org.bedework.caldav.server.calquery.CalendarData;
 import org.bedework.caldav.server.calquery.ExpandRecurrenceSet;
 import org.bedework.caldav.server.calquery.FreeBusyQuery;
 import org.bedework.caldav.server.calquery.LimitRecurrenceSet;
-import org.bedework.caldav.server.filter.QueryFilter;
+import org.bedework.caldav.server.filter.FilterHandler;
 import org.bedework.caldav.server.sysinterface.RetrievalMode;
 
 import edu.rpi.cct.webdav.servlet.common.ReportMethod;
@@ -75,7 +75,7 @@ public class CaldavReportMethod extends ReportMethod {
 
   private FreeBusyQuery freeBusy;
   //private CalendarData caldata;
-  private QueryFilter filter;
+  private FilterHandler filter;
   private ArrayList<String> hrefs;
 
   CalendarData caldata;
@@ -255,7 +255,7 @@ public class CaldavReportMethod extends ReportMethod {
           tzid = tzs.iterator().next().getID();
         }
 
-        filter = new QueryFilter(debug);
+        filter = new FilterHandler(debug);
         filter.parse(filterNode, tzid);
 
         if (debug) {

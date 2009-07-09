@@ -127,13 +127,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
  *
  *   @author Mike Douglass   douglm @ rpi.edu
  */
-public class QueryFilterBase {
+public class QueryFilter {
   protected boolean debug;
-
-  /* The tzid is used when searching for floating time entities. If null we use
-   * the local tz
-   */
-  private String tzid;
 
   protected transient Logger log;
 
@@ -145,7 +140,7 @@ public class QueryFilterBase {
    *
    * @param debug
    */
-  public QueryFilterBase(boolean debug) {
+  public QueryFilter(boolean debug) {
     this.debug = debug;
   }
 
@@ -181,8 +176,6 @@ public class QueryFilterBase {
    */
   public void parse(Node nd,
                     String tzid) throws WebdavException {
-    this.tzid = tzid;
-
     /* We expect exactly one comp-filter child. */
 
     Element[] children = getChildren(nd);
@@ -206,7 +199,7 @@ public class QueryFilterBase {
       throw new WebdavBadRequest(sb.toString());
     }
 
-    filter = parseCompFilter((Node)children[0]);
+    filter = parseCompFilter((Node)children[0], tzid);
   }
 
   /** Return an object encapsulating the filter query.
@@ -229,10 +222,12 @@ public class QueryFilterBase {
    *    <!ATTLIST comp-filter name CDATA #REQUIRED>
    *
    * @param nd
+   * @param tzid used to resolve floating times.
    * @return CompFilter
    * @throws WebdavException
    */
-  private CompFilter parseCompFilter(Node nd) throws WebdavException {
+  private CompFilter parseCompFilter(Node nd,
+                                     String tzid) throws WebdavException {
     CompFilter cf = new CompFilter(getOnlyAttrVal(nd, "name"));
 
     Element[] children = getChildren(nd);
@@ -265,13 +260,15 @@ public class QueryFilterBase {
         if (XmlUtil.nodeMatches(curnode, isDefined)) {
           // Probably out of date evolution - ignore it
         } else if (XmlUtil.nodeMatches(curnode, CaldavTags.timeRange)) {
-          cf.setTimeRange(ParseUtil.parseTimeRange(curnode));
+          cf.setTimeRange(ParseUtil.parseTimeRange(curnode, false));
 
           if (cf.getTimeRange() == null) {
             return null;
           }
+
+          cf.getTimeRange().setTzid(tzid);
         } else if (XmlUtil.nodeMatches(curnode, CaldavTags.compFilter)) {
-          CompFilter chcf = parseCompFilter(curnode);
+          CompFilter chcf = parseCompFilter(curnode, tzid);
 
           if (chcf == null) {
             return null;
@@ -319,7 +316,7 @@ public class QueryFilterBase {
         pf.setIsNotDefined(true);
         i++;
       } else if (XmlUtil.nodeMatches(curnode, CaldavTags.timeRange)) {
-        pf.setTimeRange(ParseUtil.parseTimeRange(curnode));
+        pf.setTimeRange(ParseUtil.parseTimeRange(curnode, false));
         i++;
       } else if (XmlUtil.nodeMatches(curnode, CaldavTags.textMatch)) {
         pf.setMatch(parseTextMatch(curnode));
