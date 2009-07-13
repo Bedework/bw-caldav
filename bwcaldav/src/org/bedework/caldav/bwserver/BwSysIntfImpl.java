@@ -671,6 +671,8 @@ public class BwSysIntfImpl implements SysIntf {
         throw new WebdavBadRequest("Duplicate-guid");
       }
       throw new WebdavException(cfe);
+    } catch (WebdavException wde) {
+      throw wde;
     } catch (Throwable t) {
       throw new WebdavException(t);
     }

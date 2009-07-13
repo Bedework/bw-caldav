@@ -91,7 +91,7 @@ import javax.xml.namespace.QName;
 
 import org.w3c.dom.Element;
 
-/** This class implements a namespace interface for the webdav abstract
+/** This class implements a namespace interface for the webdav abstractstat
  * servlet. One of these interfaces is associated with each current session.
  *
  * <p>As a first pass we'll define webdav urls as starting with <br/>
@@ -994,6 +994,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
       resp.setContentType("text/calendar; charset=UTF-8");
 
       getSysi().getSpecialFreeBusy(cua, user, pars, tr, resp.getWriter());
+    } catch (WebdavForbidden wdf) {
+      resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
     } catch (WebdavException wde) {
       throw wde;
     } catch (Throwable t) {
