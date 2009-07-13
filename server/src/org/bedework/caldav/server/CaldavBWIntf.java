@@ -993,6 +993,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
       resp.setContentType("text/calendar; charset=UTF-8");
 
       getSysi().getSpecialFreeBusy(cua, user, pars, tr, resp.getWriter());
+    } catch (WebdavForbidden wdf) {
+      resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
     } catch (WebdavException wde) {
       throw wde;
     } catch (Throwable t) {
