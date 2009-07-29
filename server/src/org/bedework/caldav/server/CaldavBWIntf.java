@@ -1474,7 +1474,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       CaldavURI wi = findURI(uri, existance, nodeType, col, ev, r);
 
       if (wi == null) {
-        throw new WebdavNotFound(uri);
+        return null;
       }
 
       WebdavNsNode nd = null;
@@ -1495,6 +1495,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
       }
 
       return nd;
+    } catch (WebdavNotFound wnf) {
+      return null;
     } catch (WebdavException we) {
       throw we;
     } catch (Throwable t) {
