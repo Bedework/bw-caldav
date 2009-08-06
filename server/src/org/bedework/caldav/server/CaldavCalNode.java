@@ -231,6 +231,10 @@ public class CaldavCalNode extends CaldavBwNode {
       }
 
       /* Otherwise, return the events in this calendar */
+
+      /* Note we use the undereferenced version for the fetch */
+      c = (CalDAVCollection)getCollection(false); // don't deref
+
       if (debug) {
         debugMsg("Get all resources in calendar " + c.getPath());
       }
