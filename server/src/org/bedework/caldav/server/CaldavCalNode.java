@@ -235,7 +235,10 @@ public class CaldavCalNode extends CaldavBwNode {
         debugMsg("Get all resources in calendar " + c.getPath());
       }
 
-      return getSysi().getEvents(c, null, null);
+      /* Note we use the undereferenced version for the fetch */
+
+      return getSysi().getEvents((CalDAVCollection)getCollection(false),
+                                 null, null);
     } catch (Throwable t) {
       throw new WebdavException(t);
     }

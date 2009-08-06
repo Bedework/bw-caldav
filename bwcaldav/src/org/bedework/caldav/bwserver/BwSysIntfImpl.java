@@ -582,8 +582,10 @@ public class BwSysIntfImpl implements SysIntf {
                                            RetrievalMode recurRetrieval)
           throws WebdavException {
     try {
+      BwFilter f = BwFilter.addAndChild(filter,
+                                        svci.getClientState().getViewFilter(unwrap(col)));
       Collection<EventInfo> bwevs =
-             getSvci().getEventsHandler().getEvents(unwrap(col), filter,
+             getSvci().getEventsHandler().getEvents(null, f,
                                                     null, null,
                                                     getRrm(recurRetrieval));
 
