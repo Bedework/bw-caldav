@@ -1,5 +1,5 @@
 /* **********************************************************************
-    Copyright 2006 Rensselaer Polytechnic Institute. All worldwide rights reserved.
+    Copyright 2007 Rensselaer Polytechnic Institute. All worldwide rights reserved.
 
     Redistribution and use of this distribution in source and binary forms,
     with or without modification, are permitted provided that:
@@ -23,37 +23,40 @@
     special, consequential, or incidental damages related to the software,
     to the maximum extent the law permits.
 */
-package org.bedework.caldav.server.calquery;
+package org.bedework.caldav.util.filter;
 
-import org.bedework.caldav.util.TimeRange;
+import java.util.Collection;
 
-import org.apache.log4j.Logger;
-
-/**
- * @author Mike Douglass douglm @ rpi.edu
+/** A filter that is composed of a boolean OR of zero or more filters
+ *
+ * @author Mike Douglass
+ * @version 2.0
  */
-public class ExpandRecurrenceSet extends TimeRange {
-  /** Constructor
-   *
-   * @param tr
+public class OrFilter extends Filter {
+  /**
    */
-  public ExpandRecurrenceSet(TimeRange tr) {
-    super(tr.getStart(), tr.getEnd());
+  public OrFilter() {
+    super("OR");
   }
 
-  /**
-   * @param log
-   * @param indent
-   */
-  public void dump(Logger log, String indent) {
-    StringBuilder sb = new StringBuilder(indent);
+  /* ====================================================================
+   *                   Object methods
+   * ==================================================================== */
 
-    sb.append("<expand-recurrence-set ");
+  public String toString() {
+    StringBuilder sb = new StringBuilder("OrFilter{");
+
     super.toStringSegment(sb);
-    sb.append("/>");
 
-    log.debug(sb.toString());
+    Collection<Filter> c = getChildren();
+
+    if (c != null) {
+      for (Filter f: c) {
+        sb.append("\n");
+        sb.append(f);
+      }
+    }
+
+    return sb.toString();
   }
 }
-
-

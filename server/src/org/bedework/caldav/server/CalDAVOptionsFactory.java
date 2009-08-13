@@ -1,5 +1,5 @@
 /* **********************************************************************
-    Copyright 2006 Rensselaer Polytechnic Institute. All worldwide rights reserved.
+    Copyright 2007 Rensselaer Polytechnic Institute. All worldwide rights reserved.
 
     Redistribution and use of this distribution in source and binary forms,
     with or without modification, are permitted provided that:
@@ -23,37 +23,44 @@
     special, consequential, or incidental damages related to the software,
     to the maximum extent the law permits.
 */
-package org.bedework.caldav.server.calquery;
+package org.bedework.caldav.server;
 
-import org.bedework.caldav.util.TimeRange;
+import edu.rpi.sss.util.OptionsException;
+import edu.rpi.sss.util.OptionsFactory;
+import edu.rpi.sss.util.OptionsI;
 
-import org.apache.log4j.Logger;
-
-/**
- * @author Mike Douglass douglm @ rpi.edu
+/** Obtain an options object.
+ *
  */
-public class ExpandRecurrenceSet extends TimeRange {
-  /** Constructor
+public class CalDAVOptionsFactory extends OptionsFactory {
+  /* Options class if we've already been called */
+  private static volatile OptionsI opts;
+
+  /** Location of the options file */
+  private static final String optionsFile = "/properties/options.xml";
+
+  private static final String outerTag = "bedework-options";
+
+  /** Global properties have this prefix.
+   */
+  public static final String globalPrefix = "org.bedework.global.";
+
+  /** App properties have this prefix.
+   */
+  public static final String appPrefix = "org.bedework.app.";
+
+  /** Obtain and initialise an options object.
    *
-   * @param tr
+   * @param debug
+   * @return OptionsI
+   * @throws OptionsException
    */
-  public ExpandRecurrenceSet(TimeRange tr) {
-    super(tr.getStart(), tr.getEnd());
-  }
+  public static OptionsI getOptions(boolean debug) throws OptionsException {
+    if (opts != null) {
+      return opts;
+    }
 
-  /**
-   * @param log
-   * @param indent
-   */
-  public void dump(Logger log, String indent) {
-    StringBuilder sb = new StringBuilder(indent);
-
-    sb.append("<expand-recurrence-set ");
-    super.toStringSegment(sb);
-    sb.append("/>");
-
-    log.debug(sb.toString());
+    opts = getOptions(globalPrefix, appPrefix, optionsFile, outerTag, debug);
+    return opts;
   }
 }
-
-

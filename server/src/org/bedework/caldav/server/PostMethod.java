@@ -28,7 +28,7 @@ package org.bedework.caldav.server;
 import org.bedework.caldav.server.sysinterface.CalPrincipalInfo;
 import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.caldav.server.sysinterface.SysIntf.SchedRecipientResult;
-import org.bedework.calfacade.configs.CalDAVConfig;
+import org.bedework.caldav.util.CalDAVConfig;
 
 import edu.rpi.cct.webdav.servlet.common.MethodBase;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
@@ -403,7 +403,7 @@ public class PostMethod extends MethodBase {
                                     "No access for scheduling");
         }
       } else {
-        /* This must have only one attendee - request must be targetted at attendees outbox*/
+        /* This must have only one attendee - request must be targeted at attendees outbox*/
       }
 
       if (pars.ic.getComponentType() == IcalComponentType.event) {

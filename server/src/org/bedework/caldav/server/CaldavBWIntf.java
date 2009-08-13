@@ -28,14 +28,13 @@ package org.bedework.caldav.server;
 import org.bedework.caldav.server.PostMethod.RequestPars;
 import org.bedework.caldav.server.calquery.CalendarData;
 import org.bedework.caldav.server.calquery.FreeBusyQuery;
-import org.bedework.caldav.server.filter.Filter;
+import org.bedework.caldav.server.filter.FilterHandler;
 import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.caldav.server.sysinterface.CalPrincipalInfo;
 import org.bedework.caldav.server.sysinterface.RetrievalMode;
-import org.bedework.calfacade.base.TimeRange;
-import org.bedework.calfacade.configs.CalDAVConfig;
-import org.bedework.calfacade.env.CalOptionsFactory;
-import org.bedework.calfacade.util.BwDateTimeUtil;
+import org.bedework.caldav.util.CalDAVConfig;
+import org.bedework.caldav.util.ParseUtil;
+import org.bedework.caldav.util.TimeRange;
 
 import edu.rpi.cct.webdav.servlet.common.AccessUtil;
 import edu.rpi.cct.webdav.servlet.common.Headers;
@@ -91,7 +90,7 @@ import javax.xml.namespace.QName;
 
 import org.w3c.dom.Element;
 
-/** This class implements a namespace interface for the webdav abstractstat
+/** This class implements a namespace interface for the webdav abstract
  * servlet. One of these interfaces is associated with each current session.
  *
  * <p>As a first pass we'll define webdav urls as starting with <br/>
@@ -163,7 +162,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       namespacePrefix = WebdavUtils.getUrlPrefix(req);
       namespace = namespacePrefix + "/schema";
 
-      OptionsI opts = CalOptionsFactory.getOptions(debug);
+      OptionsI opts = CalDAVOptionsFactory.getOptions(debug);
       config = (CalDAVConfig)opts.getAppProperty(appName);
       if (config == null) {
         config = new CalDAVConfig();
@@ -979,10 +978,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       pars.contentType = "text/calendar; charset=UTF-8";
 
-      TimeRange tr = BwDateTimeUtil.getPeriod(req.getParameter("start"),
-                                              req.getParameter("end"),
-                                              java.util.Calendar.DATE, 31,
-                                              java.util.Calendar.DATE, 32);
+      TimeRange tr = ParseUtil.getPeriod(req.getParameter("start"),
+                                         req.getParameter("end"),
+                                         java.util.Calendar.DATE, 31,
+                                         java.util.Calendar.DATE, 32);
 
       if (tr == null) {
         resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Date/times");
@@ -1007,10 +1006,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
                                HttpServletResponse resp,
                                RequestPars pars) throws WebdavException {
     try {
-      TimeRange tr = BwDateTimeUtil.getPeriod(req.getParameter("start"),
-                                              req.getParameter("end"),
-                                              java.util.Calendar.DATE, 31,
-                                              java.util.Calendar.DATE, 32 * 3);
+      TimeRange tr = ParseUtil.getPeriod(req.getParameter("start"),
+                                         req.getParameter("end"),
+                                         java.util.Calendar.DATE, 31,
+                                         java.util.Calendar.DATE, 32 * 3);
 
       if (tr == null) {
         resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Date/times");
@@ -1352,7 +1351,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
    */
   public Collection<WebdavNsNode> query(WebdavNsNode wdnode,
                                         RetrievalMode retrieveRecur,
-                                        Filter fltr) throws WebdavException {
+                                        FilterHandler fltr) throws WebdavException {
     CaldavBwNode node = (CaldavBwNode)wdnode;
 
     Collection<CalDAVEvent> events = fltr.query(node, retrieveRecur);
@@ -1475,7 +1474,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       CaldavURI wi = findURI(uri, existance, nodeType, col, ev, r);
 
       if (wi == null) {
-        throw new WebdavNotFound(uri);
+        return null;
       }
 
       WebdavNsNode nd = null;
@@ -1496,6 +1495,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
       }
 
       return nd;
+    } catch (WebdavNotFound wnf) {
+      return null;
     } catch (WebdavException we) {
       throw we;
     } catch (Throwable t) {

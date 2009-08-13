@@ -1,5 +1,5 @@
 /* **********************************************************************
-    Copyright 2006 Rensselaer Polytechnic Institute. All worldwide rights reserved.
+    Copyright 2007 Rensselaer Polytechnic Institute. All worldwide rights reserved.
 
     Redistribution and use of this distribution in source and binary forms,
     with or without modification, are permitted provided that:
@@ -23,37 +23,104 @@
     special, consequential, or incidental damages related to the software,
     to the maximum extent the law permits.
 */
-package org.bedework.caldav.server.calquery;
-
-import org.bedework.caldav.util.TimeRange;
+package org.bedework.caldav.util.filter.parse;
 
 import org.apache.log4j.Logger;
 
-/**
- * @author Mike Douglass douglm @ rpi.edu
+/** Represent a param filter
+ *
+ * @author Mike Douglass
+ *
  */
-public class ExpandRecurrenceSet extends TimeRange {
+public class ParamFilter {
+  private String name;
+
+  private boolean isNotDefined;
+
+  private TextMatch match;
+
   /** Constructor
    *
-   * @param tr
+   * @param name
+   * @param isNotDefined
    */
-  public ExpandRecurrenceSet(TimeRange tr) {
-    super(tr.getStart(), tr.getEnd());
+  public ParamFilter(String name, boolean isNotDefined) {
+    this.name = name;
+    this.isNotDefined = isNotDefined;
+  }
+
+  /** Constructor
+   *
+   * @param name
+   * @param match
+   */
+  public ParamFilter(String name, TextMatch match) {
+    this.name = name;
+    this.match = match;
   }
 
   /**
+   * @param val
+   */
+  public void setName(String val) {
+    name = val;
+  }
+
+  /**
+   * @return String name
+   */
+  public String getName() {
+    return name;
+  }
+
+  /**
+   * @param val
+   */
+  public void setIsNotDefined(boolean val) {
+    isNotDefined = val;
+  }
+
+  /**
+   * @return boolean isdefined value
+   */
+  public boolean getIsNotDefined() {
+    return isNotDefined;
+  }
+
+  /**
+   * @param val
+   */
+  public void setMatch(TextMatch val) {
+    match = val;
+  }
+
+  /**
+   * @return TextMatch
+   */
+  public TextMatch getMatch() {
+    return match;
+  }
+
+  /** Debug
+   *
    * @param log
    * @param indent
    */
   public void dump(Logger log, String indent) {
-    StringBuilder sb = new StringBuilder(indent);
+    StringBuffer sb = new StringBuffer(indent);
 
-    sb.append("<expand-recurrence-set ");
-    super.toStringSegment(sb);
-    sb.append("/>");
-
+    sb.append("<param-filter name=\"");
+    sb.append(name);
+    sb.append(">\n");
     log.debug(sb.toString());
+
+    if (isNotDefined) {
+      log.debug(indent + "  " + "<is-not-defined/>\n");
+    } else {
+      match.dump(log, indent + "  ");
+    }
+
+    log.debug(indent + "</param-filter>");
   }
 }
-
 

@@ -23,37 +23,62 @@
     special, consequential, or incidental damages related to the software,
     to the maximum extent the law permits.
 */
-package org.bedework.caldav.server.calquery;
+package org.bedework.caldav.util.filter;
 
-import org.bedework.caldav.util.TimeRange;
+import edu.rpi.cmt.calendar.PropertyIndex.PropertyInfoIndex;
 
-import org.apache.log4j.Logger;
-
-/**
- * @author Mike Douglass douglm @ rpi.edu
+/** A filter that filters for property presence.
+ *
+ * The name should be unique at least for a set of filters and unique for a
+ * given owner if persisted.
+ *
+ * @author Mike Douglass douglm
  */
-public class ExpandRecurrenceSet extends TimeRange {
-  /** Constructor
+public class PresenceFilter extends PropertyFilter {
+  private boolean testPresent;
+
+  /** Match on any of the entities.
    *
-   * @param tr
+   * @param name - null one will be created
+   * @param propertyIndex
+   * @param testPresent   false for not present
    */
-  public ExpandRecurrenceSet(TimeRange tr) {
-    super(tr.getStart(), tr.getEnd());
+  public PresenceFilter(String name, PropertyInfoIndex propertyIndex,
+                          boolean testPresent) {
+    super(name, propertyIndex);
+    this.testPresent = testPresent;
   }
 
-  /**
-   * @param log
-   * @param indent
+  /** Set a test for present
    */
-  public void dump(Logger log, String indent) {
-    StringBuilder sb = new StringBuilder(indent);
+  public void setTestPresent() {
+    testPresent = true;
+  }
 
-    sb.append("<expand-recurrence-set ");
+  /** See if we're testing for present
+   *
+   *  @return boolean true if test for present
+   */
+  public boolean getTestPresent() {
+    return testPresent;
+  }
+
+  /* ====================================================================
+   *                   Object methods
+   * ==================================================================== */
+
+  public String toString() {
+    StringBuilder sb = new StringBuilder("PresenceFilter{");
+
     super.toStringSegment(sb);
-    sb.append("/>");
+    if (getTestPresent()) {
+      sb.append("\nproperty not null");
+    } else {
+      sb.append("\nproperty null");
+    }
 
-    log.debug(sb.toString());
+    sb.append("}");
+
+    return sb.toString();
   }
 }
-
-

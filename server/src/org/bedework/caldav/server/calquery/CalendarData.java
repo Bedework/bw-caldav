@@ -26,9 +26,7 @@
 package org.bedework.caldav.server.calquery;
 
 import org.bedework.caldav.server.CaldavComponentNode;
-import org.bedework.calfacade.base.TimeRange;
-import org.bedework.calfacade.BwDateTime;
-import org.bedework.calfacade.util.BwDateTimeUtil;
+import org.bedework.caldav.util.ParseUtil;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
@@ -247,22 +245,19 @@ public class CalendarData extends WebdavProperty {
             throw new WebdavBadRequest();
           }
 
-          ers = new ExpandRecurrenceSet();
-           parseTimeRange(curnode, ers);
+          ers = new ExpandRecurrenceSet(ParseUtil.parseTimeRange(curnode, true));
         } else if (XmlUtil.nodeMatches(curnode, CaldavTags.limitRecurrenceSet)) {
           if (lrs != null) {
             throw new WebdavBadRequest();
           }
 
-          lrs = new LimitRecurrenceSet();
-           parseTimeRange(curnode, lrs);
+          lrs = new LimitRecurrenceSet(ParseUtil.parseTimeRange(curnode, true));
         } else if (XmlUtil.nodeMatches(curnode, CaldavTags.limitFreebusySet)) {
           if (lfs != null) {
             throw new WebdavBadRequest();
           }
 
-          lfs = new LimitFreebusySet();
-           parseTimeRange(curnode, lfs);
+          lfs = new LimitFreebusySet(ParseUtil.parseTimeRange(curnode, true));
         } else {
           throw new WebdavBadRequest();
         }
@@ -446,41 +441,6 @@ public class CalendarData extends WebdavProperty {
     }
 
     return c;
-  }
-
-  private void parseTimeRange(Node nd,
-              TimeRange tr) throws WebdavException {
-    BwDateTime start = null;
-    BwDateTime end = null;
-
-    NamedNodeMap nnm = nd.getAttributes();
-
-    if ((nnm == null) || (nnm.getLength() != 2)) {
-      throw new WebdavBadRequest();
-    }
-
-    try {
-      Node nmAttr = nnm.getNamedItem("start");
-
-      if (nmAttr == null) {
-        throw new WebdavBadRequest();
-      }
-
-      start = BwDateTimeUtil.getDateTimeUTC(nmAttr.getNodeValue());
-
-      nmAttr = nnm.getNamedItem("end");
-
-      if (nmAttr == null) {
-        throw new WebdavBadRequest();
-      }
-
-      end = BwDateTimeUtil.getDateTimeUTC(nmAttr.getNodeValue());
-    } catch (Throwable t) {
-      throw new WebdavBadRequest();
-    }
-
-    tr.setStart(start);
-    tr.setEnd(end);
   }
 
   private Prop parseProp(Node nd) throws WebdavException {

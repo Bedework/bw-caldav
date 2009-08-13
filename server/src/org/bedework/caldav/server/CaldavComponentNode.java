@@ -28,9 +28,6 @@ package org.bedework.caldav.server;
 import org.bedework.caldav.server.calquery.CalendarData;
 import org.bedework.caldav.server.sysinterface.SysIntf;
 
-import org.bedework.icalendar.ComponentWrapper;
-import org.bedework.icalendar.IcalTranslator;
-
 import org.w3c.dom.Element;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
@@ -39,6 +36,7 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavProperty;
 import edu.rpi.cmt.access.AccessPrincipal;
 import edu.rpi.cmt.access.PrivilegeDefs;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
+import edu.rpi.cmt.calendar.ComponentWrapper;
 import edu.rpi.sss.util.DateTimeUtil;
 import edu.rpi.sss.util.xml.XmlEmit;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
@@ -371,7 +369,7 @@ public boolean generatePropertyValue(QName tag,
         ical = getSysi().toCalendar(event);
       }
       if ((compString == null)) {
-        compString = IcalTranslator.toIcalString(ical);
+        compString = getSysi().toIcalString(ical);
       }
     } catch (Throwable t) {
       throw new WebdavException(t);

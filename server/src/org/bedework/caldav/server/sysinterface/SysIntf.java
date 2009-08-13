@@ -32,10 +32,10 @@ import org.bedework.caldav.server.PropertyHandler;
 import org.bedework.caldav.server.SysiIcalendar;
 import org.bedework.caldav.server.PostMethod.RequestPars;
 import org.bedework.caldav.server.PropertyHandler.PropertyType;
-import org.bedework.calfacade.BwDateTime;
-import org.bedework.calfacade.base.TimeRange;
-import org.bedework.calfacade.configs.CalDAVConfig;
-import org.bedework.calfacade.filter.BwFilter;
+import org.bedework.caldav.util.CalDAVConfig;
+import org.bedework.caldav.util.TimeRange;
+import org.bedework.caldav.util.filter.Filter;
+//import org.bedework.calfacade.filter.BwFilter;
 
 import edu.rpi.cct.webdav.servlet.shared.PrincipalPropertySearch;
 import edu.rpi.cct.webdav.servlet.shared.WdEntity;
@@ -332,7 +332,7 @@ public interface SysIntf {
    * @throws WebdavException
    */
   public Collection<CalDAVEvent> getEvents(CalDAVCollection col,
-                                           BwFilter filter,
+                                           Filter filter,
                                            RetrievalMode recurRetrieval)
           throws WebdavException;
 
@@ -389,16 +389,14 @@ public interface SysIntf {
    * @param col
    * @param depth
    * @param account
-   * @param start
-   * @param end
+   * @param timeRange
    * @return Calendar
    * @throws WebdavException
    */
   public Calendar getFreeBusy(final CalDAVCollection col,
                               final int depth,
                               final String account,
-                              final BwDateTime start,
-                              final BwDateTime end) throws WebdavException;
+                              final TimeRange timeRange) throws WebdavException;
 
   /** Check the access for the given entity. Returns the current access
    * or null or optionally throws a no access exception.
@@ -610,6 +608,14 @@ public interface SysIntf {
    * @throws WebdavException
    */
   public Calendar toCalendar(CalDAVEvent ev) throws WebdavException;
+
+  /** Convert a Calendar to it's string form
+   *
+   * @param cal Calendar to convert
+   * @return String representation
+   * @throws WebdavException
+   */
+  public String toIcalString(Calendar cal) throws WebdavException;
 
   /** Write a collection of events as an ical calendar.
    *

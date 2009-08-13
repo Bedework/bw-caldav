@@ -1,5 +1,5 @@
 /* **********************************************************************
-    Copyright 2006 Rensselaer Polytechnic Institute. All worldwide rights reserved.
+    Copyright 2007 Rensselaer Polytechnic Institute. All worldwide rights reserved.
 
     Redistribution and use of this distribution in source and binary forms,
     with or without modification, are permitted provided that:
@@ -23,37 +23,38 @@
     special, consequential, or incidental damages related to the software,
     to the maximum extent the law permits.
 */
-package org.bedework.caldav.server.calquery;
+package org.bedework.caldav.util.filter.parse;
 
-import org.bedework.caldav.util.TimeRange;
+import org.bedework.caldav.util.filter.Filter;
 
-import org.apache.log4j.Logger;
+import java.io.Serializable;
+import java.util.Collection;
 
 /**
- * @author Mike Douglass douglm @ rpi.edu
+ * @author Mike Douglass
+ *
  */
-public class ExpandRecurrenceSet extends TimeRange {
-  /** Constructor
-   *
-   * @param tr
+public class EventQuery implements Serializable {
+  /** */
+  public Filter filter;
+
+  /** true if we have to postfilter the result obtained via a search
    */
-  public ExpandRecurrenceSet(TimeRange tr) {
-    super(tr.getStart(), tr.getEnd());
-  }
+  public boolean postFilter;
 
-  /**
-   * @param log
-   * @param indent
+  /** PostFilter: If non-null apply to retrieved event components
    */
-  public void dump(Logger log, String indent) {
-    StringBuilder sb = new StringBuilder(indent);
+  public Collection<PropFilter> eventFilters;
 
-    sb.append("<expand-recurrence-set ");
-    super.toStringSegment(sb);
-    sb.append("/>");
+  /** PostFilter: If non-null apply to retrieved tod components
+   */
+  public Collection<PropFilter> todoFilters;
 
-    log.debug(sb.toString());
-  }
+  /** PostFilter: If non-null apply to retrieved journal components
+   */
+  public Collection<PropFilter> journalFilters;
+
+  /** PostFilter: If non-null apply to retrieved alarm components
+   */
+  public Collection<PropFilter> alarmFilters;
 }
-
-

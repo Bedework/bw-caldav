@@ -1,5 +1,5 @@
 /* **********************************************************************
-    Copyright 2006 Rensselaer Polytechnic Institute. All worldwide rights reserved.
+    Copyright 2007 Rensselaer Polytechnic Institute. All worldwide rights reserved.
 
     Redistribution and use of this distribution in source and binary forms,
     with or without modification, are permitted provided that:
@@ -23,37 +23,25 @@
     special, consequential, or incidental damages related to the software,
     to the maximum extent the law permits.
 */
-package org.bedework.caldav.server.calquery;
+package org.bedework.caldav.util.filter;
 
 import org.bedework.caldav.util.TimeRange;
 
-import org.apache.log4j.Logger;
+import edu.rpi.cmt.calendar.PropertyIndex.PropertyInfoIndex;
 
-/**
- * @author Mike Douglass douglm @ rpi.edu
+/** A filter that selects properties that have a date within a given timerange.
+ * This does not include calendar entities which have a start and end time.
+ *
+ * @author Mike Douglass
+ * @version 1.0
  */
-public class ExpandRecurrenceSet extends TimeRange {
-  /** Constructor
+public class TimeRangeFilter extends ObjectFilter<TimeRange> {
+  /** Match a created date.
    *
-   * @param tr
+   * @param name - null one will be created
+   * @param propertyIndex
    */
-  public ExpandRecurrenceSet(TimeRange tr) {
-    super(tr.getStart(), tr.getEnd());
-  }
-
-  /**
-   * @param log
-   * @param indent
-   */
-  public void dump(Logger log, String indent) {
-    StringBuilder sb = new StringBuilder(indent);
-
-    sb.append("<expand-recurrence-set ");
-    super.toStringSegment(sb);
-    sb.append("/>");
-
-    log.debug(sb.toString());
+  public TimeRangeFilter(String name, PropertyInfoIndex propertyIndex) {
+    super(name, propertyIndex);
   }
 }
-
-
