@@ -31,8 +31,8 @@ import java.util.List;
 
 /**
  * A filter selects events (and possibly other entities) that fulfill
- * certain criteria.  For example, "All events that have the category
- * 'Lecture'".
+ * certain criteria.  For example, "All events that have the category uid
+ * 012345".
  *
  * <p>All filters must be expressible as a db search expresssion. Entity
  * filters select events that own a given entity or own an entity within a
@@ -185,6 +185,20 @@ public class Filter implements Serializable {
 
     c.add(val);
     val.setParent(this);
+  }
+
+  /* ====================================================================
+   *                   matching methods
+   * ==================================================================== */
+
+  /** Overridden by filters which attempt to match the object with the
+   * requirements.
+   *
+   * @param o
+   * @return true for a match
+   */
+  public boolean match(Object o) {
+    return false;
   }
 
   /* ====================================================================
