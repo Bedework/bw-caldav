@@ -444,7 +444,14 @@ public class CaldavCalNode extends CaldavBwNode {
           }
 
           if (XmlUtil.nodeMatches(pval, CaldavTags.calendar)) {
-            // Fine again
+            // This is only valid for an (extended) mkcol
+            if (!WebdavTags.mkcol.equals(spr.rootElement)) {
+              throw new WebdavForbidden();
+            }
+
+            CalDAVCollection c = (CalDAVCollection)getCollection(false); // Don't deref
+
+            c.setCalType(CalDAVCollection.calTypeCalendarCollection);
             continue;
           }
         }
