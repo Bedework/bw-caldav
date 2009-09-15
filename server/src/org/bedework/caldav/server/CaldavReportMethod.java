@@ -27,9 +27,11 @@
 package org.bedework.caldav.server;
 
 import org.bedework.caldav.server.calquery.CalendarData;
+import org.bedework.caldav.server.calquery.Comp;
 import org.bedework.caldav.server.calquery.ExpandRecurrenceSet;
 import org.bedework.caldav.server.calquery.FreeBusyQuery;
 import org.bedework.caldav.server.calquery.LimitRecurrenceSet;
+import org.bedework.caldav.server.calquery.Prop;
 import org.bedework.caldav.server.filter.FilterHandler;
 import org.bedework.caldav.server.sysinterface.RetrievalMode;
 
@@ -37,10 +39,12 @@ import edu.rpi.cct.webdav.servlet.common.ReportMethod;
 import edu.rpi.cct.webdav.servlet.common.PropFindMethod.PropRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
+import edu.rpi.cct.webdav.servlet.shared.WebdavForbidden;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
 import edu.rpi.cct.webdav.servlet.shared.WebdavProperty;
 import edu.rpi.cct.webdav.servlet.shared.WebdavStatusCode;
+import edu.rpi.sss.util.Util;
 import edu.rpi.sss.util.xml.XmlUtil;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
@@ -56,9 +60,14 @@ import java.io.Writer;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.namespace.QName;
 
 /** Class called to handle OPTIONS. We should determine what the current
  * url refers to and send a response which shows the allowable methods on that
@@ -74,11 +83,8 @@ public class CaldavReportMethod extends ReportMethod {
    */
 
   private FreeBusyQuery freeBusy;
-  //private CalendarData caldata;
   private FilterHandler filter;
   private ArrayList<String> hrefs;
-
-  CalendarData caldata;
 
   // ENUM
   private final static int reportTypeQuery = 0;
@@ -198,21 +204,6 @@ public class CaldavReportMethod extends ReportMethod {
 
       /* First try for a property request */
       preq = pm.tryPropRequest(chiter.next());
-
-      if (preq != null) {
-        if (debug) {
-          trace("REPORT: preq not null");
-        }
-
-        if (preq.reqType == PropRequest.ReqType.prop) {
-          // Look for a calendar-data property
-          for (WebdavProperty prop: preq.props) {
-            if (prop instanceof CalendarData) {
-              caldata = (CalendarData)prop;
-            }
-          }
-        }
-      }
 
       if (!chiter.hasNext()) {
         throw new WebdavBadRequest();
@@ -412,8 +403,37 @@ public class CaldavReportMethod extends ReportMethod {
     CaldavBWIntf intf = (CaldavBWIntf)getNsIntf();
 
     RetrievalMode rm = null;
+    List<String> retrieveList = null;
+    CalendarData caldata = null;
+
+    if (preq != null) {
+      if (debug) {
+        trace("REPORT: preq not null");
+      }
+
+      if (preq.reqType == PropRequest.ReqType.prop) {
+        // Look for a calendar-data property
+        for (WebdavProperty prop: preq.props) {
+          if (retrieveList == null) {
+            retrieveList = new ArrayList<String>();
+          }
+
+          if (prop instanceof CalendarData) {
+            caldata = (CalendarData)prop;
+          } else if (!addPropname(prop.getTag(),
+                                  retrieveList)) {
+            retrieveList = null;
+            break;
+          }
+        }
+      }
+    }
+
+    Comp comp = null;
 
     if (caldata != null) {
+      comp = caldata.getComp();
+
       if (caldata.getErs() != null) {
         /* expand with time range */
         ExpandRecurrenceSet ers = caldata.getErs();
@@ -426,7 +446,50 @@ public class CaldavReportMethod extends ReportMethod {
       }
     }
 
-    return intf.query(node, caldata, rm, filter);
+    /* This isn't ideal - we build a list which is an accumulation of all
+     * properties for all components.
+     */
+    if ((comp != null) && !comp.getAllcomp()) {
+      // Should have "VACALENDAR" as outer
+      if (comp.getName().equals("VCALENDAR")) {
+        for (Comp calcomp: comp.getComps()) {
+          if (calcomp.getName().equals("VEVENT") ||
+              calcomp.getName().equals("VTODO") ||
+              calcomp.getName().equals("VJOURNAL")) {
+            if (calcomp.getAllprop()) {
+              retrieveList = null;
+              break;
+            }
+
+            if (retrieveList == null) {
+              retrieveList = new ArrayList<String>();
+            }
+
+            for (Prop p: calcomp.getProps()) {
+              if (!retrieveList.contains(p.getName())) {
+                retrieveList.add(p.getName());
+              }
+            }
+          }
+        }
+      }
+    }
+
+    if (Util.isEmpty(retrieveList)) {
+      retrieveList = null;
+    }
+
+    return intf.query(node, retrieveList, rm, filter);
+  }
+
+  private boolean addPropname(QName tag,
+                              List<String> retrieveList) {
+    if (tag.equals(WebdavTags.getetag)) {
+      retrieveList.add(tag.toString());
+      return true;
+    }
+
+    return false;
   }
 
   private Collection<WebdavNsNode> doNodeAndChildren(WebdavNsNode node,

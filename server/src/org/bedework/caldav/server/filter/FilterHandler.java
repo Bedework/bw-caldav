@@ -29,9 +29,6 @@ import org.bedework.caldav.server.CalDAVCollection;
 import org.bedework.caldav.server.CalDAVEvent;
 import org.bedework.caldav.server.CaldavBwNode;
 import org.bedework.caldav.server.CaldavComponentNode;
-import org.bedework.caldav.server.calquery.CalendarData;
-import org.bedework.caldav.server.calquery.Comp;
-import org.bedework.caldav.server.calquery.Prop;
 import org.bedework.caldav.server.sysinterface.RetrievalMode;
 import org.bedework.caldav.util.filter.parse.CompFilter;
 import org.bedework.caldav.util.filter.parse.EventQuery;
@@ -150,13 +147,13 @@ public class FilterHandler extends QueryFilter {
    * empty collection will be returned if no objects match.
    *
    * @param wdnode    WebdavNsNode defining root of search
-   * @param caldata   If non-null may limit required fields.
+   * @param retrieveList   If non-null limit required fields.
    * @param retrieveRecur  How we retrieve recurring events
    * @return Collection of event objects (null or empty for no result)
    * @throws WebdavException
    */
   public Collection<CalDAVEvent> query(CaldavBwNode wdnode,
-                                       CalendarData caldata,
+                                       List<String> retrieveList,
                                        RetrievalMode retrieveRecur) throws WebdavException {
     try {
       eventq = getQuery();
@@ -174,42 +171,6 @@ public class FilterHandler extends QueryFilter {
       CalDAVCollection c = (CalDAVCollection)wdnode.getCollection(true);
       if (c == null) {
         return null;
-      }
-
-      List<String> retrieveList = null;
-      Comp comp = null;
-
-      if (caldata != null) {
-        comp = caldata.getComp();
-      }
-
-      /* This isn't ideal - we build a list which is an accumulation of all
-       * properties for all components.
-       */
-      if ((comp != null) && !comp.getAllcomp()) {
-        // Should have "VACALENDAR" as outer
-        if (comp.getName().equals("VCALENDAR")) {
-          for (Comp calcomp: comp.getComps()) {
-            if (calcomp.getName().equals("VEVENT") ||
-                calcomp.getName().equals("VTODO") ||
-                calcomp.getName().equals("VJOURNAL")) {
-              if (calcomp.getAllprop()) {
-                retrieveList = null;
-                break;
-              }
-
-              if (retrieveList == null) {
-                retrieveList = new ArrayList<String>();
-              }
-
-              for (Prop p: calcomp.getProps()) {
-                if (!retrieveList.contains(p.getName())) {
-                  retrieveList.add(p.getName());
-                }
-              }
-            }
-          }
-        }
       }
 
       Collection<CalDAVEvent> events = wdnode.getSysi().getEvents(c,
