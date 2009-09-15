@@ -239,7 +239,7 @@ public class CaldavCalNode extends CaldavBwNode {
         debugMsg("Get all resources in calendar " + c.getPath());
       }
 
-      return getSysi().getEvents(c, null, null);
+      return getSysi().getEvents(c, null, null, null);
     } catch (Throwable t) {
       throw new WebdavException(t);
     }

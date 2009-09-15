@@ -426,7 +426,7 @@ public class CaldavReportMethod extends ReportMethod {
       }
     }
 
-    return intf.query(node, rm, filter);
+    return intf.query(node, caldata, rm, filter);
   }
 
   private Collection<WebdavNsNode> doNodeAndChildren(WebdavNsNode node,

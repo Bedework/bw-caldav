@@ -1344,17 +1344,20 @@ public class CaldavBWIntf extends WebdavNsIntf {
    * empty collection will be returned if no objects match.
    *
    * @param wdnode    WebdavNsNode defining root of search
+   * @param caldata   If non-null may limit required fields.
    * @param retrieveRecur  How we retrieve recurring events
    * @param fltr      Filter object defining search
    * @return Collection of result nodes (empty for no result)
    * @throws WebdavException
    */
   public Collection<WebdavNsNode> query(WebdavNsNode wdnode,
+                                        CalendarData caldata,
                                         RetrievalMode retrieveRecur,
                                         FilterHandler fltr) throws WebdavException {
     CaldavBwNode node = (CaldavBwNode)wdnode;
 
-    Collection<CalDAVEvent> events = fltr.query(node, retrieveRecur);
+    Collection<CalDAVEvent> events = fltr.query(node,
+                                                caldata, retrieveRecur);
 
     /* We now need to build a node for each of the events in the collection.
        For each event we first determine what calendar it's in. We then take the

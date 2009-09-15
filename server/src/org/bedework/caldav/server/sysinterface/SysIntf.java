@@ -51,6 +51,7 @@ import net.fortuna.ical4j.model.Calendar;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.Collection;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -321,18 +322,21 @@ public interface SysIntf {
 
   /** Return the events for the current user in the given collection using the
    * supplied filter. Stored freebusy objects are returned as BwEvent
-   * objects with the appropriate entity type.
+   * objects with the appropriate entity type. If retrieveList is supplied only
+   * those fields (and a few required fields) will be returned.
    *
    * <p>We flag the desired entity types.
    *
    * @param col
    * @param filter - if non-null defines a search filter
+   * @param retrieveList List of properties to retrieve or null for a full event.
    * @param recurRetrieval How recurring event is returned.
    * @return Collection  populated event value objects
    * @throws WebdavException
    */
   public Collection<CalDAVEvent> getEvents(CalDAVCollection col,
                                            Filter filter,
+                                           List<String> retrieveList,
                                            RetrievalMode recurRetrieval)
           throws WebdavException;
 
