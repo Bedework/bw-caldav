@@ -354,20 +354,25 @@ public class CaldavReportMethod extends ReportMethod {
 
       if (hrefs != null) {
         for (String hr: hrefs) {
+          WebdavNsNode n = null;
           try {
-            nodes.add(intf.getNode(intf.getUri(hr),
-                                   WebdavNsIntf.existanceMust,
-                                   WebdavNsIntf.nodeTypeUnknown));
+            n = intf.getNode(intf.getUri(hr),
+                             WebdavNsIntf.existanceMust,
+                             WebdavNsIntf.nodeTypeUnknown);
           } catch (WebdavException we) {
             if (hr.endsWith("/")) {
-              nodes.add((WebdavNsNode)new CaldavCalNode(intf.getSysi(),
-                                                        we.getStatusCode(),
-                                                        intf.getUri(hr), debug));
+              n = new CaldavCalNode(intf.getSysi(),
+                                    we.getStatusCode(),
+                                    intf.getUri(hr), debug);
             } else {
-              nodes.add((WebdavNsNode)new CaldavComponentNode(intf.getSysi(),
-                                                              we.getStatusCode(),
-                                                              intf.getUri(hr), debug));
+              n = new CaldavComponentNode(intf.getSysi(),
+                                          we.getStatusCode(),
+                                          intf.getUri(hr), debug);
             }
+          }
+
+          if (n != null) {
+            nodes.add(n);
           }
         }
       }
