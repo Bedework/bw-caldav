@@ -526,13 +526,14 @@ public class CaldavCalNode extends CaldavBwNode {
     XmlEmit xml = intf.getXmlEmit();
 
     try {
+      int calType;
       CalDAVCollection c = (CalDAVCollection)getCollection(true); // deref this
       if (c == null) {
-        // Probably no access
-        return false;
+        // Probably no access -- fake it up as a collection
+        calType = CalDAVCollection.calTypeCollection;
+      } else {
+        calType = c.getCalType();
       }
-
-      int calType = c.getCalType();
 
       if (tag.equals(WebdavTags.resourcetype)) {
         // dav 13.9
@@ -559,7 +560,7 @@ public class CaldavCalNode extends CaldavBwNode {
       if (tag.equals(CaldavTags.scheduleCalendarTransp)) {
         xml.openTag(tag);
 
-        if (c.getAffectsFreeBusy()) {
+        if ((c == null) || c.getAffectsFreeBusy()) {
           xml.emptyTag(CaldavTags.opaque);
         } else {
           xml.emptyTag(CaldavTags.transparent);
