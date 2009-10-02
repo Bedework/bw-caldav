@@ -436,7 +436,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       }
 
       String uri = node.getUri();
-      CalDAVCollection parent = (CalDAVCollection)node.getCollection(true);  // deref
+      CalDAVCollection parent = (CalDAVCollection)node.getCollection(false);  // don't deref
 
       for (WdEntity wde: children) {
         CalDAVCollection col = null;
@@ -1654,9 +1654,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
         return curi;
       }
 
-      if ((col.getCalType() == CalDAVCollection.calTypeCalendarCollection) ||
-          (col.getCalType() == CalDAVCollection.calTypeInbox) ||
-          (col.getCalType() == CalDAVCollection.calTypeOutbox)) {
+      int ctype = col.getCalType();
+      if ((ctype == CalDAVCollection.calTypeCalendarCollection) ||
+          (ctype == CalDAVCollection.calTypeInbox) ||
+          (ctype == CalDAVCollection.calTypeOutbox)) {
         if (debug) {
           debugMsg("find event(s) - cal=\"" + col.getPath() + "\" name=\"" +
                    split.name + "\"");

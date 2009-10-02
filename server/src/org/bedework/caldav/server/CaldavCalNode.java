@@ -586,7 +586,11 @@ public class CaldavCalNode extends CaldavBwNode {
       }
 
       if (tag.equals(AppleServerTags.getctag)) {
-        xml.property(tag, col.getTagValue());
+        if (c != null) {
+          xml.property(tag, c.getTagValue());
+        } else {
+          xml.property(tag, col.getTagValue());
+        }
 
         return true;
       }
