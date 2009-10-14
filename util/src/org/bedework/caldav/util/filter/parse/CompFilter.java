@@ -41,10 +41,10 @@ import edu.rpi.cmt.calendar.PropertyIndex.PropertyInfoIndex;
 import edu.rpi.sss.util.Util;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 
+import org.apache.log4j.Logger;
+
 import java.util.ArrayList;
 import java.util.Collection;
-
-import org.apache.log4j.Logger;
 
 /** Class to represent a calendar-query comp-filter
  *
@@ -65,14 +65,14 @@ public class CompFilter {
   /** Constructor
    * @param name
    */
-  public CompFilter(String name) {
+  public CompFilter(final String name) {
     this.name = name;
   }
 
   /**
    * @param val
    */
-  public void setName(String val) {
+  public void setName(final String val) {
     name = val;
   }
 
@@ -86,7 +86,7 @@ public class CompFilter {
   /**
    * @param val
    */
-  public void setIsNotDefined(boolean val) {
+  public void setIsNotDefined(final boolean val) {
     isNotDefined = val;
   }
 
@@ -100,7 +100,7 @@ public class CompFilter {
   /**
    * @param val
    */
-  public void setTimeRange(TimeRange val) {
+  public void setTimeRange(final TimeRange val) {
     timeRange = val;
   }
 
@@ -132,7 +132,7 @@ public class CompFilter {
   /**
    * @param cf
    */
-  public void addCompFilter(CompFilter cf) {
+  public void addCompFilter(final CompFilter cf) {
     getCompFilters().add(cf);
   }
 
@@ -157,7 +157,7 @@ public class CompFilter {
   /**
    * @param pf
    */
-  public void addPropFilter(PropFilter pf) {
+  public void addPropFilter(final PropFilter pf) {
     getPropFilters().add(pf);
   }
 
@@ -179,8 +179,8 @@ public class CompFilter {
    * @return BwFilter - null for no filtering
    * @throws WebdavException
    */
-  public Filter getQueryFilter(EventQuery eq,
-                                 int exprDepth) throws WebdavException {
+  public Filter getQueryFilter(final EventQuery eq,
+                                 final int exprDepth) throws WebdavException {
     Filter filter = null;
     int entityType = IcalDefs.entityTypeEvent;
 
@@ -189,9 +189,9 @@ public class CompFilter {
         throw new WebdavBadRequest();
       }
 
-      if (Util.isEmpty(compFilters)) {
-        return null;
-      }
+//      if (Util.isEmpty(compFilters)) {
+//        return null;
+//      }
     } else if (exprDepth == 1) {
       // Calendar components only
 
@@ -242,7 +242,7 @@ public class CompFilter {
       return filter;
     }
 
-    if (exprDepth == 1) {
+    if (exprDepth < 2) {
       /* XXX This is wrong - if filters handle time ranges OK we should remove
        * this merge which was here so post-processing could handle it.
        */
@@ -277,8 +277,8 @@ public class CompFilter {
     return filter;
   }
 
-  private Filter processPropFilters(EventQuery eq,
-                                      int entityType) throws WebdavException {
+  private Filter processPropFilters(final EventQuery eq,
+                                      final int entityType) throws WebdavException {
     if (Util.isEmpty(propFilters)) {
       return null;
     }
@@ -321,11 +321,11 @@ public class CompFilter {
     return pfilters;
   }
 
-  private Filter makeFilter(String pname, boolean testNotDefined,
-                            boolean testPresent,
-                            TimeRange timeRange,
-                            TextMatch match,
-                            Collection<ParamFilter> paramFilters) throws WebdavException {
+  private Filter makeFilter(final String pname, final boolean testNotDefined,
+                            final boolean testPresent,
+                            final TimeRange timeRange,
+                            final TextMatch match,
+                            final Collection<ParamFilter> paramFilters) throws WebdavException {
     Filter filter = null;
 
     PropertyInfoIndex pi = PropertyInfoIndex.lookupPname(pname);
@@ -366,8 +366,8 @@ public class CompFilter {
                                                           paramFilters));
   }
 
-  private Filter processParamFilters(PropertyInfoIndex parentIndex,
-                                     Collection<ParamFilter> paramFilters) throws WebdavException {
+  private Filter processParamFilters(final PropertyInfoIndex parentIndex,
+                                     final Collection<ParamFilter> paramFilters) throws WebdavException {
     Filter parfilters = null;
 
     for (ParamFilter pf: paramFilters) {
@@ -390,7 +390,7 @@ public class CompFilter {
   }
 
   private Collection<PropFilter> addPropFilter(Collection<PropFilter> pfs,
-                                               PropFilter val) {
+                                               final PropFilter val) {
     if (pfs == null) {
       pfs = new ArrayList<PropFilter>();
     }
@@ -405,7 +405,7 @@ public class CompFilter {
    * @param log
    * @param indent
    */
-  public void dump(Logger log, String indent) {
+  public void dump(final Logger log, final String indent) {
     StringBuilder sb = new StringBuilder(indent);
 
     sb.append("<comp-filter name=\"");
