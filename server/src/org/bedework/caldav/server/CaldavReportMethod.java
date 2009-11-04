@@ -92,6 +92,7 @@ public class CaldavReportMethod extends ReportMethod {
 
   /** Called at each request
    */
+  @Override
   public void init() {
   }
 
@@ -100,10 +101,11 @@ public class CaldavReportMethod extends ReportMethod {
    * @param doc
    * @throws WebdavException
    */
-  protected void process(Document doc,
-                         int depth,
-                         HttpServletRequest req,
-                         HttpServletResponse resp) throws WebdavException {
+  @Override
+  protected void process(final Document doc,
+                         final int depth,
+                         final HttpServletRequest req,
+                         final HttpServletResponse resp) throws WebdavException {
     reportType = getCaldavReportType(doc);
 
     if (reportType < 0) {
@@ -126,7 +128,7 @@ public class CaldavReportMethod extends ReportMethod {
    * @return index or <0 for unknown.
    * @throws WebdavException
    */
-  protected int getCaldavReportType(Document doc) throws WebdavException {
+  protected int getCaldavReportType(final Document doc) throws WebdavException {
     try {
       Element root = doc.getDocumentElement();
 
@@ -163,7 +165,7 @@ public class CaldavReportMethod extends ReportMethod {
    * @param doc
    * @throws WebdavException
    */
-  private void processDoc(Document doc) throws WebdavException {
+  private void processDoc(final Document doc) throws WebdavException {
     try {
       CaldavBWIntf intf = (CaldavBWIntf)getNsIntf();
 
@@ -326,9 +328,9 @@ public class CaldavReportMethod extends ReportMethod {
    * @param depth
    * @throws WebdavException
    */
-  public void processResp(HttpServletRequest req,
-                          HttpServletResponse resp,
-                          int depth) throws WebdavException {
+  public void processResp(final HttpServletRequest req,
+                          final HttpServletResponse resp,
+                          final int depth) throws WebdavException {
     resp.setStatus(WebdavStatusCode.SC_MULTI_STATUS);
     resp.setContentType("text/xml; charset=UTF-8");
 
@@ -348,7 +350,7 @@ public class CaldavReportMethod extends ReportMethod {
     Collection<WebdavNsNode> nodes = null;
 
     if (reportType == reportTypeQuery) {
-      nodes = (Collection<WebdavNsNode>)doNodeAndChildren(node, 0, defaultDepth(depth, 0));
+      nodes = doNodeAndChildren(node, 0, defaultDepth(depth, 0));
     } else if (reportType == reportTypeMultiGet) {
       nodes = new ArrayList<WebdavNsNode>();
 
@@ -396,7 +398,7 @@ public class CaldavReportMethod extends ReportMethod {
     flush();
   }
 
-  private Collection<WebdavNsNode> getNodes(WebdavNsNode node)
+  private Collection<WebdavNsNode> getNodes(final WebdavNsNode node)
           throws WebdavException {
     if (debug) {
       trace("getNodes: " + node.getUri());
@@ -484,8 +486,8 @@ public class CaldavReportMethod extends ReportMethod {
     return intf.query(node, retrieveList, rm, filter);
   }
 
-  private boolean addPropname(QName tag,
-                              List<String> retrieveList) {
+  private boolean addPropname(final QName tag,
+                              final List<String> retrieveList) {
     if (tag.equals(WebdavTags.getetag)) {
       retrieveList.add(tag.toString());
       return true;
@@ -494,13 +496,18 @@ public class CaldavReportMethod extends ReportMethod {
     return false;
   }
 
-  private Collection<WebdavNsNode> doNodeAndChildren(WebdavNsNode node,
+  private Collection<WebdavNsNode> doNodeAndChildren(final WebdavNsNode node,
                                        int curDepth,
-                                       int maxDepth) throws WebdavException {
+                                       final int maxDepth) throws WebdavException {
+    if (debug) {
+      trace("doNodeAndChildren: curDepth=" + curDepth +
+            " maxDepth=" + maxDepth + " uri=" + node.getUri());
+    }
+
+    Collection<WebdavNsNode> nodes = new ArrayList<WebdavNsNode>();
+
     if (node instanceof CaldavComponentNode) {
       // Targetted directly at component
-      Collection<WebdavNsNode> nodes = new ArrayList<WebdavNsNode>();
-
       nodes.add(node);
       return nodes;
     }
@@ -509,23 +516,19 @@ public class CaldavReportMethod extends ReportMethod {
       throw new WebdavBadRequest();
     }
 
-    if (debug) {
-      trace("doNodeAndChildren: curDepth=" + curDepth +
-            " maxDepth=" + maxDepth + " uri=" + node.getUri());
-    }
-
     CaldavCalNode calnode = (CaldavCalNode)node;
 
-    if (calnode.isCalendarCollection()) {
-      return getNodes(node);
-    }
-
-    Collection<WebdavNsNode> nodes = new ArrayList<WebdavNsNode>();
-
+    /* TODO - should we return info about the collection?
+     * Probably if the filter allows it.
+     */
     curDepth++;
 
     if (curDepth > maxDepth) {
       return nodes;
+    }
+
+    if (calnode.isCalendarCollection()) {
+      return getNodes(node);
     }
 
     for (WebdavNsNode child: getNsIntf().getChildren(node)) {
@@ -542,9 +545,9 @@ public class CaldavReportMethod extends ReportMethod {
    * @param depth
    * @throws WebdavException
    */
-  public void processFbResp(HttpServletRequest req,
-                            HttpServletResponse resp,
-                            int depth) throws WebdavException {
+  public void processFbResp(final HttpServletRequest req,
+                            final HttpServletResponse resp,
+                            final int depth) throws WebdavException {
     resp.setStatus(HttpServletResponse.SC_OK);
     resp.setContentType("text/calendar; charset=UTF-8");
 
@@ -596,7 +599,7 @@ public class CaldavReportMethod extends ReportMethod {
    */
   private static final int bufferSize = 4096;
 
-  private void writeContent(Reader in, Writer out)
+  private void writeContent(final Reader in, final Writer out)
       throws WebdavException {
     try {
       char[] buff = new char[bufferSize];
