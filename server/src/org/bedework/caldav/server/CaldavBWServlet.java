@@ -62,7 +62,7 @@ public class CaldavBWServlet extends WebdavServlet {
       throws WebdavException {
     CaldavBWIntf wi = new CaldavBWIntf();
 
-    wi.init(this, req, props, debug, methods, dumpContent);
+    wi.init(this, req, debug, methods, dumpContent);
     return wi;
   }
 }
