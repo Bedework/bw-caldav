@@ -39,31 +39,14 @@ import javax.servlet.http.HttpServletRequest;
  * @author Mike Douglass   douglm  rpi.edu
  */
 public class CaldavBWServlet extends WebdavServlet {
-  private String id = null;
   /* ====================================================================
    *                     Abstract servlet methods
    * ==================================================================== */
 
-  public String getId() {
-    if (id != null) {
-      return id;
-    }
-
-    if (props == null) {
-      return getClass().getName();
-    }
-
-    id = props.getProperty("edu.rpi.cct.uwcal.appname");
-    if (id == null) {
-      id = getClass().getName();
-    }
-
-    return id;
-  }
-
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.common.WebdavServlet#addMethods()
    */
+  @Override
   protected void addMethods() {
     super.addMethods();
 
@@ -74,7 +57,8 @@ public class CaldavBWServlet extends WebdavServlet {
     methods.put("REPORT", new MethodInfo(CaldavReportMethod.class, false));
   }
 
-  public WebdavNsIntf getNsIntf(HttpServletRequest req)
+  @Override
+  public WebdavNsIntf getNsIntf(final HttpServletRequest req)
       throws WebdavException {
     CaldavBWIntf wi = new CaldavBWIntf();
 
