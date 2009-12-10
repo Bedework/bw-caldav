@@ -81,7 +81,7 @@ public class PostMethod extends MethodBase {
 
     CalDAVCollection cal;
 
-    /* true if this is an iSchedule request from some other server */
+    /* true if this is an iSchedule request */
     boolean iSchedule;
 
     /** true if this is a free busy request */
@@ -104,8 +104,8 @@ public class PostMethod extends MethodBase {
 
       CalDAVConfig conf = intf.getConfig();
 
-      if (conf.getRealTimeServiceURI() != null) {
-        iSchedule = conf.getRealTimeServiceURI().equals(resourceUri);
+      if (conf.getIscheduleURI() != null) {
+        iSchedule = conf.getIscheduleURI().equals(resourceUri);
       }
 
       if (!iSchedule && (conf.getFburlServiceURI() != null)) {
@@ -144,6 +144,13 @@ public class PostMethod extends MethodBase {
           throw new WebdavException(t);
         }
       }
+    }
+
+    /**
+     * @param val
+     */
+    public void setContentType(final String val) {
+      contentType = val;
     }
 
     /* We seem to be getting both absolute and relative principals as well as mailto

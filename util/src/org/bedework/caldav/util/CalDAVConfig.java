@@ -40,8 +40,8 @@ public class CalDAVConfig implements Serializable {
   /* System interface implementation */
   private String sysintfImpl;
 
-  /* Real time service uri - null for no real time service */
-  private String realTimeServiceURI;
+  /* ischedule service uri - null for no ischedule service */
+  private String ischeduleURI;
 
   /* Free busy service uri - null for no freebusy service */
   private String fburlServiceURI;
@@ -52,7 +52,7 @@ public class CalDAVConfig implements Serializable {
   /**
    * @param val
    */
-  public void setAppType(String val) {
+  public void setAppType(final String val) {
     appType = val;
   }
 
@@ -67,7 +67,7 @@ public class CalDAVConfig implements Serializable {
    *
    * @param val
    */
-  public void setGuestMode(boolean val) {
+  public void setGuestMode(final boolean val) {
     guestMode = val;
   }
 
@@ -82,7 +82,7 @@ public class CalDAVConfig implements Serializable {
    *
    * @param val    String
    */
-  public void setSysintfImpl(String val) {
+  public void setSysintfImpl(final String val) {
     sysintfImpl = val;
   }
 
@@ -94,27 +94,27 @@ public class CalDAVConfig implements Serializable {
     return sysintfImpl;
   }
 
-  /** Set the Real time service uri - null for no real time service
+  /** Set the ischedule service uri - null for no ischedule service
    *
    * @param val    String
    */
-  public void setRealTimeServiceURI(String val) {
-    realTimeServiceURI = val;
+  public void setIscheduleURI(final String val) {
+    ischeduleURI = val;
   }
 
-  /** get the Real time service uri - null for no real time service
+  /** get the ischedule service uri - null for no ischedule service
    *
    * @return String
    */
-  public String getRealTimeServiceURI() {
-    return realTimeServiceURI;
+  public String getIscheduleURI() {
+    return ischeduleURI;
   }
 
   /** Set the Free busy service uri - null for no freebusy service
    *
    * @param val    String
    */
-  public void setFburlServiceURI(String val) {
+  public void setFburlServiceURI(final String val) {
     fburlServiceURI = val;
   }
 
@@ -130,7 +130,7 @@ public class CalDAVConfig implements Serializable {
    *
    * @param val    String
    */
-  public void setWebcalServiceURI(String val) {
+  public void setWebcalServiceURI(final String val) {
     webcalServiceURI = val;
   }
 

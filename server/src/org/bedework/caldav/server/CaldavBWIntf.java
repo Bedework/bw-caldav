@@ -29,12 +29,14 @@ import org.bedework.caldav.server.PostMethod.RequestPars;
 import org.bedework.caldav.server.calquery.CalendarData;
 import org.bedework.caldav.server.calquery.FreeBusyQuery;
 import org.bedework.caldav.server.filter.FilterHandler;
+import org.bedework.caldav.server.get.FreeBusyGetHandler;
+import org.bedework.caldav.server.get.GetHandler;
+import org.bedework.caldav.server.get.IscheduleGetHandler;
+import org.bedework.caldav.server.get.WebcalGetHandler;
 import org.bedework.caldav.server.sysinterface.CalPrincipalInfo;
 import org.bedework.caldav.server.sysinterface.RetrievalMode;
 import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.caldav.util.CalDAVConfig;
-import org.bedework.caldav.util.ParseUtil;
-import org.bedework.caldav.util.TimeRange;
 
 import edu.rpi.cct.webdav.servlet.common.AccessUtil;
 import edu.rpi.cct.webdav.servlet.common.Headers;
@@ -62,7 +64,6 @@ import edu.rpi.cmt.access.Acl;
 import edu.rpi.cmt.access.PrivilegeDefs;
 import edu.rpi.cmt.access.WhoDefs;
 import edu.rpi.cmt.access.AccessXmlUtil.AccessXmlCb;
-import edu.rpi.cmt.calendar.ScheduleMethods;
 import edu.rpi.sss.util.OptionsI;
 import edu.rpi.sss.util.xml.XmlEmit;
 import edu.rpi.sss.util.xml.XmlUtil;
@@ -961,126 +962,23 @@ public class CaldavBWIntf extends WebdavNsIntf {
                             final HttpServletResponse resp,
                             final String resourceUri) throws WebdavException {
     RequestPars pars = new RequestPars(req, this, resourceUri);
+    GetHandler handler = null;
 
-    if (pars.freeBusy) {
-      doSpecialFreeBusy(req, resp, pars);
-      return true;
+    if (pars.iSchedule) {
+      handler = new IscheduleGetHandler(this);
+    } else if (pars.freeBusy) {
+      handler = new FreeBusyGetHandler(this);
+    } else if (pars.webcal) {
+      handler = new WebcalGetHandler(this);
     }
 
-    if (pars.webcal) {
-      doSpecialWebcal(req, resp, pars);
-      return true;
+    if (handler == null) {
+      return false;
     }
 
-    return false;
-  }
+    handler.process(req, resp, pars);
 
-  private void doSpecialFreeBusy(final HttpServletRequest req,
-                                 final HttpServletResponse resp,
-                                 final RequestPars pars) throws WebdavException {
-    try {
-      if (account != null) {
-        pars.originator = getSysi().userToCaladdr(account);
-      }
-
-      String cua = req.getParameter("cua");
-      String user = null;
-
-      if (cua == null) {
-        user = req.getParameter("user");
-        if (user == null) {
-          if (account == null) {
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing user/cua");
-            return;
-          }
-
-          user = account;
-        }
-      }
-
-      pars.contentType = "text/calendar; charset=UTF-8";
-
-      TimeRange tr = ParseUtil.getPeriod(req.getParameter("start"),
-                                         req.getParameter("end"),
-                                         java.util.Calendar.DATE, 31,
-                                         java.util.Calendar.DATE, 32);
-
-      if (tr == null) {
-        resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Date/times");
-        return;
-      }
-
-      resp.setHeader("Content-Disposition",
-                     "Attachment; Filename=\"freebusy.ics\"");
-      resp.setContentType("text/calendar; charset=UTF-8");
-
-      getSysi().getSpecialFreeBusy(cua, user, pars, tr, resp.getWriter());
-    } catch (WebdavForbidden wdf) {
-      resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
-    } catch (WebdavException wde) {
-      throw wde;
-    } catch (Throwable t) {
-      throw new WebdavException(t);
-    }
-  }
-
-  private void doSpecialWebcal(final HttpServletRequest req,
-                               final HttpServletResponse resp,
-                               final RequestPars pars) throws WebdavException {
-    try {
-      TimeRange tr = ParseUtil.getPeriod(req.getParameter("start"),
-                                         req.getParameter("end"),
-                                         java.util.Calendar.DATE, 31,
-                                         java.util.Calendar.DATE, 32 * 3);
-
-      if (tr == null) {
-        resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Date/times");
-        return;
-      }
-
-      String calPath = req.getParameter("calPath");
-      if (calPath == null) {
-        resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "No calPath");
-        return;
-      }
-
-      calPath = WebdavNsIntf.fixPath(calPath);
-
-      WebdavNsNode node = getNode(calPath,
-                                  WebdavNsIntf.existanceMust,
-                                  WebdavNsIntf.nodeTypeUnknown);
-
-      if ((node == null) || !node.getExists()) {
-        resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-        return;
-      }
-
-      if (!node.isCollection()) {
-        resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Not collection");
-        return;
-      }
-
-      Collection<CalDAVEvent> evs = new ArrayList<CalDAVEvent>();
-
-      for (WebdavNsNode child: getChildren(node)) {
-        if (child instanceof CaldavComponentNode) {
-          evs.add(((CaldavComponentNode)child).getEvent());
-        }
-      }
-
-
-      resp.setHeader("Content-Disposition",
-                     "Attachment; Filename=\"" +
-                     node.getDisplayname() + ".ics\"");
-      resp.setContentType("text/calendar; charset=UTF-8");
-
-      getSysi().writeCalendar(evs, ScheduleMethods.methodTypePublish,
-                              resp.getWriter());
-    } catch (WebdavException wde) {
-      throw wde;
-    } catch (Throwable t) {
-      throw new WebdavException(t);
-    }
+    return true;
   }
 
   /* ====================================================================

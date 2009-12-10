@@ -45,11 +45,13 @@ public class SystemProperties implements Serializable {
 
   private String maxDateTime;
 
+  private String adminContact;
+
   /** Set the max entity length for users. Probably an estimate. Null for no limit
    *
    * @param val    Integer max
    */
-  public void setMaxUserEntitySize(Integer val) {
+  public void setMaxUserEntitySize(final Integer val) {
     maxUserEntitySize = val;
   }
 
@@ -65,7 +67,7 @@ public class SystemProperties implements Serializable {
    *
    * @param val    Integer max
    */
-  public void setMaxInstances(Integer val) {
+  public void setMaxInstances(final Integer val) {
     maxInstances = val;
   }
 
@@ -81,7 +83,7 @@ public class SystemProperties implements Serializable {
    *
    * @param val    Integer max
    */
-  public void setMaxAttendeesPerInstance(Integer val) {
+  public void setMaxAttendeesPerInstance(final Integer val) {
     maxAttendeesPerInstance = val;
   }
 
@@ -96,7 +98,7 @@ public class SystemProperties implements Serializable {
   /**
    * @param val    minimum date time allowed - null for no limit
    */
-  public void setMinDateTime(String val) {
+  public void setMinDateTime(final String val) {
     minDateTime = val;
   }
 
@@ -111,7 +113,7 @@ public class SystemProperties implements Serializable {
   /**
    * @param val    minimum date time allowed - null for no limit
    */
-  public void setMaxDateTime(String val) {
+  public void setMaxDateTime(final String val) {
     maxDateTime = val;
   }
 
@@ -121,5 +123,21 @@ public class SystemProperties implements Serializable {
    */
   public String getMaxDateTime() {
     return maxDateTime;
+  }
+
+  /** Set the administrator contact property
+   *
+   * @param val
+   */
+  public void setAdminContact(final String val) {
+    adminContact = val;
+  }
+
+  /** Get the administrator contact property
+   *
+   * @return String
+   */
+  public String getAdminContact() {
+    return adminContact;
   }
 }
