@@ -143,7 +143,7 @@ public class CalendarData extends WebdavProperty {
 
   private String returnContentType; // null for defaulted
   private Comp comp;
-  private ExpandRecurrenceSet ers;
+  private Expand ers;
   private LimitRecurrenceSet lrs;
   private LimitFreebusySet lfs;
 
@@ -175,7 +175,7 @@ public class CalendarData extends WebdavProperty {
   /**
    * @return ExpandRecurrenceSet
    */
-  public ExpandRecurrenceSet getErs() {
+  public Expand getErs() {
     return ers;
   }
 
@@ -245,7 +245,7 @@ public class CalendarData extends WebdavProperty {
             throw new WebdavBadRequest();
           }
 
-          ers = new ExpandRecurrenceSet(ParseUtil.parseTimeRange(curnode, true));
+          ers = new Expand(ParseUtil.parseTimeRange(curnode, true));
         } else if (XmlUtil.nodeMatches(curnode, CaldavTags.limitRecurrenceSet)) {
           if (lrs != null) {
             throw new WebdavBadRequest();

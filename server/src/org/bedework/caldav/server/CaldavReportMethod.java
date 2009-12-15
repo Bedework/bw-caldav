@@ -28,7 +28,7 @@ package org.bedework.caldav.server;
 
 import org.bedework.caldav.server.calquery.CalendarData;
 import org.bedework.caldav.server.calquery.Comp;
-import org.bedework.caldav.server.calquery.ExpandRecurrenceSet;
+import org.bedework.caldav.server.calquery.Expand;
 import org.bedework.caldav.server.calquery.FreeBusyQuery;
 import org.bedework.caldav.server.calquery.LimitRecurrenceSet;
 import org.bedework.caldav.server.calquery.Prop;
@@ -440,7 +440,7 @@ public class CaldavReportMethod extends ReportMethod {
 
       if (caldata.getErs() != null) {
         /* expand with time range */
-        ExpandRecurrenceSet ers = caldata.getErs();
+        Expand ers = caldata.getErs();
 
         rm = RetrievalMode.getExpanded(ers.getStart(), ers.getEnd());
       } else if (caldata.getLrs() != null) {

@@ -32,12 +32,12 @@ import org.apache.log4j.Logger;
 /**
  * @author Mike Douglass douglm @ rpi.edu
  */
-public class ExpandRecurrenceSet extends TimeRange {
+public class Expand extends TimeRange {
   /** Constructor
    *
    * @param tr
    */
-  public ExpandRecurrenceSet(TimeRange tr) {
+  public Expand(final TimeRange tr) {
     super(tr.getStart(), tr.getEnd());
   }
 
@@ -45,10 +45,11 @@ public class ExpandRecurrenceSet extends TimeRange {
    * @param log
    * @param indent
    */
-  public void dump(Logger log, String indent) {
+  @Override
+  public void dump(final Logger log, final String indent) {
     StringBuilder sb = new StringBuilder(indent);
 
-    sb.append("<expand-recurrence-set ");
+    sb.append("<expand ");
     super.toStringSegment(sb);
     sb.append("/>");
 
