@@ -45,6 +45,14 @@ public class SystemProperties implements Serializable {
 
   private String maxDateTime;
 
+  private int defaultFBPeriod = 31;
+
+  private int maxFBPeriod = 32 * 3;
+
+  private int defaultWebCalPeriod = 31;
+
+  private int maxWebCalPeriod = 32 * 3;
+
   private String adminContact;
 
   /** Set the max entity length for users. Probably an estimate. Null for no limit
@@ -111,7 +119,7 @@ public class SystemProperties implements Serializable {
   }
 
   /**
-   * @param val    minimum date time allowed - null for no limit
+   * @param val    maximum date time allowed - null for no limit
    */
   public void setMaxDateTime(final String val) {
     maxDateTime = val;
@@ -119,10 +127,74 @@ public class SystemProperties implements Serializable {
 
   /**
    *
-   * @return String   minimum date time allowed - null for no limit
+   * @return String   maximum date time allowed - null for no limit
    */
   public String getMaxDateTime() {
     return maxDateTime;
+  }
+
+  /** Set the c if not specified
+   *
+   * @param val
+   */
+  public void setDefaultFBPeriod(final int val) {
+    defaultFBPeriod = val;
+  }
+
+  /** get the default freebusy fetch period if not specified
+   *
+   * @return int days
+   */
+  public int getDefaultFBPeriod() {
+    return defaultFBPeriod;
+  }
+
+  /** Set the maximum freebusy fetch period
+   *
+   * @param val
+   */
+  public void setMaxFBPeriod(final int val) {
+    maxFBPeriod = val;
+  }
+
+  /** get the maximum freebusy fetch period
+   *
+   * @return int days
+   */
+  public int getMaxFBPeriod() {
+    return maxFBPeriod;
+  }
+
+  /** Set the default webcal fetch period if not specified
+   *
+   * @param val
+   */
+  public void setDefaultWebCalPeriod(final int val) {
+    defaultWebCalPeriod = val;
+  }
+
+  /** Get the default webcal fetch period if not specified
+   *
+   * @return int days
+   */
+  public int getDefaultWebCalPeriod() {
+    return defaultWebCalPeriod;
+  }
+
+  /** Set the maximum webcal fetch period
+   *
+   * @param val
+   */
+  public void setMaxWebCalPeriod(final int val) {
+    maxWebCalPeriod = val;
+  }
+
+  /** Set the maximum webcal fetch period
+   *
+   * @return int days
+   */
+  public int getMaxWebCalPeriod() {
+    return maxWebCalPeriod;
   }
 
   /** Set the administrator contact property

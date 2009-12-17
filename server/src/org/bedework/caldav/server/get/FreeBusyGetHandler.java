@@ -27,6 +27,7 @@ package org.bedework.caldav.server.get;
 
 import org.bedework.caldav.server.CaldavBWIntf;
 import org.bedework.caldav.server.PostMethod.RequestPars;
+import org.bedework.caldav.server.sysinterface.SystemProperties;
 import org.bedework.caldav.util.ParseUtil;
 import org.bedework.caldav.util.TimeRange;
 
@@ -77,10 +78,14 @@ public class FreeBusyGetHandler extends GetHandler {
 
       pars.setContentType("text/calendar; charset=UTF-8");
 
+      SystemProperties sysp = getSysi().getSystemProperties();
+
       TimeRange tr = ParseUtil.getPeriod(req.getParameter("start"),
                                          req.getParameter("end"),
-                                         java.util.Calendar.DATE, 31,
-                                         java.util.Calendar.DATE, 32);
+                                         java.util.Calendar.DATE,
+                                         sysp.getDefaultFBPeriod(),
+                                         java.util.Calendar.DATE,
+                                         sysp.getMaxFBPeriod());
 
       if (tr == null) {
         resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Date/times");

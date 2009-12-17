@@ -57,8 +57,8 @@ public class ParseUtil {
    * @return TimeRange
    * @throws WebdavException
    */
-  public static TimeRange parseTimeRange(Node nd,
-                                         boolean required) throws WebdavException {
+  public static TimeRange parseTimeRange(final Node nd,
+                                         final boolean required) throws WebdavException {
     DateTime start = null;
     DateTime end = null;
 
@@ -71,7 +71,7 @@ public class ParseUtil {
 
     int attrCt = nnm.getLength();
 
-    if (attrCt == 0 || (required && (attrCt != 2))) {
+    if ((attrCt == 0) || (required && (attrCt != 2))) {
       // Infinite time-range?
       throw new WebdavBadRequest("Infinite/bad time range");
     }
@@ -113,14 +113,14 @@ public class ParseUtil {
    * @param defaultField
    * @param defaultVal
    * @param maxField
-   * @param maxVal
+   * @param maxVal - 0 for no max
    * @return TimeRange or null for bad request
    * @throws WebdavException
    */
-  public static TimeRange getPeriod(String start, String end,
-                                    int defaultField, int defaultVal,
-                                    int maxField,
-                                    int maxVal) throws WebdavException {
+  public static TimeRange getPeriod(final String start, final String end,
+                                    final int defaultField, final int defaultVal,
+                                    final int maxField,
+                                    final int maxVal) throws WebdavException {
     Calendar startCal = Calendar.getInstance();
     startCal.set(Calendar.HOUR_OF_DAY, 0);
     startCal.set(Calendar.MINUTE, 0);
@@ -146,12 +146,14 @@ public class ParseUtil {
     }
 
     // Don't allow more than the max
-    Calendar check = Calendar.getInstance();
-    check.setTime(startCal.getTime());
-    check.add(maxField, maxVal);
+    if (maxVal > 0) {
+      Calendar check = Calendar.getInstance();
+      check.setTime(startCal.getTime());
+      check.add(maxField, maxVal);
 
-    if (check.before(endCal)) {
-      return null;
+      if (check.before(endCal)) {
+        return null;
+      }
     }
 
     return new TimeRange(new DateTime(startCal.getTime()),

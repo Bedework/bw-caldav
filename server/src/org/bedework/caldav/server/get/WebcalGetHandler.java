@@ -29,6 +29,7 @@ import org.bedework.caldav.server.CalDAVEvent;
 import org.bedework.caldav.server.CaldavBWIntf;
 import org.bedework.caldav.server.CaldavComponentNode;
 import org.bedework.caldav.server.PostMethod.RequestPars;
+import org.bedework.caldav.server.sysinterface.SystemProperties;
 import org.bedework.caldav.util.ParseUtil;
 import org.bedework.caldav.util.TimeRange;
 
@@ -63,10 +64,14 @@ public class WebcalGetHandler extends GetHandler {
                       final HttpServletResponse resp,
                       final RequestPars pars) throws WebdavException {
     try {
+      SystemProperties sysp = getSysi().getSystemProperties();
+
       TimeRange tr = ParseUtil.getPeriod(req.getParameter("start"),
                                          req.getParameter("end"),
-                                         java.util.Calendar.DATE, 31,
-                                         java.util.Calendar.DATE, 32 * 3);
+                                         java.util.Calendar.DATE,
+                                         sysp.getDefaultWebCalPeriod(),
+                                         java.util.Calendar.DATE,
+                                         sysp.getMaxWebCalPeriod());
 
       if (tr == null) {
         resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Date/times");
