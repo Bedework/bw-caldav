@@ -68,7 +68,7 @@ public class Filter implements Serializable {
   /**
    * @param name
    */
-  public Filter(String name) {
+  public Filter(final String name) {
     setName(name);
   }
   /* ====================================================================
@@ -79,7 +79,7 @@ public class Filter implements Serializable {
    *
    * @param val    String name
    */
-  protected void setName(String val) {
+  protected void setName(final String val) {
     name = val;
   }
 
@@ -95,7 +95,7 @@ public class Filter implements Serializable {
    *
    * @param val    description
    */
-  public void setDescription(String val) {
+  public void setDescription(final String val) {
     description = val;
   }
 
@@ -111,7 +111,7 @@ public class Filter implements Serializable {
    *
    * @param val    boolean not
    */
-  public void setNot(boolean val) {
+  public void setNot(final boolean val) {
     not = val;
   }
 
@@ -127,7 +127,7 @@ public class Filter implements Serializable {
    *
    * @param val   FilterVO parent object
    */
-  public void setParent(Filter val) {
+  public void setParent(final Filter val) {
     parent = val;
   }
 
@@ -147,7 +147,7 @@ public class Filter implements Serializable {
    *
    * @param   val   List of children for this filter
    */
-  public void setChildren(List<Filter> val) {
+  public void setChildren(final List<Filter> val) {
     children = val;
   }
 
@@ -175,7 +175,7 @@ public class Filter implements Serializable {
    *
    * @param val     BwFilter child
    */
-  public void addChild(Filter val) {
+  public void addChild(final Filter val) {
     List<Filter> c = getChildren();
 
     if (c == null) {
@@ -197,7 +197,7 @@ public class Filter implements Serializable {
    * @param o
    * @return true for a match
    */
-  public boolean match(Object o) {
+  public boolean match(final Object o) {
     return false;
   }
 
@@ -226,7 +226,7 @@ public class Filter implements Serializable {
    * @param child
    * @return a filter
    */
-  public static Filter addOrChild(Filter filter, Filter child) {
+  public static Filter addOrChild(final Filter filter, final Filter child) {
     if (child == null) {
       return filter;
     }
@@ -254,7 +254,7 @@ public class Filter implements Serializable {
    * @param child
    * @return filter
    */
-  public static Filter addAndChild(Filter filter, Filter child) {
+  public static Filter addAndChild(final Filter filter, final Filter child) {
     if (child == null) {
       return filter;
     }
@@ -276,7 +276,7 @@ public class Filter implements Serializable {
     return andf;
   }
 
-  protected void stringOper(StringBuilder sb) {
+  protected void stringOper(final StringBuilder sb) {
     if (getNot()) {
       sb.append(" != ");
     } else {
@@ -288,15 +288,17 @@ public class Filter implements Serializable {
    *
    * @param sb    StringBuilder for result
    */
-   protected void toStringSegment(StringBuilder sb) {
-    sb.append("\n, name=");
-    sb.append(name);
-    sb.append(", description=");
-    sb.append(description);
-    sb.append(", parent=");
-    if (parent == null) {
-      sb.append("null");
-    } else {
+  protected void toStringSegment(final StringBuilder sb) {
+    //sb.append("\n, name=");
+    //sb.append(name);
+
+    if (description != null) {
+      sb.append("description=");
+      sb.append(description);
+    }
+
+    if (parent != null) {
+      sb.append(", parent=");
       sb.append(parent.getName());
     }
   }
