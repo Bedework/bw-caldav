@@ -40,10 +40,10 @@
     <getJar name="log4j" version="1.2.8" />
     <getJar name="servletapi" version="2.4" />
 
-    <getJar name="bw-davio" version="3.5" project="davutil" />
+    <getJar name="bw-davio" version="3.6" project="davutil" />
     <getJar name="bw-webdavserver" version="3.6" project="webdav" />
-    <getJar name="rpiaccess" version="3.5" project="access" />
-    <getJar name="rpiutil" version="3.5" project="rpiutil" />
+    <getJar name="rpiaccess" version="3.6" project="access" />
+    <getJar name="rpiutil" version="3.6" project="rpiutil" />
 
     <property name="org.bedework.caldav.server.base" location="${project.home}/server" />
     <property name="org.bedework.caldav.util.base" location="${project.home}/util" />
