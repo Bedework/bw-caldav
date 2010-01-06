@@ -1415,9 +1415,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       if (ap != null) {
         if (ap.getKind() == Ace.whoTypeUser) {
-          nd = new CaldavUserNode(wi, sysi, null, debug);
+          nd = new CaldavUserNode(wi, sysi, sysi.getCalPrincipalInfo(ap), debug);
         } else if (ap.getKind() == Ace.whoTypeGroup) {
-          nd = new CaldavGroupNode(wi, sysi, null, debug);
+          nd = new CaldavGroupNode(wi, sysi, sysi.getCalPrincipalInfo(ap), debug);
         }
       } else if (wi.isCollection()) {
         nd = new CaldavCalNode(wi, sysi, debug);
