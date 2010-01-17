@@ -1,0 +1,13 @@
+<web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-2.0" 
+        xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
+
+    <dep:environment>
+        <dep:moduleId>
+            <dep:groupId>org.bedework</dep:groupId>
+            <dep:artifactId>@APP-NAME@</dep:artifactId>
+            <dep:version>1.0</dep:version>
+        </dep:moduleId>
+    </dep:environment>
+    <context-root>@CONTEXT-ROOT@</context-root>
+    <!-- Virtual host -->
+</web-app>
