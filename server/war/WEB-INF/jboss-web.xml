@@ -9,4 +9,10 @@
     <res-type>javax.sql.DataSource</res-type>
     <jndi-name>java:/CalendarDS</jndi-name>
   </resource-ref>
+  
+  <resource-ref>
+    <res-ref-name>jms/BedeworkConnectionFactory</res-ref-name>
+    <res-type>javax.jms.ConnectionFactory</res-type>
+    <jndi-name>java:/activemq/QueueConnectionFactory</jndi-name>
+  </resource-ref>
 </jboss-web>

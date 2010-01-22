@@ -58,6 +58,13 @@
     <res-auth>Container</res-auth>
   </resource-ref>
 
+  <!-- JMS DataSources (java:comp/env/jms) -->
+  <resource-ref>
+    <res-ref-name>jms/BedeworkConnectionFactory</res-ref-name>
+    <res-type>javax.jms.ConnectionFactory</res-type>
+    <res-auth>Container</res-auth>
+  </resource-ref>
+
   <!-- The role name of * below means all roles defined in this web.xml -->
   <security-constraint>
     <web-resource-collection>
