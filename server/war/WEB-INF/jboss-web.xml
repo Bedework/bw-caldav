@@ -7,7 +7,7 @@
   <resource-ref>
     <res-ref-name>jdbc/calDB</res-ref-name>
     <res-type>javax.sql.DataSource</res-type>
-    <jndi-name>java:/CalendarDS</jndi-name>
+    <jndi-name>java:@JBOSS-DB-DATASOURCE@</jndi-name>
   </resource-ref>
   
   <resource-ref>
