@@ -1497,7 +1497,13 @@ public class CaldavBWIntf extends WebdavNsIntf {
       }
 
       if (isPrincipal) {
-        return new CaldavURI(getSysi().getPrincipal(uri));
+        AccessPrincipal p = getSysi().getPrincipal(uri);
+
+        if (p == null) {
+          throw new WebdavNotFound(uri);
+        }
+
+        return new CaldavURI(p);
       }
 
       if (existance == WebdavNsIntf.existanceDoesExist) {
