@@ -222,6 +222,18 @@ public class CaldavBWIntf extends WebdavNsIntf {
     return super.getDavHeader(node) + ", calendar-access, calendar-schedule, calendar-auto-schedule";
   }
 
+  @Override
+  public void emitError(final QName errorTag, final String extra,
+                        final XmlEmit xml) throws Throwable {
+    if (errorTag.equals(CaldavTags.noUidConflict)) {
+      xml.openTag(errorTag);
+      xml.property(WebdavTags.href, sysi.getUrlHandler().prefix(extra));
+      xml.closeTag(errorTag);
+    } else {
+      super.emitError(errorTag, extra, xml);
+    }
+  }
+
   protected CalDAVConfig getConfig() {
     return config;
   }
