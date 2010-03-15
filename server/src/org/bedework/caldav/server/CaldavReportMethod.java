@@ -348,6 +348,7 @@ public class CaldavReportMethod extends ReportMethod {
     int status = HttpServletResponse.SC_OK;
 
     Collection<WebdavNsNode> nodes = null;
+    Collection<String> badHrefs = new ArrayList<String>();
 
     if (reportType == reportTypeQuery) {
       nodes = doNodeAndChildren(node, 0, defaultDepth(depth, 0));
@@ -375,6 +376,8 @@ public class CaldavReportMethod extends ReportMethod {
 
           if (n != null) {
             nodes.add(n);
+          } else {
+            badHrefs.add(hr);
           }
         }
       }
@@ -390,6 +393,15 @@ public class CaldavReportMethod extends ReportMethod {
     } else if (nodes != null) {
       for (WebdavNsNode curnode: nodes) {
         doNodeProperties(curnode);
+      }
+    }
+
+    if (!Util.isEmpty(badHrefs)) {
+      for (String hr: badHrefs) {
+        openTag(WebdavTags.response);
+        property(WebdavTags.href, intf.getSysi().getUrlHandler().prefix(hr));
+        property(WebdavTags.status, "HTTP/1.1 " + HttpServletResponse.SC_NOT_FOUND);
+        closeTag(WebdavTags.response);
       }
     }
 

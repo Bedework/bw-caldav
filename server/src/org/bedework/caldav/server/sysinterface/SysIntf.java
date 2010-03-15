@@ -35,12 +35,11 @@ import org.bedework.caldav.server.PropertyHandler.PropertyType;
 import org.bedework.caldav.util.CalDAVConfig;
 import org.bedework.caldav.util.TimeRange;
 import org.bedework.caldav.util.filter.Filter;
-//import org.bedework.calfacade.filter.BwFilter;
 
 import edu.rpi.cct.webdav.servlet.shared.PrincipalPropertySearch;
+import edu.rpi.cct.webdav.servlet.shared.UrlHandler;
 import edu.rpi.cct.webdav.servlet.shared.WdEntity;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
-import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode.UrlHandler;
 import edu.rpi.cmt.access.AccessPrincipal;
 import edu.rpi.cmt.access.Acl;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
@@ -256,6 +255,7 @@ public interface SysIntf {
     /** Set if this is the result of a freebusy request. */
     public CalDAVEvent freeBusy;
 
+    @Override
     public String toString() {
       StringBuilder sb = new StringBuilder("ScheduleRecipientResult{");
 
@@ -267,8 +267,8 @@ public interface SysIntf {
       return sb.toString();
     }
 
-    private static void tsseg(StringBuilder sb, String delim, String name,
-                              String val) {
+    private static void tsseg(final StringBuilder sb, final String delim, final String name,
+                              final String val) {
       sb.append(delim);
       sb.append(name);
       sb.append("=");
