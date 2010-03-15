@@ -28,6 +28,8 @@ package org.bedework.caldav.server;
 import edu.rpi.cct.webdav.servlet.shared.WdEntity;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 
+import java.io.InputStream;
+
 /** Class to represent a resource in CalDAV
  *
  * @author douglm
@@ -50,23 +52,23 @@ public abstract class CalDAVResource extends WdEntity {
 
   /** Set the value
    *
-   *  @param  val   byte[]
+   *  @param  val   InputStream
    * @throws WebdavException
    */
-  public abstract void setBinaryContent(byte[] val) throws WebdavException;
+  public abstract void setBinaryContent(InputStream val) throws WebdavException;
 
   /** Return binary content
    *
-   * @return byte[]       content.
+   * @return InputStream       content.
    * @throws WebdavException
    */
-  public abstract byte[] getBinaryContent() throws WebdavException;
+  public abstract InputStream getBinaryContent() throws WebdavException;
 
   /**
-   * @return int content length
+   * @return long content length
    * @throws WebdavException
    */
-  public abstract int getContentLen() throws WebdavException;
+  public abstract long getContentLen() throws WebdavException;
 
   /** Set the contentType - may be null for unknown
    *

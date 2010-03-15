@@ -27,13 +27,15 @@ package org.bedework.caldav.server;
 
 import org.bedework.caldav.server.sysinterface.SysIntf;
 
-import org.w3c.dom.Element;
-
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cmt.access.AccessPrincipal;
 import edu.rpi.cmt.access.PrivilegeDefs;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
 import edu.rpi.sss.util.DateTimeUtil;
+
+import org.w3c.dom.Element;
+
+import java.io.InputStream;
 
 import javax.xml.namespace.QName;
 
@@ -57,7 +59,7 @@ public class CaldavResourceNode extends CaldavBwNode {
    * @param uri
    * @param debug
    */
-  public CaldavResourceNode(SysIntf sysi, int status, String uri, boolean debug) {
+  public CaldavResourceNode(final SysIntf sysi, final int status, final String uri, final boolean debug) {
     super(true, sysi, uri, debug);
     setStatus(status);
   }
@@ -69,8 +71,8 @@ public class CaldavResourceNode extends CaldavBwNode {
    * @param debug
    * @throws WebdavException
    */
-  public CaldavResourceNode(CaldavURI cdURI,
-                             SysIntf sysi, boolean debug) throws WebdavException {
+  public CaldavResourceNode(final CaldavURI cdURI,
+                             final SysIntf sysi, final boolean debug) throws WebdavException {
     super(cdURI, sysi, debug);
 
     resource = cdURI.getResource();
@@ -88,7 +90,8 @@ public class CaldavResourceNode extends CaldavBwNode {
     }
   }
 
-  public void init(boolean content) throws WebdavException {
+  @Override
+  public void init(final boolean content) throws WebdavException {
     if (!content) {
       return;
     }
@@ -108,6 +111,7 @@ public class CaldavResourceNode extends CaldavBwNode {
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getOwner()
    */
+  @Override
   public AccessPrincipal getOwner() throws WebdavException {
     if (owner == null) {
       if (resource == null) {
@@ -123,8 +127,9 @@ public class CaldavResourceNode extends CaldavBwNode {
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#removeProperty(org.w3c.dom.Element)
    */
-  public boolean removeProperty(Element val,
-                                SetPropertyResult spr) throws WebdavException {
+  @Override
+  public boolean removeProperty(final Element val,
+                                final SetPropertyResult spr) throws WebdavException {
     warn("Unimplemented - removeProperty");
 
     return false;
@@ -133,8 +138,9 @@ public class CaldavResourceNode extends CaldavBwNode {
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#setProperty(org.w3c.dom.Element)
    */
-  public boolean setProperty(Element val,
-                             SetPropertyResult spr) throws WebdavException {
+  @Override
+  public boolean setProperty(final Element val,
+                             final SetPropertyResult spr) throws WebdavException {
     if (super.setProperty(val, spr)) {
       return true;
     }
@@ -145,6 +151,7 @@ public class CaldavResourceNode extends CaldavBwNode {
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#update()
    */
+  @Override
   public void update() throws WebdavException {
     if (resource != null) {
       getSysi().updateFile(resource, true);
@@ -161,6 +168,7 @@ public class CaldavResourceNode extends CaldavBwNode {
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#trailSlash()
    */
+  @Override
   public boolean trailSlash() {
     return false;
   }
@@ -172,7 +180,8 @@ public class CaldavResourceNode extends CaldavBwNode {
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#knownProperty(edu.rpi.sss.util.xml.QName)
    */
-  public boolean knownProperty(QName tag) {
+  @Override
+  public boolean knownProperty(final QName tag) {
     // Not ours
     return super.knownProperty(tag);
   }
@@ -180,7 +189,7 @@ public class CaldavResourceNode extends CaldavBwNode {
   /**
    * @param val
    */
-  public void setResource(CalDAVResource val) {
+  public void setResource(final CalDAVResource val) {
     resource = val;
   }
 
@@ -199,6 +208,7 @@ public class CaldavResourceNode extends CaldavBwNode {
    *                   Overridden property methods
    * ==================================================================== */
 
+  @Override
   public CurrentAccess getCurrentAccess() throws WebdavException {
     if (currentAccess != null) {
       return currentAccess;
@@ -217,7 +227,8 @@ public class CaldavResourceNode extends CaldavBwNode {
     return currentAccess;
   }
 
-  public String getEtagValue(boolean strong) throws WebdavException {
+  @Override
+  public String getEtagValue(final boolean strong) throws WebdavException {
     init(true);
 
     if (resource == null) {
@@ -248,6 +259,7 @@ public class CaldavResourceNode extends CaldavBwNode {
     return makeEtag(resource.getPrevLastmod(), resource.getPrevSeq(), strong);
   }*/
 
+  @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
 
@@ -268,34 +280,29 @@ public class CaldavResourceNode extends CaldavBwNode {
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getContentBinary()
    */
+  @Override
   public boolean getContentBinary() throws WebdavException {
     return true;
+  }
+
+  @Override
+  public InputStream getContentStream() throws WebdavException {
+    return resource.getBinaryContent();
   }
 
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getContentString()
    */
+  @Override
   public String getContentString() throws WebdavException {
     init(true);
     throw new WebdavException("binary content");
   }
 
   /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getBinaryContent()
-   */
-  public byte[] getBinaryContent() throws WebdavException {
-    init(true);
-
-    if (resource == null) {
-      return null;
-    }
-
-    return resource.getBinaryContent();
-  }
-
-  /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getContentLang()
    */
+  @Override
   public String getContentLang() throws WebdavException {
     return "en";
   }
@@ -303,7 +310,8 @@ public class CaldavResourceNode extends CaldavBwNode {
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getContentLen()
    */
-  public int getContentLen() throws WebdavException {
+  @Override
+  public long getContentLen() throws WebdavException {
     init(true);
 
     if (resource == null) {
@@ -316,6 +324,7 @@ public class CaldavResourceNode extends CaldavBwNode {
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getContentType()
    */
+  @Override
   public String getContentType() throws WebdavException {
     if (resource == null) {
       return null;
@@ -327,6 +336,7 @@ public class CaldavResourceNode extends CaldavBwNode {
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getCreDate()
    */
+  @Override
   public String getCreDate() throws WebdavException {
     init(false);
 
@@ -340,6 +350,7 @@ public class CaldavResourceNode extends CaldavBwNode {
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getDisplayname()
    */
+  @Override
   public String getDisplayname() throws WebdavException {
     return getEntityName();
   }
@@ -347,6 +358,7 @@ public class CaldavResourceNode extends CaldavBwNode {
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getLastmodDate()
    */
+  @Override
   public String getLastmodDate() throws WebdavException {
     init(false);
 

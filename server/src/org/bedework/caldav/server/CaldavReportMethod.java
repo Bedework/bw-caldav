@@ -577,7 +577,7 @@ public class CaldavReportMethod extends ReportMethod {
     /** Get the content now to set up length, type etc.
      */
     Reader in = getNsIntf().getContent(node);
-    resp.setContentLength(node.getContentLen());
+    resp.setContentLength((int)node.getContentLen());
     if (in == null) {
       if (debug) {
         debugMsg("status: " + HttpServletResponse.SC_NO_CONTENT);

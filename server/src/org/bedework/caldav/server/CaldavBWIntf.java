@@ -270,7 +270,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
     public AccessPrincipal getPrincipal(final String href) throws AccessException {
       try {
-        return sysi.getPrincipal(href);
+        return sysi.getPrincipal(sysi.getUrlHandler().unprefix(href));
       } catch (Throwable t) {
         throw new AccessException(t);
       }
@@ -304,18 +304,21 @@ public class CaldavBWIntf extends WebdavNsIntf {
    */
   @Override
   public boolean canPut(final WebdavNsNode node) throws WebdavException {
-    if (!(node instanceof CaldavComponentNode)) {
+    CalDAVEvent ev = null;
+
+    if (node instanceof CaldavComponentNode) {
+      CaldavComponentNode comp = (CaldavComponentNode)node;
+      ev = comp.getEvent();
+    } else if (!(node instanceof CaldavResourceNode)) {
       return false;
     }
 
-    CaldavComponentNode comp = (CaldavComponentNode)node;
-
-    if (comp.getEvent() != null) {
-      return sysi.checkAccess(comp.getEvent(),
+    if (ev != null) {
+      return sysi.checkAccess(ev,
                               PrivilegeDefs.privWriteContent,
                               true).getAccessAllowed();
     } else {
-      return sysi.checkAccess(comp.getCollection(true), // deref - we're trying to put into the target
+      return sysi.checkAccess(node.getCollection(true), // deref - we're trying to put into the target
                               PrivilegeDefs.privBind, true).getAccessAllowed();
     }
   }
@@ -653,36 +656,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       }
 
       r.setContentType(contentType);
-
-      // XXX Fix this
-      int bufflen = 5000;
-      byte[] buff = new byte[bufflen];
-      byte[] res = null;
-
-      for (;;) {
-        int len = contentStream.read(buff, 0, bufflen);
-        if (len < 0) {
-          break;
-        }
-
-        if (res == null) {
-          res = buff;
-          buff = new byte[bufflen];
-        } else {
-          byte[] newres = new byte[res.length + len];
-          for (int i = 0; i < res.length; i++) {
-            newres[i] = res[i];
-          }
-
-          for (int i = 0; i < len; i++) {
-            newres[res.length + i] = buff[i];
-          }
-
-          res = newres;
-        }
-      }
-
-      r.setBinaryContent(res);
+      r.setBinaryContent(contentStream);
 
       if (create) {
         sysi.putFile(col, r);
