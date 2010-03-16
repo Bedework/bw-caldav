@@ -472,7 +472,7 @@ public class CaldavReportMethod extends ReportMethod {
           if (calcomp.getName().equals("VEVENT") ||
               calcomp.getName().equals("VTODO") ||
               calcomp.getName().equals("VJOURNAL")) {
-            if (calcomp.getAllprop()) {
+            if (calcomp.getAllprop() || Util.isEmpty(calcomp.getProps())) {
               retrieveList = null;
               break;
             }

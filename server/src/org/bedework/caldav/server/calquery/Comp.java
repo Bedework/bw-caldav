@@ -44,7 +44,7 @@ public class Comp {
   private Collection<Comp> comps; // null for zero
 
   // true or look at props
-  private boolean allprop = true;
+  private boolean allprop;
 
   private Collection<Prop> props; // null for zero
 
