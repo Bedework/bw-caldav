@@ -25,6 +25,8 @@
 */
 package org.bedework.caldav.util.filter;
 
+import edu.rpi.cct.webdav.servlet.shared.WebdavException;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -196,8 +198,9 @@ public class Filter implements Serializable {
    *
    * @param o
    * @return true for a match
+   * @throws WebdavException - on matching errors
    */
-  public boolean match(final Object o) {
+  public boolean match(final Object o) throws WebdavException {
     return false;
   }
 

@@ -26,14 +26,15 @@
 package org.bedework.caldav.util.filter;
 
 import org.bedework.caldav.util.TimeRange;
-import org.bedework.caldav.util.filter.PropertyFilter;
 
 import edu.rpi.cmt.calendar.PropertyIndex.PropertyInfoIndex;
 
 /** A filter that selects events which match the single object value.
  *
- * The name should be unique at least for a set of filters and unique for a
- * given owner if persisted.
+ * <p>In CalDAV a property filter provides the following tests:<ul>
+ * <li>presence or non-presence - will be the subclass PresenceFilter</li>
+ * <li>time-range - will be the subclass TimeRangeFilter</li>
+ * <li>text-match - entity type will be String</li>
  *
  * @author Mike Douglass douglm
  * @param <T> the type of entity
@@ -50,7 +51,7 @@ public class ObjectFilter<T> extends PropertyFilter {
    * @param name - null one will be created
    * @param propertyIndex
    */
-  public ObjectFilter(String name, PropertyInfoIndex propertyIndex) {
+  public ObjectFilter(final String name, final PropertyInfoIndex propertyIndex) {
     super(name, propertyIndex);
   }
 
@@ -58,7 +59,7 @@ public class ObjectFilter<T> extends PropertyFilter {
    *
    *  @param val     entity
    */
-  public void setEntity(T val) {
+  public void setEntity(final T val) {
     entity = val;
   }
 
@@ -74,7 +75,7 @@ public class ObjectFilter<T> extends PropertyFilter {
    *
    * @param val
    */
-  public void setExact(boolean val) {
+  public void setExact(final boolean val) {
     exact = val;
   }
 
@@ -90,7 +91,7 @@ public class ObjectFilter<T> extends PropertyFilter {
    *
    * @param val
    */
-  public void setCaseless(boolean val) {
+  public void setCaseless(final boolean val) {
     caseless = val;
   }
 
@@ -295,9 +296,9 @@ public class ObjectFilter<T> extends PropertyFilter {
    * @param val     TimeRange
    * @return BwObjectFilter
    */
-  public static ObjectFilter makeFilter(String name,
-                                          PropertyInfoIndex propertyIndex,
-                                          TimeRange val) {
+  public static ObjectFilter makeFilter(final String name,
+                                          final PropertyInfoIndex propertyIndex,
+                                          final TimeRange val) {
     TimeRangeFilter trf = new TimeRangeFilter(name, propertyIndex);
 
     trf.setEntity(val);
@@ -309,6 +310,7 @@ public class ObjectFilter<T> extends PropertyFilter {
    *                   Object methods
    * ==================================================================== */
 
+  @Override
   public String toString() {
     if (getPropertyIndex()== PropertyInfoIndex.CATEGORIES) {
       StringBuilder sb = new StringBuilder("(categories=");
