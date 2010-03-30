@@ -1661,7 +1661,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       uri = URLDecoder.decode(uri, "UTF-8");
 
-      if (uri.endsWith("/")) {
+      if ((uri.length() > 1) && uri.endsWith("/")) {
         uri = uri.substring(0, uri.length() - 1);
       }
 
