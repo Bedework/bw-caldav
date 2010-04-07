@@ -608,10 +608,12 @@ public interface SysIntf {
   /** Make an ical Calendar from an event.
    *
    * @param ev
+   * @param incSchedMethod - true if we should emit the scheduling method
    * @return Calendar
    * @throws WebdavException
    */
-  public Calendar toCalendar(CalDAVEvent ev) throws WebdavException;
+  public Calendar toCalendar(CalDAVEvent ev,
+                             boolean incSchedMethod) throws WebdavException;
 
   /** Convert a Calendar to it's string form
    *

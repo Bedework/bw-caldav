@@ -240,7 +240,9 @@ public class CaldavComponentNode extends CaldavBwNode {
     try {
       if ((event != null) && (comp == null)) {
         if (ical == null) {
-          ical = getSysi().toCalendar(event);
+          ical = getSysi().toCalendar(event,
+                                      (col.getCalType() == CalDAVCollection.calTypeInbox) ||
+                                      (col.getCalType() == CalDAVCollection.calTypeOutbox));
         }
         ComponentList cl = ical.getComponents();
 
@@ -375,7 +377,9 @@ public boolean generatePropertyValue(final QName tag,
 
     try {
       if (ical == null) {
-        ical = getSysi().toCalendar(event);
+        ical = getSysi().toCalendar(event,
+                                    (col.getCalType() == CalDAVCollection.calTypeInbox) ||
+                                    (col.getCalType() == CalDAVCollection.calTypeOutbox));
       }
       if ((compString == null)) {
         compString = getSysi().toIcalString(ical);
