@@ -414,9 +414,23 @@ public class CaldavCalNode extends CaldavBwNode {
   @Override
   public boolean removeProperty(final Element val,
                                 final SetPropertyResult spr) throws WebdavException {
-    warn("Unimplemented - removeProperty");
+    if (super.removeProperty(val, spr)) {
+      return true;
+    }
 
-    return false;
+    try {
+      if (XmlUtil.nodeMatches(val, CaldavTags.calendarTimezone)) {
+        col.setTimezone(null);
+
+        return true;
+      }
+
+      return false;
+    } catch (WebdavException wde) {
+      throw wde;
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
   }
 
   /* (non-Javadoc)
