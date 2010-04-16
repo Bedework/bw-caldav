@@ -589,10 +589,22 @@ public class CaldavBWIntf extends WebdavNsIntf {
        */
 
       boolean fail = false;
+      boolean hadContent = false;
 
-      for (WdEntity ent: sysi.fromIcal(col, contentRdr)) {
+      SysiIcalendar cal = sysi.fromIcal(col, contentRdr);
+      if (cal.getMethod() != null) {
+        throw new WebdavForbidden(CaldavTags.validCalendarObjectResource,
+                                  "No method on PUT");
+      }
+
+      for (WdEntity ent: cal) {
         if (ent instanceof CalDAVEvent) {
+          if (hadContent) {
+            throw new WebdavForbidden(CaldavTags.validCalendarObjectResource,
+                                      "More than one calendar object for PUT");
+          }
           pcr.created = putEvent(bwnode, (CalDAVEvent)ent, create, ifEtag);
+          hadContent = true;
         } else {
           fail = true;
           break;
@@ -601,7 +613,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       if (fail) {
         warn("More than one calendar object for PUT or not event");
-        throw new WebdavBadRequest("More than one calendar object for PUT or not event");
+        throw new WebdavBadRequest(CaldavTags.validCalendarObjectResource);
+        // "More than one calendar object for PUT or not event");
       }
 
 
@@ -704,7 +717,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
       throw new WebdavException(HttpServletResponse.SC_PRECONDITION_FAILED);
     } else {
       if (!entityName.equals(ev.getName())) {
-        throw new WebdavBadRequest("Mismatched names");
+        /* Probably specifying a different uid */
+        throw new WebdavForbidden(CaldavTags.noUidConflict);
       }
 
       if ((ifEtag != null) && (!ifEtag.equals(bwnode.getPrevEtagValue(true)))) {
