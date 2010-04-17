@@ -244,6 +244,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
     private SysIntf sysi;
 
     private QName errorTag;
+    private String errorMsg;
 
     CalDavAccessXmlCb(final SysIntf sysi) {
       this.sysi = sysi;
@@ -288,6 +289,20 @@ public class CaldavBWIntf extends WebdavNsIntf {
      */
     public QName getErrorTag() throws AccessException {
       return errorTag;
+    }
+
+    /* (non-Javadoc)
+     * @see edu.rpi.cmt.access.AccessXmlUtil.AccessXmlCb#setErrorMsg(java.lang.String)
+     */
+    public void setErrorMsg(final String val) throws AccessException {
+      errorMsg = val;
+    }
+
+    /* (non-Javadoc)
+     * @see edu.rpi.cmt.access.AccessXmlUtil.AccessXmlCb#getErrorMsg()
+     */
+    public String getErrorMsg() throws AccessException {
+      return errorMsg;
     }
   }
 
