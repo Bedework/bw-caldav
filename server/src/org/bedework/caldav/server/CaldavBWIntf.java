@@ -949,7 +949,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
                                final boolean copy,
                                final boolean overwrite) throws WebdavException {
     if (!(to instanceof CaldavResourceNode)) {
-      throw new WebdavBadRequest();
+      throw new WebdavForbidden(CaldavTags.supportedCalendarData);
     }
 
     CaldavResourceNode toNode = (CaldavResourceNode)to;
