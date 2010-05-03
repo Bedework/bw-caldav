@@ -48,6 +48,34 @@ public abstract class CalDAVEvent extends WdEntity {
   }
 
   /**
+   * @return String schedule-tag (unquoted)
+   * @throws WebdavException
+   */
+  public abstract String getScheduleTag() throws WebdavException;
+
+  /** True if this is a valid organizer scheduling object. (See CalDAV
+   * scheduling specification).
+   *
+   * @return boolean
+   * @throws WebdavException
+   */
+  public abstract boolean getOrganizerSchedulingObject() throws WebdavException;
+
+  /** True if this is a valid attendee scheduling object.
+   * (See CalDAV scheduling specification)
+   *
+   * @return boolean
+   * @throws WebdavException
+   */
+  public abstract boolean getAttendeeSchedulingObject() throws WebdavException;
+
+  /**
+   * @return String schedule-tag (unquoted)
+   * @throws WebdavException
+   */
+  public abstract String getPrevScheduleTag() throws WebdavException;
+
+  /**
    * @return String summary
    * @throws WebdavException
    */

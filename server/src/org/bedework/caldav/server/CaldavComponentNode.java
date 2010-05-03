@@ -25,7 +25,6 @@
 */
 package org.bedework.caldav.server;
 
-import org.bedework.caldav.server.calquery.CalendarData;
 import org.bedework.caldav.server.sysinterface.SysIntf;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
@@ -87,7 +86,7 @@ public class CaldavComponentNode extends CaldavBwNode {
     addPropEntry(propertyNames, CaldavTags.calendarData);
     addPropEntry(propertyNames, CaldavTags.originator);
     addPropEntry(propertyNames, CaldavTags.recipient);
-    addPropEntry(propertyNames, CaldavTags.scheduleState);
+    addPropEntry(propertyNames, CaldavTags.scheduleTag, true);
 
     //addPropEntry(propertyNames, ICalTags.action);      /*     *     *     *        *            *   VALARM */
     addPropEntry(propertyNames, ICalTags.attach);        /* VEVENT VTODO VJOURNAL    *            *   VALARM */
@@ -391,7 +390,9 @@ public boolean generatePropertyValue(final QName tag,
     return ical;
   }
 
-  @Override
+  /* UNUSED(non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getProperties(java.lang.String)
+   * /
   public Collection<WebdavProperty> getProperties(final String ns) throws WebdavException {
     init(true);
     ArrayList<WebdavProperty> al = new ArrayList<WebdavProperty>();
@@ -421,11 +422,12 @@ public boolean generatePropertyValue(final QName tag,
     addProp(al, ICalTags.hasAlarm, "0");
     addProp(al, ICalTags.hasAttachment, "0");
 
-    /* Default property calendar-data returns all of the object */
+    /* Default property calendar-data returns all of the object * /
     al.add(new CalendarData(CaldavTags.calendarData, debug));
 
     return al;
   }
+  */
 
   @Override
   public String getContentString() throws WebdavException {
@@ -455,6 +457,40 @@ public boolean generatePropertyValue(final QName tag,
     }
 
     return currentAccess;
+  }
+
+  /**
+   * @return stag value
+   * @throws WebdavException
+   */
+  public String getStagValue() throws WebdavException {
+    init(true);
+
+    CalDAVEvent ev = getEvent();
+    if (ev == null) {
+      return null;
+    }
+
+    String val = ev.getScheduleTag();
+
+    return "\"" + val + "\"";
+  }
+
+  /**
+   * @return stag before changes
+   * @throws WebdavException
+   */
+  public String getPrevStagValue() throws WebdavException {
+    init(true);
+
+    CalDAVEvent ev = getEvent();
+    if (ev == null) {
+      return null;
+    }
+
+    String val = ev.getPrevScheduleTag();
+
+    return "\"" + val + "\"";
   }
 
   @Override

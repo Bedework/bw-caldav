@@ -527,11 +527,36 @@ public class CaldavBWIntf extends WebdavNsIntf {
     return null;
   }
 
-  /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#getContent(edu.rpi.cct.webdav.servlet.shared.WebdavNsNode)
-   */
   @Override
-  public Reader getContent(final WebdavNsNode node) throws WebdavException {
+  public boolean prefetch(final HttpServletRequest req,
+                          final HttpServletResponse resp,
+                          final WebdavNsNode node) throws WebdavException {
+    if (!super.prefetch(req, resp, node)) {
+      return false;
+    }
+
+    if (!(node instanceof CaldavComponentNode)) {
+      return true;
+    }
+
+    CaldavComponentNode cnode = (CaldavComponentNode)node;
+
+    if (!cnode.getEvent().getOrganizerSchedulingObject() &&
+        !cnode.getEvent().getAttendeeSchedulingObject()) {
+      return true;
+    }
+
+    // Add the schedule tag header
+
+    resp.setHeader("Schedule-Tag", cnode.getStagValue());
+
+    return true;
+  }
+
+  @Override
+  public Reader getContent(final HttpServletRequest req,
+                           final HttpServletResponse resp,
+                           final WebdavNsNode node) throws WebdavException {
     try {
       if (!node.getAllowsGet()) {
         return null;
@@ -570,10 +595,11 @@ public class CaldavBWIntf extends WebdavNsIntf {
   }
 
   /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#putContent(edu.rpi.cct.webdav.servlet.shared.WebdavNsNode, java.lang.String, java.io.Reader, boolean, java.lang.String)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#putContent(javax.servlet.http.HttpServletRequest, edu.rpi.cct.webdav.servlet.shared.WebdavNsNode, java.lang.String[], java.io.Reader, boolean, java.lang.String)
    */
   @Override
-  public PutContentResult putContent(final WebdavNsNode node,
+  public PutContentResult putContent(final HttpServletRequest req,
+                                     final WebdavNsNode node,
                                      final String[] contentTypePars,
                                      final Reader contentRdr,
                                      final boolean create,
@@ -618,7 +644,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
             throw new WebdavForbidden(CaldavTags.validCalendarObjectResource,
                                       "More than one calendar object for PUT");
           }
-          pcr.created = putEvent(bwnode, (CalDAVEvent)ent, create, ifEtag);
+
+          pcr.created = putEvent(bwnode, (CalDAVEvent)ent, create, ifEtag,
+                                 Headers.ifScheduleTagMatch(req));
           hadContent = true;
         } else {
           fail = true;
@@ -642,10 +670,11 @@ public class CaldavBWIntf extends WebdavNsIntf {
   }
 
   /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#putBinaryContent(edu.rpi.cct.webdav.servlet.shared.WebdavNsNode, java.lang.String, java.io.InputStream, boolean, java.lang.String)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#putBinaryContent(javax.servlet.http.HttpServletRequest, edu.rpi.cct.webdav.servlet.shared.WebdavNsNode, java.lang.String[], java.io.InputStream, boolean, java.lang.String)
    */
   @Override
-  public PutContentResult putBinaryContent(final WebdavNsNode node,
+  public PutContentResult putBinaryContent(final HttpServletRequest req,
+                                           final WebdavNsNode node,
                                            final String[] contentTypePars,
                                            final InputStream contentStream,
                                            boolean create,
@@ -702,7 +731,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
   private boolean putEvent(final CaldavComponentNode bwnode,
                            final CalDAVEvent ev,
                            final boolean create,
-                           final String ifEtag) throws WebdavException {
+                           final String ifEtag,
+                           final String ifStag) throws WebdavException {
     //BwEvent ev = evinfo.getEvent();
     String entityName = bwnode.getEntityName();
     CalDAVCollection col = (CalDAVCollection)bwnode.getCollection(true); // deref
@@ -736,10 +766,21 @@ public class CaldavBWIntf extends WebdavNsIntf {
         throw new WebdavForbidden(CaldavTags.noUidConflict);
       }
 
-      if ((ifEtag != null) && (!ifEtag.equals(bwnode.getPrevEtagValue(true)))) {
+      if ((ifEtag != null) &&
+          (!ifEtag.equals(bwnode.getPrevEtagValue(true)))) {
         if (debug) {
           debugMsg("putContent: etag mismatch if=" + ifEtag +
                    "prev=" + bwnode.getPrevEtagValue(true));
+        }
+        throw new WebdavException(HttpServletResponse.SC_PRECONDITION_FAILED);
+      }
+
+      if (config.getDoScheduleTag() &&
+          (ifStag != null) &&
+          (!ifStag.equals(bwnode.getPrevStagValue()))) {
+        if (debug) {
+          debugMsg("putContent: stag mismatch if=" + ifStag +
+                   "prev=" + bwnode.getPrevStagValue());
         }
         throw new WebdavException(HttpServletResponse.SC_PRECONDITION_FAILED);
       }
