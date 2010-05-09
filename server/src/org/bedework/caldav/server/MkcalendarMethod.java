@@ -31,10 +31,10 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 
+import org.w3c.dom.Document;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.w3c.dom.Document;
 
 /** Class called to handle MKCOL
  *
@@ -44,14 +44,16 @@ public class MkcalendarMethod extends PropPatchMethod {
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.common.MethodBase#init()
    */
+  @Override
   public void init() {
   }
 
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.common.PropPatchMethod#doMethod(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
    */
-  public void doMethod(HttpServletRequest req,
-                        HttpServletResponse resp) throws WebdavException {
+  @Override
+  public void doMethod(final HttpServletRequest req,
+                        final HttpServletResponse resp) throws WebdavException {
     if (debug) {
       trace("MkcalendarMethod: doMethod");
     }
@@ -66,18 +68,14 @@ public class MkcalendarMethod extends PropPatchMethod {
                                                             WebdavNsIntf.existanceNot,
                                                             WebdavNsIntf.nodeTypeCollection);
 
-    boolean success = true;
-
     node.setDefaults(CaldavTags.mkcalendar);
 
     if (doc != null) {
-      success = processDoc(req, resp, doc, node, CaldavTags.mkcalendar, true);
+      processDoc(req, resp, doc, node, CaldavTags.mkcalendar, true);
     }
 
     // Make calendar using properties sent in request
-    if (success) {
-      getNsIntf().makeCollection(req, resp, node);
-    }
+    getNsIntf().makeCollection(req, resp, node);
   }
 }
 

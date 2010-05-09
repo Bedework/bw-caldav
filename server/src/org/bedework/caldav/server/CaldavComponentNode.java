@@ -29,11 +29,9 @@ import org.bedework.caldav.server.sysinterface.SysIntf;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
-import edu.rpi.cct.webdav.servlet.shared.WebdavProperty;
 import edu.rpi.cmt.access.AccessPrincipal;
 import edu.rpi.cmt.access.PrivilegeDefs;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
-import edu.rpi.cmt.calendar.ComponentWrapper;
 import edu.rpi.sss.util.DateTimeUtil;
 import edu.rpi.sss.util.xml.XmlEmit;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
@@ -74,7 +72,6 @@ public class CaldavComponentNode extends CaldavBwNode {
   /** The event Component object
    */
   private Component comp;
-  private ComponentWrapper compw;
 
   private String compString;
 
@@ -251,8 +248,6 @@ public class CaldavComponentNode extends CaldavBwNode {
 
         // XXX Wrong - should just use the BwEvent + overrides?
         comp = (Component)cl.get(0);
-
-        compw = new ComponentWrapper(comp);
       }
     } catch (Throwable t) {
       throw new WebdavException(t);
@@ -663,11 +658,5 @@ public boolean generatePropertyValue(final QName tag,
     }
 
     return ev;
-  }
-
-  private void addProp(final Collection<WebdavProperty> c, final QName tag, final Object val) {
-    if (val != null) {
-      c.add(new WebdavProperty(tag, String.valueOf(val)));
-    }
   }
 }
