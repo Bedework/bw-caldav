@@ -58,7 +58,7 @@ public class FreeBusyGetHandler extends GetHandler {
                       final RequestPars pars) throws WebdavException {
     try {
       if (getAccount() != null) {
-        pars.originator = getSysi().userToCaladdr(getAccount());
+        pars.originator = getSysi().principalToCaladdr(getSysi().getPrincipal());
       }
 
       String cua = req.getParameter("cua");
@@ -74,6 +74,8 @@ public class FreeBusyGetHandler extends GetHandler {
 
           user = getAccount();
         }
+
+        cua = getSysi().principalToCaladdr(getSysi().getPrincipal(user));
       }
 
       pars.setContentType("text/calendar; charset=UTF-8");
@@ -96,7 +98,7 @@ public class FreeBusyGetHandler extends GetHandler {
                      "Attachment; Filename=\"freebusy.ics\"");
       resp.setContentType("text/calendar; charset=UTF-8");
 
-      getSysi().getSpecialFreeBusy(cua, user, pars, tr, resp.getWriter());
+      getSysi().getSpecialFreeBusy(cua, pars, tr, resp.getWriter());
     } catch (WebdavForbidden wdf) {
       resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
     } catch (WebdavException wde) {

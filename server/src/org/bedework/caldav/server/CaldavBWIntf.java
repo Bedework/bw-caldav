@@ -1410,7 +1410,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
       }
 
       cnode.setFreeBusy(freeBusy.getFreeBusy(sysi, c,
-                                             cnode.getOwner().getAccount(),
                                              depth));
     } catch (WebdavException we) {
       throw we;

@@ -72,10 +72,10 @@ public class CaldavPrincipalNode extends WebdavPrincipalNode {
    * @param debug
    * @throws WebdavException
    */
-  public CaldavPrincipalNode(CaldavURI cdURI, SysIntf sysi,
-                             CalPrincipalInfo ui,
-                             boolean isUser,
-                             boolean debug) throws WebdavException {
+  public CaldavPrincipalNode(final CaldavURI cdURI, final SysIntf sysi,
+                             final CalPrincipalInfo ui,
+                             final boolean isUser,
+                             final boolean debug) throws WebdavException {
     super(sysi.getUrlHandler(), cdURI.getPath(),
           cdURI.getPrincipal(),
           cdURI.isCollection(), cdURI.getUri(), debug);
@@ -94,7 +94,8 @@ public class CaldavPrincipalNode extends WebdavPrincipalNode {
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#knownProperty(edu.rpi.sss.util.xml.QName)
    */
-  public boolean knownProperty(QName tag) {
+  @Override
+  public boolean knownProperty(final QName tag) {
     if (propertyNames.get(tag) != null) {
       return true;
     }
@@ -106,9 +107,10 @@ public class CaldavPrincipalNode extends WebdavPrincipalNode {
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#generatePropertyValue(edu.rpi.sss.util.xml.QName, edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf, boolean)
    */
-  public boolean generatePropertyValue(QName tag,
-                                       WebdavNsIntf intf,
-                                       boolean allProp) throws WebdavException {
+  @Override
+  public boolean generatePropertyValue(final QName tag,
+                                       final WebdavNsIntf intf,
+                                       final boolean allProp) throws WebdavException {
     String ns = tag.getNamespaceURI();
     XmlEmit xml = intf.getXmlEmit();
 
@@ -133,7 +135,7 @@ public class CaldavPrincipalNode extends WebdavPrincipalNode {
 
       if (tag.equals(CaldavTags.calendarUserAddressSet)) {
         xml.openTag(tag);
-        xml.property(WebdavTags.href, sysi.userToCaladdr(getOwner().getAccount()));
+        xml.property(WebdavTags.href, sysi.principalToCaladdr(getOwner()));
         xml.closeTag(tag);
 
         return true;
@@ -173,6 +175,7 @@ public class CaldavPrincipalNode extends WebdavPrincipalNode {
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getPropertyNames()
    */
+  @Override
   public Collection<PropertyTagEntry> getPropertyNames()throws WebdavException {
     Collection<PropertyTagEntry> res = new ArrayList<PropertyTagEntry>();
 

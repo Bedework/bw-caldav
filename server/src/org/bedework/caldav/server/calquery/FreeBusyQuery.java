@@ -54,7 +54,7 @@ public class FreeBusyQuery {
    *
    * @param debug
    */
-  public FreeBusyQuery(boolean debug) {
+  public FreeBusyQuery(final boolean debug) {
     this.debug = debug;
   }
 
@@ -64,7 +64,7 @@ public class FreeBusyQuery {
    * @param nd
    * @throws WebdavException
    */
-  public void parse(Node nd) throws WebdavException {
+  public void parse(final Node nd) throws WebdavException {
     try {
       if (timeRange != null) {
         throw new WebdavBadRequest();
@@ -89,16 +89,14 @@ public class FreeBusyQuery {
   /**
    * @param sysi
    * @param col
-   * @param account
    * @param depth
    * @return BwEvent
    * @throws WebdavException
    */
-  public Calendar getFreeBusy(SysIntf sysi, CalDAVCollection col,
-                             String account,
-                             int depth) throws WebdavException {
+  public Calendar getFreeBusy(final SysIntf sysi, final CalDAVCollection col,
+                             final int depth) throws WebdavException {
     try {
-      return sysi.getFreeBusy(col, depth, account, timeRange);
+      return sysi.getFreeBusy(col, depth, timeRange);
     } catch (WebdavException wde) {
       throw wde;
     } catch (Throwable t) {
@@ -146,19 +144,19 @@ public class FreeBusyQuery {
     return log;
   }
 
-  protected void debugMsg(String msg) {
+  protected void debugMsg(final String msg) {
     getLogger().debug(msg);
   }
 
-  protected void error(Throwable t) {
+  protected void error(final Throwable t) {
     getLogger().error(this, t);
   }
 
-  protected void logIt(String msg) {
+  protected void logIt(final String msg) {
     getLogger().info(msg);
   }
 
-  protected void trace(String msg) {
+  protected void trace(final String msg) {
     getLogger().debug(msg);
   }
 }

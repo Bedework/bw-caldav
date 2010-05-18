@@ -178,13 +178,13 @@ public interface SysIntf {
    */
   public AccessPrincipal caladdrToPrincipal(String caladdr) throws WebdavException;
 
-  /** The inverse of caladdrToUser
+  /** The inverse of caladdrToPrincipal
    *
-   * @param account
+   * @param principal
    * @return String calendar user address
    * @throws WebdavException
    */
-  public String userToCaladdr(String account) throws WebdavException;
+  public String principalToCaladdr(AccessPrincipal principal) throws WebdavException;
 
   /** Given a valid AccessPrincipal return the associated calendar user information
    * needed for caldav interactions.
@@ -376,13 +376,12 @@ public interface SysIntf {
   /** Handle the special freebusy resquests, i.e. non-CalDAV
    *
    * @param cua
-   * @param user
    * @param pars
    * @param tr
    * @param wtr
    * @throws WebdavException
    */
-  public void getSpecialFreeBusy(String cua, String user,
+  public void getSpecialFreeBusy(String cua,
                                  RequestPars pars,
                                  TimeRange tr,
                                  Writer wtr) throws WebdavException;
@@ -392,14 +391,12 @@ public interface SysIntf {
    *
    * @param col
    * @param depth
-   * @param account
    * @param timeRange
    * @return Calendar
    * @throws WebdavException
    */
   public Calendar getFreeBusy(final CalDAVCollection col,
                               final int depth,
-                              final String account,
                               final TimeRange timeRange) throws WebdavException;
 
   /** Check the access for the given entity. Returns the current access
