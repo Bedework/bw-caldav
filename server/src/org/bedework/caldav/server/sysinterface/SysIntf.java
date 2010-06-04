@@ -216,21 +216,13 @@ public interface SysIntf {
                                   PrincipalPropertySearch pps)
           throws WebdavException;
 
-  /** Is account a valid user?
+  /** Is href a valid principal?
    *
-   * @param account
+   * @param href
    * @return boolean true for a valid user
    * @throws WebdavException  for errors
    */
-  public boolean validUser(String account) throws WebdavException;
-
-  /** Is account a valid group?
-   *
-   * @param account
-   * @return boolean true for a valid group
-   * @throws WebdavException  for errors
-   */
-  public boolean validGroup(String account) throws WebdavException;
+  public boolean validPrincipal(String href) throws WebdavException;
 
   /* ====================================================================
    *                   Scheduling
