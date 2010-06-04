@@ -51,6 +51,8 @@ public class SysIntfReader extends Reader {
   private boolean doneCr;
   private boolean doneLf = true;
 
+  private boolean eof;
+
   private char nextChar;
 
   private boolean debug;
@@ -59,14 +61,15 @@ public class SysIntfReader extends Reader {
    * @param rdr
    * @param debug
    */
-  public SysIntfReader(Reader rdr,
-                       boolean debug) {
+  public SysIntfReader(final Reader rdr,
+                       final boolean debug) {
     super();
     lnr = new LineNumberReader(rdr);
     this.debug = debug;
     objnum++;
   }
 
+  @Override
   public int read() throws IOException {
     if (!getNextChar()) {
       return -1;
@@ -75,10 +78,17 @@ public class SysIntfReader extends Reader {
     return nextChar;
   }
 
-  public int read(char[] cbuf, int off, int len) throws IOException {
+  @Override
+  public int read(final char[] cbuf, final int off,
+                  final int len) throws IOException {
+    if (eof) {
+      return -1;
+    }
+
     int ct = 0;
     while (ct < len) {
       if (!getNextChar()) {
+        eof = true;
         return ct;
       }
 
@@ -90,11 +100,16 @@ public class SysIntfReader extends Reader {
   }
 
   private boolean getNextChar() throws IOException {
+    if (eof) {
+      return false;
+    }
+
     if (doneLf) {
       // Get new line
       String ln = lnr.readLine();
 
       if (ln == null) {
+        eof = true;
         return false;
       }
 
@@ -126,6 +141,7 @@ public class SysIntfReader extends Reader {
     return true;
   }
 
+  @Override
   public void close() {
   }
 
@@ -137,7 +153,7 @@ public class SysIntfReader extends Reader {
     return log;
   }
 
-  protected void trace(String msg) {
+  protected void trace(final String msg) {
     getLogger().debug("[" + objnum + "] " + msg);
   }
 }

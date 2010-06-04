@@ -36,7 +36,7 @@
     <mkdir dir="${lib.dir}" />
 
     <getJar name="commons-httpclient" version="3.0" />
-    <getJar name="ical4j" version="head-dev" />
+    <getJar name="ical4j" version="head-20100601" />
     <getJar name="log4j" version="1.2.8" />
     <getJar name="servletapi" version="2.4" />
 
