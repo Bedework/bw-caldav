@@ -561,7 +561,7 @@ public boolean generatePropertyValue(final QName tag,
   public long getContentLen() throws WebdavException {
     getIcal(); // init length
     if (compString != null) {
-      return compString.length();
+      return compString.getBytes().length;
     }
     return 0;
   }
