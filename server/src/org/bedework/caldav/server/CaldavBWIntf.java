@@ -645,8 +645,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
                                       "More than one calendar object for PUT");
           }
 
-          pcr.created = putEvent(bwnode, (CalDAVEvent)ent, create, ifEtag,
-                                 Headers.ifScheduleTagMatch(req));
+          pcr.created = putEvent(req, bwnode, (CalDAVEvent)ent, create, ifEtag);
           hadContent = true;
         } else {
           fail = true;
@@ -728,11 +727,14 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
   }
 
-  private boolean putEvent(final CaldavComponentNode bwnode,
+  private boolean putEvent(final HttpServletRequest req,
+                           final CaldavComponentNode bwnode,
                            final CalDAVEvent ev,
                            final boolean create,
-                           final String ifEtag,
-                           final String ifStag) throws WebdavException {
+                           final String ifEtag) throws WebdavException {
+    String ifStag = Headers.ifScheduleTagMatch(req);
+    boolean noInvites = req.getHeader("Bw-NoInvites") != null; // based on header?
+
     //BwEvent ev = evinfo.getEvent();
     String entityName = bwnode.getEntityName();
     CalDAVCollection col = (CalDAVCollection)bwnode.getCollection(true); // deref
@@ -749,8 +751,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
     if (ev.isNew()) {
       created = true;
       ev.setName(entityName);
-
-      boolean noInvites = false; // based on header?
 
       /* Collection<BwEventProxy>failedOverrides = */
       sysi.addEvent(ev, noInvites, true);
