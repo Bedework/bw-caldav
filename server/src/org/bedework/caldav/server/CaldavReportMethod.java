@@ -465,26 +465,33 @@ public class CaldavReportMethod extends ReportMethod {
     /* This isn't ideal - we build a list which is an accumulation of all
      * properties for all components.
      */
-    if ((comp != null) && !comp.getAllcomp()) {
+    if (comp == null) {
+      if (caldata != null) {
+        // Retrieve everything
+        retrieveList = null;
+      }
+    } else if (comp.getAllcomp()) {
+      // Retrieve everything
+      retrieveList = null;
+    } else if (comp.getName().equals("VCALENDAR")) {
       // Should have "VACALENDAR" as outer
-      if (comp.getName().equals("VCALENDAR")) {
-        for (Comp calcomp: comp.getComps()) {
-          if (calcomp.getName().equals("VEVENT") ||
-              calcomp.getName().equals("VTODO") ||
-              calcomp.getName().equals("VJOURNAL")) {
-            if (calcomp.getAllprop() || Util.isEmpty(calcomp.getProps())) {
-              retrieveList = null;
-              break;
-            }
 
-            if (retrieveList == null) {
-              retrieveList = new ArrayList<String>();
-            }
+      for (Comp calcomp: comp.getComps()) {
+        if (calcomp.getName().equals("VEVENT") ||
+            calcomp.getName().equals("VTODO") ||
+            calcomp.getName().equals("VJOURNAL")) {
+          if (calcomp.getAllprop() || Util.isEmpty(calcomp.getProps())) {
+            retrieveList = null;
+            break;
+          }
 
-            for (Prop p: calcomp.getProps()) {
-              if (!retrieveList.contains(p.getName())) {
-                retrieveList.add(p.getName());
-              }
+          if (retrieveList == null) {
+            retrieveList = new ArrayList<String>();
+          }
+
+          for (Prop p: calcomp.getProps()) {
+            if (!retrieveList.contains(p.getName())) {
+              retrieveList.add(p.getName());
             }
           }
         }
