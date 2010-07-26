@@ -227,7 +227,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
                         final XmlEmit xml) throws Throwable {
     if (errorTag.equals(CaldavTags.noUidConflict)) {
       xml.openTag(errorTag);
-      xml.property(WebdavTags.href, sysi.getUrlHandler().prefix(extra));
+      if (extra != null) {
+        xml.property(WebdavTags.href, sysi.getUrlHandler().prefix(extra));
+      }
       xml.closeTag(errorTag);
     } else {
       super.emitError(errorTag, extra, xml);
