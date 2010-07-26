@@ -81,7 +81,12 @@ public class ParseUtil {
 
       if (nmAttr != null) {
         attrCt--;
-        start = new DateTime(nmAttr.getNodeValue());
+        String dt = nmAttr.getNodeValue();
+        if (!checkUTC(dt)){
+          throw new WebdavBadRequest();
+        }
+
+        start = new DateTime(dt);
       } else if (required) {
         throw new WebdavBadRequest();
       }
@@ -90,7 +95,12 @@ public class ParseUtil {
 
       if (nmAttr != null) {
         attrCt--;
-        end = new DateTime(nmAttr.getNodeValue());
+        String dt = nmAttr.getNodeValue();
+        if (!checkUTC(dt)){
+          throw new WebdavBadRequest();
+        }
+
+        end = new DateTime(dt);
       } else if (required) {
         throw new WebdavBadRequest();
       }
@@ -158,5 +168,25 @@ public class ParseUtil {
 
     return new TimeRange(new DateTime(startCal.getTime()),
                          new DateTime(endCal.getTime()));
+  }
+
+  private static boolean checkUTC(final String val) {
+    if (val.length() != 16) {
+      return false;
+    }
+
+    byte[] b = val.getBytes();
+
+    if (b[8] != 'T') {
+      return false;
+    }
+
+    if (b[15] != 'Z') {
+      return false;
+    }
+
+    //Parser will fail anything else.
+
+    return true;
   }
 }
