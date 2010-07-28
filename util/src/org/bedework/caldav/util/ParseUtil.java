@@ -28,6 +28,7 @@ package org.bedework.caldav.util;
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.sss.util.DateTimeUtil;
+import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 
 import net.fortuna.ical4j.model.DateTime;
 
@@ -66,14 +67,14 @@ public class ParseUtil {
 
     if (nnm == null) {
       // Infinite time-range?
-      throw new WebdavBadRequest("Infinite time range");
+      throw new WebdavBadRequest(CaldavTags.validFilter, "Infinite time range");
     }
 
     int attrCt = nnm.getLength();
 
     if ((attrCt == 0) || (required && (attrCt != 2))) {
       // Infinite time-range?
-      throw new WebdavBadRequest("Infinite/bad time range");
+      throw new WebdavBadRequest(CaldavTags.validFilter, "Infinite time range");
     }
 
     try {
@@ -83,12 +84,12 @@ public class ParseUtil {
         attrCt--;
         String dt = nmAttr.getNodeValue();
         if (!checkUTC(dt)){
-          throw new WebdavBadRequest();
+          throw new WebdavBadRequest(CaldavTags.validFilter, "Missing start");
         }
 
         start = new DateTime(dt);
       } else if (required) {
-        throw new WebdavBadRequest();
+        throw new WebdavBadRequest(CaldavTags.validFilter, "Not UTC");
       }
 
       nmAttr = nnm.getNamedItem("end");
@@ -97,19 +98,19 @@ public class ParseUtil {
         attrCt--;
         String dt = nmAttr.getNodeValue();
         if (!checkUTC(dt)){
-          throw new WebdavBadRequest();
+          throw new WebdavBadRequest(CaldavTags.validFilter, "Not UTC");
         }
 
         end = new DateTime(dt);
       } else if (required) {
-        throw new WebdavBadRequest();
+        throw new WebdavBadRequest(CaldavTags.validFilter, "Missing end");
       }
     } catch (Throwable t) {
-      throw new WebdavBadRequest();
+      throw new WebdavBadRequest(CaldavTags.validFilter, "Invalid time-range");
     }
 
     if (attrCt != 0) {
-      throw new WebdavBadRequest();
+      throw new WebdavBadRequest(CaldavTags.validFilter);
     }
 
     return new TimeRange(start, end);

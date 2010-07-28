@@ -140,7 +140,7 @@ public class QueryFilter {
    *
    * @param debug
    */
-  public QueryFilter(boolean debug) {
+  public QueryFilter(final boolean debug) {
     this.debug = debug;
   }
 
@@ -150,8 +150,8 @@ public class QueryFilter {
    * @param tzid timezone from request - may be null
    * @throws WebdavException
    */
-  public void parse(String xmlStr,
-                    String tzid) throws WebdavException {
+  public void parse(final String xmlStr,
+                    final String tzid) throws WebdavException {
     try {
       DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
       factory.setNamespaceAware(true);
@@ -174,24 +174,24 @@ public class QueryFilter {
    * @param tzid timezone from request - may be null
    * @throws WebdavException
    */
-  public void parse(Node nd,
-                    String tzid) throws WebdavException {
+  public void parse(final Node nd,
+                    final String tzid) throws WebdavException {
     /* We expect exactly one comp-filter child. */
 
-    Element[] children = getChildren(nd);
+    ChildArray ca = getChildren(nd);
 
-    if ((children.length != 1) ||
-        (!XmlUtil.nodeMatches(children[0], CaldavTags.compFilter))) {
+    if ((ca.length() != 1) ||
+        (!XmlUtil.nodeMatches(ca.children[0], CaldavTags.compFilter))) {
       StringBuilder sb = new StringBuilder();
 
-      if (children.length == 0) {
+      if (ca.length() == 0) {
         sb.append("<filter>: no children");
-      } else if (children.length == 1) {
-        sb.append("<filter>: child error: " + children[0]);
+      } else if (ca.length() == 1) {
+        sb.append("<filter>: child error: " + ca.children[0]);
       } else {
-        sb.append("<filter>: child error, count: " + children.length +
-                  " node[0]: " + children[0] +
-                  " node[1]: " + children[1]);
+        sb.append("<filter>: child error, count: " + ca.length() +
+                  " node[0]: " + ca.children[0] +
+                  " node[1]: " + ca.children[1]);
       }
       if (debug) {
         trace(sb.toString());
@@ -199,7 +199,7 @@ public class QueryFilter {
       throw new WebdavBadRequest(sb.toString());
     }
 
-    filter = parseCompFilter((Node)children[0], tzid);
+    filter = parseCompFilter(ca.children[0], tzid);
   }
 
   /** Return an object encapsulating the filter query.
@@ -226,62 +226,73 @@ public class QueryFilter {
    * @return CompFilter
    * @throws WebdavException
    */
-  private CompFilter parseCompFilter(Node nd,
-                                     String tzid) throws WebdavException {
+  private CompFilter parseCompFilter(final Node nd,
+                                     final String tzid) throws WebdavException {
     CompFilter cf = new CompFilter(getOnlyAttrVal(nd, "name"));
 
-    Element[] children = getChildren(nd);
+    ChildArray ca = getChildren(nd);
 
-    if (children.length == 0) {
+    if (ca.length() == 0) {
       // Empty
       return cf;
     }
 
-    if ((children.length == 1) &&
-        XmlUtil.nodeMatches(children[0], CaldavTags.isNotDefined)) {
+    if ((ca.length() == 1) &&
+        XmlUtil.nodeMatches(ca.children[0], CaldavTags.isNotDefined)) {
       cf.setIsNotDefined(true);
       return cf;
+    }
+
+    QName isDefined = new QName(CaldavDefs.caldavNamespace,
+                                "is-defined");
+
+    Node curnode = ca.next();
+
+    if (XmlUtil.nodeMatches(curnode, isDefined)) {
+      // Probably out of date evolution - ignore it
+      curnode = ca.next();
     }
 
     /* (time-range?, prop-filter*, comp-filter*) */
 
     try {
-      for (int i = 0; i < children.length; i++) {
-        Node curnode = children[i];
+      if ((curnode != null) &&
+          XmlUtil.nodeMatches(curnode, CaldavTags.timeRange)) {
+        cf.setTimeRange(ParseUtil.parseTimeRange(curnode, false));
 
-        if (debug) {
-          trace("compFilter element: " +
-              curnode.getNamespaceURI() + ":" +
-              curnode.getLocalName());
+        if (cf.getTimeRange() == null) {
+          return null;
         }
 
-        QName isDefined = new QName(CaldavDefs.caldavNamespace,
-                                    "is-defined");
-        if (XmlUtil.nodeMatches(curnode, isDefined)) {
-          // Probably out of date evolution - ignore it
-        } else if (XmlUtil.nodeMatches(curnode, CaldavTags.timeRange)) {
-          cf.setTimeRange(ParseUtil.parseTimeRange(curnode, false));
+        cf.getTimeRange().setTzid(tzid);
 
-          if (cf.getTimeRange() == null) {
-            return null;
-          }
+        curnode = ca.next();
+      }
 
-          cf.getTimeRange().setTzid(tzid);
-        } else if (XmlUtil.nodeMatches(curnode, CaldavTags.compFilter)) {
-          CompFilter chcf = parseCompFilter(curnode, tzid);
+      while ((curnode != null) &&
+             XmlUtil.nodeMatches(curnode, CaldavTags.propFilter)) {
+        PropFilter chpf = parsePropFilter(curnode);
 
-          if (chcf == null) {
-            return null;
-          }
+        cf.addPropFilter(chpf);
 
-          cf.addCompFilter(chcf);
-        } else if (XmlUtil.nodeMatches(curnode, CaldavTags.propFilter)) {
-          PropFilter chpf = parsePropFilter(curnode);
+        curnode = ca.next();
+      }
 
-          cf.addPropFilter(chpf);
-        } else {
-          throw new WebdavBadRequest();
+      while ((curnode != null) &&
+             XmlUtil.nodeMatches(curnode, CaldavTags.compFilter)) {
+        CompFilter chcf = parseCompFilter(curnode, tzid);
+
+        if (chcf == null) {
+          return null;
         }
+
+        cf.addCompFilter(chcf);
+
+        curnode = ca.next();
+      }
+
+      if (curnode != null) {
+        throw new WebdavBadRequest();
       }
     } catch (WebdavException cfe) {
       throw cfe;
@@ -298,45 +309,31 @@ public class QueryFilter {
    *
    *    <!ATTLIST prop-filter name CDATA #REQUIRED>
    */
-  private PropFilter parsePropFilter(Node nd) throws WebdavException {
+  private PropFilter parsePropFilter(final Node nd) throws WebdavException {
     try {
       PropFilter pf = new PropFilter(getOnlyAttrVal(nd, "name"));
 
-      Element[] children = getChildren(nd);
+      ChildArray ca = getChildren(nd);
 
-      if (children.length == 0) {
+      if (ca.length() == 0) {
         // Presence filter
         return pf;
       }
 
-      int i = 0;
-      Node curnode = children[i];
+      Node curnode = ca.next();
 
       if (XmlUtil.nodeMatches(curnode, CaldavTags.isNotDefined)) {
         pf.setIsNotDefined(true);
-        i++;
+        curnode = ca.next();
       } else if (XmlUtil.nodeMatches(curnode, CaldavTags.timeRange)) {
         pf.setTimeRange(ParseUtil.parseTimeRange(curnode, false));
-        i++;
+        curnode = ca.next();
       } else if (XmlUtil.nodeMatches(curnode, CaldavTags.textMatch)) {
         pf.setMatch(parseTextMatch(curnode));
-        i++;
+        curnode = ca.next();
       }
 
-      if (debug) {
-        trace("propFilter element: " +
-              curnode.getNamespaceURI() + " " +
-              curnode.getLocalName());
-      }
-
-      while (i < children.length) {
-        curnode = children[i];
-        if (debug) {
-          trace("propFilter element: " +
-                curnode.getNamespaceURI() + " " +
-                curnode.getLocalName());
-        }
-
+      while (curnode != null) {
         // Can only have param-filter*
         if (!XmlUtil.nodeMatches(curnode, CaldavTags.paramFilter)) {
           throw new WebdavBadRequest();
@@ -345,7 +342,8 @@ public class QueryFilter {
         ParamFilter parf = parseParamFilter(curnode);
 
         pf.addParamFilter(parf);
-        i++;
+
+        curnode = ca.next();
       }
 
       return pf;
@@ -361,7 +359,7 @@ public class QueryFilter {
    *
    *    <!ATTLIST param-filter name CDATA #REQUIRED>
    */
-  private ParamFilter parseParamFilter(Node nd) throws WebdavException {
+  private ParamFilter parseParamFilter(final Node nd) throws WebdavException {
     String name = getOnlyAttrVal(nd, "name");
 
     // Only one child - either is-defined | text-match
@@ -391,7 +389,7 @@ public class QueryFilter {
    *
    *  <!ATTLIST text-match caseless (yes|no)>
    */
-  private TextMatch parseTextMatch(Node nd) throws WebdavException {
+  private TextMatch parseTextMatch(final Node nd) throws WebdavException {
     //int numAttrs = XmlUtil.numAttrs(nd);
     int numValid = 0;
 
@@ -422,9 +420,38 @@ public class QueryFilter {
     }
   }
 
-  private Element[] getChildren(Node nd) throws WebdavException {
+  private class ChildArray {
+    int cur;
+    Element[] children;
+
+    Element next() {
+      if (cur >= children.length) {
+        return null;
+      }
+
+      Element e = children[cur];
+      cur++;
+
+      if (debug) {
+        trace("compFilter element: " +
+            e.getNamespaceURI() + ":" +
+            e.getLocalName());
+      }
+
+      return e;
+    }
+
+    int length() {
+      return children.length;
+    }
+  }
+
+  private ChildArray getChildren(final Node nd) throws WebdavException {
     try {
-      return XmlUtil.getElementsArray(nd);
+      ChildArray ca = new ChildArray();
+      ca.children = XmlUtil.getElementsArray(nd);
+
+      return ca;
     } catch (Throwable t) {
       if (debug) {
         getLogger().error("<filter>: parse exception: ", t);
@@ -434,7 +461,7 @@ public class QueryFilter {
     }
   }
 
-  private Element getOnlyChild(Node nd) throws WebdavException {
+  private Element getOnlyChild(final Node nd) throws WebdavException {
     try {
       return XmlUtil.getOnlyElement(nd);
     } catch (Throwable t) {
@@ -446,7 +473,7 @@ public class QueryFilter {
     }
   }
 
-  private String getOnlyAttrVal(Node nd, String name) throws WebdavException {
+  private String getOnlyAttrVal(final Node nd, final String name) throws WebdavException {
     NamedNodeMap nnm = nd.getAttributes();
 
     if ((nnm == null) || (nnm.getLength() != 1)) {
@@ -461,7 +488,7 @@ public class QueryFilter {
     return res;
   }
 
-  private Boolean yesNoAttr(Node nd, String name) throws WebdavException {
+  private Boolean yesNoAttr(final Node nd, final String name) throws WebdavException {
     NamedNodeMap nnm = nd.getAttributes();
 
     if ((nnm == null) || (nnm.getLength() == 0)) {
@@ -500,19 +527,19 @@ public class QueryFilter {
     return log;
   }
 
-  protected void debugMsg(String msg) {
+  protected void debugMsg(final String msg) {
     getLogger().debug(msg);
   }
 
-  protected void error(Throwable t) {
+  protected void error(final Throwable t) {
     getLogger().error(this, t);
   }
 
-  protected void logIt(String msg) {
+  protected void logIt(final String msg) {
     getLogger().info(msg);
   }
 
-  protected void trace(String msg) {
+  protected void trace(final String msg) {
     getLogger().debug(msg);
   }
 }
