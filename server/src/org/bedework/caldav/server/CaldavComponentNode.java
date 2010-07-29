@@ -34,6 +34,7 @@ import edu.rpi.cmt.access.PrivilegeDefs;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
 import edu.rpi.sss.util.DateTimeUtil;
 import edu.rpi.sss.util.xml.XmlEmit;
+import edu.rpi.sss.util.xml.tagdefs.AppleServerTags;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 import edu.rpi.sss.util.xml.tagdefs.ICalTags;
 
@@ -84,6 +85,8 @@ public class CaldavComponentNode extends CaldavBwNode {
     addPropEntry(propertyNames, CaldavTags.originator);
     addPropEntry(propertyNames, CaldavTags.recipient);
     addPropEntry(propertyNames, CaldavTags.scheduleTag, true);
+
+    addPropEntry(propertyNames, AppleServerTags.scheduleChanges);
 
     //addPropEntry(propertyNames, ICalTags.action);      /*     *     *     *        *            *   VALARM */
     addPropEntry(propertyNames, ICalTags.attach);        /* VEVENT VTODO VJOURNAL    *            *   VALARM */
