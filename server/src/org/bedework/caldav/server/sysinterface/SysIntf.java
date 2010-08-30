@@ -623,14 +623,26 @@ public interface SysIntf {
                             int method,
                             Writer wtr) throws WebdavException;
 
+  /** Expected result type */
+  public enum IcalResultType {
+    /** Expect one (non-timezone) component only */
+    OneComponent,
+
+    /** Expect one timezone only */
+    TimeZone
+  }
+
   /** Convert the Icalendar reader to a Collection of Calendar objects
    *
    * @param col       collection in which to place entities
    * @param rdr
+   * @param rtype
    * @return SysiIcalendar
    * @throws WebdavException
    */
-  public SysiIcalendar fromIcal(CalDAVCollection col, Reader rdr) throws WebdavException;
+  public SysiIcalendar fromIcal(CalDAVCollection col,
+                                Reader rdr,
+                                IcalResultType rtype) throws WebdavException;
 
   /** Create a Calendar object from the named timezone and convert to
    * a String representation
@@ -655,6 +667,11 @@ public interface SysIntf {
    * @throws WebdavException
    */
   public int getMaxUserEntitySize() throws WebdavException;
+
+  /** Called on the way out before close if there was an error.
+   *
+   */
+  public void rollback();
 
   /** End any transactions.
    *

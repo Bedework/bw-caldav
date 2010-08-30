@@ -27,6 +27,7 @@ package org.bedework.caldav.server;
 
 import org.bedework.caldav.server.sysinterface.CalPrincipalInfo;
 import org.bedework.caldav.server.sysinterface.SysIntf;
+import org.bedework.caldav.server.sysinterface.SysIntf.IcalResultType;
 import org.bedework.caldav.server.sysinterface.SysIntf.SchedRecipientResult;
 import org.bedework.caldav.util.CalDAVConfig;
 
@@ -293,23 +294,10 @@ public class PostMethod extends MethodBase {
 
       /* (CALDAV:organizer-allowed) -- later */
 
-      try {
-        pars.ic = intf.getSysi().fromIcal(pars.cal, pars.reqRdr);
-      } catch (Throwable t) {
-        if (debug) {
-          error(t);
-        }
+      pars.ic = intf.getSysi().fromIcal(pars.cal, pars.reqRdr,
+                                        IcalResultType.OneComponent);
 
-        pars.ic = null;
-      }
-
-      /* (CALDAV:valid-calendar-data) -- exception above means invalid */
-      if ((pars.ic == null) || (pars.ic.size() != 1)) {
-        if (debug) {
-          debugMsg("Not icalendar");
-        }
-        throw new WebdavForbidden(CaldavTags.validCalendarData, "Not icalendar");
-      }
+      /* (CALDAV:valid-calendar-data) -- checjed in fromIcal */
 
       if (!pars.ic.validItipMethodType()) {
         if (debug) {
@@ -456,23 +444,10 @@ public class PostMethod extends MethodBase {
                                   "No recipient(s)");
       }
 
-      try {
-        pars.ic = sysi.fromIcal(pars.cal, pars.reqRdr);
-      } catch (Throwable t) {
-        if (debug) {
-          error(t);
-        }
+      pars.ic = sysi.fromIcal(pars.cal, pars.reqRdr,
+                              IcalResultType.OneComponent);
 
-        pars.ic = null;
-      }
-
-      /* (CALDAV:valid-calendar-data) -- exception above means invalid */
-      if ((pars.ic == null) || (pars.ic.size() != 1)) {
-        if (debug) {
-          debugMsg("Not icalendar");
-        }
-        throw new WebdavForbidden(CaldavTags.validCalendarData, "Not icalendar");
-      }
+      /* (CALDAV:valid-calendar-data) -- checked in fromIcal */
 
       if (!pars.ic.validItipMethodType()) {
         if (debug) {

@@ -34,6 +34,7 @@ import org.bedework.caldav.server.calquery.LimitRecurrenceSet;
 import org.bedework.caldav.server.calquery.Prop;
 import org.bedework.caldav.server.filter.FilterHandler;
 import org.bedework.caldav.server.sysinterface.RetrievalMode;
+import org.bedework.caldav.server.sysinterface.SysIntf.IcalResultType;
 
 import edu.rpi.cct.webdav.servlet.common.ReportMethod;
 import edu.rpi.cct.webdav.servlet.common.PropFindMethod.PropRequest;
@@ -232,16 +233,9 @@ public class CaldavReportMethod extends ReportMethod {
           // Node content should be a timezone def
           String tzdef = getElementContent(curnode);
           SysiIcalendar ical = intf.getSysi().fromIcal(null,
-                                                   new StringReader(tzdef));
+                                                   new StringReader(tzdef),
+                                                   IcalResultType.TimeZone);
           Collection<TimeZone> tzs = ical.getTimeZones();
-          if (tzs.isEmpty()) {
-            throw new WebdavBadRequest("Expected timezone");
-          }
-
-          if (tzs.size() > 1) {
-            throw new WebdavBadRequest("Expected one timezone");
-          }
-
           tzid = tzs.iterator().next().getID();
         }
 

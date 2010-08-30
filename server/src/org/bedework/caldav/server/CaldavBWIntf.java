@@ -36,6 +36,7 @@ import org.bedework.caldav.server.get.WebcalGetHandler;
 import org.bedework.caldav.server.sysinterface.CalPrincipalInfo;
 import org.bedework.caldav.server.sysinterface.RetrievalMode;
 import org.bedework.caldav.server.sysinterface.SysIntf;
+import org.bedework.caldav.server.sysinterface.SysIntf.IcalResultType;
 import org.bedework.caldav.util.CalDAVConfig;
 
 import edu.rpi.cct.webdav.servlet.common.AccessUtil;
@@ -349,6 +350,14 @@ public class CaldavBWIntf extends WebdavNsIntf {
   }
 
   /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#rollback()
+   */
+  @Override
+  public void rollback() {
+    sysi.rollback();
+  }
+
+  /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#close()
    */
   @Override
@@ -631,36 +640,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
        * containing freebusy information or an event or todo and possible overrides.
        */
 
-      boolean fail = false;
-      boolean hadContent = false;
-
-      SysiIcalendar cal = sysi.fromIcal(col, contentRdr);
-      if (cal.getMethod() != null) {
-        throw new WebdavForbidden(CaldavTags.validCalendarObjectResource,
-                                  "No method on PUT");
-      }
-
-      for (WdEntity ent: cal) {
-        if (ent instanceof CalDAVEvent) {
-          if (hadContent) {
-            throw new WebdavForbidden(CaldavTags.validCalendarObjectResource,
-                                      "More than one calendar object for PUT");
-          }
-
-          pcr.created = putEvent(req, bwnode, (CalDAVEvent)ent, create, ifEtag);
-          hadContent = true;
-        } else {
-          fail = true;
-          break;
-        }
-      }
-
-      if (fail) {
-        warn("More than one calendar object for PUT or not event");
-        throw new WebdavBadRequest(CaldavTags.validCalendarObjectResource);
-        // "More than one calendar object for PUT or not event");
-      }
-
+      pcr.created = putEvent(req, bwnode,
+                             contentRdr,
+                             create, ifEtag);
 
       return pcr;
     } catch (WebdavException we) {
@@ -731,7 +713,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
   private boolean putEvent(final HttpServletRequest req,
                            final CaldavComponentNode bwnode,
-                           final CalDAVEvent ev,
+                           final Reader contentRdr,
                            final boolean create,
                            final String ifEtag) throws WebdavException {
     String ifStag = Headers.ifScheduleTagMatch(req);
@@ -739,8 +721,18 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
     //BwEvent ev = evinfo.getEvent();
     String entityName = bwnode.getEntityName();
+
     CalDAVCollection col = (CalDAVCollection)bwnode.getCollection(true); // deref
     boolean created = false;
+
+    SysiIcalendar cal = sysi.fromIcal(col, contentRdr,
+                                      IcalResultType.OneComponent);
+    if (cal.getMethod() != null) {
+      throw new WebdavForbidden(CaldavTags.validCalendarObjectResource,
+                                "No method on PUT");
+    }
+
+    CalDAVEvent ev = (CalDAVEvent)cal.iterator().next();
 
     ev.setParentPath(col.getPath());
 
