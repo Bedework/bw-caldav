@@ -25,6 +25,7 @@
 */
 package org.bedework.caldav.server;
 
+import org.bedework.caldav.server.CaldavBwNode.PropertyTagXrdEntry;
 import org.bedework.caldav.server.PostMethod.RequestPars;
 import org.bedework.caldav.server.calquery.CalendarData;
 import org.bedework.caldav.server.calquery.FreeBusyQuery;
@@ -68,12 +69,18 @@ import edu.rpi.cmt.access.AccessXmlUtil.AccessXmlCb;
 import edu.rpi.sss.util.OptionsI;
 import edu.rpi.sss.util.xml.XmlEmit;
 import edu.rpi.sss.util.xml.XmlUtil;
+import edu.rpi.sss.util.xml.XmlEmit.NameSpace;
+import edu.rpi.sss.util.xml.tagdefs.CalWSTags;
+import edu.rpi.sss.util.xml.tagdefs.CalWSXrdDefs;
 import edu.rpi.sss.util.xml.tagdefs.CaldavDefs;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
+import edu.rpi.sss.util.xml.tagdefs.XrdTags;
+import edu.rpi.sss.util.xml.tagdefs.XsiTags;
 
 import org.w3c.dom.Element;
 
+import java.io.CharArrayReader;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.Serializable;
@@ -123,6 +130,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
   private CalDAVConfig config;
 
+  /* true if this is a CalWS server */
+  private boolean calWs;
+
   /** We store CaldavURI objects here
    * /
   private HashMap<String, CaldavURI> uriMap = new HashMap<String, CaldavURI>();
@@ -148,9 +158,12 @@ public class CaldavBWIntf extends WebdavNsIntf {
                    final boolean debug,
                    final HashMap<String, MethodInfo> methods,
                    final boolean dumpContent) throws WebdavException {
-    super.init(servlet, req, debug, methods, dumpContent);
-
     try {
+      // Needed before any other initialization
+      calWs = Boolean.parseBoolean(servlet.getInitParameter("calws"));
+
+      super.init(servlet, req, debug, methods, dumpContent);
+
       HttpSession session = req.getSession();
       ServletContext sc = session.getServletContext();
 
@@ -171,10 +184,14 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       sysi = getSysi(config.getSysintfImpl());
 
+      config.setCalWS(calWs);
+
       sysi.init(req, account, config, debug);
 
       accessUtil = new AccessUtil(namespacePrefix, xml,
                                   new CalDavAccessXmlCb(sysi), debug);
+    } catch (WebdavException we) {
+      throw we;
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
@@ -398,11 +415,19 @@ public class CaldavBWIntf extends WebdavNsIntf {
    */
   @Override
   public void addNamespace(final XmlEmit xml) throws WebdavException {
-    super.addNamespace(xml);
-
     try {
-      xml.addNs(CaldavDefs.caldavNamespace);
-      xml.addNs(CaldavDefs.icalNamespace);
+      if (calWs) {
+        xml.addNs(new NameSpace(CalWSTags.namespace, "CalWS"), true);
+        xml.addNs(new NameSpace(XsiTags.namespace, "xsi"), false);
+        xml.addNs(new NameSpace(XrdTags.namespace, "xrd"), false);
+
+        return;
+      }
+
+      super.addNamespace(xml);
+
+      xml.addNs(new NameSpace(CaldavDefs.caldavNamespace, "C"), true);
+      xml.addNs(new NameSpace(CaldavDefs.icalNamespace, "ical"), false);
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
@@ -546,6 +571,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
       return false;
     }
 
+    if (calWs) {
+      return true;
+    }
+
     if (!(node instanceof CaldavComponentNode)) {
       return true;
     }
@@ -565,15 +594,58 @@ public class CaldavBWIntf extends WebdavNsIntf {
   }
 
   @Override
-  public Reader getContent(final HttpServletRequest req,
-                           final HttpServletResponse resp,
-                           final WebdavNsNode node) throws WebdavException {
+  public Content getContent(final HttpServletRequest req,
+                            final HttpServletResponse resp,
+                            final WebdavNsNode node) throws WebdavException {
     try {
+      String accept = req.getHeader("ACCEPT");
+
+      if (node.isCollection()) {
+        if ((accept == null) || (accept.indexOf("text/html") >= 0)) {
+          if (getDirectoryBrowsingDisallowed()) {
+            throw new WebdavException(HttpServletResponse.SC_FORBIDDEN);
+          }
+
+          Content c = new Content();
+
+          String content = generateHtml(req, node);
+          c.rdr = new CharArrayReader(content.toCharArray());
+          c.contentType = "text/html";
+          c.contentLength = content.getBytes().length;
+
+          return c;
+        }
+
+        if (!calWs) {
+          return null;
+        }
+      }
+
+      boolean xrd = false;
+
+      if (calWs&& (accept != null)) {
+        xrd = "application/xrd+xml".equals(accept.trim());
+      }
+
+      if (xrd) {
+        return doXrd(req, resp, (CaldavBwNode)node);
+      }
+
+      if (node.isCollection()) {
+        return null;
+      }
+
       if (!node.getAllowsGet()) {
         return null;
       }
 
-      return node.getContent();
+      Content c = new Content();
+
+      c.rdr = node.getContent();
+      c.contentType = node.getContentType();
+      c.contentLength = node.getContentLen();
+
+      return c;
     } catch (WebdavException we) {
       throw we;
     } catch (Throwable t) {
@@ -585,7 +657,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#getBinaryContent(edu.rpi.cct.webdav.servlet.shared.WebdavNsNode)
    */
   @Override
-  public InputStream getBinaryContent(final WebdavNsNode node) throws WebdavException {
+  public Content getBinaryContent(final WebdavNsNode node) throws WebdavException {
     try {
       if (!node.getAllowsGet()) {
         return null;
@@ -597,7 +669,13 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       CaldavResourceNode bwnode = (CaldavResourceNode)node;
 
-      return bwnode.getContentStream();
+      Content c = new Content();
+
+      c.stream = bwnode.getContentStream();
+      c.contentType = node.getContentType();
+      c.contentLength = node.getContentLen();
+
+      return c;
     } catch (WebdavException we) {
       throw we;
     } catch (Throwable t) {
@@ -900,6 +978,64 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
 
     throw new WebdavBadRequest();
+  }
+
+  private Content doXrd(final HttpServletRequest req,
+                        final HttpServletResponse resp,
+                        final CaldavBwNode node) throws WebdavException {
+    resp.setContentType("application/xrd+xml; charset=UTF-8");
+
+    try {
+      xml.addNs(new NameSpace(XrdTags.namespace, "xrd"), true);
+
+      xml.startEmit(resp.getWriter());
+
+      xml.openTag(XrdTags.xrd);
+
+      xml.property(XrdTags.subject, node.getUrlValue());
+
+      for (PropertyTagXrdEntry pxe: node.getXrdNames()) {
+        if (pxe.inPropAll) {
+          node.generateXrdValue(pxe.xrdName, this, true);
+        }
+      }
+
+      if (node.isCollection()) {
+        // Provide link info for each child collection
+
+        for (WebdavNsNode child: getChildren(node)) {
+          CaldavBwNode cn = (CaldavBwNode)child;
+
+          xml.startTagIndent(XrdTags.link);
+          xml.attribute("rel", CalWSXrdDefs.childCollection);
+          xml.newline();
+          xml.value("       "); // Just to indent
+          xml.attribute("href", cn.getUrlValue());
+          xml.endTag();
+          xml.newline();
+
+          for (PropertyTagXrdEntry pxe: node.getXrdNames()) {
+            if (pxe.inLink) {
+              cn.generateXrdValue(pxe.xrdName, this, true);
+            }
+          }
+
+          xml.closeTag(XrdTags.link);
+        }
+      }
+
+      xml.closeTag(XrdTags.xrd);
+
+      xml.flush();
+
+      Content c = new Content();
+
+      c.written = true; // set content to say it's done
+
+      return c;
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
   }
 
   private void copyMoveCollection(final HttpServletResponse resp,

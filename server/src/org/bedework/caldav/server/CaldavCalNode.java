@@ -42,6 +42,7 @@ import edu.rpi.sss.util.xml.XmlEmit;
 import edu.rpi.sss.util.xml.XmlUtil;
 import edu.rpi.sss.util.xml.tagdefs.AppleIcalTags;
 import edu.rpi.sss.util.xml.tagdefs.AppleServerTags;
+import edu.rpi.sss.util.xml.tagdefs.CalWSXrdDefs;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 
@@ -72,6 +73,9 @@ public class CaldavCalNode extends CaldavBwNode {
   private final static HashMap<QName, PropertyTagEntry> propertyNames =
     new HashMap<QName, PropertyTagEntry>();
 
+  private final static HashMap<String, PropertyTagXrdEntry> xrdNames =
+    new HashMap<String, PropertyTagXrdEntry>();
+
   static {
     addPropEntry(propertyNames, CaldavTags.calendarDescription);
     addPropEntry(propertyNames, CaldavTags.calendarFreeBusySet);
@@ -87,6 +91,17 @@ public class CaldavCalNode extends CaldavBwNode {
     addPropEntry(propertyNames, CaldavTags.supportedCalendarData);
     addPropEntry(propertyNames, AppleServerTags.getctag);
     addPropEntry(propertyNames, AppleIcalTags.calendarColor);
+
+    //addXrdEntry(xrdNames, CalWSXrdDefs.calendarCollection, true);
+    addXrdEntry(xrdNames, CalWSXrdDefs.collection, true, true); // for all resource types
+    addXrdEntry(xrdNames, CalWSXrdDefs.description, true, false);
+    addXrdEntry(xrdNames, CalWSXrdDefs.maxAttendeesPerInstance, true, false);
+    addXrdEntry(xrdNames, CalWSXrdDefs.maxDateTime, true, false);
+    addXrdEntry(xrdNames, CalWSXrdDefs.maxInstances, true, false);
+    addXrdEntry(xrdNames, CalWSXrdDefs.maxResourceSize, true, false);
+    addXrdEntry(xrdNames, CalWSXrdDefs.minDateTime, true, false);
+    addXrdEntry(xrdNames, CalWSXrdDefs.principalHome, true, true);
+    addXrdEntry(xrdNames, CalWSXrdDefs.timezone, true, false);
   }
 
   /** Place holder for status
@@ -96,7 +111,8 @@ public class CaldavCalNode extends CaldavBwNode {
    * @param uri
    * @param debug
    */
-  public CaldavCalNode(final SysIntf sysi, final int status, final String uri, final boolean debug) {
+  public CaldavCalNode(final SysIntf sysi, final int status,
+                       final String uri, final boolean debug) {
     super(true, sysi, uri, debug);
     setStatus(status);
   }
@@ -821,10 +837,169 @@ public class CaldavCalNode extends CaldavBwNode {
     }
   }
 
-  /** Return a set of PropertyTagEntry defining properties this node supports.
-   *
-   * @return Collection of PropertyTagEntry
-   * @throws WebdavException
+  @Override
+  public boolean generateXrdValue(final String name,
+                                  final WebdavNsIntf intf,
+                                  final boolean allProp) throws WebdavException {
+    XmlEmit xml = intf.getXmlEmit();
+
+    try {
+      int calType;
+      CalDAVCollection c = (CalDAVCollection)getCollection(true); // deref this
+      if (c == null) {
+        // Probably no access -- fake it up as a collection
+        calType = CalDAVCollection.calTypeCollection;
+      } else {
+        calType = c.getCalType();
+      }
+
+      if (name.equals(CalWSXrdDefs.collection)) {
+        xrdEmptyProperty(xml, name);
+
+        //boolean isCollection = cal.getCalendarCollection();
+
+        if (calType == CalDAVCollection.calTypeInbox) {
+          xrdEmptyProperty(xml, CalWSXrdDefs.inbox);
+        } else if (calType == CalDAVCollection.calTypeOutbox) {
+          xrdEmptyProperty(xml, CalWSXrdDefs.outbox);
+        } else if (calType == CalDAVCollection.calTypeCalendarCollection) {
+          xrdEmptyProperty(xml, CalWSXrdDefs.calendarCollection);
+        }
+
+        return true;
+      }
+
+      if (name.equals(CalWSXrdDefs.description)) {
+        String s = col.getDescription();
+
+        if (s == null) {
+          return true;
+        }
+
+        xrdProperty(xml, name, s);
+
+        return true;
+      }
+
+      if (name.equals(CalWSXrdDefs.principalHome)) {
+        if (!rootNode || intf.getAnonymous()) {
+          return true;
+        }
+
+        SysIntf si = getSysi();
+        CalPrincipalInfo cinfo = si.getCalPrincipalInfo(si.getPrincipal());
+        if (cinfo.userHomePath == null) {
+          return true;
+        }
+
+        xrdProperty(xml, name, getUrlValue(cinfo.userHomePath, true));
+
+        return true;
+      }
+
+      if (name.equals(CalWSXrdDefs.maxAttendeesPerInstance)) {
+        if (!rootNode) {
+          return true;
+        }
+
+        Integer val = getSysi().getSystemProperties().getMaxAttendeesPerInstance();
+
+        if (val == null) {
+          return true;
+        }
+
+        xrdProperty(xml, name, String.valueOf(val));
+
+        return true;
+      }
+
+      if (name.equals(CalWSXrdDefs.maxDateTime)) {
+        if (!rootNode) {
+          return true;
+        }
+
+        Integer val = getSysi().getSystemProperties().getMaxAttendeesPerInstance();
+
+        if (val == null) {
+          return false;
+        }
+
+        xrdProperty(xml, name, String.valueOf(val));
+
+        return true;
+      }
+
+      if (name.equals(CalWSXrdDefs.maxInstances)) {
+        if (!rootNode) {
+          return true;
+        }
+
+        Integer val = getSysi().getSystemProperties().getMaxInstances();
+
+        if (val == null) {
+          return false;
+        }
+
+        xrdProperty(xml, name, String.valueOf(val));
+
+        return true;
+      }
+
+      if (name.equals(CalWSXrdDefs.maxResourceSize)) {
+        if (!rootNode) {
+          return true;
+        }
+
+        Integer val = getSysi().getSystemProperties().getMaxUserEntitySize();
+
+        if (val == null) {
+          return false;
+        }
+
+        xrdProperty(xml, name, String.valueOf(val));
+
+        return true;
+      }
+
+      if (name.equals(CalWSXrdDefs.minDateTime)) {
+        if (!rootNode) {
+          return true;
+        }
+
+        String val = getSysi().getSystemProperties().getMinDateTime();
+
+        if (val == null) {
+          return false;
+        }
+
+        xrdProperty(xml, name, val);
+
+        return true;
+      }
+
+      if (name.equals(CalWSXrdDefs.timezone)) {
+        String tzid = col.getTimezone();
+
+        if (tzid == null) {
+          return false;
+        }
+
+        xrdProperty(xml, name, tzid);
+
+        return true;
+      }
+
+      // Not known - try higher
+      return super.generateXrdValue(name, intf, allProp);
+    } catch (WebdavException wde) {
+      throw wde;
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
+  }
+
+  /* (non-Javadoc)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getPropertyNames()
    */
   @Override
   public Collection<PropertyTagEntry> getPropertyNames()throws WebdavException {
@@ -832,6 +1007,19 @@ public class CaldavCalNode extends CaldavBwNode {
 
     res.addAll(super.getPropertyNames());
     res.addAll(propertyNames.values());
+
+    return res;
+  }
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.CaldavBwNode#getXrdNames()
+   */
+  @Override
+  public Collection<PropertyTagXrdEntry> getXrdNames()throws WebdavException {
+    Collection<PropertyTagXrdEntry> res = new ArrayList<PropertyTagXrdEntry>();
+
+    res.addAll(super.getXrdNames());
+    res.addAll(xrdNames.values());
 
     return res;
   }

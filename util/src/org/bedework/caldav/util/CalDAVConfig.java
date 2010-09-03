@@ -51,6 +51,9 @@ public class CalDAVConfig implements Serializable {
   /* Web calendar service uri - null for no web calendar service */
   private String webcalServiceURI;
 
+  /* Set at server init */
+  private boolean calWS;
+
   /**
    * @param val
    */
@@ -157,5 +160,20 @@ public class CalDAVConfig implements Serializable {
    */
   public String getWebcalServiceURI() {
     return webcalServiceURI;
+  }
+
+  /** True for a web service - set by server..
+   *
+   * @param val
+   */
+  public void setCalWS(final boolean val) {
+    calWS = val;
+  }
+
+  /**
+   * @return boolean
+   */
+  public boolean getCalWS() {
+    return calWS;
   }
 }

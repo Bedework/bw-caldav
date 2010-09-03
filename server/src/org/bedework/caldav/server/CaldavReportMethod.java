@@ -44,6 +44,7 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
 import edu.rpi.cct.webdav.servlet.shared.WebdavProperty;
 import edu.rpi.cct.webdav.servlet.shared.WebdavStatusCode;
+import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf.Content;
 import edu.rpi.sss.util.Util;
 import edu.rpi.sss.util.xml.XmlUtil;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
@@ -589,20 +590,21 @@ public class CaldavReportMethod extends ReportMethod {
 
     /** Get the content now to set up length, type etc.
      */
-    Reader in = getNsIntf().getContent(req, resp, node);
-    resp.setContentLength((int)node.getContentLen());
-    if (in == null) {
+    Content c = getNsIntf().getContent(req, resp, node);
+    if ((c == null) || (c.rdr == null)) {
       if (debug) {
         debugMsg("status: " + HttpServletResponse.SC_NO_CONTENT);
       }
 
       resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
     } else {
+      resp.setContentType(c.contentType);
+      resp.setContentLength((int)c.contentLength);
       if (debug) {
-        debugMsg("send content - length=" + node.getContentLen());
+        debugMsg("send content - length=" + c.contentLength);
       }
 
-      writeContent(in, out);
+      writeContent(c.rdr, out);
     }
   }
 
