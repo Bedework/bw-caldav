@@ -78,13 +78,19 @@ public class WebcalGetHandler extends GetHandler {
         return;
       }
 
-      String calPath = req.getParameter("calPath");
-      if (calPath == null) {
-        resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "No calPath");
-        return;
-      }
+      String calPath;
 
-      calPath = WebdavNsIntf.fixPath(calPath);
+      if (pars.webcalGetAccept) {
+        calPath = pars.resourceUri;
+      } else {
+        calPath = req.getParameter("calPath");
+        if (calPath == null) {
+          resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "No calPath");
+          return;
+        }
+
+        calPath = WebdavNsIntf.fixPath(calPath);
+      }
 
       WebdavNsNode node = getNode(calPath,
                                   WebdavNsIntf.existanceMust,

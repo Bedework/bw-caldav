@@ -66,7 +66,8 @@ public class PostMethod extends MethodBase {
   /**
    */
   public static class RequestPars {
-    String resourceUri;
+    /** */
+    public String resourceUri;
 
     String contentType;
 
@@ -91,6 +92,9 @@ public class PostMethod extends MethodBase {
     /** true if this is a web calendar request */
     public boolean webcal;
 
+    /** true if this is a web calendar request with GET + ACCEPT */
+    public boolean webcalGetAccept;
+
     /**
      * @param req
      * @param intf
@@ -98,7 +102,7 @@ public class PostMethod extends MethodBase {
      * @throws WebdavException
      */
     public RequestPars(final HttpServletRequest req, final CaldavBWIntf intf,
-                final String resourceUri) throws WebdavException {
+                       final String resourceUri) throws WebdavException {
       SysIntf sysi = intf.getSysi();
 
       this.resourceUri = resourceUri;

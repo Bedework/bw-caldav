@@ -615,20 +615,31 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
           return c;
         }
-
-        if (!calWs) {
-          return null;
-        }
       }
 
-      boolean xrd = false;
+      /* ===================  Try for XRD fetch ======================= */
 
-      if (calWs&& (accept != null)) {
-        xrd = "application/xrd+xml".equals(accept.trim());
-      }
-
-      if (xrd) {
+      if (calWs && (accept != null) &&
+          "application/xrd+xml".equals(accept.trim())) {
         return doXrd(req, resp, (CaldavBwNode)node);
+      }
+
+      /* ===================  Try for calendar fetch ======================= */
+
+      if ((accept != null) &&
+          "text/calendar".equals(accept.trim())) {
+        GetHandler handler = new WebcalGetHandler(this);
+        RequestPars pars = new RequestPars(req, this, getResourceUri(req));
+
+        pars.webcalGetAccept = true;
+
+        handler.process(req, resp, pars);
+
+        Content c = new Content();
+
+        c.written = true; // set content to say it's done
+
+        return c;
       }
 
       if (node.isCollection()) {
