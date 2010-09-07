@@ -35,19 +35,19 @@ import org.bedework.caldav.util.filter.parse.EventQuery;
 import org.bedework.caldav.util.filter.parse.PropFilter;
 import org.bedework.caldav.util.filter.parse.QueryFilter;
 
-import edu.rpi.cct.webdav.servlet.shared.WebdavException;
-import edu.rpi.cct.webdav.servlet.shared.WebdavForbidden;
-import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
 import edu.rpi.cct.webdav.servlet.common.WebdavUtils;
+import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
+import edu.rpi.cct.webdav.servlet.shared.WebdavException;
+import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
 import edu.rpi.cmt.calendar.IcalDefs;
+
+import net.fortuna.ical4j.model.Component;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
-
-import net.fortuna.ical4j.model.Component;
 
 /** Class to represent a calendar-query filter
  *  <pre>
@@ -138,7 +138,7 @@ public class FilterHandler extends QueryFilter {
    *
    * @param debug
    */
-  public FilterHandler(boolean debug) {
+  public FilterHandler(final boolean debug) {
     super(debug);
   }
 
@@ -152,9 +152,9 @@ public class FilterHandler extends QueryFilter {
    * @return Collection of event objects (null or empty for no result)
    * @throws WebdavException
    */
-  public Collection<CalDAVEvent> query(CaldavBwNode wdnode,
-                                       List<String> retrieveList,
-                                       RetrievalMode retrieveRecur) throws WebdavException {
+  public Collection<CalDAVEvent> query(final CaldavBwNode wdnode,
+                                       final List<String> retrieveList,
+                                       final RetrievalMode retrieveRecur) throws WebdavException {
     try {
       eventq = getQuery();
 
@@ -183,8 +183,8 @@ public class FilterHandler extends QueryFilter {
       }
 
       return events;
-    } catch (WebdavForbidden cf) {
-      throw cf;
+    } catch (WebdavBadRequest wbr) {
+      throw wbr;
     } catch (Throwable t) {
       error(t);
       throw new WebdavException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -198,7 +198,7 @@ public class FilterHandler extends QueryFilter {
    * @throws WebdavException
    */
   public Collection<WebdavNsNode> postFilter(
-                   Collection<WebdavNsNode> nodes) throws WebdavException {
+                   final Collection<WebdavNsNode> nodes) throws WebdavException {
     if (!eventq.postFilter) {
       return nodes;
     }
