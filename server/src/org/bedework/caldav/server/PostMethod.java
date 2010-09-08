@@ -67,6 +67,9 @@ public class PostMethod extends MethodBase {
    */
   public static class RequestPars {
     /** */
+    public HttpServletRequest req;
+
+    /** */
     public String resourceUri;
 
     String contentType;
@@ -95,6 +98,9 @@ public class PostMethod extends MethodBase {
     /** true if this is a web calendar request with GET + ACCEPT */
     public boolean webcalGetAccept;
 
+    /** true if web service create of entity */
+    public boolean entityCreate;
+
     /**
      * @param req
      * @param intf
@@ -105,25 +111,33 @@ public class PostMethod extends MethodBase {
                        final String resourceUri) throws WebdavException {
       SysIntf sysi = intf.getSysi();
 
+      this.req = req;
       this.resourceUri = resourceUri;
 
       CalDAVConfig conf = intf.getConfig();
+
+      contentType = req.getContentType();
 
       if (conf.getIscheduleURI() != null) {
         iSchedule = conf.getIscheduleURI().equals(resourceUri);
       }
 
-      if (!iSchedule && (conf.getFburlServiceURI() != null)) {
-        freeBusy = conf.getFburlServiceURI().equals(resourceUri);
-      }
+      if (!iSchedule) {
+        if (conf.getFburlServiceURI() != null) {
+          freeBusy = conf.getFburlServiceURI().equals(resourceUri);
+        }
 
-      if (!iSchedule && !freeBusy && (conf.getWebcalServiceURI() != null)) {
-        webcal = conf.getWebcalServiceURI().equals(resourceUri);
-      }
+        if (conf.getWebcalServiceURI() != null) {
+          webcal = conf.getWebcalServiceURI().equals(resourceUri);
+        }
 
-      contentType = req.getContentType();
-
-      if (iSchedule) {
+        if (!freeBusy && !webcal && intf.getConfig().getCalWS()) {
+          // POST of entity for create?
+          if ("create".equals(req.getParameter("action"))) {
+            entityCreate = true;
+          }
+        }
+      } else {
         /* Expect originator and recipient headers */
         originator = adjustPrincipal(req.getHeader("Originator"), sysi);
 
@@ -142,7 +156,7 @@ public class PostMethod extends MethodBase {
         }
       }
 
-      if (!freeBusy && !webcal) {
+      if (!freeBusy && !webcal && !entityCreate) {
         try {
           reqRdr = req.getReader();
         } catch (Throwable t) {
@@ -191,6 +205,11 @@ public class PostMethod extends MethodBase {
 
     RequestPars pars = new RequestPars(req, intf, getResourceUri(req));
 
+    if (pars.entityCreate) {
+      doEntityCreate(intf, pars, resp);
+      return;
+    }
+
     if (!pars.iSchedule) {
       // Standard CalDAV scheduling
       doSchedule(intf, pars, resp);
@@ -210,6 +229,19 @@ public class PostMethod extends MethodBase {
     }
 
     doISchedule(intf, pars, resp);
+  }
+
+  /** Handle entity creation for the web service.
+   *
+   * @param intf
+   * @param pars
+   * @param resp
+   * @throws WebdavException
+   */
+  public void doEntityCreate(final CaldavBWIntf intf,
+                             final RequestPars pars,
+                             final HttpServletResponse resp) throws WebdavException {
+    intf.putContent(pars.req, resp, true, true, null);
   }
 
   /** Handle a scheduling action. The Only non-iSchedule regular action we see

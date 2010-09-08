@@ -270,6 +270,19 @@ public class CaldavComponentNode extends CaldavBwNode {
   }
 
   /**
+   * @param val String name
+   * @throws WebdavException
+   */
+  public void setEntityName(final String val) throws WebdavException {
+    if (entityName != null) {
+      throw new WebdavException("Cannot change entity name");
+    }
+
+    entityName = val;
+    uri = uri + "/" + val;
+  }
+
+  /**
    * @return String
    */
   public String getEntityName() {

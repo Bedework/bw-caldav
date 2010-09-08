@@ -825,6 +825,11 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
     ev.setParentPath(col.getPath());
 
+    if (entityName == null) {
+      entityName = ev.getUid() + ".ics";
+      bwnode.setEntityName(entityName);
+    }
+
     if (debug) {
       debugMsg("putContent: intf has event with name " + entityName +
                " and summary " + ev.getSummary() +
@@ -1707,11 +1712,11 @@ public class CaldavBWIntf extends WebdavNsIntf {
         String name = null;
         if (ev != null) {
           name = ev.getName();
-          curi = new CaldavURI(collection, ev, name, true);
+          curi = new CaldavURI(collection, ev, name, true, false);
         } else if (rsrc != null) {
           curi = new CaldavURI(collection, rsrc, true);
         } else {
-          curi = new CaldavURI(collection, ev, name, true);
+          curi = new CaldavURI(collection, ev, name, true, false);
         }
         //putUriPath(curi);
 
@@ -1752,17 +1757,28 @@ public class CaldavBWIntf extends WebdavNsIntf {
       }
 
       // Entity or unknown
+      String parentPath;
+      String entityName = null;
 
-      /* Split name into parent path and entity name part */
-      SplitResult split = splitUri(uri);
+      if (calWs && (existance == WebdavNsIntf.existanceNot)) {
+        /* If we are trying to create we POST to the collection - there is no
+           entity name */
+        parentPath = uri;
+      } else {
+        /* Split name into parent path and entity name part */
+        SplitResult split = splitUri(uri);
 
-      if (split.name == null) {
-        // No name part
-        throw new WebdavNotFound(uri);
+        if (split.name == null) {
+          // No name part
+          throw new WebdavNotFound(uri);
+        }
+
+        parentPath = split.path;
+        entityName = split.name;
       }
 
       /* Look for the parent */
-      CalDAVCollection col = sysi.getCollection(split.path);
+      CalDAVCollection col = sysi.getCollection(parentPath);
 
       if (col == null) {
         if (nodeType == WebdavNsIntf.nodeTypeCollection) {
@@ -1777,7 +1793,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
         // Trying to create calendar/collection
         CalDAVCollection newCol = getSysi().newCollectionObject(false,
                                                                 col.getPath());
-        newCol.setName(split.name);
+        newCol.setName(entityName);
         newCol.setPath(col.getPath() + "/" + newCol.getName());
 
         curi = new CaldavURI(newCol, false);
@@ -1789,36 +1805,41 @@ public class CaldavBWIntf extends WebdavNsIntf {
       if ((ctype == CalDAVCollection.calTypeCalendarCollection) ||
           (ctype == CalDAVCollection.calTypeInbox) ||
           (ctype == CalDAVCollection.calTypeOutbox)) {
-        if (debug) {
-          debugMsg("find event(s) - cal=\"" + col.getPath() + "\" name=\"" +
-                   split.name + "\"");
+        if (entityName != null) {
+          if (debug) {
+            debugMsg("find event(s) - cal=\"" + col.getPath() + "\" name=\"" +
+                     entityName + "\"");
+          }
+
+          ev = sysi.getEvent(col, entityName, null);
+
+          if ((existance == existanceMust) && (ev == null)) {
+            throw new WebdavNotFound(uri);
+          }
         }
 
-        ev = sysi.getEvent(col, split.name, null);
-
-        if ((existance == WebdavNsIntf.existanceMust) && (ev == null)) {
-          throw new WebdavNotFound(uri);
-        }
-
-        curi = new CaldavURI(col, ev, split.name, ev != null);
+        curi = new CaldavURI(col, ev, entityName, ev != null,
+                             entityName == null);
       } else {
-        if (debug) {
-          debugMsg("find resource - cal=\"" + col.getPath() + "\" name=\"" +
-                   split.name + "\"");
-        }
+        if (entityName != null) {
+          if (debug) {
+            debugMsg("find resource - cal=\"" + col.getPath() + "\" name=\"" +
+                     entityName + "\"");
+          }
 
-        /* Look for a resource */
-        rsrc = sysi.getFile(col, split.name);
+          /* Look for a resource */
+          rsrc = sysi.getFile(col, entityName);
 
-        if ((existance == WebdavNsIntf.existanceMust) && (rsrc == null)) {
-          throw new WebdavNotFound(uri);
+          if ((existance == existanceMust) && (rsrc == null)) {
+            throw new WebdavNotFound(uri);
+          }
         }
 
         boolean exists = rsrc != null;
 
         if (!exists) {
           rsrc = getSysi().newResourceObject(col.getPath());
-          rsrc.setName(split.name);
+          rsrc.setName(entityName);
         }
 
         curi = new CaldavURI(col, rsrc, exists);

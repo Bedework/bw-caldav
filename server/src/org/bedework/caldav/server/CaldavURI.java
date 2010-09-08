@@ -56,6 +56,7 @@ public class CaldavURI {
   String entityName;
   String path;  // for principals
 
+  boolean nameless; // Has no name yet
   boolean resourceUri; // entityname is resource
 
   /** Reference to a collection
@@ -63,8 +64,8 @@ public class CaldavURI {
    * @param col
    * @param exists        true if the referenced object exists
    */
-  CaldavURI(CalDAVCollection col, boolean exists) {
-    init(col, null, null, null, exists);
+  CaldavURI(final CalDAVCollection col, final boolean exists) {
+    init(col, null, null, null, exists, false);
   }
 
   /** Reference to a contained entity
@@ -73,10 +74,11 @@ public class CaldavURI {
    * @param entity
    * @param entityName
    * @param exists        true if the referenced object exists
+   * @param nameless      true if doesn't exist and we have no name yet
    */
-  CaldavURI(CalDAVCollection col, CalDAVEvent entity, String entityName,
-            boolean exists) {
-    init(col, null, entity, entityName, exists);
+  CaldavURI(final CalDAVCollection col, final CalDAVEvent entity, final String entityName,
+            final boolean exists, final boolean nameless) {
+    init(col, null, entity, entityName, exists, nameless);
   }
 
   /** Reference to a contained resource
@@ -86,16 +88,16 @@ public class CaldavURI {
    * @param exists        true if the referenced object exists
    * @throws WebdavException
    */
-  CaldavURI(CalDAVCollection col, CalDAVResource res,
-            boolean exists) throws WebdavException {
-    init(col, res, null, res.getName(), exists);
+  CaldavURI(final CalDAVCollection col, final CalDAVResource res,
+            final boolean exists) throws WebdavException {
+    init(col, res, null, res.getName(), exists, false);
     resourceUri = true;
   }
 
   /**
    * @param pi
    */
-  CaldavURI(AccessPrincipal pi) {
+  CaldavURI(final AccessPrincipal pi) {
     principal = pi;
     exists = true;
     col = null;
@@ -103,14 +105,15 @@ public class CaldavURI {
     path = pi.getPrincipalRef();
   }
 
-  private void init(CalDAVCollection col, CalDAVResource res,
-                    CalDAVEvent entity, String entityName,
-                    boolean exists) {
+  private void init(final CalDAVCollection col, final CalDAVResource res,
+                    final CalDAVEvent entity, final String entityName,
+                    final boolean exists, final boolean nameless) {
     this.col = col;
-    this.resource = res;
+    resource = res;
     this.entity = entity;
     this.entityName = entityName;
     this.exists = exists;
+    this.nameless = nameless;
   }
 
   /**
@@ -181,7 +184,7 @@ public class CaldavURI {
   }
 
   /**
-   * @return true if this represents a calendar
+   * @return true if this represents a resource
    */
   public boolean isResource() {
     return resourceUri;
@@ -191,7 +194,7 @@ public class CaldavURI {
    * @return true if this represents a calendar
    */
   public boolean isCollection() {
-    return entityName == null;
+    return !nameless && (entityName == null);
   }
 
   /**
@@ -209,7 +212,7 @@ public class CaldavURI {
    * @param entityName
    * @return true if has same name
    */
-  public boolean sameName(String entityName) {
+  public boolean sameName(final String entityName) {
     if ((entityName == null) && (getEntityName() == null)) {
       return true;
     }
@@ -221,6 +224,7 @@ public class CaldavURI {
     return entityName.equals(getEntityName());
   }
 
+  @Override
   public String toString() {
     StringBuilder sb = new StringBuilder("CaldavURI{path=");
 
@@ -237,6 +241,7 @@ public class CaldavURI {
     return sb.toString();
   }
 
+  @Override
   public int hashCode() {
     try {
       if (principal != null) {
@@ -251,7 +256,8 @@ public class CaldavURI {
     }
   }
 
-  public boolean equals(Object o) {
+  @Override
+  public boolean equals(final Object o) {
     if (this == o) {
       return true;
     }
