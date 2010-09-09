@@ -73,6 +73,7 @@ public class PostMethod extends MethodBase {
     public String resourceUri;
 
     String contentType;
+    String[] contentTypePars;
 
     /** value of the Originator header */
     public String originator;
@@ -117,6 +118,10 @@ public class PostMethod extends MethodBase {
       CalDAVConfig conf = intf.getConfig();
 
       contentType = req.getContentType();
+
+      if (contentType != null) {
+        contentTypePars = contentType.split(";");
+      }
 
       if (conf.getIscheduleURI() != null) {
         iSchedule = conf.getIscheduleURI().equals(resourceUri);
@@ -317,7 +322,7 @@ public class PostMethod extends MethodBase {
       }
 
       /* (CALDAV:supported-calendar-data) */
-      if (!pars.contentType.startsWith("text/calendar")) {
+      if (!pars.contentTypePars[0].equals("text/calendar")) {
         if (debug) {
           debugMsg("Bad content type: " + pars.contentType);
         }
@@ -331,6 +336,7 @@ public class PostMethod extends MethodBase {
       /* (CALDAV:organizer-allowed) -- later */
 
       pars.ic = intf.getSysi().fromIcal(pars.cal, pars.reqRdr,
+                                        pars.contentTypePars[0],
                                         IcalResultType.OneComponent);
 
       /* (CALDAV:valid-calendar-data) -- checjed in fromIcal */
@@ -450,7 +456,7 @@ public class PostMethod extends MethodBase {
       */
 
       /* (CALDAV:supported-calendar-data) */
-      if (!pars.contentType.startsWith("text/calendar")) {
+      if (!pars.contentTypePars[0].equals("text/calendar")) {
         if (debug) {
           debugMsg("Bad content type: " + pars.contentType);
         }
@@ -481,6 +487,7 @@ public class PostMethod extends MethodBase {
       }
 
       pars.ic = sysi.fromIcal(pars.cal, pars.reqRdr,
+                              pars.contentTypePars[0],
                               IcalResultType.OneComponent);
 
       /* (CALDAV:valid-calendar-data) -- checked in fromIcal */

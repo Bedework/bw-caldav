@@ -636,12 +636,14 @@ public interface SysIntf {
    *
    * @param col       collection in which to place entities
    * @param rdr
+   * @param contentType  null for ICalendar or valid calendar mime type
    * @param rtype
    * @return SysiIcalendar
    * @throws WebdavException
    */
   public SysiIcalendar fromIcal(CalDAVCollection col,
                                 Reader rdr,
+                                String contentType,
                                 IcalResultType rtype) throws WebdavException;
 
   /** Create a Calendar object from the named timezone and convert to

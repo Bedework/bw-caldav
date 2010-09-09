@@ -717,7 +717,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       boolean calContent = false;
       if ((contentTypePars != null) && (contentTypePars.length > 0)) {
-        calContent = contentTypePars[0].equals("text/calendar");
+        calContent = contentTypePars[0].equals("text/calendar") ||
+                     contentTypePars[0].equals("application/calendar+xml");
       }
 
       if ((col.getCalType() != CalDAVCollection.calTypeCalendarCollection) ||
@@ -731,6 +732,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       pcr.created = putEvent(req, bwnode,
                              contentRdr,
+                             contentTypePars[0],
                              create, ifEtag);
 
       return pcr;
@@ -803,6 +805,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
   private boolean putEvent(final HttpServletRequest req,
                            final CaldavComponentNode bwnode,
                            final Reader contentRdr,
+                           final String contentType,
                            final boolean create,
                            final String ifEtag) throws WebdavException {
     String ifStag = Headers.ifScheduleTagMatch(req);
@@ -814,7 +817,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
     CalDAVCollection col = (CalDAVCollection)bwnode.getCollection(true); // deref
     boolean created = false;
 
-    SysiIcalendar cal = sysi.fromIcal(col, contentRdr,
+    SysiIcalendar cal = sysi.fromIcal(col, contentRdr, contentType,
                                       IcalResultType.OneComponent);
     if (cal.getMethod() != null) {
       throw new WebdavForbidden(CaldavTags.validCalendarObjectResource,
