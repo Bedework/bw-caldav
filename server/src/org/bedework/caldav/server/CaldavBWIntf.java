@@ -1264,7 +1264,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       // May need a real principal hierarchy
       if (node instanceof CaldavCalNode) {
         // XXX to dref or not deref?
-        sysi.updateAccess((CalDAVCollection)node.getCollection(true), info.acl);
+        sysi.updateAccess((CalDAVCollection)node.getCollection(false), info.acl);
       } else if (node instanceof CaldavComponentNode) {
         sysi.updateAccess(((CaldavComponentNode)node).getEvent(),
                           info.acl);
