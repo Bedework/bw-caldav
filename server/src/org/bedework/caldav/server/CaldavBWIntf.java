@@ -626,7 +626,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       /* ===================  Try for calendar fetch ======================= */
 
-      if ((accept != null) &&
+      if (node.isCollection() && (accept != null) &&
           "text/calendar".equals(accept.trim())) {
         GetHandler handler = new WebcalGetHandler(this);
         RequestPars pars = new RequestPars(req, this, getResourceUri(req));
@@ -651,10 +651,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
       }
 
       Content c = new Content();
+      c.written = true;
 
-      c.rdr = node.getContent();
-      c.contentType = node.getContentType();
-      c.contentLength = node.getContentLen();
+      node.writeContent(null, resp.getWriter(), accept);
 
       return c;
     } catch (WebdavException we) {
@@ -1030,7 +1029,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
           xml.newline();
           xml.value("       "); // Just to indent
           xml.attribute("href", cn.getUrlValue());
-          xml.endTag();
+          xml.endOpeningTag();
           xml.newline();
 
           for (PropertyTagXrdEntry pxe: node.getXrdNames()) {
@@ -1409,7 +1408,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
         }
 
         CalendarData caldata = (CalendarData)pr;
-        String content = null;
 
         if (debug) {
           trace("do CalendarData for " + node.getUri());
@@ -1417,24 +1415,21 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
         int status = HttpServletResponse.SC_OK;
         try {
-          content = caldata.process(node);
+          /* Output the (transformed) node.
+           */
+
+          xml.openTagNoNewline(CaldavTags.calendarData);
+          caldata.process(node, xml);
+          xml.closeTagNoblanks(CaldavTags.calendarData);
+
+          return true;
         } catch (WebdavException wde) {
           status = wde.getStatusCode();
           if (debug && (status != HttpServletResponse.SC_NOT_FOUND)) {
             error(wde);
           }
-        }
-
-        if (status != HttpServletResponse.SC_OK) {
-          // XXX should be passing status back
           return false;
         }
-
-        /* Output the (transformed) node.
-         */
-
-        xml.cdataProperty(CaldavTags.calendarData, content);
-        return true;
       }
 
       if (tag.equals(CaldavTags.maxAttendeesPerInstance)) {

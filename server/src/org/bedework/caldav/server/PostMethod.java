@@ -41,6 +41,7 @@ import edu.rpi.cmt.calendar.ScheduleMethods;
 import edu.rpi.cmt.calendar.IcalDefs.IcalComponentType;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
+import edu.rpi.sss.util.xml.tagdefs.XcalTags;
 
 import java.io.Reader;
 import java.util.Collection;
@@ -72,8 +73,14 @@ public class PostMethod extends MethodBase {
     /** */
     public String resourceUri;
 
+    /** from accept header */
+    public String acceptType;
+
+    /** type of request body */
     String contentType;
-    String[] contentTypePars;
+
+    /** Broken out content type */
+    public String[] contentTypePars;
 
     /** value of the Originator header */
     public String originator;
@@ -116,6 +123,8 @@ public class PostMethod extends MethodBase {
       this.resourceUri = resourceUri;
 
       CalDAVConfig conf = intf.getConfig();
+
+      acceptType = req.getHeader("ACCEPT");
 
       contentType = req.getContentType();
 
@@ -456,7 +465,8 @@ public class PostMethod extends MethodBase {
       */
 
       /* (CALDAV:supported-calendar-data) */
-      if (!pars.contentTypePars[0].equals("text/calendar")) {
+      if (!pars.contentTypePars[0].equals("text/calendar") &&
+          !pars.contentTypePars[0].equals(XcalTags.mimetype)) {
         if (debug) {
           debugMsg("Bad content type: " + pars.contentType);
         }

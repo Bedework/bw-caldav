@@ -32,26 +32,28 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
 import edu.rpi.cct.webdav.servlet.shared.WebdavProperty;
+import edu.rpi.sss.util.xml.XmlEmit;
 import edu.rpi.sss.util.xml.XmlUtil;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
-
-
-import java.util.Collection;
-import java.util.Iterator;
-import javax.servlet.http.HttpServletResponse;
-import javax.xml.namespace.QName;
 
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
 import net.fortuna.ical4j.model.ComponentList;
-import net.fortuna.ical4j.model.component.VEvent;
 import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.PropertyList;
+import net.fortuna.ical4j.model.component.VEvent;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
+
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Iterator;
+
+import javax.servlet.http.HttpServletResponse;
+import javax.xml.namespace.QName;
 
 /** Class to represent a calendar-query calendar-data element
  *
@@ -152,8 +154,8 @@ public class CalendarData extends WebdavProperty {
    * @param tag  QName name
    * @param debug
    */
-  public CalendarData(QName tag,
-                      boolean debug) {
+  public CalendarData(final QName tag,
+                      final boolean debug) {
     super(tag, null);
     this.debug = debug;
   }
@@ -198,7 +200,7 @@ public class CalendarData extends WebdavProperty {
    * @param nd
    * @throws WebdavException
    */
-  public void parse(Node nd) throws WebdavException {
+  public void parse(final Node nd) throws WebdavException {
     /* Either empty - show everything or
               comp + optional (expand-recurrence-set or
                                limit-recurrence-set)
@@ -272,18 +274,20 @@ public class CalendarData extends WebdavProperty {
   /** Given the CaldavBwNode, returns the transformed content.
    *
    * @param wdnode
-   * @return String content
+   * @param xml
    * @throws WebdavException
    */
-  public String process(WebdavNsNode wdnode) throws WebdavException {
+  public void process(final WebdavNsNode wdnode,
+                      final XmlEmit xml) throws WebdavException {
     if (!(wdnode instanceof CaldavComponentNode)) {
-      return null;
+      return;
     }
 
     CaldavComponentNode node = (CaldavComponentNode)wdnode;
 
     if (comp == null) {
-      return node.getContentString();
+      node.writeContent(xml, null, returnContentType);
+      return;
     }
 
     /** Ensure node exists */
@@ -298,7 +302,8 @@ public class CalendarData extends WebdavProperty {
     }
 
     if (comp.getAllcomp()) {
-      return node.getContentString();
+      node.writeContent(xml, null, returnContentType);
+      return;
     }
 
     // Assume all properties for that level.
@@ -313,23 +318,29 @@ public class CalendarData extends WebdavProperty {
 
       if ("VEVENT".equals(subcomp.getName())) {
         if (subcomp.getAllprop()) {
-          return node.getContentString();
+          node.writeContent(xml, null, returnContentType);
+          return;
         }
 
-        return transformVevent(node.getIcal(), subcomp.getProps());
+        try {
+          xml.cdataValue(transformVevent(node.getIcal(), subcomp.getProps()));
+        } catch (IOException ioe) {
+          throw new WebdavException(ioe);
+        }
+        return;
       }
     }
 
     // No special instructions.
 
-    return node.getContentString();
+    node.writeContent(xml, null, returnContentType);
   }
 
   /* Transform one or more VEVENT objects based on a list of required
    * properties.
    */
-  private String transformVevent(Calendar ical,
-                                 Collection<Prop> props)  throws WebdavException {
+  private String transformVevent(final Calendar ical,
+                                 final Collection<Prop> props)  throws WebdavException {
     try {
       Calendar nical = new Calendar();
       PropertyList pl = ical.getProperties();
@@ -384,7 +395,7 @@ public class CalendarData extends WebdavProperty {
    *                   Private parsing methods
    * ==================================================================== */
 
-  private Comp parseComp(Node nd) throws WebdavException {
+  private Comp parseComp(final Node nd) throws WebdavException {
     /* Either allcomp + (either allprop or 0 or more prop) or
               0 or more comp + (either allprop or 0 or more prop)
      */
@@ -443,7 +454,7 @@ public class CalendarData extends WebdavProperty {
     return c;
   }
 
-  private Prop parseProp(Node nd) throws WebdavException {
+  private Prop parseProp(final Node nd) throws WebdavException {
     NamedNodeMap nnm = nd.getAttributes();
 
     if ((nnm == null) || (nnm.getLength() == 0)) {
@@ -476,7 +487,7 @@ public class CalendarData extends WebdavProperty {
     return pr;
   }
 
-  private Element[] getChildren(Node nd) throws WebdavException {
+  private Element[] getChildren(final Node nd) throws WebdavException {
     try {
       return XmlUtil.getElementsArray(nd);
     } catch (Throwable t) {
@@ -523,7 +534,7 @@ public class CalendarData extends WebdavProperty {
    * @return String
    * @throws WebdavException
    */
-  public String getOnlyAttrVal(Node nd, String name) throws WebdavException {
+  public String getOnlyAttrVal(final Node nd, final String name) throws WebdavException {
     NamedNodeMap nnm = nd.getAttributes();
 
     if ((nnm == null) || (nnm.getLength() != 1)) {
@@ -579,15 +590,15 @@ public class CalendarData extends WebdavProperty {
     return log;
   }
 
-  protected void debugMsg(String msg) {
+  protected void debugMsg(final String msg) {
     getLogger().debug(msg);
   }
 
-  protected void logIt(String msg) {
+  protected void logIt(final String msg) {
     getLogger().info(msg);
   }
 
-  protected void trace(String msg) {
+  protected void trace(final String msg) {
     getLogger().debug(msg);
   }
 }

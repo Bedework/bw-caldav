@@ -28,6 +28,7 @@ package org.bedework.caldav.server;
 
 import org.bedework.caldav.server.sysinterface.CalPrincipalInfo;
 import org.bedework.caldav.server.sysinterface.SysIntf;
+import org.bedework.caldav.server.sysinterface.SysIntf.MethodEmitted;
 
 import edu.rpi.cct.webdav.servlet.shared.WdEntity;
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
@@ -46,10 +47,9 @@ import edu.rpi.sss.util.xml.tagdefs.CalWSXrdDefs;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 
-import net.fortuna.ical4j.model.Calendar;
-
 import org.w3c.dom.Element;
 
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -62,11 +62,9 @@ import javax.xml.namespace.QName;
  *   @author Mike Douglass   douglm@rpi.edu
  */
 public class CaldavCalNode extends CaldavBwNode {
-  private Calendar ical;
+  private CalDAVEvent ical;
 
   private AccessPrincipal owner;
-
-  private String vfreeBusyString;
 
   private CurrentAccess currentAccess;
 
@@ -270,15 +268,9 @@ public class CaldavCalNode extends CaldavBwNode {
    * @param fbcal
    * @throws WebdavException
    */
-  public void setFreeBusy(final Calendar fbcal) throws WebdavException {
+  public void setFreeBusy(final CalDAVEvent fbcal) throws WebdavException {
     try {
       ical = fbcal;
-
-      if (ical != null) {
-        vfreeBusyString = ical.toString();
-      } else {
-        vfreeBusyString = null;
-      }
 
       allowsGet = true;
     } catch (Throwable t) {
@@ -287,6 +279,29 @@ public class CaldavCalNode extends CaldavBwNode {
       }
       throw new WebdavException(t);
     }
+  }
+
+  @Override
+  public boolean writeContent(final XmlEmit xml,
+                              final Writer wtr,
+                              final String contentType) throws WebdavException {
+    try {
+      Collection<CalDAVEvent> evs = new ArrayList<CalDAVEvent>();
+
+      evs.add(ical);
+
+      getSysi().writeCalendar(evs,
+                              MethodEmitted.noMethod,
+                              xml,
+                              wtr,
+                              contentType);
+    } catch (WebdavException we) {
+      throw we;
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
+
+    return true;
   }
 
   /* (non-Javadoc)
@@ -300,7 +315,7 @@ public class CaldavCalNode extends CaldavBwNode {
       return null;
     }
 
-    return vfreeBusyString;
+    return ical.toString();
   }
 
   /* (non-Javadoc)
@@ -331,11 +346,13 @@ public class CaldavCalNode extends CaldavBwNode {
    */
   @Override
   public long getContentLen() throws WebdavException {
-    if (vfreeBusyString != null) {
-      return vfreeBusyString.length();
+    String s = getContentString();
+
+    if (s == null) {
+      return 0;
     }
 
-    return 0;
+    return s.getBytes().length;
   }
 
   /* (non-Javadoc)
@@ -343,7 +360,7 @@ public class CaldavCalNode extends CaldavBwNode {
    */
   @Override
   public String getContentType() throws WebdavException {
-    if (vfreeBusyString != null) {
+    if (ical != null) {
       return "text/calendar; charset=UTF-8";
     }
 

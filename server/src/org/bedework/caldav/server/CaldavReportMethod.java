@@ -44,7 +44,6 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
 import edu.rpi.cct.webdav.servlet.shared.WebdavProperty;
 import edu.rpi.cct.webdav.servlet.shared.WebdavStatusCode;
-import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf.Content;
 import edu.rpi.sss.util.Util;
 import edu.rpi.sss.util.xml.XmlUtil;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
@@ -55,9 +54,7 @@ import net.fortuna.ical4j.model.TimeZone;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import java.io.Reader;
 import java.io.StringReader;
-import java.io.Writer;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -580,8 +577,17 @@ public class CaldavReportMethod extends ReportMethod {
       throw new WebdavBadRequest();
     }
 
-    intf.getFreeBusy((CaldavCalNode)node, freeBusy, defaultDepth(depth, 0));
+    CaldavCalNode cnode = (CaldavCalNode)node;
+    intf.getFreeBusy(cnode, freeBusy, defaultDepth(depth, 0));
+    resp.setContentLength(-1);
 
+    try {
+      cnode.writeContent(null, resp.getWriter(), "text/calendar");
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
+
+    /*
     Writer out;
     try {
       out = resp.getWriter();
@@ -590,7 +596,7 @@ public class CaldavReportMethod extends ReportMethod {
     }
 
     /** Get the content now to set up length, type etc.
-     */
+     * /
     Content c = getNsIntf().getContent(req, resp, node);
     if ((c == null) || (c.rdr == null)) {
       if (debug) {
@@ -607,12 +613,13 @@ public class CaldavReportMethod extends ReportMethod {
 
       writeContent(c.rdr, out);
     }
+    */
   }
 
   // XXX Make the following part of the interface.
 
   /** size of buffer used for copying content to response.
-   */
+   * /
   private static final int bufferSize = 4096;
 
   private void writeContent(final Reader in, final Writer out)
@@ -640,6 +647,6 @@ public class CaldavReportMethod extends ReportMethod {
         out.close();
       } catch (Throwable t) {}
     }
-  }
+  }*/
 }
 

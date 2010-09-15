@@ -44,6 +44,7 @@ import edu.rpi.cmt.access.AccessPrincipal;
 import edu.rpi.cmt.access.Acl;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
 import edu.rpi.cmt.calendar.ScheduleStates;
+import edu.rpi.sss.util.xml.XmlEmit;
 
 import net.fortuna.ical4j.model.Calendar;
 
@@ -84,6 +85,13 @@ public interface SysIntf {
    * @throws WebdavException
    */
   public SystemProperties getSystemProperties() throws WebdavException;
+
+  /** Return default content type for this service.
+   *
+   * @return String - never null.
+   * @throws WebdavException
+   */
+  public String getDefaultContentType() throws WebdavException;
 
   /** Return the current principal
    *
@@ -384,12 +392,12 @@ public interface SysIntf {
    * @param col
    * @param depth
    * @param timeRange
-   * @return Calendar
+   * @return CalDAVEvent - as a freebusy entity
    * @throws WebdavException
    */
-  public Calendar getFreeBusy(final CalDAVCollection col,
-                              final int depth,
-                              final TimeRange timeRange) throws WebdavException;
+  public CalDAVEvent getFreeBusy(final CalDAVCollection col,
+                                 final int depth,
+                                 final TimeRange timeRange) throws WebdavException;
 
   /** Check the access for the given entity. Returns the current access
    * or null or optionally throws a no access exception.
@@ -612,16 +620,32 @@ public interface SysIntf {
    */
   public String toIcalString(Calendar cal) throws WebdavException;
 
+  /** What method do we want emitted */
+  public static enum MethodEmitted {
+    /** No method for calendar */
+    noMethod,
+
+    /** Method from event */
+    eventMethod,
+
+    /** It's a publish */
+    publish
+  }
+
   /** Write a collection of events as an ical calendar.
    *
    * @param evs
-   * @param method
-   * @param wtr
+   * @param method - what scheduling method?
+   * @param xml - if this is embedded in an xml stream
+   * @param wtr - if standalone output or no xml stream initialized.
+   * @param contentType
    * @throws WebdavException
    */
   public void writeCalendar(Collection<CalDAVEvent> evs,
-                            int method,
-                            Writer wtr) throws WebdavException;
+                            MethodEmitted method,
+                            XmlEmit xml,
+                            Writer wtr,
+                            String contentType) throws WebdavException;
 
   /** Expected result type */
   public enum IcalResultType {

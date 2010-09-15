@@ -26,6 +26,7 @@
 package org.bedework.caldav.server;
 
 import org.bedework.caldav.server.sysinterface.SysIntf;
+import org.bedework.caldav.server.sysinterface.SysIntf.MethodEmitted;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
@@ -44,6 +45,7 @@ import net.fortuna.ical4j.model.ComponentList;
 
 import org.w3c.dom.Element;
 
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -439,6 +441,38 @@ public boolean generatePropertyValue(final QName tag,
     return al;
   }
   */
+
+  @Override
+  public boolean writeContent(final XmlEmit xml,
+                              final Writer wtr,
+                              final String contentType) throws WebdavException {
+    try {
+      Collection<CalDAVEvent> evs = new ArrayList<CalDAVEvent>();
+
+      evs.add(event);
+
+      MethodEmitted method;
+
+      if ((col.getCalType() == CalDAVCollection.calTypeInbox) ||
+      (col.getCalType() == CalDAVCollection.calTypeOutbox)) {
+        method = MethodEmitted.eventMethod;
+      } else {
+        method = MethodEmitted.noMethod;
+      }
+
+      getSysi().writeCalendar(evs,
+                              method,
+                              xml,
+                              wtr,
+                              contentType);
+    } catch (WebdavException we) {
+      throw we;
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
+
+    return true;
+  }
 
   @Override
   public String getContentString() throws WebdavException {

@@ -30,13 +30,14 @@ import org.bedework.caldav.server.CaldavBWIntf;
 import org.bedework.caldav.server.CaldavComponentNode;
 import org.bedework.caldav.server.PostMethod.RequestPars;
 import org.bedework.caldav.server.sysinterface.SystemProperties;
+import org.bedework.caldav.server.sysinterface.SysIntf.MethodEmitted;
 import org.bedework.caldav.util.ParseUtil;
 import org.bedework.caldav.util.TimeRange;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
-import edu.rpi.cmt.calendar.ScheduleMethods;
+import edu.rpi.sss.util.xml.tagdefs.XcalTags;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -115,13 +116,29 @@ public class WebcalGetHandler extends GetHandler {
       }
 
 
+      String suffix;
+      String acceptType = pars.acceptType;
+      if (acceptType == null) {
+        acceptType = getSysi().getDefaultContentType();
+      }
+
+      if (acceptType.equals(XcalTags.mimetype)) {
+        // No charset
+        resp.setContentType(acceptType);
+        suffix = ".xcs";
+      } else {
+        resp.setContentType(acceptType + "; charset=UTF-8");
+        suffix = ".ics";
+      }
+
       resp.setHeader("Content-Disposition",
                      "Attachment; Filename=\"" +
-                     node.getDisplayname() + ".ics\"");
-      resp.setContentType("text/calendar; charset=UTF-8");
+                     node.getDisplayname() + suffix + "\"");
 
-      getSysi().writeCalendar(evs, ScheduleMethods.methodTypePublish,
-                              resp.getWriter());
+      getSysi().writeCalendar(evs, MethodEmitted.publish,
+                              null,
+                              resp.getWriter(),
+                              acceptType);
     } catch (WebdavException wde) {
       throw wde;
     } catch (Throwable t) {

@@ -54,6 +54,8 @@ public class CalDAVConfig implements Serializable {
   /* Set at server init */
   private boolean calWS;
 
+  private boolean timezonesByReference;
+
   /**
    * @param val
    */
@@ -168,6 +170,10 @@ public class CalDAVConfig implements Serializable {
    */
   public void setCalWS(final boolean val) {
     calWS = val;
+
+    if (val) {
+      setTimezonesByReference(true);
+    }
   }
 
   /**
@@ -175,5 +181,19 @@ public class CalDAVConfig implements Serializable {
    */
   public boolean getCalWS() {
     return calWS;
+  }
+
+  /**
+   * @param val boolean true if we are not including the full tz specification..
+   */
+  public void setTimezonesByReference(final boolean val) {
+    timezonesByReference = val;
+  }
+
+  /**
+   * @return true if we are not including the full tz specification
+   */
+  public boolean getTimezonesByReference() {
+    return timezonesByReference;
   }
 }
