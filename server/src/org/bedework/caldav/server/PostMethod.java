@@ -225,6 +225,12 @@ public class PostMethod extends MethodBase {
     }
 
     if (!pars.iSchedule) {
+      if (intf.getConfig().getCalWS()) {
+        doWsQuery(intf, pars, resp);
+
+        return;
+      }
+
       // Standard CalDAV scheduling
       doSchedule(intf, pars, resp);
       return;
@@ -256,6 +262,23 @@ public class PostMethod extends MethodBase {
                              final RequestPars pars,
                              final HttpServletResponse resp) throws WebdavException {
     intf.putContent(pars.req, resp, true, true, null);
+  }
+
+  private void doWsQuery(final CaldavBWIntf intf,
+                         final RequestPars pars,
+                         final HttpServletResponse resp) throws WebdavException {
+    if (!pars.contentTypePars[0].equals("text/xml")) {
+      resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+      return;
+    }
+
+    /* We should parse the query to see what we got
+     * For the moment just hand it over to REPORT
+     */
+
+    CaldavReportMethod method = new CaldavReportMethod();
+    method.init(intf, debug, true);
+    method.doMethod(pars.req, resp);
   }
 
   /** Handle a scheduling action. The Only non-iSchedule regular action we see

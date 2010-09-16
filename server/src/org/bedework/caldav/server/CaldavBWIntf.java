@@ -421,6 +421,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
         xml.addNs(new NameSpace(XsiTags.namespace, "xsi"), false);
         xml.addNs(new NameSpace(XrdTags.namespace, "xrd"), false);
 
+        // Need these for the time being
+        xml.addNs(new NameSpace(WebdavTags.namespace, "DAV"), false);
+        xml.addNs(new NameSpace(CaldavDefs.caldavNamespace, "C"), false);
+
         return;
       }
 
