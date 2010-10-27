@@ -123,7 +123,7 @@ public class IscheduleGetHandler extends GetHandler {
 
       /* supported-scheduling-message-set */
 
-      openTag(IscheduleTags.supportedCalendarData);
+      openTag(IscheduleTags.supportedCalendarDataType);
 
       String[] calDataNames = {"content-type",
                                "version"
@@ -134,7 +134,7 @@ public class IscheduleGetHandler extends GetHandler {
       };
 
       attrTag(IscheduleTags.calendarData, calDataNames, calDataVals);
-      closeTag(IscheduleTags.supportedCalendarData);
+      closeTag(IscheduleTags.supportedCalendarDataType);
 
       /* supported-attachment-values */
 

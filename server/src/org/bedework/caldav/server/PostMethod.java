@@ -39,7 +39,9 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
 import edu.rpi.cmt.calendar.IcalDefs;
 import edu.rpi.cmt.calendar.ScheduleMethods;
 import edu.rpi.cmt.calendar.IcalDefs.IcalComponentType;
+import edu.rpi.sss.util.xml.XmlEmit.NameSpace;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
+import edu.rpi.sss.util.xml.tagdefs.IscheduleTags;
 import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 import edu.rpi.sss.util.xml.tagdefs.XcalTags;
 
@@ -51,6 +53,7 @@ import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.namespace.QName;
 
 /** Class called to handle POST for CalDAV scheduling.
  *
@@ -220,6 +223,7 @@ public class PostMethod extends MethodBase {
     RequestPars pars = new RequestPars(req, intf, getResourceUri(req));
 
     if (pars.entityCreate) {
+      /* Web Service create */
       doEntityCreate(intf, pars, resp);
       return;
     }
@@ -240,9 +244,12 @@ public class PostMethod extends MethodBase {
      *
      * NOTE: Leaving this enabled could be a security risk
      */
-    warn("*****************************************************************");
-    warn("* ISchedule request - security hole");
-    warn("*****************************************************************");
+
+    try {
+      xml.addNs(new NameSpace(IscheduleTags.namespace, "IS"), true);
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
 
     if (intf.getSysi().getPrincipal() == null) {
       intf.reAuth(req, "realtime01");
@@ -455,20 +462,24 @@ public class PostMethod extends MethodBase {
 
     try {
       /* Preconditions:
-        (CALDAV:supported-collection):
-               The Request-URI MUST identify the location of a scheduling Outbox collection;
-        (CALDAV:supported-calendar-data):
+        (ISCHED:supported-calendar-data):
                The resource submitted in the POST request MUST be a supported
                media type (i.e., text/calendar) for scheduling or free-busy messages;
-        (CALDAV:valid-calendar-data): The resource submitted in the POST request
+        (ISCHED:originator-specified): The POST request MUST include a valid
+                Originator request header specifying a calendar user address of
+                the currently authenticated user;
+        (ISCHED:recipient-specified): The POST request MUST include one or more
+                valid Recipient request headers specifying the calendar user
+                address of users to whom the scheduling message will be delivered.
+        (ISCHED:valid-calendar-data): The resource submitted in the POST request
                 MUST be valid data for the media type being specified (i.e.,
                 valid iCalendar object) ;
+
+        (CALDAV:supported-collection):
+               The Request-URI MUST identify the location of a scheduling Outbox collection;
         (CALDAV:valid-scheduling-message): The resource submitted in the POST
                 request MUST obey all restrictions specified for the POST request
                 (e.g., scheduling message follows the restriction of iTIP);
-        (CALDAV:originator-specified): The POST request MUST include a valid
-                Originator request header specifying a calendar user address of
-                the currently authenticated user;
         (CALDAV:originator-allowed): The calendar user identified by the
                 Originator request header in the POST request MUST be granted the
                 CALDAV:schedule privilege or a suitable sub-privilege on the
@@ -482,40 +493,37 @@ public class PostMethod extends MethodBase {
                 be the calendar user (or one of the calendar users) associated
                 with the scheduling Outbox being targeted by the request when the
                 scheduling message is an outgoing scheduling message;
-        (CALDAV:recipient-specified): The POST request MUST include one or more
-                valid Recipient request headers specifying the calendar user
-                address of users to whom the scheduling message will be delivered.
       */
 
-      /* (CALDAV:supported-calendar-data) */
+      /* (ISCHED:supported-calendar-data) */
       if (!pars.contentTypePars[0].equals("text/calendar") &&
           !pars.contentTypePars[0].equals(XcalTags.mimetype)) {
         if (debug) {
           debugMsg("Bad content type: " + pars.contentType);
         }
-        throw new WebdavForbidden(CaldavTags.supportedCalendarData,
+        throw new WebdavForbidden(IscheduleTags.supportedCalendarDataType,
                                   "Bad content type: " + pars.contentType);
       }
 
       /* (CALDAV:valid-calendar-data) -- later */
       /* (CALDAV:valid-scheduling-message) -- later */
 
-      /* (CALDAV:originator-specified)
+      /* (ISCHED:originator-specified)
        *  */
       if (pars.originator == null) {
         if (debug) {
           debugMsg("No originator");
         }
-        throw new WebdavForbidden(CaldavTags.originatorSpecified,
+        throw new WebdavForbidden(IscheduleTags.originatorSpecified,
                                   "No originator");
       }
 
-      /* (CALDAV:recipient-specified) */
+      /* (ISCHED:recipient-specified) */
       if (pars.recipients.isEmpty()) {
         if (debug) {
           debugMsg("No recipient(s)");
         }
-        throw new WebdavForbidden(CaldavTags.recipientSpecified,
+        throw new WebdavForbidden(IscheduleTags.recipientSpecified,
                                   "No recipient(s)");
       }
 
@@ -523,13 +531,13 @@ public class PostMethod extends MethodBase {
                               pars.contentTypePars[0],
                               IcalResultType.OneComponent);
 
-      /* (CALDAV:valid-calendar-data) -- checked in fromIcal */
+      /* (ISCHED:valid-calendar-data) -- checked in fromIcal */
 
       if (!pars.ic.validItipMethodType()) {
         if (debug) {
           debugMsg("Bad method: " + String.valueOf(pars.ic.getMethodType()));
         }
-        throw new WebdavForbidden(CaldavTags.validCalendarData, "Bad METHOD");
+        throw new WebdavForbidden(IscheduleTags.validCalendarData, "Bad METHOD");
       }
 
       /* Do the stuff we deferred above */
@@ -585,20 +593,20 @@ public class PostMethod extends MethodBase {
 
     startEmit(resp);
 
-    openTag(CaldavTags.scheduleResponse);
+    openTag(IscheduleTags.scheduleResponse);
 
     for (SchedRecipientResult srr: srrs) {
-      openTag(CaldavTags.response);
+      openTag(IscheduleTags.response);
 
-      openTag(CaldavTags.recipient);
+      openTag(IscheduleTags.recipient);
       property(WebdavTags.href, srr.recipient);
-      closeTag(CaldavTags.recipient);
+      closeTag(IscheduleTags.recipient);
 
-      setReqstat(srr.status);
-      closeTag(CaldavTags.response);
+      setReqstat(srr.status, true);
+      closeTag(IscheduleTags.response);
     }
 
-    closeTag(CaldavTags.scheduleResponse);
+    closeTag(IscheduleTags.scheduleResponse);
   }
 
   private void handleFreeBusy(final SysIntf intf,
@@ -617,21 +625,39 @@ public class PostMethod extends MethodBase {
 
     startEmit(resp);
 
-    openTag(CaldavTags.scheduleResponse);
+    QName sresponseTag;
+    QName responseTag;
+    QName recipientTag;
+    QName calendarDataTag;
+
+    if (pars.iSchedule) {
+      sresponseTag = IscheduleTags.scheduleResponse;
+      responseTag = IscheduleTags.response;
+      recipientTag = IscheduleTags.recipient;
+      calendarDataTag = IscheduleTags.calendarData;
+    } else {
+      sresponseTag = CaldavTags.scheduleResponse;
+      responseTag = CaldavTags.response;
+      recipientTag = CaldavTags.recipient;
+      calendarDataTag = CaldavTags.calendarData;
+    }
+
+    openTag(sresponseTag);
 
     for (SchedRecipientResult srr: srrs) {
-      openTag(CaldavTags.response);
-      openTag(CaldavTags.recipient);
+      openTag(responseTag);
+      openTag(recipientTag);
       property(WebdavTags.href, srr.recipient);
-      closeTag(CaldavTags.recipient);
-      setReqstat(srr.status);
+      closeTag(recipientTag);
+
+      setReqstat(srr.status, pars.iSchedule);
 
       CalDAVEvent rfb = srr.freeBusy;
       if (rfb != null) {
         rfb.setOrganizer(pars.ic.getOrganizer());
 
         try {
-          cdataProperty(CaldavTags.calendarData,
+          cdataProperty(calendarDataTag,
                         rfb.toIcalString(ScheduleMethods.methodTypeReply));
         } catch (Throwable t) {
           if (debug) {
@@ -641,24 +667,33 @@ public class PostMethod extends MethodBase {
         }
       }
 
-      closeTag(CaldavTags.response);
+      closeTag(responseTag);
     }
 
-    closeTag(CaldavTags.scheduleResponse);
+    closeTag(sresponseTag);
   }
 
-  private void setReqstat(final int status) throws WebdavException {
+  private void setReqstat(final int status,
+                          final boolean iSchedule) throws WebdavException {
     String reqstat;
 
     if (status == SchedRecipientResult.scheduleDeferred) {
       reqstat = IcalDefs.requestStatusDeferred;
     } else if (status == SchedRecipientResult.scheduleNoAccess) {
-      propertyTagVal(WebdavTags.error, CaldavTags.recipientPermissions);
+      if (iSchedule) {
+        propertyTagVal(WebdavTags.error, IscheduleTags.recipientPermissions);
+      } else {
+        propertyTagVal(WebdavTags.error, CaldavTags.recipientPermissions);
+      }
       reqstat = IcalDefs.requestStatusNoAccess;
     } else {
       reqstat = IcalDefs.requestStatusOK;
     }
 
-    property(CaldavTags.requestStatus, reqstat);
+    if (iSchedule) {
+      property(IscheduleTags.requestStatus, reqstat);
+    } else {
+      property(CaldavTags.requestStatus, reqstat);
+    }
   }
 }
