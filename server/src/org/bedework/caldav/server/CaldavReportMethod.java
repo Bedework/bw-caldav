@@ -154,17 +154,13 @@ public class CaldavReportMethod extends ReportMethod {
     }
   }
 
-  /* ====================================================================
-   *                   Private methods
-   * ==================================================================== */
-
   /* We process the parsed document and produce a Collection of request
    * objects to process.
    *
    * @param doc
    * @throws WebdavException
    */
-  private void processDoc(final Document doc) throws WebdavException {
+  protected void processDoc(final Document doc) throws WebdavException {
     try {
       CaldavBWIntf intf = (CaldavBWIntf)getNsIntf();
 
@@ -331,6 +327,11 @@ public class CaldavReportMethod extends ReportMethod {
 
     String resourceUri = getResourceUri(req);
 
+    process(resourceUri, depth);
+  }
+
+  protected void process(final String resourceUri,
+                         final int depth) throws WebdavException {
     CaldavBWIntf intf = (CaldavBWIntf)getNsIntf();
     WebdavNsNode node = intf.getNode(resourceUri,
                                      WebdavNsIntf.existanceMust,
@@ -402,6 +403,10 @@ public class CaldavReportMethod extends ReportMethod {
 
     flush();
   }
+
+  /* ====================================================================
+   *                   Private methods
+   * ==================================================================== */
 
   private Collection<WebdavNsNode> getNodes(final WebdavNsNode node)
           throws WebdavException {

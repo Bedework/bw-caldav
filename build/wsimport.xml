@@ -1,0 +1,108 @@
+<!-- ===================================================================
+     Run wsimport on web service definitions.
+     
+     The jaxb released with java6 is version 2.1. However, to resolve some 
+     issues we have to use version 2.2. This requires either placing the
+     jaxb jars in the endorsed directory or setting xendorsed="true" when
+     running wsimport and adding the 2.2 jars to the classpath.
+     
+     The version of jboss in the quickstart has the 2.2 jars in its 
+     endorsed directory. For the moment we point at that.
+     
+     Hold that: Unfortunately eclipse doesn't appear to have a way to set
+     an endorsed directory for a single project. The generated 2.2 classes
+     don't compile. Managed to get 2.1 wsimport to run - the generated code
+     appears to run OK on 2.2 
+     
+     @param wsdl     Location of the wsdl
+     @param sourcedestdir     Location for the generated source
+       
+     Authors: Mike Douglass   douglm    rpi.edu
+     =================================================================== -->
+
+<project name="do.wsimport" basedir="." default="">
+  <macrodef name="wsimport">
+    <attribute name="wsdl"/>
+    <attribute name="sourcedestdir"/>
+    <sequential>
+      <taskdef resource="net/sf/antcontrib/antcontrib.properties" />
+  
+      <!--
+      <getJar name="jaxws-tools" version="2.2" /> 
+      <getJar name="jaxb-xjc" version="2.2" /> 
+      <getJar name="jaxws-rt" version="2.2" /> 
+      -->
+      <property name="wsimport.lib" 
+                location="${org.bedework.temp.dir}/wsimportlib" />
+      <delete dir="${wsimport.lib}" />
+      <mkdir dir="${wsimport.lib}" />
+      
+      <getJar lib="${wsimport.lib}"
+              libcache="${org.bedework.libcache.dir}"
+              name="jaxws-tools" version="2.1.4" /> 
+      <getJar lib="${wsimport.lib}"
+              libcache="${org.bedework.libcache.dir}"
+              name="jaxb-xjc" version="2.1.7" /> 
+      <getJar lib="${wsimport.lib}"
+              libcache="${org.bedework.libcache.dir}"
+              name="jaxb-impl" version="2.1.8" /> 
+      <getJar lib="${wsimport.lib}"
+              libcache="${org.bedework.libcache.dir}"
+              name="jaxws-rt" version="2.1.4" /> 
+      <getJar lib="${wsimport.lib}"
+              libcache="${org.bedework.libcache.dir}"
+              name="streambuffer" version="1.0" /> 
+      <getJar lib="${wsimport.lib}"
+              libcache="${org.bedework.libcache.dir}"
+              name="stax-ex" version="2.2.1" /> 
+  
+      <path id="wsimport.classpath">
+        <fileset dir="${ant.home}/lib">
+          <include name="jax*.jar"/>
+        </fileset>
+        <!--
+        <pathelement location="${wsimport.lib}/jaxws-tools-2.2.jar"/>
+        <pathelement location="${wsimport.lib}/jaxb-xjc-2.2.jar"/>
+        <pathelement location="${wsimport.lib}/jaxws-rt-2.2.jar"/>
+        -->
+        <pathelement location="${wsimport.lib}/jaxws-tools-2.1.4.jar"/>
+        <pathelement location="${wsimport.lib}/jaxb-xjc-2.1.7.jar"/>
+        <pathelement location="${wsimport.lib}/jaxb-impl-2.1.8.jar"/>
+        <pathelement location="${wsimport.lib}/jaxws-rt-2.1.4.jar"/>
+        <pathelement location="${wsimport.lib}/tools-1.6.0_21.jar" />
+        <pathelement location="${wsimport.lib}/streambuffer-1.0.jar" />
+        <pathelement location="${wsimport.lib}/stax-ex-2.2.1.jar" />
+        <fileset dir="${ant.home}/lib">
+          <include name="**/*.jar"/>
+        </fileset>
+        <!--
+        <fileset dir="${org.bedework.appserver.dir}/lib/endorsed" >
+          <include name="**/*.jar"/>
+        </fileset>
+        -->
+      </path>
+      
+    	<!--
+      <property name="cp" refid="wsimport.classpath" />
+      <echo message="***************cp: ${cp}"/>
+      -->
+  
+      <taskdef name="wsimport" classname="com.sun.tools.ws.ant.WsImport">
+        <classpath refid="wsimport.classpath" />
+      </taskdef>
+      
+      <!-- We don't want the generated classes but there doesn't appear to be a
+           way to suppress generation -->
+      <property name="wsimport.dest" 
+                location="${org.bedework.temp.dir}/wsclasses" />
+      <mkdir dir="${wsimport.dest}" />
+      
+      <wsimport keep="true"
+                sourcedestdir="@{sourcedestdir}"
+                destdir="${wsimport.dest}"
+                wsdl="@{wsdl}" 
+                xendorsed="true" >
+      </wsimport>
+      </sequential>
+    </macrodef>
+</project>

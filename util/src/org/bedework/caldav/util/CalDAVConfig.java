@@ -51,6 +51,9 @@ public class CalDAVConfig implements Serializable {
   /* Web calendar service uri - null for no web calendar service */
   private String webcalServiceURI;
 
+  /* Exchange synch web service uri - null for no service */
+  private String exsynchWsURI;
+
   /* Set at server init */
   private boolean calWS;
 
@@ -162,6 +165,22 @@ public class CalDAVConfig implements Serializable {
    */
   public String getWebcalServiceURI() {
     return webcalServiceURI;
+  }
+
+  /** Set the exsynch web service uri - null for no service
+   *
+   * @param val    String
+   */
+  public void setExsynchWsURI(final String val) {
+    exsynchWsURI = val;
+  }
+
+  /** Get the exsynch web service uri - null for no service
+   *
+   * @return String
+   */
+  public String getExsynchWsURI() {
+    return exsynchWsURI;
   }
 
   /** True for a web service - set by server..

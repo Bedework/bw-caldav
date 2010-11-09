@@ -210,16 +210,17 @@ public class CalendarData extends WebdavProperty {
     if (nnm != null) {
       for (int nnmi = 0; nnmi < nnm.getLength(); nnmi++) {
         Node attr = nnm.item(nnmi);
+        String attrName = attr.getNodeName();
 
-        if (attr.getNodeName().equals("return-content-type")) {
+        if (attrName.equals("content-type")) {
           returnContentType = attr.getNodeValue();
           if (returnContentType == null) {
             throw new WebdavBadRequest();
           }
-        } else if (attr.getNodeName().equals("xmlns")) {
+        } else if (attrName.equals("xmlns")) {
         } else {
           // Bad attribute(s)
-          throw new WebdavBadRequest();
+          throw new WebdavBadRequest("Invalid attribute: " + attrName);
         }
       }
     }

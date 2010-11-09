@@ -25,6 +25,7 @@
 */
 package org.bedework.caldav.server;
 
+import org.bedework.caldav.server.exsynchws.ExsynchwsHandler;
 import org.bedework.caldav.server.sysinterface.CalPrincipalInfo;
 import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.caldav.server.sysinterface.SysIntf.IcalResultType;
@@ -112,6 +113,9 @@ public class PostMethod extends MethodBase {
     /** true if web service create of entity */
     public boolean entityCreate;
 
+    /** true if this is an exsynch web service request */
+    public boolean exsynchws;
+
     /**
      * @param req
      * @param intf
@@ -148,10 +152,14 @@ public class PostMethod extends MethodBase {
           webcal = conf.getWebcalServiceURI().equals(resourceUri);
         }
 
-        if (!freeBusy && !webcal && intf.getConfig().getCalWS()) {
-          // POST of entity for create?
-          if ("create".equals(req.getParameter("action"))) {
-            entityCreate = true;
+        if (!freeBusy && !webcal) {
+          if (intf.getConfig().getCalWS()) {
+            // POST of entity for create?
+            if ("create".equals(req.getParameter("action"))) {
+              entityCreate = true;
+            }
+          } else {
+            exsynchws = conf.getExsynchWsURI().equals(resourceUri);
           }
         }
       } else {
@@ -173,7 +181,7 @@ public class PostMethod extends MethodBase {
         }
       }
 
-      if (!freeBusy && !webcal && !entityCreate) {
+      if (!freeBusy && !webcal && !entityCreate && !exsynchws) {
         try {
           reqRdr = req.getReader();
         } catch (Throwable t) {
@@ -225,6 +233,12 @@ public class PostMethod extends MethodBase {
     if (pars.entityCreate) {
       /* Web Service create */
       doEntityCreate(intf, pars, resp);
+      return;
+    }
+
+    if (pars.exsynchws) {
+      new ExsynchwsHandler(intf).processPost(req, resp, pars);
+
       return;
     }
 
