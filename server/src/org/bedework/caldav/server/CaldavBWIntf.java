@@ -80,6 +80,8 @@ import edu.rpi.sss.util.xml.tagdefs.XsiTags;
 
 import org.w3c.dom.Element;
 
+import ietf.params.xml.ns.icalendar_2.IcalendarType;
+
 import java.io.CharArrayReader;
 import java.io.InputStream;
 import java.io.Reader;
@@ -821,6 +823,97 @@ public class CaldavBWIntf extends WebdavNsIntf {
     boolean created = false;
 
     SysiIcalendar cal = sysi.fromIcal(col, contentRdr, contentType,
+                                      IcalResultType.OneComponent);
+    if (cal.getMethod() != null) {
+      throw new WebdavForbidden(CaldavTags.validCalendarObjectResource,
+                                "No method on PUT");
+    }
+
+    CalDAVEvent ev = (CalDAVEvent)cal.iterator().next();
+
+    ev.setParentPath(col.getPath());
+
+    if (entityName == null) {
+      entityName = ev.getUid() + ".ics";
+      bwnode.setEntityName(entityName);
+    }
+
+    if (debug) {
+      debugMsg("putContent: intf has event with name " + entityName +
+               " and summary " + ev.getSummary() +
+               " new event = " + ev.isNew());
+    }
+
+    if (ev.isNew()) {
+      created = true;
+      ev.setName(entityName);
+
+      /* Collection<BwEventProxy>failedOverrides = */
+      sysi.addEvent(ev, noInvites, true);
+
+      bwnode.setEvent(ev);
+    } else if (create) {
+      /* Resource already exists */
+
+      throw new WebdavException(HttpServletResponse.SC_PRECONDITION_FAILED);
+    } else {
+      if (!entityName.equals(ev.getName())) {
+        /* Probably specifying a different uid */
+        throw new WebdavForbidden(CaldavTags.noUidConflict);
+      }
+
+      if ((ifEtag != null) &&
+          (!ifEtag.equals(bwnode.getPrevEtagValue(true)))) {
+        if (debug) {
+          debugMsg("putContent: etag mismatch if=" + ifEtag +
+                   "prev=" + bwnode.getPrevEtagValue(true));
+        }
+        throw new WebdavException(HttpServletResponse.SC_PRECONDITION_FAILED);
+      }
+
+      if (config.getDoScheduleTag() &&
+          (ifStag != null) &&
+          (!ifStag.equals(bwnode.getPrevStagValue()))) {
+        if (debug) {
+          debugMsg("putContent: stag mismatch if=" + ifStag +
+                   "prev=" + bwnode.getPrevStagValue());
+        }
+        throw new WebdavException(HttpServletResponse.SC_PRECONDITION_FAILED);
+      }
+
+      if (debug) {
+        debugMsg("putContent: update event " + ev);
+      }
+      sysi.updateEvent(ev);
+    }
+
+    return created;
+  }
+
+  /**
+   * @param req
+   * @param bwnode
+   * @param ical
+   * @param create
+   * @param ifEtag
+   * @return true for OK
+   * @throws WebdavException
+   */
+  public boolean putEvent(final HttpServletRequest req,
+                          final CaldavComponentNode bwnode,
+                          final IcalendarType ical,
+                          final boolean create,
+                          final String ifEtag) throws WebdavException {
+    String ifStag = Headers.ifScheduleTagMatch(req);
+    boolean noInvites = req.getHeader("Bw-NoInvites") != null; // based on header?
+
+    //BwEvent ev = evinfo.getEvent();
+    String entityName = bwnode.getEntityName();
+
+    CalDAVCollection col = (CalDAVCollection)bwnode.getCollection(true); // deref
+    boolean created = false;
+
+    SysiIcalendar cal = sysi.fromIcal(col, ical,
                                       IcalResultType.OneComponent);
     if (cal.getMethod() != null) {
       throw new WebdavForbidden(CaldavTags.validCalendarObjectResource,

@@ -26,10 +26,12 @@
 package org.bedework.caldav.server.exsynchws;
 
 import org.bedework.caldav.server.CaldavBWIntf;
+import org.bedework.caldav.server.CaldavComponentNode;
 import org.bedework.caldav.server.CaldavReportMethod;
 import org.bedework.caldav.server.PostMethod.RequestPars;
 import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.exsynch.wsmessages.AddItem;
+import org.bedework.exsynch.wsmessages.AddItemResponse;
 import org.bedework.exsynch.wsmessages.GetSycnchInfo;
 import org.bedework.exsynch.wsmessages.ObjectFactory;
 import org.bedework.exsynch.wsmessages.StartServiceNotification;
@@ -465,6 +467,40 @@ public class ExsynchwsHandler extends MethodBase {
                                 "Invalid synch token");
     }
 
+    String name = ai.getCalendarHref() + "/" + ai.getUid() + ".ics";
 
+    WebdavNsNode elNode = intf.getNode(name,
+                                        WebdavNsIntf.existanceNot,
+                                        WebdavNsIntf.nodeTypeEntity);
+
+    boolean added = false;
+    String msg = null;
+
+    try {
+      added = intf.putEvent(req, (CaldavComponentNode)elNode,
+                                  ai.getIcalendar(),
+                                  true, null);
+    } catch (Throwable t) {
+      if (debug) {
+        error(t);
+        msg = t.getLocalizedMessage();
+      }
+    }
+
+    AddItemResponse air = new AddItemResponse();
+
+    if (added) {
+      air.setStatus(StatusType.OK);
+    } else {
+      air.setStatus(StatusType.ERROR);
+    }
+
+    try {
+      marshal(air, resp.getOutputStream());
+    } catch (WebdavException we) {
+      throw we;
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
   }
 }
