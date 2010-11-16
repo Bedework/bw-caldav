@@ -30,16 +30,16 @@ import org.bedework.caldav.server.CaldavComponentNode;
 import org.bedework.caldav.server.CaldavReportMethod;
 import org.bedework.caldav.server.PostMethod.RequestPars;
 import org.bedework.caldav.server.sysinterface.SysIntf;
-import org.bedework.exsynch.wsmessages.AddItem;
-import org.bedework.exsynch.wsmessages.AddItemResponse;
-import org.bedework.exsynch.wsmessages.GetSycnchInfo;
+import org.bedework.exsynch.wsmessages.AddItemResponseType;
+import org.bedework.exsynch.wsmessages.AddItemType;
+import org.bedework.exsynch.wsmessages.GetSycnchInfoType;
 import org.bedework.exsynch.wsmessages.ObjectFactory;
-import org.bedework.exsynch.wsmessages.StartServiceNotification;
-import org.bedework.exsynch.wsmessages.StartServiceResponse;
+import org.bedework.exsynch.wsmessages.StartServiceNotificationType;
+import org.bedework.exsynch.wsmessages.StartServiceResponseType;
 import org.bedework.exsynch.wsmessages.StatusType;
-import org.bedework.exsynch.wsmessages.SynchInfoResponse;
+import org.bedework.exsynch.wsmessages.SynchInfoResponseType;
 import org.bedework.exsynch.wsmessages.SynchInfoType;
-import org.bedework.exsynch.wsmessages.SynchInfoResponse.SynchInfoResponses;
+import org.bedework.exsynch.wsmessages.SynchInfoResponseType.SynchInfoResponses;
 
 import edu.rpi.cct.webdav.servlet.common.MethodBase;
 import edu.rpi.cct.webdav.servlet.common.PropFindMethod;
@@ -64,6 +64,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.NamespaceContext;
@@ -102,6 +103,8 @@ public class ExsynchwsHandler extends MethodBase {
   static volatile Object monitor = new Object();
 
   static ActiveConnectionInfo activeConnection;
+
+  ObjectFactory of = new ObjectFactory();
 
   /**
    * @param intf
@@ -155,19 +158,22 @@ public class ExsynchwsHandler extends MethodBase {
       Unmarshaller u = jc.createUnmarshaller();
 
       Object o = u.unmarshal(body.getFirstChild());
+      if (o instanceof JAXBElement) {
+        o = ((JAXBElement)o).getValue();
+      }
 
-      if (o instanceof GetSycnchInfo) {
-        doGetSycnchInfo((GetSycnchInfo)o, req, resp);
+      if (o instanceof GetSycnchInfoType) {
+        doGetSycnchInfo((GetSycnchInfoType)o, req, resp);
         return;
       }
 
-      if (o instanceof StartServiceNotification) {
-        doStartService((StartServiceNotification)o, resp);
+      if (o instanceof StartServiceNotificationType) {
+        doStartService((StartServiceNotificationType)o, resp);
         return;
       }
 
-      if (o instanceof AddItem) {
-        doAddItem((AddItem)o, req, resp);
+      if (o instanceof AddItemType) {
+        doAddItem((AddItemType)o, req, resp);
         return;
       }
 
@@ -197,7 +203,7 @@ public class ExsynchwsHandler extends MethodBase {
    *                   Private methods
    * ==================================================================== */
 
-  private void doStartService(final StartServiceNotification ssn,
+  private void doStartService(final StartServiceNotificationType ssn,
                               final HttpServletResponse resp) throws WebdavException {
     if (debug) {
       trace("StartServiceNotification: url=" + ssn.getSubscribeUrl() +
@@ -223,8 +229,7 @@ public class ExsynchwsHandler extends MethodBase {
       resp.setStatus(HttpServletResponse.SC_OK);
       resp.setContentType("text/xml; charset=UTF-8");
 
-      ObjectFactory of = new ObjectFactory();
-      StartServiceResponse ssr = of.createStartServiceResponse();
+      StartServiceResponseType ssr = of.createStartServiceResponseType();
 
       if (ok) {
         ssr.setStatus(StatusType.OK);
@@ -234,7 +239,7 @@ public class ExsynchwsHandler extends MethodBase {
 
       ssr.setToken(activeConnection.synchToken);
 
-      marshal(ssr, resp.getOutputStream());
+      marshal(of.createStartServiceResponse(ssr), resp.getOutputStream());
     } catch (WebdavException we) {
       throw we;
     } catch(Throwable t) {
@@ -406,7 +411,7 @@ public class ExsynchwsHandler extends MethodBase {
     }
   }
 
-  private void doGetSycnchInfo(final GetSycnchInfo gsi,
+  private void doGetSycnchInfo(final GetSycnchInfoType gsi,
                                final HttpServletRequest req,
                                final HttpServletResponse resp) throws WebdavException {
     if (debug) {
@@ -422,7 +427,7 @@ public class ExsynchwsHandler extends MethodBase {
                                 "Invalid synch token");
     }
 
-    SynchInfoResponse sir = new SynchInfoResponse();
+    SynchInfoResponseType sir = new SynchInfoResponseType();
 
     sir.setCalendarHref(gsi.getCalendarHref());
 
@@ -442,7 +447,7 @@ public class ExsynchwsHandler extends MethodBase {
     sirs.getSynchInfo().addAll(sis);
 
     try {
-      marshal(sir, resp.getOutputStream());
+      marshal(of.createSynchInfoResponse(sir), resp.getOutputStream());
     } catch (WebdavException we) {
       throw we;
     } catch (Throwable t) {
@@ -450,7 +455,7 @@ public class ExsynchwsHandler extends MethodBase {
     }
   }
 
-  private void doAddItem(final AddItem ai,
+  private void doAddItem(final AddItemType ai,
                          final HttpServletRequest req,
                          final HttpServletResponse resp) throws WebdavException {
     if (debug) {
@@ -487,7 +492,7 @@ public class ExsynchwsHandler extends MethodBase {
       }
     }
 
-    AddItemResponse air = new AddItemResponse();
+    AddItemResponseType air = new AddItemResponseType();
 
     if (added) {
       air.setStatus(StatusType.OK);
@@ -496,7 +501,7 @@ public class ExsynchwsHandler extends MethodBase {
     }
 
     try {
-      marshal(air, resp.getOutputStream());
+      marshal(of.createAddItemResponse(air), resp.getOutputStream());
     } catch (WebdavException we) {
       throw we;
     } catch (Throwable t) {
