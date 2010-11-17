@@ -139,7 +139,9 @@
     <delete dir="${sourcedestdir}/ietf" />
     
     <wsimport wsdl="${bedework.home}/resources/exsynchwsdefs/wssvc.wsdl"
-              sourcedestdir="${sourcedestdir}" />
+              sourcedestdir="${sourcedestdir}" 
+              bindingsdir="${bedework.home}/resources/exsynchwsdefs/wsdlbindings"
+    />
   </target>
 
   <target name="clean-build" depends="clean,build"
