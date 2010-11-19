@@ -17,7 +17,7 @@
             location="${project.home}/../.." />
 
   <property name="project.name" value="${org.bedework.package.name}"/>
-  <property name="project.version" value="${org.bedework.version}"/>
+  <property name="project.version" value="${org.bedework.caldav.version}"/>
 
   <property name="dist.home" location="${project.home}/dist"/>
   <property name="lib.dir" location="${project.home}/lib"/>
@@ -47,18 +47,15 @@
     <getJar name="log4j" version="1.2.8" />
     <getJar name="servletapi" version="2.4" />
 
-    <getJar name="bw-davio" version="3.6" project="davutil" />
+    <getJar name="bw-davio" 
+    	      version="${org.bedework.davutil.version}" project="davutil" />
+    <getJar name="rpiaccess" 
+    	      version="${org.bedework.access.version}" project="access" />
+    <getJar name="rpiutil" 
+    	      version="${org.bedework.rpiutil.version}" project="rpiutil" />
     <getJar name="bw-webdavserver" 
-    	      version="${org.bedework.webdav.version}" project="webdav" />
-    <getJar name="rpiaccess" version="3.6" project="access" />
-    <getJar name="rpiutil" version="3.6" project="rpiutil" />
+            version="${org.bedework.webdav.version}" project="webdav" />
   	
-  	<!--
-    <getJar name="bw-exsynch-genwssrc" version="3.7" project="exchgsynch" 
-            projecthome="${env.QUICKSTART_HOME}/exchgsynch" />
-    <property name="org.bedework.caldav.client.base" location="${project.home}/client" />
-            -->
-
     <property name="org.bedework.module.genwssrc.base"
               location="${project.home}/genexsynchwssrc" />
 
