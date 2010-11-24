@@ -27,11 +27,11 @@ package org.bedework.caldav.server.exsynchws;
 
 import org.bedework.caldav.server.CaldavBWIntf;
 import org.bedework.caldav.server.CaldavComponentNode;
-import org.bedework.caldav.server.CaldavReportMethod;
 import org.bedework.caldav.server.PostMethod.RequestPars;
 import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.exsynch.wsmessages.AddItem;
 import org.bedework.exsynch.wsmessages.AddItemResponse;
+import org.bedework.exsynch.wsmessages.FetchItem;
 import org.bedework.exsynch.wsmessages.GetSycnchInfo;
 import org.bedework.exsynch.wsmessages.ObjectFactory;
 import org.bedework.exsynch.wsmessages.StartServiceNotification;
@@ -42,23 +42,13 @@ import org.bedework.exsynch.wsmessages.SynchInfoType;
 import org.bedework.exsynch.wsmessages.SynchInfoResponse.SynchInfoResponses;
 
 import edu.rpi.cct.webdav.servlet.common.MethodBase;
-import edu.rpi.cct.webdav.servlet.common.PropFindMethod;
-import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
-import edu.rpi.sss.util.xml.XmlUtil;
 
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import java.io.OutputStream;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -67,16 +57,10 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.namespace.NamespaceContext;
-import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPBody;
 import javax.xml.soap.SOAPMessage;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathFactory;
 
 /** Class extended by classes which handle special GET requests, e.g. the
  * freebusy service, web calendars, ischedule etc.
@@ -177,6 +161,11 @@ public class ExsynchwsHandler extends MethodBase {
         return;
       }
 
+      if (o instanceof FetchItem) {
+        doFetchItem((FetchItem)o, req, resp);
+        return;
+      }
+
       throw new WebdavException("Unhandled request");
     } catch (WebdavException we) {
       throw we;
@@ -268,149 +257,6 @@ public class ExsynchwsHandler extends MethodBase {
     }
   }
 
-  class Report extends CaldavReportMethod {
-    Report() {
-      super();
-
-      nsIntf = intf;
-      xml = nsIntf.getXmlEmit();
-    }
-
-    List<SynchInfoType> query(final String resourceUri) throws WebdavException {
-      // Build a report query and execute it.
-
-      StringBuilder sb = new StringBuilder();
-
-      sb.append("<?xml version='1.0' encoding='utf-8' ?>");
-      sb.append("<C:calendar-query xmlns:C='urn:ietf:params:xml:ns:caldav'>");
-      sb.append("  <D:prop xmlns:D='DAV:'>");
-      sb.append("    <D:getetag/>");
-      sb.append("    <C:calendar-data content-type='application/calendar+xml'>");
-      sb.append("      <C:comp name='VCALENDAR'>");
-      sb.append("        <C:comp name='VEVENT'>");
-      sb.append("          <C:prop name='X-BEDEWORK-EXSYNC-LASTMOD'/>");
-      sb.append("          <C:prop name='UID'/>");
-      sb.append("        </C:comp>");
-      sb.append("        <C:comp name='VTODO'>");
-      sb.append("          <C:prop name='X-BEDEWORK-EXSYNC-LASTMOD'/>");
-      sb.append("          <C:prop name='UID'/>");
-      sb.append("        </C:comp>");
-      sb.append("      </C:comp>");
-      sb.append("    </C:calendar-data>");
-      sb.append("  </D:prop>");
-      sb.append("  <C:filter>");
-      sb.append("    <C:comp-filter name='VCALENDAR'>");
-      //sb.append("      <C:comp-filter name='VEVENT'>");
-      //sb.append("      </C:comp-filter>");
-      sb.append("    </C:comp-filter>");
-      sb.append("  </C:filter>");
-      sb.append("</C:calendar-query>");
-
-      pm = new PropFindMethod();
-      pm.init(getNsIntf(), debug, true);
-
-      Document doc = parseContent(sb.length(),
-                                  new StringReader(sb.toString()));
-
-      processDoc(doc);
-
-      try {
-        // Set up XmlEmit so we can process the output.
-        StringWriter sw = new StringWriter();
-        xml.startEmit(sw);
-
-        process(resourceUri,
-                1);  // depth
-
-        String s = sw.toString();
-        Document resDoc = parseContent(s.length(),
-                                       new StringReader(s));
-
-        NamespaceContext ctx = new NamespaceContext() {
-          public String getNamespaceURI(final String prefix) {
-            if (prefix.equals("D")) {
-              return "DAV";
-            }
-
-            if (prefix.equals("C")) {
-              return "urn:ietf:params:xml:ns:caldav";
-            }
-
-            if (prefix.equals("X")) {
-              return "urn:ietf:params:xml:ns:icalendar-2.0";
-            }
-
-            return null;
-          }
-
-          public Iterator getPrefixes(final String val) {
-            return null;
-          }
-
-
-          public String getPrefix(final String uri) {
-            return null;
-          }
-        };
-
-        XPathFactory xpathFact = XPathFactory.newInstance();
-        XPath xpath = xpathFact.newXPath();
-
-        xpath.setNamespaceContext(ctx);
-
-        XPathExpression expr = xpath.compile("//D:propstat/D:prop/C:calendar-data");
-
-        String calCompPath = "X:icalendar/X:vcalendar/X:components";
-
-        XPathExpression eventUidExpr = xpath.compile(calCompPath + "/X:vevent/X:properties/X:uid/X:text");
-        XPathExpression eventLmExpr = xpath.compile("/X:vevent/X:properties/X:x-bedework-exsync-lastmod/X:text");
-
-        XPathExpression taskUidExpr = xpath.compile(calCompPath + "/X:vevent/X:properties/X:uid/X:text");
-        XPathExpression taskLmExpr = xpath.compile("/X:vevent/X:properties/X:x-bedework-exsync-lastmod/X:text");
-
-        Object result = expr.evaluate(resDoc, XPathConstants.NODESET);
-        NodeList nodes = (NodeList)result;
-
-        List<SynchInfoType> sis = new ArrayList<SynchInfoType>();
-
-        for (int i = 0; i < nodes.getLength(); i++) {
-          Node n = nodes.item(i);
-
-          String uid = (String)eventUidExpr.evaluate(n, XPathConstants.STRING);
-          String lm = (String)eventLmExpr.evaluate(n, XPathConstants.STRING);
-
-          if ((uid == null) || (uid.length() == 0)) {
-            // task?
-            uid = (String)taskUidExpr.evaluate(n, XPathConstants.STRING);
-            lm = (String)taskLmExpr.evaluate(n, XPathConstants.STRING);
-          }
-
-          if (uid == null) {
-            continue;
-          }
-          SynchInfoType si = new SynchInfoType();
-
-          si.setUid(uid);
-          si.setExchangeLastmod(lm);
-
-          sis.add(si);
-        }
-
-        return sis;
-      } catch (WebdavException we) {
-        throw we;
-      } catch (Throwable t) {
-        throw new WebdavException(t);
-      }
-    }
-
-    private void expect(final Element el, final QName q) throws WebdavException {
-      if (!XmlUtil.nodeMatches(el, q)) {
-        throw new WebdavBadRequest("Expected " + q);
-      }
-    }
-  }
-
   private void doGetSycnchInfo(final GetSycnchInfo gsi,
                                final HttpServletRequest req,
                                final HttpServletResponse resp) throws WebdavException {
@@ -440,7 +286,7 @@ public class ExsynchwsHandler extends MethodBase {
       throw new WebdavException("Unreachable " + gsi.getCalendarHref());
     }
 
-    List<SynchInfoType> sis = new Report().query(gsi.getCalendarHref());
+    List<SynchInfoType> sis = new Report(nsIntf).query(gsi.getCalendarHref());
 
     SynchInfoResponses sirs = new SynchInfoResponses();
     sir.setSynchInfoResponses(sirs);
@@ -463,7 +309,6 @@ public class ExsynchwsHandler extends MethodBase {
             "\n       principal=" + ai.getPrincipalHref() +
             "\n           token=" + ai.getSynchToken());
     }
-
 
     intf.reAuth(req, ai.getPrincipalHref());
 
@@ -506,6 +351,23 @@ public class ExsynchwsHandler extends MethodBase {
       throw we;
     } catch (Throwable t) {
       throw new WebdavException(t);
+    }
+  }
+
+  private void doFetchItem(final FetchItem fi,
+                           final HttpServletRequest req,
+                           final HttpServletResponse resp) throws WebdavException {
+    if (debug) {
+      trace("AddItem:       cal=" + fi.getCalendarHref() +
+            "\n       principal=" + fi.getPrincipalHref() +
+            "\n           token=" + fi.getSynchToken());
+    }
+
+    intf.reAuth(req, fi.getPrincipalHref());
+
+    if (!fi.getSynchToken().equals(activeConnection.synchToken)) {
+      throw new WebdavException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                                "Invalid synch token");
     }
   }
 }
