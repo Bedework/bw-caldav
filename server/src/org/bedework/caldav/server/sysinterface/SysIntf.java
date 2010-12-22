@@ -614,6 +614,16 @@ public interface SysIntf {
   public Calendar toCalendar(CalDAVEvent ev,
                              boolean incSchedMethod) throws WebdavException;
 
+  /** Make an XML IcalendarType from an event.
+   *
+   * @param ev
+   * @param incSchedMethod - true if we should emit the scheduling method
+   * @return IcalendarType
+   * @throws WebdavException
+   */
+  public IcalendarType toIcalendar(CalDAVEvent ev,
+                                   boolean incSchedMethod) throws WebdavException;
+
   /** Convert a Calendar to it's string form
    *
    * @param cal Calendar to convert

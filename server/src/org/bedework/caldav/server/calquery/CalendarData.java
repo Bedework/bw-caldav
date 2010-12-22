@@ -35,6 +35,7 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavProperty;
 import edu.rpi.sss.util.xml.XmlEmit;
 import edu.rpi.sss.util.xml.XmlUtil;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
+import edu.rpi.sss.util.xml.tagdefs.XcalTags;
 
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
@@ -324,7 +325,13 @@ public class CalendarData extends WebdavProperty {
         }
 
         try {
-          xml.cdataValue(transformVevent(node.getIcal(), subcomp.getProps()));
+          if ((returnContentType != null) &&
+              returnContentType.equals(XcalTags.mimetype)) {
+            // XXX Just return the whole lot for the moment
+            node.writeContent(xml, null, returnContentType);
+          } else {
+            xml.cdataValue(transformVevent(node.getIcal(), subcomp.getProps()));
+          }
         } catch (IOException ioe) {
           throw new WebdavException(ioe);
         }

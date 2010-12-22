@@ -25,6 +25,7 @@
 */
 package org.bedework.caldav.server.exsynchws;
 
+import org.bedework.caldav.server.CalDAVEvent;
 import org.bedework.caldav.server.CaldavBWIntf;
 import org.bedework.caldav.server.CaldavComponentNode;
 import org.bedework.caldav.server.PostMethod.RequestPars;
@@ -32,6 +33,7 @@ import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.exsynch.wsmessages.AddItem;
 import org.bedework.exsynch.wsmessages.AddItemResponse;
 import org.bedework.exsynch.wsmessages.FetchItem;
+import org.bedework.exsynch.wsmessages.FetchItemResponse;
 import org.bedework.exsynch.wsmessages.GetSycnchInfo;
 import org.bedework.exsynch.wsmessages.ObjectFactory;
 import org.bedework.exsynch.wsmessages.StartServiceNotification;
@@ -68,8 +70,6 @@ import javax.xml.soap.SOAPMessage;
  * @author Mike Douglass
  */
 public class ExsynchwsHandler extends MethodBase {
-  protected CaldavBWIntf intf;
-
   private MessageFactory soapMsgFactory;
   private JAXBContext jc;
 
@@ -95,7 +95,7 @@ public class ExsynchwsHandler extends MethodBase {
    * @throws WebdavException
    */
   public ExsynchwsHandler(final CaldavBWIntf intf) throws WebdavException {
-    this.intf = intf;
+    nsIntf = intf;
 
     try {
       if (soapMsgFactory == null) {
@@ -178,19 +178,23 @@ public class ExsynchwsHandler extends MethodBase {
    * @return current account
    */
   public String getAccount() {
-    return intf.getAccount();
+    return getNsIntf().getAccount();
   }
 
   /**
    * @return SysIntf
    */
   public SysIntf getSysi() {
-    return intf.getSysi();
+    return getIntf().getSysi();
   }
 
   /* ====================================================================
    *                   Private methods
    * ==================================================================== */
+
+  private CaldavBWIntf getIntf() {
+    return (CaldavBWIntf)getNsIntf();
+  }
 
   private void doStartService(final StartServiceNotification ssn,
                               final HttpServletResponse resp) throws WebdavException {
@@ -266,7 +270,7 @@ public class ExsynchwsHandler extends MethodBase {
             "\n           token=" + gsi.getSynchToken());
     }
 
-    intf.reAuth(req, gsi.getPrincipalHref());
+    getIntf().reAuth(req, gsi.getPrincipalHref());
 
     if (!gsi.getSynchToken().equals(activeConnection.synchToken)) {
       throw new WebdavException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
@@ -277,9 +281,9 @@ public class ExsynchwsHandler extends MethodBase {
 
     sir.setCalendarHref(gsi.getCalendarHref());
 
-    WebdavNsNode calNode = intf.getNode(gsi.getCalendarHref(),
-                                        WebdavNsIntf.existanceMust,
-                                        WebdavNsIntf.nodeTypeCollection);
+    WebdavNsNode calNode = getNsIntf().getNode(gsi.getCalendarHref(),
+                                               WebdavNsIntf.existanceMust,
+                                               WebdavNsIntf.nodeTypeCollection);
 
     if (calNode == null) {
       // Drop this subscription
@@ -310,7 +314,7 @@ public class ExsynchwsHandler extends MethodBase {
             "\n           token=" + ai.getSynchToken());
     }
 
-    intf.reAuth(req, ai.getPrincipalHref());
+    getIntf().reAuth(req, ai.getPrincipalHref());
 
     if (!ai.getSynchToken().equals(activeConnection.synchToken)) {
       throw new WebdavException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
@@ -319,17 +323,17 @@ public class ExsynchwsHandler extends MethodBase {
 
     String name = ai.getCalendarHref() + "/" + ai.getUid() + ".ics";
 
-    WebdavNsNode elNode = intf.getNode(name,
-                                        WebdavNsIntf.existanceNot,
-                                        WebdavNsIntf.nodeTypeEntity);
+    WebdavNsNode elNode = getNsIntf().getNode(name,
+                                              WebdavNsIntf.existanceNot,
+                                              WebdavNsIntf.nodeTypeEntity);
 
     boolean added = false;
     String msg = null;
 
     try {
-      added = intf.putEvent(req, (CaldavComponentNode)elNode,
-                                  ai.getIcalendar(),
-                                  true, null);
+      added = getIntf().putEvent(req, (CaldavComponentNode)elNode,
+                                 ai.getIcalendar(),
+                                 true, null);
     } catch (Throwable t) {
       if (debug) {
         error(t);
@@ -363,11 +367,36 @@ public class ExsynchwsHandler extends MethodBase {
             "\n           token=" + fi.getSynchToken());
     }
 
-    intf.reAuth(req, fi.getPrincipalHref());
+    getIntf().reAuth(req, fi.getPrincipalHref());
 
     if (!fi.getSynchToken().equals(activeConnection.synchToken)) {
       throw new WebdavException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
                                 "Invalid synch token");
+    }
+
+
+    String name = fi.getCalendarHref() + "/" + fi.getUid() + ".ics";
+
+    WebdavNsNode elNode = getNsIntf().getNode(name,
+                                              WebdavNsIntf.existanceMust,
+                                              WebdavNsIntf.nodeTypeEntity);
+
+    FetchItemResponse fir = new FetchItemResponse();
+
+    if (elNode == null) {
+      fir.setStatus(StatusType.ERROR);
+    } else {
+      fir.setStatus(StatusType.OK);
+      CalDAVEvent ev = ((CaldavComponentNode)elNode).getEvent();
+      fir.setIcalendar(getIntf().getSysi().toIcalendar(ev, false));
+    }
+
+    try {
+      marshal(fir, resp.getOutputStream());
+    } catch (WebdavException we) {
+      throw we;
+    } catch (Throwable t) {
+      throw new WebdavException(t);
     }
   }
 }

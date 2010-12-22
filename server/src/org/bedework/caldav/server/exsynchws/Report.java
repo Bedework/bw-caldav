@@ -146,22 +146,24 @@ class Report extends CaldavReportMethod {
 
       xpath.setNamespaceContext(ctx);
 
-      XPathExpression expr = xpath.compile("//D:propstat/D:prop/C:calendar-data");
+      XPathExpression expr = xpath.compile("//C:calendar-data");
 
       String calCompPath = "X:icalendar/X:vcalendar/X:components";
 
       XPathExpression eventUidExpr = xpath.compile(calCompPath + "/X:vevent/X:properties/X:uid/X:text");
-      XPathExpression eventLmExpr = xpath.compile("/X:vevent/X:properties/X:x-bedework-exsync-lastmod/X:text");
+      XPathExpression eventLmExpr = xpath.compile(calCompPath + "/X:vevent/X:properties/X:x-bedework-exsynch-lastmod/X:text");
 
-      XPathExpression taskUidExpr = xpath.compile(calCompPath + "/X:vevent/X:properties/X:uid/X:text");
-      XPathExpression taskLmExpr = xpath.compile("/X:vevent/X:properties/X:x-bedework-exsync-lastmod/X:text");
+      XPathExpression taskUidExpr = xpath.compile(calCompPath + "/X:vtodo/X:properties/X:uid/X:text");
+      XPathExpression taskLmExpr = xpath.compile(calCompPath + "/X:vtodo/X:properties/X:x-bedework-exsynch-lastmod/X:text");
 
       Object result = expr.evaluate(resDoc, XPathConstants.NODESET);
       NodeList nodes = (NodeList)result;
 
       List<SynchInfoType> sis = new ArrayList<SynchInfoType>();
 
-      for (int i = 0; i < nodes.getLength(); i++) {
+      int numItems = nodes.getLength();
+
+      for (int i = 0; i < numItems; i++) {
         Node n = nodes.item(i);
 
         String uid = (String)eventUidExpr.evaluate(n, XPathConstants.STRING);
