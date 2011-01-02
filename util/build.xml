@@ -9,7 +9,6 @@
   <dirname property="util.home" file="${ant.file}"/>
 
   <property name="source.home" location="${util.home}/src"/>
-  <property name="base.name" value="util"/>
 
   <target name="init">
     <dirname property="this.dir" file="${ant.file}"/>

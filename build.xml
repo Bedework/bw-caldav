@@ -22,7 +22,7 @@
   <property name="dist.home" location="${project.home}/dist"/>
   <property name="lib.dir" location="${project.home}/lib"/>
 
-  <property name="build.dir" location="${project.home}/build"/>
+  <property name="build.dir" location="${bedework.home}/build/buildTools"/>
   <property name="buildjar" location="${build.dir}/buildjar.xml"/>
 
   <property name="org.bedework.temp.dir"
@@ -39,6 +39,15 @@
        ================================================================= -->
 
   <target name="init">
+    <if>
+      <not>
+        <istrue value="${org.bedework.build.silent}" />
+      </not>
+      <then>
+        <echo message="* =========== Building ${project.name}" />
+      </then>
+    </if>
+  	
     <delete dir="${lib.dir}" />
     <mkdir dir="${lib.dir}" />
 
@@ -151,7 +160,7 @@
           description="Compile caldav classes"/>
 
   <target name="build-all" depends="init,build-source,cleanup"
-          description="Compile webdav classes"/>
+          description="Compile caldav classes"/>
 
   <!-- ===================== bld.all Target ===============================
      This target builds jar files ready for the deploy target.
