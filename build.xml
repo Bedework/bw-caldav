@@ -138,18 +138,6 @@
        up the caldav server.
        ================================================================= -->
 
-  <target name="genws.source" depends="init">
-    <property name="sourcedestdir" 
-              location="${org.bedework.module.genwssrc.base}/src" />
-    <delete dir="${sourcedestdir}/org" />
-    <delete dir="${sourcedestdir}/ietf" />
-    
-    <wsimport wsdl="${bedework.home}/resources/exsynchwsdefs/wssvc.wsdl"
-              sourcedestdir="${sourcedestdir}" 
-              bindingsdir="${bedework.home}/resources/exsynchwsdefs/wsdlbindings"
-    />
-  </target>
-
   <target name="clean-build" depends="clean,build"
           description="Clean and compile caldav classes"/>
 
@@ -166,7 +154,7 @@
      This target builds jar files ready for the deploy target.
      =================================================================== -->
 
-  <target name="build-source" depends="genws.source,bld.genwssrc,bld.util,
+  <target name="build-source" depends="bld.genwssrc,bld.util,
                                        bld.server" />
 
 <!-- ==================== Javadoc Target ===============================
@@ -206,10 +194,11 @@
        ================================================================= -->
 
   <target name="bld.genwssrc">
-    <ant antfile="${org.bedework.module.genwssrc.base}/build.xml" inheritrefs="true"
-         target="build" >
-      <property name="build.jar.file" location="${genwssrc.jar}" />
-    </ant>
+    <wsimport wsdl="${bedework.home}/resources/exsynchwsdefs/wssvc.wsdl"
+              module-base="${org.bedework.module.genwssrc.base}"
+              jar-file="${genwssrc.jar}"
+              bindingsdir="${bedework.home}/resources/exsynchwsdefs/wsdlbindings"
+    />
   </target>
 
   <target name="bld.util">
