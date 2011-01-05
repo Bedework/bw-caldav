@@ -154,8 +154,21 @@
      This target builds jar files ready for the deploy target.
      =================================================================== -->
 
-  <target name="build-source" depends="bld.genwssrc,bld.util,
-                                       bld.server" />
+  <target name="build-source" >
+    <wsimport wsdl="${bedework.home}/resources/exsynchwsdefs/wssvc.wsdl"
+              module-base="${org.bedework.module.genwssrc.base}"
+              jar-file="${genwssrc.jar}"
+              bindingsdir="${bedework.home}/resources/exsynchwsdefs/wsdlbindings"
+    />
+
+    <build-jar module-base="${org.bedework.caldav.util.base}" 
+               jar-file="${util.jar}" 
+               jar-dependency="${genwssrc.jar}" />
+
+    <build-jar module-base="${org.bedework.caldav.server.base}" 
+               jar-file="${server.jar}" 
+               jar-dependency="${genwssrc.jar}" />
+  </target>
 
 <!-- ==================== Javadoc Target ===============================
      The "javadoc" target creates Javadoc API documentation for the Java
@@ -188,26 +201,5 @@
       <link href="../../webdav/api" />
       <link href="${env.JAVA_HOME}/docs/api" />
     </javadoc>
-  </target>
-
-  <!-- ===================== internal build targets ====================
-       ================================================================= -->
-
-  <target name="bld.genwssrc">
-    <wsimport wsdl="${bedework.home}/resources/exsynchwsdefs/wssvc.wsdl"
-              module-base="${org.bedework.module.genwssrc.base}"
-              jar-file="${genwssrc.jar}"
-              bindingsdir="${bedework.home}/resources/exsynchwsdefs/wsdlbindings"
-    />
-  </target>
-
-  <target name="bld.util">
-      <ant antfile="${org.bedework.caldav.util.base}/build.xml" inheritrefs="true"
-           target="build" />
-  </target>
-
-  <target name="bld.server">
-      <ant antfile="${org.bedework.caldav.server.base}/build.xml" inheritrefs="true"
-           target="build" />
   </target>
 </project>
