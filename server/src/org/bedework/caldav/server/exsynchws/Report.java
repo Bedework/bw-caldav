@@ -42,7 +42,6 @@ import ietf.params.xml.ns.icalendar_2.IcalendarType;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.xml.namespace.NamespaceContext;
@@ -52,33 +51,6 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 
 class Report extends CaldavReportMethod {
-  private static class NsContext implements NamespaceContext {
-    public String getNamespaceURI(final String prefix) {
-      if (prefix.equals("D")) {
-        return "DAV";
-      }
-
-      if (prefix.equals("C")) {
-        return "urn:ietf:params:xml:ns:caldav";
-      }
-
-      if (prefix.equals("X")) {
-        return "urn:ietf:params:xml:ns:icalendar-2.0";
-      }
-
-      return null;
-    }
-
-    public Iterator getPrefixes(final String val) {
-      return null;
-    }
-
-
-    public String getPrefix(final String uri) {
-      return null;
-    }
-  }
-
   /**
    * @param nsIntf
    */
@@ -139,7 +111,7 @@ class Report extends CaldavReportMethod {
       Document resDoc = parseContent(s.length(),
                                      new StringReader(s));
 
-      NamespaceContext ctx = new NsContext();
+      NamespaceContext ctx = new NsContext(null);
 
       XPathFactory xpathFact = XPathFactory.newInstance();
       XPath xpath = xpathFact.newXPath();
