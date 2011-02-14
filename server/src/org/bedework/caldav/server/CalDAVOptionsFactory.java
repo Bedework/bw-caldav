@@ -60,7 +60,7 @@ public class CalDAVOptionsFactory extends OptionsFactory {
       return opts;
     }
 
-    opts = getOptions(globalPrefix, appPrefix, optionsFile, outerTag, debug);
+    opts = getOptions(globalPrefix, appPrefix, optionsFile, outerTag);
     return opts;
   }
 }
