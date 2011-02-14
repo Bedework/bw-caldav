@@ -158,7 +158,7 @@ public class PostMethod extends MethodBase {
             if ("create".equals(req.getParameter("action"))) {
               entityCreate = true;
             }
-          } else {
+          } else if (conf.getExsynchWsURI() != null) {
             exsynchws = conf.getExsynchWsURI().equals(resourceUri);
           }
         }

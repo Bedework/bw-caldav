@@ -1,6 +1,6 @@
 package org.bedework.caldav.server.exsynchws;
 
-import edu.rpi.sss.util.xml.tagdefs.IcalendarDefs;
+import edu.rpi.sss.util.xml.tagdefs.XcalTags;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -20,7 +20,7 @@ public class NsContext implements NamespaceContext {
   static {
     addToMap("D", "DAV");
     addToMap("C", "urn:ietf:params:xml:ns:caldav");
-    addToMap("X", IcalendarDefs.namespace);
+    addToMap("X", XcalTags.namespace);
     addToMap("df", "urn:ietf:params:xml:ns:pidf-diff");
   }
 
