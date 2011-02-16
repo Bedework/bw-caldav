@@ -32,7 +32,7 @@ import java.io.Serializable;
  * @author Mike Douglass
  */
 public class CalDAVConfig implements Serializable {
-  /* Fro bedework build */
+  /* For bedework build */
   private String appType;
 
   private boolean guestMode;
