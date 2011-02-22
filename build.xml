@@ -32,20 +32,6 @@
 
   <target name="init">
     <projectInit/>
-
-    <getJar name="commons-httpclient" version="3.0" />
-    <getJar name="ical4j" version="head-20100601" />
-    <getJar name="log4j" version="1.2.8" />
-    <getJar name="servletapi" version="2.4" />
-
-    <getJar name="bw-davio" 
-    	      version="${org.bedework.davutil.version}" project="davutil" />
-    <getJar name="rpiaccess" 
-    	      version="${org.bedework.access.version}" project="access" />
-    <getJar name="rpiutil" 
-    	      version="${org.bedework.rpiutil.version}" project="rpiutil" />
-    <getJar name="bw-webdavserver" 
-            version="${org.bedework.webdav.version}" project="webdav" />
   	
     <property name="org.bedework.module.genwssrc.base"
               location="${project.home}/genexsynchwssrc" />
@@ -53,34 +39,46 @@
     <property name="org.bedework.caldav.server.base" location="${project.home}/server" />
     <property name="org.bedework.caldav.util.base" location="${project.home}/util" />
 
-    <property name="genwssrc.jar"
-              location="${dist.home}/${org.bedework.module.genwssrc.jar}-${project.version}.jar" />
-
     <property name="server.jar"
               location="${dist.home}/${edu.rpi.cmt.caldav.server.jar}-${project.version}.jar" />
 
     <property name="util.jar"
               location="${dist.home}/${edu.rpi.cmt.caldav.util.jar}-${project.version}.jar" />
+    </target>
+    
+  <target name="build-init" depends="init">
+    <!-- Make sure bwxml is built -->
+    <ant antfile="${bedework.home}/../bwxml/build.xml" inheritall="false" />
+
+    <getJar name="commons-httpclient" version="3.0" />
+    <getJar name="ical4j" version="head-20100601" />
+    <getJar name="log4j" version="1.2.8" />
+    <getJar name="servletapi" version="2.4" />
+
+    <getJar name="bw-davio" 
+            version="${org.bedework.davutil.version}" project="davutil" />
+    <getJar name="rpiaccess" 
+            version="${org.bedework.access.version}" project="access" />
+    <getJar name="rpiutil" 
+            version="${org.bedework.rpiutil.version}" project="rpiutil" />
+    <getJar name="bw-webdavserver" 
+            version="${org.bedework.webdav.version}" project="webdav" />
+
+    <getJar name="bw-exsynchwsschema" 
+            version="${org.bedework.bwxml.version}" project="bwxml" 
+            projecthome="${bedework.home}/../bwxml" />
   </target>
 
   <!-- ===================== bld-source Target ===============================
      This target builds jar files ready for the deploy target.
      =================================================================== -->
 
-  <target name="build-source" >
-    <wsimport wsdl="${bedework.home}/resources/exsynchwsdefs/wssvc.wsdl"
-              module-base="${org.bedework.module.genwssrc.base}"
-              jar-file="${genwssrc.jar}"
-              bindingsdir="${bedework.home}/resources/exsynchwsdefs/wsdlbindings"
-    />
-
+  <target name="build-source" depends="build-init" >
     <build-jar module-base="${org.bedework.caldav.util.base}" 
-               jar-file="${util.jar}" 
-               jar-dependency="${genwssrc.jar}" />
+               jar-file="${util.jar}" />
 
     <build-jar module-base="${org.bedework.caldav.server.base}" 
-               jar-file="${server.jar}" 
-               jar-dependency="${genwssrc.jar}" />
+               jar-file="${server.jar}" />
   </target>
 
 <!-- ==================== Javadoc Target ===============================
