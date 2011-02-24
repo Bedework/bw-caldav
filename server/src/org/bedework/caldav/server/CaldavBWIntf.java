@@ -80,7 +80,7 @@ import edu.rpi.sss.util.xml.tagdefs.XsiTags;
 
 import org.w3c.dom.Element;
 
-import ietf.params.xml.ns.icalendar_2.IcalendarType;
+import ietf.params.xml.ns.icalendar_2.Icalendar;
 
 import java.io.CharArrayReader;
 import java.io.InputStream;
@@ -901,7 +901,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
    */
   public boolean putEvent(final HttpServletRequest req,
                           final CaldavComponentNode bwnode,
-                          final IcalendarType ical,
+                          final Icalendar ical,
                           final boolean create,
                           final String ifEtag) throws WebdavException {
     String ifStag = Headers.ifScheduleTagMatch(req);

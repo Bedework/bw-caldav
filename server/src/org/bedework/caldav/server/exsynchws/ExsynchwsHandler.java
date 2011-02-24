@@ -36,6 +36,7 @@ import org.bedework.exsynch.wsmessages.ArrayOfUpdates;
 import org.bedework.exsynch.wsmessages.FetchItem;
 import org.bedework.exsynch.wsmessages.FetchItemResponse;
 import org.bedework.exsynch.wsmessages.GetSycnchInfo;
+import org.bedework.exsynch.wsmessages.NamespaceType;
 import org.bedework.exsynch.wsmessages.ObjectFactory;
 import org.bedework.exsynch.wsmessages.StartServiceNotification;
 import org.bedework.exsynch.wsmessages.StartServiceResponse;
@@ -50,6 +51,8 @@ import edu.rpi.cct.webdav.servlet.common.MethodBase;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
+import edu.rpi.sss.util.xml.NsContext;
+import edu.rpi.sss.util.xml.tagdefs.XcalTags;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -65,7 +68,6 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.soap.MessageFactory;
@@ -259,7 +261,8 @@ public class ExsynchwsHandler extends MethodBase {
     }
   }
 
-  private Document makeDoc(final Object o) throws WebdavException {
+  private Document makeDoc(final QName name,
+                           final Object o) throws WebdavException {
     try {
       Marshaller marshaller = jc.createMarshaller();
       marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
@@ -270,7 +273,7 @@ public class ExsynchwsHandler extends MethodBase {
 
 //      marshaller.marshal(o, doc);
 
-      marshaller.marshal(new JAXBElement(new QName("uri","local"),
+      marshaller.marshal(new JAXBElement(name,
                                          o.getClass(), o),
                          doc);
 
@@ -475,11 +478,17 @@ public class ExsynchwsHandler extends MethodBase {
       trace("event: " + ev);
     }
 
-    Document doc = makeDoc(getIntf().getSysi().toIcalendar(ev, false));
+    Document doc = makeDoc(XcalTags.icalendar,
+                           getIntf().getSysi().toIcalendar(ev, false));
 
     ArrayOfUpdates aupd = ui.getUpdates();
 
-    NamespaceContext ctx = new NsContext(null);
+    NsContext ctx = new NsContext(null);
+    ctx.clear();
+
+    for (NamespaceType ns: ui.getNamespaces().getNamespaces()) {
+      ctx.add(ns.getPrefix(), ns.getUri());
+    }
 
     XPathFactory xpathFact = XPathFactory.newInstance();
     XPath xpath = xpathFact.newXPath();

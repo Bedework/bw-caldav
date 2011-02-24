@@ -48,7 +48,7 @@ import edu.rpi.sss.util.xml.XmlEmit;
 
 import net.fortuna.ical4j.model.Calendar;
 
-import ietf.params.xml.ns.icalendar_2.IcalendarType;
+import ietf.params.xml.ns.icalendar_2.Icalendar;
 
 import java.io.Reader;
 import java.io.Writer;
@@ -621,7 +621,7 @@ public interface SysIntf {
    * @return IcalendarType
    * @throws WebdavException
    */
-  public IcalendarType toIcalendar(CalDAVEvent ev,
+  public Icalendar toIcalendar(CalDAVEvent ev,
                                    boolean incSchedMethod) throws WebdavException;
 
   /** Convert a Calendar to it's string form
@@ -691,7 +691,7 @@ public interface SysIntf {
    * @throws WebdavException
    */
   public SysiIcalendar fromIcal(CalDAVCollection col,
-                                final IcalendarType ical,
+                                final Icalendar ical,
                                 IcalResultType rtype) throws WebdavException;
 
   /** Create a Calendar object from the named timezone and convert to

@@ -32,12 +32,13 @@ import org.bedework.exsynch.wsmessages.SynchInfoType;
 import edu.rpi.cct.webdav.servlet.common.PropFindMethod;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
+import edu.rpi.sss.util.xml.NsContext;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import ietf.params.xml.ns.icalendar_2.IcalendarType;
+import ietf.params.xml.ns.icalendar_2.Icalendar;
 
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -166,8 +167,8 @@ class Report extends CaldavReportMethod {
     }
   }
 
-  IcalendarType fetch(final String resourceUri,
-                      final String uid) throws WebdavException {
+  Icalendar fetch(final String resourceUri,
+                  final String uid) throws WebdavException {
     // Build a report query and execute it.
 
     StringBuilder sb = new StringBuilder();
