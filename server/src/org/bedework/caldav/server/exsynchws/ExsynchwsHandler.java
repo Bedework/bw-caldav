@@ -25,19 +25,26 @@
 */
 package org.bedework.caldav.server.exsynchws;
 
+import org.bedework.caldav.server.CalDAVCollection;
 import org.bedework.caldav.server.CalDAVEvent;
 import org.bedework.caldav.server.CaldavBWIntf;
 import org.bedework.caldav.server.CaldavComponentNode;
+import org.bedework.caldav.server.SysiIcalendar;
 import org.bedework.caldav.server.PostMethod.RequestPars;
 import org.bedework.caldav.server.sysinterface.SysIntf;
+import org.bedework.caldav.server.sysinterface.SysIntf.IcalResultType;
 import org.bedework.exsynch.wsmessages.AddItem;
 import org.bedework.exsynch.wsmessages.AddItemResponse;
+import org.bedework.exsynch.wsmessages.AddType;
 import org.bedework.exsynch.wsmessages.ArrayOfUpdates;
+import org.bedework.exsynch.wsmessages.BaseUpdateType;
 import org.bedework.exsynch.wsmessages.FetchItem;
 import org.bedework.exsynch.wsmessages.FetchItemResponse;
 import org.bedework.exsynch.wsmessages.GetSycnchInfo;
 import org.bedework.exsynch.wsmessages.NamespaceType;
+import org.bedework.exsynch.wsmessages.NewValueType;
 import org.bedework.exsynch.wsmessages.ObjectFactory;
+import org.bedework.exsynch.wsmessages.RemoveType;
 import org.bedework.exsynch.wsmessages.StartServiceNotification;
 import org.bedework.exsynch.wsmessages.StartServiceResponse;
 import org.bedework.exsynch.wsmessages.StatusType;
@@ -52,12 +59,14 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
 import edu.rpi.sss.util.xml.NsContext;
+import edu.rpi.sss.util.xml.XmlUtil;
 import edu.rpi.sss.util.xml.tagdefs.XcalTags;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import ietf.params.xml.ns.pidf_diff.BaseUpdateType;
+import ietf.params.xml.ns.icalendar_2.Icalendar;
 
 import java.io.OutputStream;
 import java.util.List;
@@ -69,6 +78,7 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPBody;
@@ -472,7 +482,8 @@ public class ExsynchwsHandler extends MethodBase {
       return;
     }
 
-    CalDAVEvent ev = ((CaldavComponentNode)elNode).getEvent();
+    CaldavComponentNode compNode = (CaldavComponentNode)elNode;
+    CalDAVEvent ev = compNode.getEvent();
 
     if (debug) {
       trace("event: " + ev);
@@ -495,6 +506,8 @@ public class ExsynchwsHandler extends MethodBase {
 
     xpath.setNamespaceContext(ctx);
 
+    uir.setStatus(StatusType.OK);
+
     try {
       for (JAXBElement<? extends BaseUpdateType> jel: aupd.getBaseUpdates()) {
         BaseUpdateType but = jel.getValue();
@@ -503,18 +516,143 @@ public class ExsynchwsHandler extends MethodBase {
 
         NodeList nodes = (NodeList)expr.evaluate(doc, XPathConstants.NODESET);
 
+        int nlen = nodes.getLength();
         if (debug) {
-          trace("expr: " + but.getSel() + " found " + nodes.getLength());
+          trace("expr: " + but.getSel() + " found " + nlen);
+        }
+
+        if (nlen != 1) {
+          // We only allow updates to a single node.
+          uir.setStatus(StatusType.ERROR);
+          getIntf().getSysi().rollback();
+          break;
+        }
+
+        Node nd = nodes.item(0);
+
+        if (but instanceof RemoveType) {
+          removeNode(nd);
+          continue;
+        }
+
+        NewValueType nv = (NewValueType)but;
+
+        /* Replacement or new value must be of same type
+         */
+        if (!processNewValue(nv, nd, doc)) {
+          uir.setStatus(StatusType.ERROR);
+          getIntf().getSysi().rollback();
+          break;
         }
       }
 
-      uir.setStatus(StatusType.OK);
+      if (uir.getStatus() == StatusType.OK) {
+        Unmarshaller u = jc.createUnmarshaller();
+
+        Icalendar ical = (Icalendar)u.unmarshal(doc);
+
+  //      WebdavNsNode calNode = getNsIntf().getNode(ui.getCalendarHref(),
+  //                                                 WebdavNsIntf.existanceMust,
+  //                                                 WebdavNsIntf.nodeTypeCollection);
+        CalDAVCollection col = (CalDAVCollection)compNode.getCollection(true); // deref
+
+        SysiIcalendar cal = getIntf().getSysi().fromIcal(col,
+                                                         ical,
+                                                         IcalResultType.OneComponent);
+
+        CalDAVEvent newEv = (CalDAVEvent)cal.iterator().next();
+
+        ev.setParentPath(col.getPath());
+        newEv.setName(ev.getName());
+
+        getIntf().getSysi().updateEvent(newEv);
+      }
 
       marshal(uir, resp.getOutputStream());
     } catch (XPathExpressionException xpe) {
       throw new WebdavException(xpe);
     } catch (WebdavException we) {
       throw we;
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
+  }
+
+  private void removeNode(final Node nd) throws WebdavException {
+    Node parent = nd.getParentNode();
+
+    parent.removeChild(nd);
+  }
+
+  private boolean processNewValue(final NewValueType nv,
+                                  final Node nd,
+                                  final Document evDoc) throws WebdavException {
+    Node parent = nd.getParentNode();
+    Node matchNode;
+
+    boolean add = nv instanceof AddType;
+    QName valName;
+
+    if (add) {
+      matchNode = nd;
+      valName = new QName("urn:ietf:params:xml:ns:pidf-diff", "add");
+    } else {
+      matchNode = parent;
+      valName = new QName("urn:ietf:params:xml:ns:pidf-diff", "replace");
+    }
+
+    validate: {
+      if (nv.getBaseComponent() != null) {
+        // parent must be a components element
+        if (!XmlUtil.nodeMatches(matchNode, XcalTags.components)) {
+          return false;
+        }
+
+        break validate;
+      }
+
+      if (nv.getBaseProperty() != null) {
+        // parent must be a properties element
+        if (!XmlUtil.nodeMatches(matchNode, XcalTags.properties)) {
+          return false;
+        }
+        break validate;
+      }
+
+      if (nv.getBaseParameter() != null) {
+        // parent must be a parameters element
+        if (!XmlUtil.nodeMatches(matchNode, XcalTags.parameters)) {
+          return false;
+        }
+        break validate;
+      }
+
+      return false;
+    } // validate
+
+    try {
+      DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+      dbf.setNamespaceAware(true);
+      DocumentBuilder db = dbf.newDocumentBuilder();
+      Document doc = db.newDocument();
+
+      Marshaller m = jc.createMarshaller();
+
+      m.marshal(new JAXBElement(valName,
+                                nv.getClass(), nv),
+                doc);
+
+      Node newNode = doc.getFirstChild().getFirstChild();
+
+      if (add) {
+        matchNode.appendChild(evDoc.importNode(newNode, true));
+
+        return true;
+      }
+
+      parent.replaceChild(evDoc.importNode(newNode, true), nd);
+
+      return true;
     } catch (Throwable t) {
       throw new WebdavException(t);
     }

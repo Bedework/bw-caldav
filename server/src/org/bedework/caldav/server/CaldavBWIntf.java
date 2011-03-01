@@ -78,6 +78,9 @@ import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 import edu.rpi.sss.util.xml.tagdefs.XrdTags;
 import edu.rpi.sss.util.xml.tagdefs.XsiTags;
 
+import org.oasis_open.docs.ns.xri.xrd_1.AnyURI;
+import org.oasis_open.docs.ns.xri.xrd_1.Link;
+import org.oasis_open.docs.ns.xri.xrd_1.XRD;
 import org.w3c.dom.Element;
 
 import ietf.params.xml.ns.icalendar_2.Icalendar;
@@ -99,6 +102,8 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
 
 /** This class implements a namespace interface for the webdav abstract
@@ -1101,17 +1106,17 @@ public class CaldavBWIntf extends WebdavNsIntf {
     resp.setContentType("application/xrd+xml; charset=UTF-8");
 
     try {
-      xml.addNs(new NameSpace(XrdTags.namespace, "xrd"), true);
+      XRD xrd = new XRD();
 
-      xml.startEmit(resp.getWriter());
+      AnyURI uri = new AnyURI();
 
-      xml.openTag(XrdTags.xrd);
-
-      xml.property(XrdTags.subject, node.getUrlValue());
+      uri.setValue(node.getUrlValue());
+      xrd.setSubject(uri);
 
       for (PropertyTagXrdEntry pxe: node.getXrdNames()) {
         if (pxe.inPropAll) {
-          node.generateXrdValue(pxe.xrdName, this, true);
+          node.generateXrdProperties(xrd.getAliasAndPropertiesAndLinks(),
+                                     pxe.xrdName, this, true);
         }
       }
 
@@ -1121,27 +1126,24 @@ public class CaldavBWIntf extends WebdavNsIntf {
         for (WebdavNsNode child: getChildren(node)) {
           CaldavBwNode cn = (CaldavBwNode)child;
 
-          xml.startTagIndent(XrdTags.link);
-          xml.attribute("rel", CalWSXrdDefs.childCollection);
-          xml.newline();
-          xml.value("       "); // Just to indent
-          xml.attribute("href", cn.getUrlValue());
-          xml.endOpeningTag();
-          xml.newline();
+          Link l = new Link();
+          l.setRel(CalWSXrdDefs.childCollection);
+          l.setHref(cn.getUrlValue());
 
           for (PropertyTagXrdEntry pxe: node.getXrdNames()) {
             if (pxe.inLink) {
-              cn.generateXrdValue(pxe.xrdName, this, true);
+              cn.generateXrdProperties(l.getTitlesAndPropertiesAndAnies(),
+                                       pxe.xrdName, this, true);
             }
           }
-
-          xml.closeTag(XrdTags.link);
         }
       }
 
-      xml.closeTag(XrdTags.xrd);
+      JAXBContext jc = JAXBContext.newInstance(XrdTags.namespace);
 
-      xml.flush();
+      Marshaller m = jc.createMarshaller();
+      m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+      m.marshal(xrd, resp.getOutputStream());
 
       Content c = new Content();
 

@@ -32,17 +32,18 @@ import edu.rpi.cct.webdav.servlet.shared.WdEntity;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
-import edu.rpi.sss.util.xml.XmlEmit;
 import edu.rpi.sss.util.xml.tagdefs.CalWSXrdDefs;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 import edu.rpi.sss.util.xml.tagdefs.XrdTags;
-import edu.rpi.sss.util.xml.tagdefs.XsiTags;
 
-import java.io.IOException;
+import org.oasis_open.docs.ns.xri.xrd_1.PropertyType;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 
+import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 
 /** Class to represent a caldav node.
@@ -237,17 +238,17 @@ public abstract class CaldavBwNode extends WebdavNsNode {
   }
 
   /**
+   * @param props
    * @param name
    * @param intf
    * @param allProp
-   * @return true if proeprty emiited
+   * @return true if proeprty emitted
    * @throws WebdavException
    */
-  public boolean generateXrdValue(final String name,
-                                  final WebdavNsIntf intf,
-                                  final boolean allProp) throws WebdavException {
-    XmlEmit xml = intf.getXmlEmit();
-
+  public boolean generateXrdProperties(final List<Object> props,
+                                       final String name,
+                                       final WebdavNsIntf intf,
+                                       final boolean allProp) throws WebdavException {
     try {
       if (name.equals(CalWSXrdDefs.created)) {
         String val = getCreDate();
@@ -255,7 +256,7 @@ public abstract class CaldavBwNode extends WebdavNsNode {
           return true;
         }
 
-        xrdProperty(xml, name, val);
+        props.add(xrdProperty(name, val));
         return true;
       }
 
@@ -265,7 +266,7 @@ public abstract class CaldavBwNode extends WebdavNsNode {
           return true;
         }
 
-        xrdProperty(xml, name, val);
+        props.add(xrdProperty(name, val));
         return true;
       }
 
@@ -275,7 +276,7 @@ public abstract class CaldavBwNode extends WebdavNsNode {
           return true;
         }
 
-        xrdProperty(xml, name, val);
+        props.add(xrdProperty(name, val));
         return true;
       }
 
@@ -284,7 +285,7 @@ public abstract class CaldavBwNode extends WebdavNsNode {
         if (!href.endsWith("/")) {
           href += "/";
         }
-        xrdProperty(xml, name, href);
+        props.add(xrdProperty(name, href));
 
         return true;
       }
@@ -310,28 +311,22 @@ public abstract class CaldavBwNode extends WebdavNsNode {
     return xrdNames.values();
   }
 
-  protected void xrdProperty(final XmlEmit xml, final String name,
-                             final String val) throws WebdavException {
-    try {
-      xml.openTagNoNewline(XrdTags.property, "type", name);
-      xml.value(val);
-      xml.closeTagNoblanks(XrdTags.property);
-    } catch (IOException ioe) {
-      throw new WebdavException(ioe);
-    }
+  @SuppressWarnings("unchecked")
+  protected JAXBElement<PropertyType> xrdProperty(final String name,
+                                     final String val) throws WebdavException {
+    PropertyType p = new PropertyType();
+    p.setType(name);
+    p.setValue(val);
+
+    return new JAXBElement(XrdTags.property, PropertyType.class, p);
   }
 
-  protected void xrdEmptyProperty(final XmlEmit xml,
-                                  final String name) throws WebdavException {
-    try {
-      xml.startTag(XrdTags.property);
-      xml.attribute("type", name);
-      xml.attribute(XsiTags.nil, "true");
-      xml.endEmptyTag();
-      xml.newline();
-    } catch (IOException ioe) {
-      throw new WebdavException(ioe);
-    }
+  @SuppressWarnings("unchecked")
+  protected JAXBElement<PropertyType> xrdEmptyProperty(final String name) throws WebdavException {
+    PropertyType p = new PropertyType();
+    p.setType(name);
+
+    return new JAXBElement(XrdTags.property, PropertyType.class, p);
   }
 
   /**

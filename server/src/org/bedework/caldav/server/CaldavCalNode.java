@@ -53,6 +53,7 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.namespace.QName;
@@ -855,11 +856,10 @@ public class CaldavCalNode extends CaldavBwNode {
   }
 
   @Override
-  public boolean generateXrdValue(final String name,
-                                  final WebdavNsIntf intf,
-                                  final boolean allProp) throws WebdavException {
-    XmlEmit xml = intf.getXmlEmit();
-
+  public boolean generateXrdProperties(final List<Object> props,
+                                       final String name,
+                                       final WebdavNsIntf intf,
+                                       final boolean allProp) throws WebdavException {
     try {
       int calType;
       CalDAVCollection c = (CalDAVCollection)getCollection(true); // deref this
@@ -871,16 +871,16 @@ public class CaldavCalNode extends CaldavBwNode {
       }
 
       if (name.equals(CalWSXrdDefs.collection)) {
-        xrdEmptyProperty(xml, name);
+        props.add(xrdEmptyProperty(name));
 
         //boolean isCollection = cal.getCalendarCollection();
 
         if (calType == CalDAVCollection.calTypeInbox) {
-          xrdEmptyProperty(xml, CalWSXrdDefs.inbox);
+          props.add(xrdEmptyProperty(CalWSXrdDefs.inbox));
         } else if (calType == CalDAVCollection.calTypeOutbox) {
-          xrdEmptyProperty(xml, CalWSXrdDefs.outbox);
+          props.add(xrdEmptyProperty(CalWSXrdDefs.outbox));
         } else if (calType == CalDAVCollection.calTypeCalendarCollection) {
-          xrdEmptyProperty(xml, CalWSXrdDefs.calendarCollection);
+          props.add(xrdEmptyProperty(CalWSXrdDefs.calendarCollection));
         }
 
         return true;
@@ -893,7 +893,7 @@ public class CaldavCalNode extends CaldavBwNode {
           return true;
         }
 
-        xrdProperty(xml, name, s);
+        props.add(xrdProperty(name, s));
 
         return true;
       }
@@ -909,7 +909,8 @@ public class CaldavCalNode extends CaldavBwNode {
           return true;
         }
 
-        xrdProperty(xml, name, getUrlValue(cinfo.userHomePath, true));
+        props.add(xrdProperty(name,
+                                                            getUrlValue(cinfo.userHomePath, true)));
 
         return true;
       }
@@ -925,7 +926,8 @@ public class CaldavCalNode extends CaldavBwNode {
           return true;
         }
 
-        xrdProperty(xml, name, String.valueOf(val));
+        props.add(xrdProperty(name,
+                                                            String.valueOf(val)));
 
         return true;
       }
@@ -941,7 +943,8 @@ public class CaldavCalNode extends CaldavBwNode {
           return false;
         }
 
-        xrdProperty(xml, name, String.valueOf(val));
+        props.add(xrdProperty(name,
+                                                            String.valueOf(val)));
 
         return true;
       }
@@ -957,7 +960,8 @@ public class CaldavCalNode extends CaldavBwNode {
           return false;
         }
 
-        xrdProperty(xml, name, String.valueOf(val));
+        props.add(xrdProperty(name,
+                                                            String.valueOf(val)));
 
         return true;
       }
@@ -973,7 +977,8 @@ public class CaldavCalNode extends CaldavBwNode {
           return false;
         }
 
-        xrdProperty(xml, name, String.valueOf(val));
+        props.add(xrdProperty(name,
+                                                            String.valueOf(val)));
 
         return true;
       }
@@ -989,7 +994,7 @@ public class CaldavCalNode extends CaldavBwNode {
           return false;
         }
 
-        xrdProperty(xml, name, val);
+        props.add(xrdProperty(name, val));
 
         return true;
       }
@@ -1001,13 +1006,13 @@ public class CaldavCalNode extends CaldavBwNode {
           return false;
         }
 
-        xrdProperty(xml, name, tzid);
+        props.add(xrdProperty(name, tzid));
 
         return true;
       }
 
       // Not known - try higher
-      return super.generateXrdValue(name, intf, allProp);
+      return super.generateXrdProperties(props, name, intf, allProp);
     } catch (WebdavException wde) {
       throw wde;
     } catch (Throwable t) {
