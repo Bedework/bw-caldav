@@ -28,6 +28,7 @@ package org.bedework.caldav.server.exsynchws;
 import org.bedework.caldav.server.CalDAVCollection;
 import org.bedework.caldav.server.CalDAVEvent;
 import org.bedework.caldav.server.CaldavBWIntf;
+import org.bedework.caldav.server.CaldavBwNode;
 import org.bedework.caldav.server.CaldavComponentNode;
 import org.bedework.caldav.server.SysiIcalendar;
 import org.bedework.caldav.server.PostMethod.RequestPars;
@@ -40,6 +41,8 @@ import org.bedework.exsynch.wsmessages.ArrayOfUpdates;
 import org.bedework.exsynch.wsmessages.BaseUpdateType;
 import org.bedework.exsynch.wsmessages.FetchItem;
 import org.bedework.exsynch.wsmessages.FetchItemResponse;
+import org.bedework.exsynch.wsmessages.GetProperties;
+import org.bedework.exsynch.wsmessages.GetPropertiesResponse;
 import org.bedework.exsynch.wsmessages.GetSycnchInfo;
 import org.bedework.exsynch.wsmessages.NamespaceType;
 import org.bedework.exsynch.wsmessages.NewValueType;
@@ -172,6 +175,11 @@ public class ExsynchwsHandler extends MethodBase {
         o = ((JAXBElement)o).getValue();
       }
 
+      if (o instanceof GetProperties) {
+        doGetProperties((GetProperties)o, resp);
+        return;
+      }
+
       if (o instanceof GetSycnchInfo) {
         doGetSycnchInfo((GetSycnchInfo)o, req, resp);
         return;
@@ -225,6 +233,45 @@ public class ExsynchwsHandler extends MethodBase {
 
   private CaldavBWIntf getIntf() {
     return (CaldavBWIntf)getNsIntf();
+  }
+
+  private void doGetProperties(final GetProperties gp,
+                              final HttpServletResponse resp) throws WebdavException {
+    if (debug) {
+      trace("GetProperties: ");
+    }
+
+    try {
+      String url = null;
+
+      if (gp.getSystem() != null) {
+        url = "/";
+      } else if (gp.getPrincipalHref() != null) {
+        url = gp.getPrincipalHref();
+      } else if (gp.getCalendarHref() != null) {
+        url = gp.getCalendarHref();
+      }
+
+      GetPropertiesResponse gpr = new GetPropertiesResponse();
+
+      if (url != null) {
+        WebdavNsNode calNode = getNsIntf().getNode(url,
+                                                   WebdavNsIntf.existanceMust,
+                                                   WebdavNsIntf.nodeTypeCollection);
+
+        if (calNode != null) {
+          CaldavBwNode nd = (CaldavBwNode)calNode;
+
+          gpr.setXRD(((CaldavBWIntf)getNsIntf()).getXRD(nd));
+        }
+
+        marshal(gpr, resp.getOutputStream());
+      }
+    } catch (WebdavException we) {
+      throw we;
+    } catch(Throwable t) {
+      throw new WebdavException(t);
+    }
   }
 
   private void doStartService(final StartServiceNotification ssn,

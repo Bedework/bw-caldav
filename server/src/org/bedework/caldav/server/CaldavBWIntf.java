@@ -1106,6 +1106,31 @@ public class CaldavBWIntf extends WebdavNsIntf {
     resp.setContentType("application/xrd+xml; charset=UTF-8");
 
     try {
+      XRD xrd = getXRD(node);
+
+      JAXBContext jc = JAXBContext.newInstance(xrd.getClass().getPackage().getName());
+
+      Marshaller m = jc.createMarshaller();
+      m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+      m.marshal(xrd, resp.getOutputStream());
+
+      Content c = new Content();
+
+      c.written = true; // set content to say it's done
+
+      return c;
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
+  }
+
+  /**
+   * @param node
+   * @return the XRD object for the node
+   * @throws WebdavException
+   */
+  public XRD getXRD(final CaldavBwNode node) throws WebdavException {
+    try {
       XRD xrd = new XRD();
 
       AnyURI uri = new AnyURI();
@@ -1139,17 +1164,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
         }
       }
 
-      JAXBContext jc = JAXBContext.newInstance(XrdTags.namespace);
-
-      Marshaller m = jc.createMarshaller();
-      m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-      m.marshal(xrd, resp.getOutputStream());
-
-      Content c = new Content();
-
-      c.written = true; // set content to say it's done
-
-      return c;
+      return xrd;
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
