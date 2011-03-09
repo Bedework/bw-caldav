@@ -6,9 +6,9 @@
     Version 2.0 (the "License"); you may not use this file
     except in compliance with the License. You may obtain a
     copy of the License at:
-        
+
     http://www.apache.org/licenses/LICENSE-2.0
-        
+
     Unless required by applicable law or agreed to in writing,
     software distributed under the License is distributed on
     an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -77,12 +77,12 @@ public class ParseUtil {
         attrCt--;
         String dt = nmAttr.getNodeValue();
         if (!checkUTC(dt)){
-          throw new WebdavBadRequest(CaldavTags.validFilter, "Missing start");
+          throw new WebdavBadRequest(CaldavTags.validFilter, "Not UTC");
         }
 
         start = new DateTime(dt);
       } else if (required) {
-        throw new WebdavBadRequest(CaldavTags.validFilter, "Not UTC");
+        throw new WebdavBadRequest(CaldavTags.validFilter, "Missing start");
       }
 
       nmAttr = nnm.getNamedItem("end");
@@ -98,6 +98,8 @@ public class ParseUtil {
       } else if (required) {
         throw new WebdavBadRequest(CaldavTags.validFilter, "Missing end");
       }
+    } catch (WebdavException wde) {
+      throw wde;
     } catch (Throwable t) {
       throw new WebdavBadRequest(CaldavTags.validFilter, "Invalid time-range");
     }
