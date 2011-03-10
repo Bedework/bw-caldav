@@ -33,9 +33,6 @@
   <target name="init">
     <projectInit/>
   	
-    <property name="org.bedework.module.genwssrc.base"
-              location="${project.home}/genexsynchwssrc" />
-
     <property name="org.bedework.caldav.server.base" location="${project.home}/server" />
     <property name="org.bedework.caldav.util.base" location="${project.home}/util" />
 
@@ -44,7 +41,7 @@
 
     <property name="util.jar"
               location="${dist.home}/${edu.rpi.cmt.caldav.util.jar}-${project.version}.jar" />
-    </target>
+  </target>
     
   <target name="build-init" depends="init">
     <!-- Make sure bwxml is built -->
