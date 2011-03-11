@@ -6,9 +6,9 @@
     Version 2.0 (the "License"); you may not use this file
     except in compliance with the License. You may obtain a
     copy of the License at:
-        
+
     http://www.apache.org/licenses/LICENSE-2.0
-        
+
     Unless required by applicable law or agreed to in writing,
     software distributed under the License is distributed on
     an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -16,7 +16,7 @@
     specific language governing permissions and limitations
     under the License.
 */
-package org.bedework.caldav.server.exsynchws;
+package org.bedework.caldav.server.soap.exsynch;
 
 import org.bedework.caldav.server.CalDAVCollection;
 import org.bedework.caldav.server.CalDAVEvent;
@@ -25,7 +25,8 @@ import org.bedework.caldav.server.CaldavBwNode;
 import org.bedework.caldav.server.CaldavComponentNode;
 import org.bedework.caldav.server.SysiIcalendar;
 import org.bedework.caldav.server.PostMethod.RequestPars;
-import org.bedework.caldav.server.sysinterface.SysIntf;
+import org.bedework.caldav.server.soap.Report;
+import org.bedework.caldav.server.soap.SoapHandler;
 import org.bedework.caldav.server.sysinterface.SysIntf.IcalResultType;
 import org.bedework.exsynch.wsmessages.AddItem;
 import org.bedework.exsynch.wsmessages.AddItemResponse;
@@ -39,7 +40,6 @@ import org.bedework.exsynch.wsmessages.GetPropertiesResponse;
 import org.bedework.exsynch.wsmessages.GetSycnchInfo;
 import org.bedework.exsynch.wsmessages.NamespaceType;
 import org.bedework.exsynch.wsmessages.NewValueType;
-import org.bedework.exsynch.wsmessages.ObjectFactory;
 import org.bedework.exsynch.wsmessages.RemoveType;
 import org.bedework.exsynch.wsmessages.StartServiceNotification;
 import org.bedework.exsynch.wsmessages.StartServiceResponse;
@@ -50,7 +50,6 @@ import org.bedework.exsynch.wsmessages.UpdateItem;
 import org.bedework.exsynch.wsmessages.UpdateItemResponse;
 import org.bedework.exsynch.wsmessages.SynchInfoResponse.SynchInfoResponses;
 
-import edu.rpi.cct.webdav.servlet.common.MethodBase;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
@@ -64,21 +63,16 @@ import org.w3c.dom.NodeList;
 
 import ietf.params.xml.ns.icalendar_2.Icalendar;
 
-import java.io.OutputStream;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.soap.MessageFactory;
-import javax.xml.soap.SOAPBody;
-import javax.xml.soap.SOAPMessage;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
@@ -90,10 +84,7 @@ import javax.xml.xpath.XPathFactory;
  *
  * @author Mike Douglass
  */
-public class ExsynchwsHandler extends MethodBase {
-  private MessageFactory soapMsgFactory;
-  private JAXBContext jc;
-
+public class ExsynchwsHandler extends SoapHandler {
   /** This represents an active connection to a synch engine. It's possible we
    * would have more than one of these running I guess. For the moment we'll
    * only have one but these probably need a table indexed by url.
@@ -105,44 +96,20 @@ public class ExsynchwsHandler extends MethodBase {
     String synchToken;
   }
 
-  static volatile Object monitor = new Object();
-
   static ActiveConnectionInfo activeConnection;
-
-  ObjectFactory of = new ObjectFactory();
 
   /**
    * @param intf
    * @throws WebdavException
    */
   public ExsynchwsHandler(final CaldavBWIntf intf) throws WebdavException {
-    nsIntf = intf;
-    debug = getLogger().isDebugEnabled();
-
-    try {
-      if (soapMsgFactory == null) {
-        soapMsgFactory = MessageFactory.newInstance();
-      }
-
-      if (jc == null) {
-        jc = JAXBContext.newInstance("org.bedework.exsynch.wsmessages");
-      }
-    } catch(Throwable t) {
-      throw new WebdavException(t);
-    }
+    super(intf);
   }
 
   @Override
-  public void init() {
+  protected String getJaxbContextPath() {
+    return "org.bedework.exsynch.wsmessages";
   }
-
-  @Override
-  public void doMethod(final HttpServletRequest req,
-                       final HttpServletResponse resp)
-        throws WebdavException {
-
-  }
-
 
   /**
    * @param req
@@ -155,15 +122,7 @@ public class ExsynchwsHandler extends MethodBase {
                           final RequestPars pars) throws WebdavException {
 
     try {
-      SOAPMessage msg = soapMsgFactory.createMessage(null, // headers
-                                                     req.getInputStream());
-
-
-      SOAPBody body = msg.getSOAPBody();
-
-      Unmarshaller u = jc.createUnmarshaller();
-
-      Object o = u.unmarshal(body.getFirstChild());
+      Object o = unmarshal(req);
       if (o instanceof JAXBElement) {
         o = ((JAXBElement)o).getValue();
       }
@@ -206,27 +165,9 @@ public class ExsynchwsHandler extends MethodBase {
     }
   }
 
-  /**
-   * @return current account
-   */
-  public String getAccount() {
-    return getNsIntf().getAccount();
-  }
-
-  /**
-   * @return SysIntf
-   */
-  public SysIntf getSysi() {
-    return getIntf().getSysi();
-  }
-
   /* ====================================================================
    *                   Private methods
    * ==================================================================== */
-
-  private CaldavBWIntf getIntf() {
-    return (CaldavBWIntf)getNsIntf();
-  }
 
   private void doGetProperties(final GetProperties gp,
                               final HttpServletResponse resp) throws WebdavException {
@@ -311,49 +252,6 @@ public class ExsynchwsHandler extends MethodBase {
     }
   }
 
-  private Document makeDoc(final QName name,
-                           final Object o) throws WebdavException {
-    try {
-      Marshaller marshaller = jc.createMarshaller();
-      marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-
-      DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-      dbf.setNamespaceAware(true);
-      Document doc = dbf.newDocumentBuilder().newDocument();
-
-//      marshaller.marshal(o, doc);
-
-      marshaller.marshal(new JAXBElement(name,
-                                         o.getClass(), o),
-                         doc);
-
-      return doc;
-    } catch(Throwable t) {
-      throw new WebdavException(t);
-    }
-  }
-
-  private void marshal(final Object o, final OutputStream out) throws WebdavException {
-    try {
-      Marshaller marshaller = jc.createMarshaller();
-      marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-
-      DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-      dbf.setNamespaceAware(true);
-      Document doc = dbf.newDocumentBuilder().newDocument();
-
-      SOAPMessage msg = soapMsgFactory.createMessage();
-      msg.getSOAPBody().addDocument(doc);
-
-      marshaller.marshal(o,
-                         msg.getSOAPBody());
-
-      msg.writeTo(out);
-    } catch(Throwable t) {
-      throw new WebdavException(t);
-    }
-  }
-
   private void doGetSycnchInfo(final GetSycnchInfo gsi,
                                final HttpServletRequest req,
                                final HttpServletResponse resp) throws WebdavException {
@@ -421,7 +319,6 @@ public class ExsynchwsHandler extends MethodBase {
                                               WebdavNsIntf.nodeTypeEntity);
 
     boolean added = false;
-    String msg = null;
 
     try {
       added = getIntf().putEvent(req, (CaldavComponentNode)elNode,
@@ -430,7 +327,6 @@ public class ExsynchwsHandler extends MethodBase {
     } catch (Throwable t) {
       if (debug) {
         error(t);
-        msg = t.getLocalizedMessage();
       }
     }
 
@@ -618,12 +514,6 @@ public class ExsynchwsHandler extends MethodBase {
     }
   }
 
-  private void removeNode(final Node nd) throws WebdavException {
-    Node parent = nd.getParentNode();
-
-    parent.removeChild(nd);
-  }
-
   private boolean processNewValue(final NewValueType nv,
                                   final Node nd,
                                   final Document evDoc) throws WebdavException {
@@ -678,8 +568,7 @@ public class ExsynchwsHandler extends MethodBase {
 
       Marshaller m = jc.createMarshaller();
 
-      m.marshal(new JAXBElement(valName,
-                                nv.getClass(), nv),
+      m.marshal(makeJAXBElement(valName, nv.getClass(), nv),
                 doc);
 
       Node newNode = doc.getFirstChild().getFirstChild();

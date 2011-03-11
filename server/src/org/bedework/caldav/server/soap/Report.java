@@ -6,9 +6,9 @@
     Version 2.0 (the "License"); you may not use this file
     except in compliance with the License. You may obtain a
     copy of the License at:
-        
+
     http://www.apache.org/licenses/LICENSE-2.0
-        
+
     Unless required by applicable law or agreed to in writing,
     software distributed under the License is distributed on
     an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -16,7 +16,7 @@
     specific language governing permissions and limitations
     under the License.
 */
-package org.bedework.caldav.server.exsynchws;
+package org.bedework.caldav.server.soap;
 
 import org.bedework.caldav.server.CaldavReportMethod;
 import org.bedework.exsynch.wsmessages.SynchInfoType;
@@ -43,18 +43,26 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 
-class Report extends CaldavReportMethod {
+/**
+ * @author douglm
+ */
+public class Report extends CaldavReportMethod {
   /**
    * @param nsIntf
    */
-  Report(final WebdavNsIntf nsIntf) {
+  public Report(final WebdavNsIntf nsIntf) {
     super();
 
     this.nsIntf = nsIntf;
     xml = nsIntf.getXmlEmit();
   }
 
-  List<SynchInfoType> query(final String resourceUri) throws WebdavException {
+  /**
+   * @param resourceUri
+   * @return List<SynchInfoType>
+   * @throws WebdavException
+   */
+  public List<SynchInfoType> query(final String resourceUri) throws WebdavException {
     // Build a report query and execute it.
 
     StringBuilder sb = new StringBuilder();

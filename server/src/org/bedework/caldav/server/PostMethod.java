@@ -18,7 +18,7 @@
 */
 package org.bedework.caldav.server;
 
-import org.bedework.caldav.server.exsynchws.ExsynchwsHandler;
+import org.bedework.caldav.server.soap.exsynch.ExsynchwsHandler;
 import org.bedework.caldav.server.sysinterface.CalPrincipalInfo;
 import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.caldav.server.sysinterface.SysIntf.IcalResultType;
