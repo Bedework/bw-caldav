@@ -16,12 +16,11 @@
     specific language governing permissions and limitations
     under the License.
 */
-package org.bedework.caldav.server.soap;
+package org.bedework.caldav.server.soap.calws;
 
-import org.bedework.caldav.server.CaldavReportMethod;
+import org.bedework.caldav.server.soap.ReportBase;
 import org.bedework.exsynch.wsmessages.SynchInfoType;
 
-import edu.rpi.cct.webdav.servlet.common.PropFindMethod;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.sss.util.xml.NsContext;
@@ -30,10 +29,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import ietf.params.xml.ns.icalendar_2.Icalendar;
-
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,15 +41,12 @@ import javax.xml.xpath.XPathFactory;
 /**
  * @author douglm
  */
-public class Report extends CaldavReportMethod {
+public class Report extends ReportBase {
   /**
    * @param nsIntf
    */
   public Report(final WebdavNsIntf nsIntf) {
-    super();
-
-    this.nsIntf = nsIntf;
-    xml = nsIntf.getXmlEmit();
+    super(nsIntf);
   }
 
   /**
@@ -92,25 +84,8 @@ public class Report extends CaldavReportMethod {
     sb.append("  </C:filter>");
     sb.append("</C:calendar-query>");
 
-    pm = new PropFindMethod();
-    pm.init(getNsIntf(), debug, true);
-
-    Document doc = parseContent(sb.length(),
-                                new StringReader(sb.toString()));
-
-    processDoc(doc);
-
     try {
-      // Set up XmlEmit so we can process the output.
-      StringWriter sw = new StringWriter();
-      xml.startEmit(sw);
-
-      process(resourceUri,
-              1);  // depth
-
-      String s = sw.toString();
-      Document resDoc = parseContent(s.length(),
-                                     new StringReader(s));
+      Document resDoc = super.query(sb.toString(), resourceUri);
 
       NamespaceContext ctx = new NsContext(null);
 
@@ -166,45 +141,4 @@ public class Report extends CaldavReportMethod {
       throw new WebdavException(t);
     }
   }
-
-  Icalendar fetch(final String resourceUri,
-                  final String uid) throws WebdavException {
-    // Build a report query and execute it.
-
-    StringBuilder sb = new StringBuilder();
-
-    sb.append("<?xml version='1.0' encoding='utf-8' ?>");
-    sb.append("<C:calendar-query xmlns:C='urn:ietf:params:xml:ns:caldav'>");
-    sb.append("  <D:prop xmlns:D='DAV:'>");
-    sb.append("    <C:calendar-data content-type='application/calendar+xml'>");
-    sb.append("      <C:comp name='VCALENDAR'>");
-    sb.append("        <C:comp name='VEVENT'>");
-    sb.append("        </C:comp>");
-    sb.append("        <C:comp name='VTODO'>");
-    sb.append("        </C:comp>");
-    sb.append("      </C:comp>");
-    sb.append("    </C:calendar-data>");
-    sb.append("  </D:prop>");
-    sb.append("  <C:filter>");
-    sb.append("    <C:comp-filter name='VCALENDAR'>");
-    //sb.append("      <C:comp-filter name='VEVENT'>");
-    //sb.append("      </C:comp-filter>");
-    sb.append("    </C:comp-filter>");
-    sb.append("  </C:filter>");
-    sb.append("</C:calendar-query>");
-
-    pm = new PropFindMethod();
-    pm.init(getNsIntf(), debug, true);
-
-    Document doc = parseContent(sb.length(),
-                                new StringReader(sb.toString()));
-
-    processDoc(doc);
-
-    process(resourceUri,
-            1);  // depth
-
-    return null;
-  }
-
 }

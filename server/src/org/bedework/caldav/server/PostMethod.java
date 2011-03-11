@@ -6,9 +6,9 @@
     Version 2.0 (the "License"); you may not use this file
     except in compliance with the License. You may obtain a
     copy of the License at:
-        
+
     http://www.apache.org/licenses/LICENSE-2.0
-        
+
     Unless required by applicable law or agreed to in writing,
     software distributed under the License is distributed on
     an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -18,6 +18,7 @@
 */
 package org.bedework.caldav.server;
 
+import org.bedework.caldav.server.soap.calws.CalwsHandler;
 import org.bedework.caldav.server.soap.exsynch.ExsynchwsHandler;
 import org.bedework.caldav.server.sysinterface.CalPrincipalInfo;
 import org.bedework.caldav.server.sysinterface.SysIntf;
@@ -109,6 +110,9 @@ public class PostMethod extends MethodBase {
     /** true if this is an exsynch web service request */
     public boolean exsynchws;
 
+    /** true if this is a calws soap web service request */
+    public boolean calwsSoap;
+
     /**
      * @param req
      * @param intf
@@ -153,6 +157,8 @@ public class PostMethod extends MethodBase {
             }
           } else if (conf.getExsynchWsURI() != null) {
             exsynchws = conf.getExsynchWsURI().equals(resourceUri);
+          } else if (conf.getCalSoapWsURI() != null) {
+            calwsSoap = conf.getCalSoapWsURI().equals(resourceUri);
           }
         }
       } else {
@@ -231,6 +237,12 @@ public class PostMethod extends MethodBase {
 
     if (pars.exsynchws) {
       new ExsynchwsHandler(intf).processPost(req, resp, pars);
+
+      return;
+    }
+
+    if (pars.calwsSoap) {
+      new CalwsHandler(intf).processPost(req, resp, pars);
 
       return;
     }

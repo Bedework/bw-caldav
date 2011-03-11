@@ -16,7 +16,7 @@
     specific language governing permissions and limitations
     under the License.
 */
-package org.bedework.caldav.server.soap.exsynch;
+package org.bedework.caldav.server.soap.calws;
 
 import org.bedework.caldav.server.CalDAVCollection;
 import org.bedework.caldav.server.CalDAVEvent;
@@ -27,27 +27,6 @@ import org.bedework.caldav.server.SysiIcalendar;
 import org.bedework.caldav.server.PostMethod.RequestPars;
 import org.bedework.caldav.server.soap.SoapHandler;
 import org.bedework.caldav.server.sysinterface.SysIntf.IcalResultType;
-import org.bedework.exsynch.wsmessages.AddItem;
-import org.bedework.exsynch.wsmessages.AddItemResponse;
-import org.bedework.exsynch.wsmessages.AddType;
-import org.bedework.exsynch.wsmessages.ArrayOfUpdates;
-import org.bedework.exsynch.wsmessages.BaseUpdateType;
-import org.bedework.exsynch.wsmessages.FetchItem;
-import org.bedework.exsynch.wsmessages.FetchItemResponse;
-import org.bedework.exsynch.wsmessages.GetProperties;
-import org.bedework.exsynch.wsmessages.GetPropertiesResponse;
-import org.bedework.exsynch.wsmessages.GetSycnchInfo;
-import org.bedework.exsynch.wsmessages.NamespaceType;
-import org.bedework.exsynch.wsmessages.NewValueType;
-import org.bedework.exsynch.wsmessages.RemoveType;
-import org.bedework.exsynch.wsmessages.StartServiceNotification;
-import org.bedework.exsynch.wsmessages.StartServiceResponse;
-import org.bedework.exsynch.wsmessages.StatusType;
-import org.bedework.exsynch.wsmessages.SynchInfoResponse;
-import org.bedework.exsynch.wsmessages.SynchInfoType;
-import org.bedework.exsynch.wsmessages.UpdateItem;
-import org.bedework.exsynch.wsmessages.UpdateItemResponse;
-import org.bedework.exsynch.wsmessages.SynchInfoResponse.SynchInfoResponses;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
@@ -56,13 +35,26 @@ import edu.rpi.sss.util.xml.NsContext;
 import edu.rpi.sss.util.xml.XmlUtil;
 import edu.rpi.sss.util.xml.tagdefs.XcalTags;
 
+import org.oasis_open.docs.ns.wscal.calws_soap.AddItem;
+import org.oasis_open.docs.ns.wscal.calws_soap.AddItemResponse;
+import org.oasis_open.docs.ns.wscal.calws_soap.AddType;
+import org.oasis_open.docs.ns.wscal.calws_soap.ArrayOfUpdates;
+import org.oasis_open.docs.ns.wscal.calws_soap.BaseUpdateType;
+import org.oasis_open.docs.ns.wscal.calws_soap.FetchItem;
+import org.oasis_open.docs.ns.wscal.calws_soap.FetchItemResponse;
+import org.oasis_open.docs.ns.wscal.calws_soap.GetProperties;
+import org.oasis_open.docs.ns.wscal.calws_soap.GetPropertiesResponse;
+import org.oasis_open.docs.ns.wscal.calws_soap.NamespaceType;
+import org.oasis_open.docs.ns.wscal.calws_soap.NewValueType;
+import org.oasis_open.docs.ns.wscal.calws_soap.RemoveType;
+import org.oasis_open.docs.ns.wscal.calws_soap.StatusType;
+import org.oasis_open.docs.ns.wscal.calws_soap.UpdateItem;
+import org.oasis_open.docs.ns.wscal.calws_soap.UpdateItemResponse;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import ietf.params.xml.ns.icalendar_2.Icalendar;
-
-import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -83,7 +75,7 @@ import javax.xml.xpath.XPathFactory;
  *
  * @author Mike Douglass
  */
-public class ExsynchwsHandler extends SoapHandler {
+public class CalwsHandler extends SoapHandler {
   /** This represents an active connection to a synch engine. It's possible we
    * would have more than one of these running I guess. For the moment we'll
    * only have one but these probably need a table indexed by url.
@@ -101,7 +93,7 @@ public class ExsynchwsHandler extends SoapHandler {
    * @param intf
    * @throws WebdavException
    */
-  public ExsynchwsHandler(final CaldavBWIntf intf) throws WebdavException {
+  public CalwsHandler(final CaldavBWIntf intf) throws WebdavException {
     super(intf);
   }
 
@@ -128,16 +120,6 @@ public class ExsynchwsHandler extends SoapHandler {
 
       if (o instanceof GetProperties) {
         doGetProperties((GetProperties)o, resp);
-        return;
-      }
-
-      if (o instanceof GetSycnchInfo) {
-        doGetSycnchInfo((GetSycnchInfo)o, req, resp);
-        return;
-      }
-
-      if (o instanceof StartServiceNotification) {
-        doStartService((StartServiceNotification)o, resp);
         return;
       }
 
@@ -175,15 +157,7 @@ public class ExsynchwsHandler extends SoapHandler {
     }
 
     try {
-      String url = null;
-
-      if (gp.getSystem() != null) {
-        url = "/";
-      } else if (gp.getPrincipalHref() != null) {
-        url = gp.getPrincipalHref();
-      } else if (gp.getCalendarHref() != null) {
-        url = gp.getCalendarHref();
-      }
+      String url = gp.getHref();
 
       GetPropertiesResponse gpr = new GetPropertiesResponse();
 
@@ -207,113 +181,14 @@ public class ExsynchwsHandler extends SoapHandler {
     }
   }
 
-  private void doStartService(final StartServiceNotification ssn,
-                              final HttpServletResponse resp) throws WebdavException {
-    if (debug) {
-      trace("StartServiceNotification: url=" + ssn.getSubscribeUrl() +
-            "\n                token=" + ssn.getToken());
-    }
-
-    synchronized (monitor) {
-      if (activeConnection == null) {
-        activeConnection = new ActiveConnectionInfo();
-      }
-
-      activeConnection.subscribeUrl = ssn.getSubscribeUrl();
-      activeConnection.synchToken = ssn.getToken();
-    }
-
-    notificationResponse(resp, true);
-  }
-
-  private void notificationResponse(final HttpServletResponse resp,
-                                    final boolean ok) throws WebdavException {
-    try {
-      resp.setCharacterEncoding("UTF-8");
-      resp.setStatus(HttpServletResponse.SC_OK);
-      resp.setContentType("text/xml; charset=UTF-8");
-
-      StartServiceResponse ssr = of.createStartServiceResponse();
-
-      if (ok) {
-        ssr.setStatus(StatusType.OK);
-      } else {
-        ssr.setStatus(StatusType.ERROR);
-      }
-
-      ssr.setToken(activeConnection.synchToken);
-
-      marshal(ssr, resp.getOutputStream());
-    } catch (WebdavException we) {
-      throw we;
-    } catch(Throwable t) {
-      throw new WebdavException(t);
-    }
-  }
-
-  private void doGetSycnchInfo(final GetSycnchInfo gsi,
-                               final HttpServletRequest req,
-                               final HttpServletResponse resp) throws WebdavException {
-    if (debug) {
-      trace("GetSycnchInfo: cal=" + gsi.getCalendarHref() +
-            "\n       principal=" + gsi.getPrincipalHref() +
-            "\n           token=" + gsi.getSynchToken());
-    }
-
-    getIntf().reAuth(req, gsi.getPrincipalHref());
-
-    if (!gsi.getSynchToken().equals(activeConnection.synchToken)) {
-      throw new WebdavException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-                                "Invalid synch token");
-    }
-
-    SynchInfoResponse sir = new SynchInfoResponse();
-
-    sir.setCalendarHref(gsi.getCalendarHref());
-
-    WebdavNsNode calNode = getNsIntf().getNode(gsi.getCalendarHref(),
-                                               WebdavNsIntf.existanceMust,
-                                               WebdavNsIntf.nodeTypeCollection);
-
-    if (calNode == null) {
-      // Drop this subscription
-      throw new WebdavException("Unreachable " + gsi.getCalendarHref());
-    }
-
-    List<SynchInfoType> sis = new Report(nsIntf).query(gsi.getCalendarHref());
-
-    SynchInfoResponses sirs = new SynchInfoResponses();
-    sir.setSynchInfoResponses(sirs);
-    sirs.getSynchInfos().addAll(sis);
-
-    try {
-      marshal(sir, resp.getOutputStream());
-    } catch (WebdavException we) {
-      throw we;
-    } catch (Throwable t) {
-      throw new WebdavException(t);
-    }
-  }
-
   private void doAddItem(final AddItem ai,
                          final HttpServletRequest req,
                          final HttpServletResponse resp) throws WebdavException {
     if (debug) {
-      trace("AddItem:       cal=" + ai.getCalendarHref() +
-            "\n       principal=" + ai.getPrincipalHref() +
-            "\n           token=" + ai.getSynchToken());
+      trace("AddItem:       cal=" + ai.getHref());
     }
 
-    getIntf().reAuth(req, ai.getPrincipalHref());
-
-    if (!ai.getSynchToken().equals(activeConnection.synchToken)) {
-      throw new WebdavException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-                                "Invalid synch token");
-    }
-
-    String name = ai.getCalendarHref() + "/" + ai.getUid() + ".ics";
-
-    WebdavNsNode elNode = getNsIntf().getNode(name,
+    WebdavNsNode elNode = getNsIntf().getNode(ai.getHref(),
                                               WebdavNsIntf.existanceNot,
                                               WebdavNsIntf.nodeTypeEntity);
 
@@ -350,22 +225,10 @@ public class ExsynchwsHandler extends SoapHandler {
                            final HttpServletRequest req,
                            final HttpServletResponse resp) throws WebdavException {
     if (debug) {
-      trace("FetchItem:       cal=" + fi.getCalendarHref() +
-            "\n         principal=" + fi.getPrincipalHref() +
-            "\n             token=" + fi.getSynchToken());
+      trace("FetchItem:       cal=" + fi.getHref());
     }
 
-    getIntf().reAuth(req, fi.getPrincipalHref());
-
-    if (!fi.getSynchToken().equals(activeConnection.synchToken)) {
-      throw new WebdavException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-                                "Invalid synch token");
-    }
-
-
-    String name = fi.getCalendarHref() + "/" + fi.getUid() + ".ics";
-
-    WebdavNsNode elNode = getNsIntf().getNode(name,
+    WebdavNsNode elNode = getNsIntf().getNode(fi.getHref(),
                                               WebdavNsIntf.existanceMust,
                                               WebdavNsIntf.nodeTypeEntity);
 
@@ -392,21 +255,10 @@ public class ExsynchwsHandler extends SoapHandler {
                             final HttpServletRequest req,
                             final HttpServletResponse resp) throws WebdavException {
     if (debug) {
-      trace("UpdateItem:       cal=" + ui.getCalendarHref() +
-            "\n          principal=" + ui.getPrincipalHref() +
-            "\n              token=" + ui.getSynchToken());
+      trace("UpdateItem:       cal=" + ui.getHref());
     }
 
-    getIntf().reAuth(req, ui.getPrincipalHref());
-
-    if (!ui.getSynchToken().equals(activeConnection.synchToken)) {
-      throw new WebdavException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-                                "Invalid synch token");
-    }
-
-    String name = ui.getCalendarHref() + "/" + ui.getUid() + ".ics";
-
-    WebdavNsNode elNode = getNsIntf().getNode(name,
+    WebdavNsNode elNode = getNsIntf().getNode(ui.getHref(),
                                               WebdavNsIntf.existanceMust,
                                               WebdavNsIntf.nodeTypeEntity);
 
