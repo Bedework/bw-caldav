@@ -64,6 +64,10 @@
     <getJar name="bw-exsynchwsschema" 
             version="${org.bedework.bwxml.version}" project="bwxml" 
             projecthome="${bedework.home}/../bwxml" />
+
+    <getJar name="bw-calws-soapschema" 
+            version="${org.bedework.bwxml.version}" project="bwxml" 
+            projecthome="${bedework.home}/../bwxml" />
   </target>
 
   <!-- ===================== bld-source Target ===============================
