@@ -6,9 +6,9 @@
     Version 2.0 (the "License"); you may not use this file
     except in compliance with the License. You may obtain a
     copy of the License at:
-        
+
     http://www.apache.org/licenses/LICENSE-2.0
-        
+
     Unless required by applicable law or agreed to in writing,
     software distributed under the License is distributed on
     an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -46,6 +46,9 @@ public class CalDAVConfig implements Serializable {
 
   /* Exchange synch web service uri - null for no service */
   private String exsynchWsURI;
+
+  /* CalWS SOAP web service uri - null for no service */
+  private String calSoapWsURI;
 
   /* Set at server init */
   private boolean calWS;
@@ -174,6 +177,22 @@ public class CalDAVConfig implements Serializable {
    */
   public String getExsynchWsURI() {
     return exsynchWsURI;
+  }
+
+  /** Set the calws soap web service uri - null for no service
+   *
+   * @param val    String
+   */
+  public void setCalSoapWsURI(final String val) {
+    calSoapWsURI = val;
+  }
+
+  /** Get the calws soap web service uri - null for no service
+   *
+   * @return String
+   */
+  public String getCalSoapWsURI() {
+    return calSoapWsURI;
   }
 
   /** True for a web service - set by server..
