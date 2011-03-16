@@ -99,7 +99,7 @@ public class CalwsHandler extends SoapHandler {
 
   @Override
   protected String getJaxbContextPath() {
-    return "org.bedework.exsynch.wsmessages";
+    return "org.oasis_open.docs.ns.wscal.calws_soap";
   }
 
   /**
@@ -113,6 +113,8 @@ public class CalwsHandler extends SoapHandler {
                           final RequestPars pars) throws WebdavException {
 
     try {
+      initResponse(resp);
+
       Object o = unmarshal(req);
       if (o instanceof JAXBElement) {
         o = ((JAXBElement)o).getValue();

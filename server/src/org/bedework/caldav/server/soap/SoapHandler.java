@@ -20,7 +20,6 @@ package org.bedework.caldav.server.soap;
 
 import org.bedework.caldav.server.CaldavBWIntf;
 import org.bedework.caldav.server.sysinterface.SysIntf;
-import org.bedework.exsynch.wsmessages.ObjectFactory;
 
 import edu.rpi.cct.webdav.servlet.common.MethodBase;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
@@ -53,8 +52,6 @@ public abstract class SoapHandler extends MethodBase {
 
   protected static volatile Object monitor = new Object();
 
-  protected ObjectFactory of = new ObjectFactory();
-
   /**
    * @param intf
    * @throws WebdavException
@@ -83,6 +80,13 @@ public abstract class SoapHandler extends MethodBase {
 
   @Override
   public void init() {
+  }
+
+  protected void initResponse(final HttpServletResponse resp)
+        throws WebdavException {
+    resp.setCharacterEncoding("UTF-8");
+    resp.setStatus(HttpServletResponse.SC_OK);
+    resp.setContentType("text/xml; charset=UTF-8");
   }
 
   @Override

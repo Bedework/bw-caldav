@@ -39,6 +39,7 @@ import org.bedework.exsynch.wsmessages.GetPropertiesResponse;
 import org.bedework.exsynch.wsmessages.GetSycnchInfo;
 import org.bedework.exsynch.wsmessages.NamespaceType;
 import org.bedework.exsynch.wsmessages.NewValueType;
+import org.bedework.exsynch.wsmessages.ObjectFactory;
 import org.bedework.exsynch.wsmessages.RemoveType;
 import org.bedework.exsynch.wsmessages.StartServiceNotification;
 import org.bedework.exsynch.wsmessages.StartServiceResponse;
@@ -96,6 +97,8 @@ public class ExsynchwsHandler extends SoapHandler {
   }
 
   static ActiveConnectionInfo activeConnection;
+
+  private ObjectFactory of = new ObjectFactory();
 
   /**
    * @param intf

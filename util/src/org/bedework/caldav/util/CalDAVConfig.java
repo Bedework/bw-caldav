@@ -50,6 +50,9 @@ public class CalDAVConfig implements Serializable {
   /* CalWS SOAP web service uri - null for no service */
   private String calSoapWsURI;
 
+  /* CalWS SOAP web service WSDL uri - null for no service */
+  private String calSoapWsWSDLURI;
+
   /* Set at server init */
   private boolean calWS;
 
@@ -193,6 +196,22 @@ public class CalDAVConfig implements Serializable {
    */
   public String getCalSoapWsURI() {
     return calSoapWsURI;
+  }
+
+  /** Set the calws soap web service WSDL uri - null for no service
+   *
+   * @param val    String
+   */
+  public void setCalSoapWsWSDLURI(final String val) {
+    calSoapWsWSDLURI = val;
+  }
+
+  /** Get the calws soap web service WSDL uri - null for no service
+   *
+   * @return String
+   */
+  public String getCalSoapWsWSDLURI() {
+    return calSoapWsWSDLURI;
   }
 
   /** True for a web service - set by server..

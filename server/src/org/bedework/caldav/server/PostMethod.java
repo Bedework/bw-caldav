@@ -113,6 +113,8 @@ public class PostMethod extends MethodBase {
     /** true if this is a calws soap web service request */
     public boolean calwsSoap;
 
+    public boolean getTheReader = true;
+
     /**
      * @param req
      * @param intf
@@ -143,10 +145,16 @@ public class PostMethod extends MethodBase {
       if (!iSchedule) {
         if (conf.getFburlServiceURI() != null) {
           freeBusy = conf.getFburlServiceURI().equals(resourceUri);
+          if (freeBusy) {
+            getTheReader = false;
+          }
         }
 
         if (conf.getWebcalServiceURI() != null) {
           webcal = conf.getWebcalServiceURI().equals(resourceUri);
+          if (webcal) {
+            getTheReader = false;
+          }
         }
 
         if (!freeBusy && !webcal) {
@@ -157,8 +165,14 @@ public class PostMethod extends MethodBase {
             }
           } else if (conf.getExsynchWsURI() != null) {
             exsynchws = conf.getExsynchWsURI().equals(resourceUri);
+            if (exsynchws) {
+              getTheReader = false;
+            }
           } else if (conf.getCalSoapWsURI() != null) {
             calwsSoap = conf.getCalSoapWsURI().equals(resourceUri);
+            if (calwsSoap) {
+              getTheReader = false;
+            }
           }
         }
       } else {
@@ -180,7 +194,7 @@ public class PostMethod extends MethodBase {
         }
       }
 
-      if (!freeBusy && !webcal && !entityCreate && !exsynchws) {
+      if (getTheReader) {
         try {
           reqRdr = req.getReader();
         } catch (Throwable t) {
