@@ -6,9 +6,9 @@
     Version 2.0 (the "License"); you may not use this file
     except in compliance with the License. You may obtain a
     copy of the License at:
-        
+
     http://www.apache.org/licenses/LICENSE-2.0
-        
+
     Unless required by applicable law or agreed to in writing,
     software distributed under the License is distributed on
     an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -105,7 +105,7 @@ public abstract class SysiIcalendar implements ScheduleMethods,
   /**
    * @return Iterator
    */
-  public abstract Iterator iterator();
+  public abstract Iterator<WdEntity> iterator();
 
   /**
    * @return int
@@ -151,6 +151,7 @@ public abstract class SysiIcalendar implements ScheduleMethods,
    */
   public abstract boolean validItipMethodType(int val);
 
+  @Override
   public String toString() {
     StringBuilder sb = new StringBuilder("SysiIcalendar{prodid=");
     sb.append(getProdid());

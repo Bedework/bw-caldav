@@ -23,9 +23,16 @@ import org.bedework.caldav.server.sysinterface.SysIntf;
 
 import edu.rpi.cct.webdav.servlet.common.MethodBase;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
+import edu.rpi.sss.util.xml.tagdefs.XcalTags;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+
+import ietf.params.xml.ns.icalendar_2.ArrayOfParameters;
+import ietf.params.xml.ns.icalendar_2.BaseParameterType;
+import ietf.params.xml.ns.icalendar_2.BasePropertyType;
+import ietf.params.xml.ns.icalendar_2.DateDatetimePropertyType;
+import ietf.params.xml.ns.icalendar_2.TzidParamType;
 
 import java.io.OutputStream;
 
@@ -115,20 +122,16 @@ public abstract class SoapHandler extends MethodBase {
   /**
    * @return current account
    */
-  public String getAccount() {
+  protected String getAccount() {
     return getNsIntf().getAccount();
   }
 
   /**
    * @return SysIntf
    */
-  public SysIntf getSysi() {
+  protected SysIntf getSysi() {
     return getIntf().getSysi();
   }
-
-  /* ====================================================================
-   *                   Protected methods
-   * ==================================================================== */
 
   protected CaldavBWIntf getIntf() {
     return (CaldavBWIntf)getNsIntf();
@@ -189,5 +192,45 @@ public abstract class SoapHandler extends MethodBase {
     Node parent = nd.getParentNode();
 
     parent.removeChild(nd);
+  }
+
+  protected String findTzid(final BasePropertyType bp) {
+    ArrayOfParameters aop = bp.getParameters();
+
+    for (JAXBElement<? extends BaseParameterType> el: aop.getBaseParameters()) {
+      if (el.getName().equals(XcalTags.tzid)) {
+        TzidParamType tzid = (TzidParamType)el.getValue();
+        return tzid.getText();
+      }
+    }
+
+    return null;
+  }
+
+  protected String checkUTC(final BasePropertyType bp) {
+    if (findTzid(bp) != null) {
+      return null;
+    }
+
+    if (!(bp instanceof DateDatetimePropertyType)) {
+      return null;
+    }
+
+    DateDatetimePropertyType d = (DateDatetimePropertyType)bp;
+
+    if (d.getDate() != null) {
+      return null;
+    }
+
+    String dt = d.getDateTime();
+    if (dt== null) {
+      return null;
+    }
+
+    if ((dt.length() == 18) && (dt.charAt(17) == 'Z')) {
+      return dt;
+    }
+
+    return null;
   }
 }

@@ -23,14 +23,21 @@ import org.bedework.caldav.server.CalDAVEvent;
 import org.bedework.caldav.server.CaldavBWIntf;
 import org.bedework.caldav.server.CaldavBwNode;
 import org.bedework.caldav.server.CaldavComponentNode;
+import org.bedework.caldav.server.CaldavPrincipalNode;
 import org.bedework.caldav.server.SysiIcalendar;
 import org.bedework.caldav.server.PostMethod.RequestPars;
 import org.bedework.caldav.server.soap.SoapHandler;
+import org.bedework.caldav.server.sysinterface.SystemProperties;
 import org.bedework.caldav.server.sysinterface.SysIntf.IcalResultType;
+import org.bedework.caldav.server.sysinterface.SysIntf.SchedRecipientResult;
+import org.bedework.caldav.util.ParseUtil;
+import org.bedework.caldav.util.TimeRange;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
+import edu.rpi.cmt.calendar.ScheduleMethods;
+import edu.rpi.sss.util.Util;
 import edu.rpi.sss.util.xml.NsContext;
 import edu.rpi.sss.util.xml.XmlUtil;
 import edu.rpi.sss.util.xml.tagdefs.XcalTags;
@@ -42,19 +49,35 @@ import org.oasis_open.docs.ns.wscal.calws_soap.ArrayOfUpdates;
 import org.oasis_open.docs.ns.wscal.calws_soap.BaseUpdateType;
 import org.oasis_open.docs.ns.wscal.calws_soap.FetchItem;
 import org.oasis_open.docs.ns.wscal.calws_soap.FetchItemResponse;
+import org.oasis_open.docs.ns.wscal.calws_soap.FreebusyReport;
+import org.oasis_open.docs.ns.wscal.calws_soap.FreebusyReportResponse;
 import org.oasis_open.docs.ns.wscal.calws_soap.GetProperties;
 import org.oasis_open.docs.ns.wscal.calws_soap.GetPropertiesResponse;
 import org.oasis_open.docs.ns.wscal.calws_soap.NamespaceType;
 import org.oasis_open.docs.ns.wscal.calws_soap.NewValueType;
 import org.oasis_open.docs.ns.wscal.calws_soap.RemoveType;
 import org.oasis_open.docs.ns.wscal.calws_soap.StatusType;
+import org.oasis_open.docs.ns.wscal.calws_soap.UTCTimeRangeType;
 import org.oasis_open.docs.ns.wscal.calws_soap.UpdateItem;
 import org.oasis_open.docs.ns.wscal.calws_soap.UpdateItemResponse;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import ietf.params.xml.ns.icalendar_2.ArrayOfComponents;
+import ietf.params.xml.ns.icalendar_2.ArrayOfProperties;
+import ietf.params.xml.ns.icalendar_2.AttendeePropType;
+import ietf.params.xml.ns.icalendar_2.DtendPropType;
+import ietf.params.xml.ns.icalendar_2.DtstartPropType;
 import ietf.params.xml.ns.icalendar_2.Icalendar;
+import ietf.params.xml.ns.icalendar_2.OrganizerPropType;
+import ietf.params.xml.ns.icalendar_2.UidPropType;
+import ietf.params.xml.ns.icalendar_2.VcalendarType;
+import ietf.params.xml.ns.icalendar_2.VfreebusyType;
+
+import java.util.Collection;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -125,6 +148,11 @@ public class CalwsHandler extends SoapHandler {
         return;
       }
 
+      if (o instanceof FreebusyReport) {
+        doFreebusyReport((FreebusyReport)o, resp);
+        return;
+      }
+
       if (o instanceof AddItem) {
         doAddItem((AddItem)o, req, resp);
         return;
@@ -153,7 +181,7 @@ public class CalwsHandler extends SoapHandler {
    * ==================================================================== */
 
   private void doGetProperties(final GetProperties gp,
-                              final HttpServletResponse resp) throws WebdavException {
+                               final HttpServletResponse resp) throws WebdavException {
     if (debug) {
       trace("GetProperties: ");
     }
@@ -182,6 +210,205 @@ public class CalwsHandler extends SoapHandler {
       throw new WebdavException(t);
     }
   }
+
+  private void doFreebusyReport(final FreebusyReport fr,
+                                final HttpServletResponse resp) throws WebdavException {
+    if (debug) {
+      trace("FreebusyReport: ");
+    }
+
+    FreebusyReportResponse frr = new FreebusyReportResponse();
+
+    try {
+      String url = fr.getHref();
+
+      buildResponse: {
+        if (url == null) {
+          frr.setStatus(StatusType.ERROR);
+          frr.setMessage("No href supplied");
+          break buildResponse;
+        }
+
+        WebdavNsNode elNode = getNsIntf().getNode(url,
+                                                  WebdavNsIntf.existanceMust,
+                                                  WebdavNsIntf.nodeTypeUnknown);
+
+        if (!(elNode instanceof CaldavPrincipalNode)) {
+          frr.setStatus(StatusType.ERROR);
+          frr.setMessage("Only principal href supported");
+          break buildResponse;
+        }
+
+        String cua = getSysi().principalToCaladdr(getSysi().getPrincipal(url));
+
+        /* Build an icalendar freebusy object out of the parameters */
+
+        Icalendar ical = new Icalendar();
+        VcalendarType vcal = new VcalendarType();
+
+        ical.getVcalendars().add(vcal);
+
+        VfreebusyType vfb = new VfreebusyType();
+
+        JAXBElement<VfreebusyType> compel =
+          new JAXBElement<VfreebusyType>(XcalTags.vfreebusy,
+                                         VfreebusyType.class, vfb);
+        ArrayOfComponents aoc = new ArrayOfComponents();
+
+        vcal.setComponents(aoc);
+        aoc.getBaseComponents().add(compel);
+
+        /* Use timerange to limit the requested time */
+
+        SystemProperties sysp = getSysi().getSystemProperties();
+
+        UTCTimeRangeType utr = fr.getTimeRange();
+
+        TimeRange tr = ParseUtil.getPeriod(utr.getStart(),
+                                           utr.getEnd(),
+                                           java.util.Calendar.DATE,
+                                           sysp.getDefaultFBPeriod(),
+                                           java.util.Calendar.DATE,
+                                           sysp.getMaxFBPeriod());
+
+        ArrayOfProperties aop = new ArrayOfProperties();
+        vfb.setProperties(aop);
+
+        DtstartPropType dtstart = new DtstartPropType();
+        dtstart.setDateTime(tr.getStart().toString());
+
+        JAXBElement<DtstartPropType> dtstartProp =
+          new JAXBElement<DtstartPropType>(XcalTags.dtstart,
+                                           DtstartPropType.class, dtstart);
+
+        aop.getBaseProperties().add(dtstartProp);
+
+        DtendPropType dtend = new DtendPropType();
+        dtend.setDateTime(tr.getEnd().toString());
+
+        JAXBElement<DtendPropType> dtendProp =
+          new JAXBElement<DtendPropType>(XcalTags.dtend,
+                                           DtendPropType.class, dtend);
+
+        aop.getBaseProperties().add(dtendProp);
+
+        /* Add a uid */
+
+        UidPropType uid = new UidPropType();
+        uid.setText(Util.makeRandomString(30, 35));
+
+        JAXBElement<UidPropType> uidProp =
+          new JAXBElement<UidPropType>(XcalTags.uid,
+                                       UidPropType.class, uid);
+
+        aop.getBaseProperties().add(uidProp);
+
+        /* Add the cua as the organizer */
+
+        OrganizerPropType org = new OrganizerPropType();
+        org.setCalAddress(cua);
+
+        JAXBElement<OrganizerPropType> orgProp =
+          new JAXBElement<OrganizerPropType>(XcalTags.organizer,
+                                             OrganizerPropType.class, org);
+
+        aop.getBaseProperties().add(orgProp);
+
+        /* We should be in as an attendee */
+
+        AttendeePropType att = new AttendeePropType();
+        att.setCalAddress(getSysi().principalToCaladdr(getSysi().getPrincipal()));
+
+        JAXBElement<AttendeePropType> attProp =
+          new JAXBElement<AttendeePropType>(XcalTags.attendee,
+                                            AttendeePropType.class, att);
+
+        aop.getBaseProperties().add(attProp);
+
+        SysiIcalendar sical = getSysi().fromIcal(null, ical,
+                                                 IcalResultType.OneComponent);
+        CalDAVEvent ev = sical.getEvent();
+
+        ev.setScheduleMethod(ScheduleMethods.methodTypeRequest);
+        Set<String> recipients = new TreeSet<String>();
+        recipients.add(cua);
+        ev.setRecipients(recipients);
+
+        Collection<SchedRecipientResult> srrs = getSysi().requestFreeBusy(ev);
+
+        if (srrs.size() != 1) {
+          frr.setStatus(StatusType.ERROR);
+          frr.setMessage("No data returned");
+          break buildResponse;
+        }
+
+        SchedRecipientResult sr = srrs.iterator().next();
+
+        frr.setIcalendar(getSysi().toIcalendar(sr.freeBusy, false));
+        frr.setStatus(StatusType.OK);
+      } // buildResponse
+
+      marshal(frr, resp.getOutputStream());
+    } catch (WebdavException we) {
+      frr.setStatus(StatusType.ERROR);
+      throw we;
+    } catch(Throwable t) {
+      throw new WebdavException(t);
+    }
+  }
+
+  /*
+   *
+  +
+
+  private void doFreebusyReport(final FreebusyReport fr,
+                                final HttpServletResponse resp) throws WebdavException {
+    if (debug) {
+      trace("FreebusyReport: ");
+    }
+
+    try {
+      String url = fr.getHref();
+      FreebusyReportResponse frr = new FreebusyReportResponse();
+
+      buildResponse: {
+        if (url == null) {
+          frr.setStatus(StatusType.ERROR);
+          frr.setMessage("No href supplied");
+          break buildResponse;
+        }
+
+        String cua = getSysi().principalToCaladdr(getSysi().getPrincipal(url));
+
+        SysiIcalendar cal = getSysi().fromIcal(null,
+                                               fr.getIcalendar(),
+                                               IcalResultType.OneComponent);
+
+        CalDAVEvent ev = (CalDAVEvent)cal.iterator().next();
+
+        Collection<SchedRecipientResult> srrs = getSysi().requestFreeBusy(ev);
+        if (srrs.size() != 1) {
+          frr.setStatus(StatusType.ERROR);
+          frr.setMessage("No data returned");
+          break buildResponse;
+        }
+
+        SchedRecipientResult srr = srrs.iterator().next();
+
+        frr.setIcalendar(getSysi().toIcalendar(srr.freeBusy, false));
+        frr.setStatus(StatusType.OK);
+      } // buildResponse
+
+      marshal(frr, resp.getOutputStream());
+    } catch (WebdavException we) {
+      throw we;
+    } catch(Throwable t) {
+      throw new WebdavException(t);
+    }
+  }
+
+  +
+   */
 
   private void doAddItem(final AddItem ai,
                          final HttpServletRequest req,
@@ -268,6 +495,7 @@ public class CalwsHandler extends SoapHandler {
 
     if (elNode == null) {
       uir.setStatus(StatusType.ERROR);
+      uir.setMessage("Href not found");
       return;
     }
 

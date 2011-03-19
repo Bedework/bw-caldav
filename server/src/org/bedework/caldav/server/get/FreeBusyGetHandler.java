@@ -6,9 +6,9 @@
     Version 2.0 (the "License"); you may not use this file
     except in compliance with the License. You may obtain a
     copy of the License at:
-        
+
     http://www.apache.org/licenses/LICENSE-2.0
-        
+
     Unless required by applicable law or agreed to in writing,
     software distributed under the License is distributed on
     an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -90,8 +90,11 @@ public class FreeBusyGetHandler extends GetHandler {
       resp.setHeader("Content-Disposition",
                      "Attachment; Filename=\"freebusy.ics\"");
       resp.setContentType("text/calendar; charset=UTF-8");
+      pars.recipients.add(cua);
 
-      getSysi().getSpecialFreeBusy(cua, pars, tr, resp.getWriter());
+      getSysi().getSpecialFreeBusy(cua, pars.recipients,
+                                   pars.originator,
+                                   tr, resp.getWriter());
     } catch (WebdavForbidden wdf) {
       resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
     } catch (WebdavException wde) {

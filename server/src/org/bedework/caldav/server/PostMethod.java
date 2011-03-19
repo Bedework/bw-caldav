@@ -113,7 +113,7 @@ public class PostMethod extends MethodBase {
     /** true if this is a calws soap web service request */
     public boolean calwsSoap;
 
-    public boolean getTheReader = true;
+    private boolean getTheReader = true;
 
     /**
      * @param req

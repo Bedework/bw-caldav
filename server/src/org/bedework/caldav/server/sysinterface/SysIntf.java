@@ -6,9 +6,9 @@
     Version 2.0 (the "License"); you may not use this file
     except in compliance with the License. You may obtain a
     copy of the License at:
-        
+
     http://www.apache.org/licenses/LICENSE-2.0
-        
+
     Unless required by applicable law or agreed to in writing,
     software distributed under the License is distributed on
     an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -23,7 +23,6 @@ import org.bedework.caldav.server.CalDAVEvent;
 import org.bedework.caldav.server.CalDAVResource;
 import org.bedework.caldav.server.PropertyHandler;
 import org.bedework.caldav.server.SysiIcalendar;
-import org.bedework.caldav.server.PostMethod.RequestPars;
 import org.bedework.caldav.server.PropertyHandler.PropertyType;
 import org.bedework.caldav.util.CalDAVConfig;
 import org.bedework.caldav.util.TimeRange;
@@ -47,6 +46,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -371,13 +371,15 @@ public interface SysIntf {
   /** Handle the special freebusy resquests, i.e. non-CalDAV
    *
    * @param cua
-   * @param pars
+   * @param originator value of the Originator header
+   * @param recipients values of Recipient headers
    * @param tr
    * @param wtr
    * @throws WebdavException
    */
   public void getSpecialFreeBusy(String cua,
-                                 RequestPars pars,
+                                 Set<String> recipients,
+                                 String originator,
                                  TimeRange tr,
                                  Writer wtr) throws WebdavException;
 
