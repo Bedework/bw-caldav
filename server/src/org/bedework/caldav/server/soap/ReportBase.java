@@ -23,13 +23,16 @@ import org.bedework.caldav.server.CaldavReportMethod;
 import edu.rpi.cct.webdav.servlet.common.PropFindMethod;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
+import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
 
+import org.oasis_open.docs.ns.wscal.calws_soap.CalendarQuery;
 import org.w3c.dom.Document;
 
 import ietf.params.xml.ns.icalendar_2.Icalendar;
 
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.Collection;
 
 /**
  * @author douglm
@@ -65,9 +68,9 @@ public class ReportBase extends CaldavReportMethod {
       // Set up XmlEmit so we can process the output.
       StringWriter sw = new StringWriter();
       xml.startEmit(sw);
+      cqpars.depth = 1;
 
-      process(resourceUri,
-              1);  // depth
+      process(cqpars, resourceUri);
 
       String s = sw.toString();
       return parseContent(s.length(),
@@ -77,6 +80,26 @@ public class ReportBase extends CaldavReportMethod {
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
+  }
+
+  /**
+   * @param resourceUri
+   * @param cq
+   * @return collection of nodes
+   * @throws WebdavException
+   */
+  public Collection<WebdavNsNode> query(final String resourceUri,
+                                        final CalendarQuery cq) throws WebdavException {
+    WebdavNsNode node = getNsIntf().getNode(resourceUri,
+                                            WebdavNsIntf.existanceMust,
+                                            WebdavNsIntf.nodeTypeUnknown);
+
+    CalendarQueryPars cqp = new CalendarQueryPars();
+
+    cqp.filter = cq.getFilter();
+    cqp.depth = 1;
+
+    return doNodeAndChildren(cqp, node);
   }
 
   Icalendar fetch(final String resourceUri,
@@ -113,8 +136,9 @@ public class ReportBase extends CaldavReportMethod {
 
     processDoc(doc);
 
-    process(resourceUri,
-            1);  // depth
+    /* ugly - cqpars is result of processDoc. Need to restructure */
+    cqpars.depth = 1;
+    process(cqpars, resourceUri);
 
     return null;
   }

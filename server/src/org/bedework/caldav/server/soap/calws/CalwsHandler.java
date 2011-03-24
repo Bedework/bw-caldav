@@ -47,14 +47,20 @@ import org.oasis_open.docs.ns.wscal.calws_soap.AddItemResponse;
 import org.oasis_open.docs.ns.wscal.calws_soap.AddType;
 import org.oasis_open.docs.ns.wscal.calws_soap.ArrayOfUpdates;
 import org.oasis_open.docs.ns.wscal.calws_soap.BaseUpdateType;
+import org.oasis_open.docs.ns.wscal.calws_soap.CalendarDataResponseType;
+import org.oasis_open.docs.ns.wscal.calws_soap.CalendarQuery;
+import org.oasis_open.docs.ns.wscal.calws_soap.CalendarQueryResponse;
 import org.oasis_open.docs.ns.wscal.calws_soap.FetchItem;
 import org.oasis_open.docs.ns.wscal.calws_soap.FetchItemResponse;
 import org.oasis_open.docs.ns.wscal.calws_soap.FreebusyReport;
 import org.oasis_open.docs.ns.wscal.calws_soap.FreebusyReportResponse;
 import org.oasis_open.docs.ns.wscal.calws_soap.GetProperties;
 import org.oasis_open.docs.ns.wscal.calws_soap.GetPropertiesResponse;
+import org.oasis_open.docs.ns.wscal.calws_soap.MultistatResponseElementType;
+import org.oasis_open.docs.ns.wscal.calws_soap.MultistatusPropElementType;
 import org.oasis_open.docs.ns.wscal.calws_soap.NamespaceType;
 import org.oasis_open.docs.ns.wscal.calws_soap.NewValueType;
+import org.oasis_open.docs.ns.wscal.calws_soap.Propstat;
 import org.oasis_open.docs.ns.wscal.calws_soap.RemoveType;
 import org.oasis_open.docs.ns.wscal.calws_soap.StatusType;
 import org.oasis_open.docs.ns.wscal.calws_soap.UTCTimeRangeType;
@@ -150,6 +156,11 @@ public class CalwsHandler extends SoapHandler {
 
       if (o instanceof FreebusyReport) {
         doFreebusyReport((FreebusyReport)o, resp);
+        return;
+      }
+
+      if (o instanceof CalendarQuery) {
+        doCalendarQuery((CalendarQuery)o, resp);
         return;
       }
 
@@ -357,58 +368,82 @@ public class CalwsHandler extends SoapHandler {
     }
   }
 
-  /*
-   *
-  +
-
-  private void doFreebusyReport(final FreebusyReport fr,
-                                final HttpServletResponse resp) throws WebdavException {
+  private void doCalendarQuery(final CalendarQuery cq,
+                               final HttpServletResponse resp) throws WebdavException {
     if (debug) {
-      trace("FreebusyReport: ");
+      trace("CalendarQuery: ");
     }
 
+    CalendarQueryResponse cqr = new CalendarQueryResponse();
+
     try {
-      String url = fr.getHref();
-      FreebusyReportResponse frr = new FreebusyReportResponse();
+      String url = cq.getHref();
 
       buildResponse: {
         if (url == null) {
-          frr.setStatus(StatusType.ERROR);
-          frr.setMessage("No href supplied");
+          cqr.setStatus(StatusType.ERROR);
+          cqr.setMessage("No href supplied");
           break buildResponse;
         }
 
-        String cua = getSysi().principalToCaladdr(getSysi().getPrincipal(url));
+        Report rpt = new Report(getNsIntf());
 
-        SysiIcalendar cal = getSysi().fromIcal(null,
-                                               fr.getIcalendar(),
-                                               IcalResultType.OneComponent);
+        Collection<WebdavNsNode> nodes = rpt.query(url, cq);
 
-        CalDAVEvent ev = (CalDAVEvent)cal.iterator().next();
+        if (nodes != null) {
+          for (WebdavNsNode curnode: nodes) {
+            MultistatResponseElementType mre = new MultistatResponseElementType();
 
-        Collection<SchedRecipientResult> srrs = getSysi().requestFreeBusy(ev);
-        if (srrs.size() != 1) {
-          frr.setStatus(StatusType.ERROR);
-          frr.setMessage("No data returned");
-          break buildResponse;
+            mre.setHref(curnode.getPrefixedUri());
+            mre.setEtag(curnode.getEtagValue(true));
+
+            cqr.getResponses().add(mre);
+
+            Propstat ps = new Propstat();
+
+            mre.getPropstats().add(ps);
+
+            ps.setStatus(getStatus(curnode.getStatus(), null));
+
+            if (!curnode.getExists()) {
+              continue;
+            }
+
+            if (!(curnode instanceof CaldavComponentNode)) {
+              continue;
+            }
+
+            /* For the moment always return the full calendar data. Need to
+             * implement the properties thing
+             */
+
+            MultistatusPropElementType mpe = new MultistatusPropElementType();
+
+            ps.getProps().add(mpe);
+
+            CalendarDataResponseType cdr = new CalendarDataResponseType();
+
+            mpe.setCalendarData(cdr);
+
+            CalDAVEvent ev = ((CaldavComponentNode)curnode).getEvent();
+
+            cdr.setIcalendar(getIntf().getSysi().toIcalendar(ev, false));
+            cdr.setContentType("application/xml+calendar");
+            cdr.setVersion("2.0");
+          }
         }
 
-        SchedRecipientResult srr = srrs.iterator().next();
-
-        frr.setIcalendar(getSysi().toIcalendar(srr.freeBusy, false));
-        frr.setStatus(StatusType.OK);
+        cqr.setStatus(StatusType.OK);
       } // buildResponse
 
-      marshal(frr, resp.getOutputStream());
+      marshal(cqr, resp.getOutputStream());
     } catch (WebdavException we) {
+      cqr.setStatus(StatusType.ERROR);
       throw we;
     } catch(Throwable t) {
       throw new WebdavException(t);
     }
   }
-
-  +
-   */
 
   private void doAddItem(final AddItem ai,
                          final HttpServletRequest req,

@@ -59,11 +59,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.namespace.QName;
 
-/** Class called to handle OPTIONS. We should determine what the current
- * url refers to and send a response which shows the allowable methods on that
- * resource.
+/** Class called to handle CalDAV REPORT.
  *
- *   @author Mike Douglass   douglm@rpi.edu
+ *   @author Mike Douglass   douglm rpi.edu
  */
 public class CaldavReportMethod extends ReportMethod {
   /* The parsed results go here. We see:
@@ -73,7 +71,16 @@ public class CaldavReportMethod extends ReportMethod {
    */
 
   private FreeBusyQuery freeBusy;
-  private Filter filter;
+
+  protected static class CalendarQueryPars {
+    public Filter filter;
+    public String tzid;
+    public int depth;
+
+    public CalendarQueryPars() {}
+  }
+
+  protected CalendarQueryPars cqpars;
   private ArrayList<String> hrefs;
 
   // ENUM
@@ -202,13 +209,18 @@ public class CaldavReportMethod extends ReportMethod {
       if (reportType == reportTypeQuery) {
         // Filter required next
 
+        cqpars = new CalendarQueryPars();
+
         if (!XmlUtil.nodeMatches(curnode, CaldavTags.filter)) {
           throw new WebdavBadRequest("Expected filter");
         }
 
-        // Delay parsing until we see if we have a timezone
-        Element filterNode = curnode;
-        String tzid = null;
+        cqpars.filter = Filters.parse(curnode);
+
+        if (debug) {
+          trace("REPORT: query");
+          DumpUtil.dumpFilter(cqpars.filter, getLogger());
+        }
 
         if (chiter.hasNext()) {
           // Only timezone allowed
@@ -225,14 +237,7 @@ public class CaldavReportMethod extends ReportMethod {
                                                    null,
                                                    IcalResultType.TimeZone);
           Collection<TimeZone> tzs = ical.getTimeZones();
-          tzid = tzs.iterator().next().getID();
-        }
-
-        filter = Filters.parse(filterNode);
-
-        if (debug) {
-          trace("REPORT: query");
-          DumpUtil.dumpFilter(filter, getLogger());
+          cqpars.tzid = tzs.iterator().next().getID();
         }
 
         return;
@@ -320,11 +325,13 @@ public class CaldavReportMethod extends ReportMethod {
 
     String resourceUri = getResourceUri(req);
 
-    process(resourceUri, depth);
+    cqpars.depth = depth;
+
+    process(cqpars, resourceUri);
   }
 
-  protected void process(final String resourceUri,
-                         final int depth) throws WebdavException {
+  protected void process(final CalendarQueryPars cqp,
+                         final String resourceUri) throws WebdavException {
     CaldavBWIntf intf = (CaldavBWIntf)getNsIntf();
     WebdavNsNode node = intf.getNode(resourceUri,
                                      WebdavNsIntf.existanceMust,
@@ -338,7 +345,7 @@ public class CaldavReportMethod extends ReportMethod {
     Collection<String> badHrefs = new ArrayList<String>();
 
     if (reportType == reportTypeQuery) {
-      nodes = doNodeAndChildren(node, 0, defaultDepth(depth, 0));
+      nodes = doNodeAndChildren(cqp, node);
     } else if (reportType == reportTypeMultiGet) {
       nodes = new ArrayList<WebdavNsNode>();
 
@@ -397,11 +404,60 @@ public class CaldavReportMethod extends ReportMethod {
     flush();
   }
 
+  protected Collection<WebdavNsNode> doNodeAndChildren(final CalendarQueryPars cqp,
+                                    final WebdavNsNode node) throws WebdavException {
+    return doNodeAndChildren(cqp, node, 0, defaultDepth(cqp.depth, 0));
+  }
+
   /* ====================================================================
    *                   Private methods
    * ==================================================================== */
 
-  private Collection<WebdavNsNode> getNodes(final WebdavNsNode node)
+  private Collection<WebdavNsNode> doNodeAndChildren(final CalendarQueryPars cqp,
+                                                     final WebdavNsNode node,
+                                       int curDepth,
+                                       final int maxDepth) throws WebdavException {
+    if (debug) {
+      trace("doNodeAndChildren: curDepth=" + curDepth +
+            " maxDepth=" + maxDepth + " uri=" + node.getUri());
+    }
+
+    Collection<WebdavNsNode> nodes = new ArrayList<WebdavNsNode>();
+
+    if (node instanceof CaldavComponentNode) {
+      // Targetted directly at component
+      nodes.add(node);
+      return nodes;
+    }
+
+    if (!(node instanceof CaldavCalNode)) {
+      throw new WebdavBadRequest();
+    }
+
+    CaldavCalNode calnode = (CaldavCalNode)node;
+
+    /* TODO - should we return info about the collection?
+     * Probably if the filter allows it.
+     */
+    curDepth++;
+
+    if (curDepth > maxDepth) {
+      return nodes;
+    }
+
+    if (calnode.isCalendarCollection()) {
+      return getNodes(cqp, node);
+    }
+
+    for (WebdavNsNode child: getNsIntf().getChildren(node)) {
+      nodes.addAll(doNodeAndChildren(cqp, child, curDepth, maxDepth));
+    }
+
+    return nodes;
+  }
+
+  private Collection<WebdavNsNode> getNodes(final CalendarQueryPars cqp,
+                                            final WebdavNsNode node)
           throws WebdavException {
     if (debug) {
       trace("getNodes: " + node.getUri());
@@ -495,7 +551,7 @@ public class CaldavReportMethod extends ReportMethod {
       retrieveList = null;
     }
 
-    return intf.query(node, retrieveList, rm, filter);
+    return intf.query(node, retrieveList, rm, cqp.filter);
   }
 
   private boolean addPropname(final QName tag,
@@ -506,48 +562,6 @@ public class CaldavReportMethod extends ReportMethod {
     }
 
     return false;
-  }
-
-  private Collection<WebdavNsNode> doNodeAndChildren(final WebdavNsNode node,
-                                       int curDepth,
-                                       final int maxDepth) throws WebdavException {
-    if (debug) {
-      trace("doNodeAndChildren: curDepth=" + curDepth +
-            " maxDepth=" + maxDepth + " uri=" + node.getUri());
-    }
-
-    Collection<WebdavNsNode> nodes = new ArrayList<WebdavNsNode>();
-
-    if (node instanceof CaldavComponentNode) {
-      // Targetted directly at component
-      nodes.add(node);
-      return nodes;
-    }
-
-    if (!(node instanceof CaldavCalNode)) {
-      throw new WebdavBadRequest();
-    }
-
-    CaldavCalNode calnode = (CaldavCalNode)node;
-
-    /* TODO - should we return info about the collection?
-     * Probably if the filter allows it.
-     */
-    curDepth++;
-
-    if (curDepth > maxDepth) {
-      return nodes;
-    }
-
-    if (calnode.isCalendarCollection()) {
-      return getNodes(node);
-    }
-
-    for (WebdavNsNode child: getNsIntf().getChildren(node)) {
-      nodes.addAll(doNodeAndChildren(child, curDepth, maxDepth));
-    }
-
-    return nodes;
   }
 
   /** Handle free/busy response

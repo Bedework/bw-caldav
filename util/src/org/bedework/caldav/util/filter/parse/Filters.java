@@ -153,7 +153,7 @@ public class Filters {
     int entityType = IcalDefs.entityTypeEvent;
 
     boolean isNotDefined = cf.getIsNotDefined() != null;
-    String name = cf.getName();
+    String name = cf.getName().toUpperCase();
 
     if (exprDepth == 0) {
       if (!"VCALENDAR".equals(name)) {
