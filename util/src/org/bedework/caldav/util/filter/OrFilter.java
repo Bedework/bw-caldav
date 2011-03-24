@@ -25,7 +25,7 @@ import java.util.Collection;
  * @author Mike Douglass
  * @version 2.0
  */
-public class OrFilter extends Filter {
+public class OrFilter extends FilterBase {
   /**
    */
   public OrFilter() {
@@ -41,10 +41,10 @@ public class OrFilter extends Filter {
 
     super.toStringSegment(sb);
 
-    Collection<Filter> c = getChildren();
+    Collection<FilterBase> c = getChildren();
 
     if (c != null) {
-      for (Filter f: c) {
+      for (FilterBase f: c) {
         sb.append("\n");
         sb.append(f);
       }

@@ -6,9 +6,9 @@
     Version 2.0 (the "License"); you may not use this file
     except in compliance with the License. You may obtain a
     copy of the License at:
-        
+
     http://www.apache.org/licenses/LICENSE-2.0
-        
+
     Unless required by applicable law or agreed to in writing,
     software distributed under the License is distributed on
     an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -18,7 +18,9 @@
 */
 package org.bedework.caldav.server.sysinterface;
 
-import net.fortuna.ical4j.model.DateTime;
+import ietf.params.xml.ns.caldav.Expand;
+import ietf.params.xml.ns.caldav.LimitFreebusySet;
+import ietf.params.xml.ns.caldav.LimitRecurrenceSet;
 
 import java.io.Serializable;
 
@@ -35,60 +37,106 @@ public class RetrievalMode implements Serializable {
    *   Expand recurrences
    */
 
-  /** */
-  public boolean expanded;
+  private Expand expand;
+  private LimitRecurrenceSet limitRecurrenceSet;
+  private LimitFreebusySet limitFreebusySet;
 
-  /** */
-  public boolean limitRecurrenceSet;
-
-  /** Limit expansion and recurrences.
-   */
-  public DateTime start;
-
-  /** Limit expansion and recurrences.
-   */
-  public DateTime end;
-
-  /** Factory
+  /**
+   * Sets the value of the expand property.
    *
-   * @param start
-   * @param end
-   * @return RetrievalMode
+   * @param val
+   *     allowed object is
+   *     {@link Expand }
+   *
    */
-  public static RetrievalMode getExpanded(DateTime start, DateTime end) {
-    RetrievalMode rm = new RetrievalMode();
-
-    rm.expanded = true;
-    rm.start = start;
-    rm.end = end;
-
-    return rm;
+  public void setExpand(final Expand val) {
+      expand = val;
   }
 
-  /** Factory
+  /**
+   * Gets the value of the expand property.
    *
-   * @param start
-   * @param end
-   * @return RetrievalMode
+   * @return
+   *     possible object is
+   *     {@link Expand }
+   *
    */
-  public static RetrievalMode getLimited(DateTime start, DateTime end) {
-    RetrievalMode rm = new RetrievalMode();
-
-    rm.limitRecurrenceSet = true;
-    rm.start = start;
-    rm.end = end;
-
-    return rm;
+  public Expand getExpand() {
+      return expand;
   }
 
+  /**
+   * Sets the value of the limitRecurrenceSet property.
+   *
+   * @param val
+   *     allowed object is
+   *     {@link LimitRecurrenceSet }
+   *
+   */
+  public void setLimitRecurrenceSet(final LimitRecurrenceSet val) {
+      limitRecurrenceSet = val;
+  }
+
+  /**
+   * Gets the value of the limitRecurrenceSet property.
+   *
+   * @return
+   *     possible object is
+   *     {@link LimitRecurrenceSet }
+   *
+   */
+  public LimitRecurrenceSet getLimitRecurrenceSet() {
+      return limitRecurrenceSet;
+  }
+
+  /**
+   * Sets the value of the limitFreebusySet property.
+   *
+   * @param val
+   *     allowed object is
+   *     {@link LimitFreebusySet }
+   *
+   */
+  public void setLimitFreebusySet(final LimitFreebusySet val) {
+      limitFreebusySet = val;
+  }
+
+  /**
+   * Gets the value of the limitFreebusySet property.
+   *
+   * @return
+   *     possible object is
+   *     {@link LimitFreebusySet }
+   *
+   */
+  public LimitFreebusySet getLimitFreebusySet() {
+      return limitFreebusySet;
+  }
+
+  @Override
   public String toString() {
     StringBuilder sb = new StringBuilder("RetrievalMode{");
 
-    if (expanded) {
-      sb.append("expanded, ");
-    } else {
-      sb.append("limited, ");
+    String start = null;
+    String end = null;
+    String name = null;
+
+    if (expand != null) {
+      name = "expand";
+      start = expand.getStart();
+      end = expand.getEnd();
+    } else if (limitFreebusySet != null) {
+      name = "limit-freebusy-set";
+      start = limitFreebusySet.getStart();
+      end = limitFreebusySet.getEnd();
+    } else if (limitRecurrenceSet != null) {
+      name = "limit-recurrence-set";
+      start = limitRecurrenceSet.getStart();
+      end = limitRecurrenceSet.getEnd();
     }
+
+    sb.append(name);
+    sb.append(", ");
 
     sb.append(", start=");
     sb.append(start);

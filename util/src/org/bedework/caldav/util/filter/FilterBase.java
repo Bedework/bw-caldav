@@ -42,7 +42,7 @@ import java.util.List;
  * @author Mike Douglass
  * @version 1.1
  */
-public class Filter implements Serializable {
+public class FilterBase implements Serializable {
   /** The internal name of the filter
    */
   protected String name;
@@ -55,15 +55,15 @@ public class Filter implements Serializable {
    */
   protected boolean not;
 
-  protected Filter parent;
+  protected FilterBase parent;
 
   /** The children of the filter */
-  protected List<Filter> children;
+  protected List<FilterBase> children;
 
   /**
    * @param name
    */
-  public Filter(final String name) {
+  public FilterBase(final String name) {
     setName(name);
   }
   /* ====================================================================
@@ -122,7 +122,7 @@ public class Filter implements Serializable {
    *
    * @param val   FilterVO parent object
    */
-  public void setParent(final Filter val) {
+  public void setParent(final FilterBase val) {
     parent = val;
   }
 
@@ -130,7 +130,7 @@ public class Filter implements Serializable {
    *
    * @return FilterVO    the parent
    */
-  public Filter getParent() {
+  public FilterBase getParent() {
     return parent;
   }
 
@@ -142,7 +142,7 @@ public class Filter implements Serializable {
    *
    * @param   val   List of children for this filter
    */
-  public void setChildren(final List<Filter> val) {
+  public void setChildren(final List<FilterBase> val) {
     children = val;
   }
 
@@ -150,7 +150,7 @@ public class Filter implements Serializable {
    *
    * @return List   BwFilter children for this filter
    */
-  public List<Filter> getChildren() {
+  public List<FilterBase> getChildren() {
     return children;
   }
 
@@ -159,7 +159,7 @@ public class Filter implements Serializable {
    * @return int num children
    */
   public int getNumChildren() {
-    List<Filter> c = getChildren();
+    List<FilterBase> c = getChildren();
     if (c == null) {
       return 0;
     }
@@ -170,11 +170,11 @@ public class Filter implements Serializable {
    *
    * @param val     BwFilter child
    */
-  public void addChild(final Filter val) {
-    List<Filter> c = getChildren();
+  public void addChild(final FilterBase val) {
+    List<FilterBase> c = getChildren();
 
     if (c == null) {
-      c = new ArrayList<Filter>();
+      c = new ArrayList<FilterBase>();
       setChildren(c);
     }
 
@@ -222,7 +222,7 @@ public class Filter implements Serializable {
    * @param child
    * @return a filter
    */
-  public static Filter addOrChild(final Filter filter, final Filter child) {
+  public static FilterBase addOrChild(final FilterBase filter, final FilterBase child) {
     if (child == null) {
       return filter;
     }
@@ -250,7 +250,7 @@ public class Filter implements Serializable {
    * @param child
    * @return filter
    */
-  public static Filter addAndChild(final Filter filter, final Filter child) {
+  public static FilterBase addAndChild(final FilterBase filter, final FilterBase child) {
     if (child == null) {
       return filter;
     }

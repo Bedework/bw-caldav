@@ -6,9 +6,9 @@
     Version 2.0 (the "License"); you may not use this file
     except in compliance with the License. You may obtain a
     copy of the License at:
-        
+
     http://www.apache.org/licenses/LICENSE-2.0
-        
+
     Unless required by applicable law or agreed to in writing,
     software distributed under the License is distributed on
     an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -23,10 +23,9 @@ import org.bedework.caldav.server.CalDAVEvent;
 import org.bedework.caldav.server.CaldavBwNode;
 import org.bedework.caldav.server.CaldavComponentNode;
 import org.bedework.caldav.server.sysinterface.RetrievalMode;
-import org.bedework.caldav.util.filter.parse.CompFilter;
+import org.bedework.caldav.util.filter.FilterUtil;
 import org.bedework.caldav.util.filter.parse.EventQuery;
-import org.bedework.caldav.util.filter.parse.PropFilter;
-import org.bedework.caldav.util.filter.parse.QueryFilter;
+import org.bedework.caldav.util.filter.parse.Filters;
 
 import edu.rpi.cct.webdav.servlet.common.WebdavUtils;
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
@@ -35,6 +34,12 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
 import edu.rpi.cmt.calendar.IcalDefs;
 
 import net.fortuna.ical4j.model.Component;
+
+import org.apache.log4j.Logger;
+
+import ietf.params.xml.ns.caldav.CompFilter;
+import ietf.params.xml.ns.caldav.Filter;
+import ietf.params.xml.ns.caldav.PropFilter;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -123,16 +128,23 @@ import javax.servlet.http.HttpServletResponse;
  *
  *   @author Mike Douglass   douglm @ rpi.edu
  */
-public class FilterHandler extends QueryFilter {
+public class FilterHandler {
   /* Query we executed */
   private EventQuery eventq;
 
+  private Filter f;
+
+  private boolean debug;
+
+  protected transient Logger log;
+
   /** Constructor
    *
-   * @param debug
+   * @param f
    */
-  public FilterHandler(final boolean debug) {
-    super(debug);
+  public FilterHandler(final Filter f) {
+    this.f = f;
+    debug = getLogger().isDebugEnabled();
   }
 
   /** Use the given query to return a collection of nodes. An exception will
@@ -149,7 +161,7 @@ public class FilterHandler extends QueryFilter {
                                        final List<String> retrieveList,
                                        final RetrievalMode retrieveRecur) throws WebdavException {
     try {
-      eventq = getQuery();
+      eventq = Filters.getQuery(f);
 
       /*if (debug) {
       if (eventq.trange == null) {
@@ -200,7 +212,7 @@ public class FilterHandler extends QueryFilter {
       trace("post filtering needed");
     }
 
-    CompFilter cfltr = filter;
+    CompFilter cfltr = f.getCompFilter();
 
     // Currently only handle VCALENDAR for top level.
     if (!"VCALENDAR".equals(cfltr.getName())) {
@@ -233,7 +245,7 @@ public class FilterHandler extends QueryFilter {
           Component comp = curnode.getComponent();
 
           for (PropFilter pf: pfs) {
-            if (pf.filter(comp)) {
+            if (FilterUtil.filter(pf, comp)) {
               filtered.add(curnode);
               break;
             }
@@ -243,5 +255,36 @@ public class FilterHandler extends QueryFilter {
     }
 
     return filtered;
+  }
+
+  /** ===================================================================
+   *                   Logging methods
+   *  =================================================================== */
+
+  /**
+   * @return Logger
+   */
+  protected Logger getLogger() {
+    if (log == null) {
+      log = Logger.getLogger(this.getClass());
+    }
+
+    return log;
+  }
+
+  protected void debugMsg(final String msg) {
+    getLogger().debug(msg);
+  }
+
+  protected void error(final Throwable t) {
+    getLogger().error(this, t);
+  }
+
+  protected void logIt(final String msg) {
+    getLogger().info(msg);
+  }
+
+  protected void trace(final String msg) {
+    getLogger().debug(msg);
   }
 }

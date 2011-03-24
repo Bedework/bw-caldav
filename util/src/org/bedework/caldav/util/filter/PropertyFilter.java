@@ -28,7 +28,7 @@ import edu.rpi.sss.util.Uid;
  *
  * @author Mike Douglass douglm
  */
-public class PropertyFilter extends Filter {
+public class PropertyFilter extends FilterBase {
   private PropertyInfoIndex parentPropertyIndex;
   private PropertyInfoIndex propertyIndex;
 

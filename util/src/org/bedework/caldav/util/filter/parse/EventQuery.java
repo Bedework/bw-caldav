@@ -6,9 +6,9 @@
     Version 2.0 (the "License"); you may not use this file
     except in compliance with the License. You may obtain a
     copy of the License at:
-        
+
     http://www.apache.org/licenses/LICENSE-2.0
-        
+
     Unless required by applicable law or agreed to in writing,
     software distributed under the License is distributed on
     an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -18,10 +18,12 @@
 */
 package org.bedework.caldav.util.filter.parse;
 
-import org.bedework.caldav.util.filter.Filter;
+import org.bedework.caldav.util.filter.FilterBase;
+
+import ietf.params.xml.ns.caldav.PropFilter;
 
 import java.io.Serializable;
-import java.util.Collection;
+import java.util.List;
 
 /**
  * @author Mike Douglass
@@ -29,7 +31,7 @@ import java.util.Collection;
  */
 public class EventQuery implements Serializable {
   /** */
-  public Filter filter;
+  public FilterBase filter;
 
   /** true if we have to postfilter the result obtained via a search
    */
@@ -37,17 +39,17 @@ public class EventQuery implements Serializable {
 
   /** PostFilter: If non-null apply to retrieved event components
    */
-  public Collection<PropFilter> eventFilters;
+  public List<PropFilter> eventFilters;
 
   /** PostFilter: If non-null apply to retrieved tod components
    */
-  public Collection<PropFilter> todoFilters;
+  public List<PropFilter> todoFilters;
 
   /** PostFilter: If non-null apply to retrieved journal components
    */
-  public Collection<PropFilter> journalFilters;
+  public List<PropFilter> journalFilters;
 
   /** PostFilter: If non-null apply to retrieved alarm components
    */
-  public Collection<PropFilter> alarmFilters;
+  public List<PropFilter> alarmFilters;
 }

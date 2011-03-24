@@ -6,9 +6,9 @@
     Version 2.0 (the "License"); you may not use this file
     except in compliance with the License. You may obtain a
     copy of the License at:
-        
+
     http://www.apache.org/licenses/LICENSE-2.0
-        
+
     Unless required by applicable law or agreed to in writing,
     software distributed under the License is distributed on
     an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -18,15 +18,12 @@
 */
 package org.bedework.caldav.server;
 
-import org.bedework.caldav.server.calquery.CalendarData;
-import org.bedework.caldav.server.calquery.Comp;
-import org.bedework.caldav.server.calquery.Expand;
+import org.bedework.caldav.server.calquery.CalData;
 import org.bedework.caldav.server.calquery.FreeBusyQuery;
-import org.bedework.caldav.server.calquery.LimitRecurrenceSet;
-import org.bedework.caldav.server.calquery.Prop;
-import org.bedework.caldav.server.filter.FilterHandler;
 import org.bedework.caldav.server.sysinterface.RetrievalMode;
 import org.bedework.caldav.server.sysinterface.SysIntf.IcalResultType;
+import org.bedework.caldav.util.DumpUtil;
+import org.bedework.caldav.util.filter.parse.Filters;
 
 import edu.rpi.cct.webdav.servlet.common.ReportMethod;
 import edu.rpi.cct.webdav.servlet.common.PropFindMethod.PropRequest;
@@ -45,6 +42,11 @@ import net.fortuna.ical4j.model.TimeZone;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+import ietf.params.xml.ns.caldav.CalendarData;
+import ietf.params.xml.ns.caldav.Comp;
+import ietf.params.xml.ns.caldav.Filter;
+import ietf.params.xml.ns.caldav.Prop;
 
 import java.io.StringReader;
 import java.net.URLDecoder;
@@ -71,7 +73,7 @@ public class CaldavReportMethod extends ReportMethod {
    */
 
   private FreeBusyQuery freeBusy;
-  private FilterHandler filter;
+  private Filter filter;
   private ArrayList<String> hrefs;
 
   // ENUM
@@ -226,12 +228,11 @@ public class CaldavReportMethod extends ReportMethod {
           tzid = tzs.iterator().next().getID();
         }
 
-        filter = new FilterHandler(debug);
-        filter.parse(filterNode, tzid);
+        filter = Filters.parse(filterNode);
 
         if (debug) {
           trace("REPORT: query");
-          filter.dump();
+          DumpUtil.dumpFilter(filter, getLogger());
         }
 
         return;
@@ -410,7 +411,7 @@ public class CaldavReportMethod extends ReportMethod {
 
     RetrievalMode rm = null;
     List<String> retrieveList = null;
-    CalendarData caldata = null;
+    CalData caldata = null;
 
     if (preq != null) {
       if (debug) {
@@ -424,8 +425,8 @@ public class CaldavReportMethod extends ReportMethod {
             retrieveList = new ArrayList<String>();
           }
 
-          if (prop instanceof CalendarData) {
-            caldata = (CalendarData)prop;
+          if (prop instanceof CalData) {
+            caldata = (CalData)prop;
           } else if (!addPropname(prop.getTag(),
                                   retrieveList)) {
             retrieveList = null;
@@ -438,17 +439,17 @@ public class CaldavReportMethod extends ReportMethod {
     Comp comp = null;
 
     if (caldata != null) {
-      comp = caldata.getComp();
+      CalendarData cd = caldata.getCalendarData();
+      comp = cd.getComp();
 
-      if (caldata.getErs() != null) {
+      if (cd.getExpand() != null) {
         /* expand with time range */
-        Expand ers = caldata.getErs();
-
-        rm = RetrievalMode.getExpanded(ers.getStart(), ers.getEnd());
-      } else if (caldata.getLrs() != null) {
+        rm = new RetrievalMode();
+        rm.setExpand(cd.getExpand());
+      } else if (cd.getLimitRecurrenceSet() != null) {
         /* Only return master event and overrides in range */
-        LimitRecurrenceSet lrs = caldata.getLrs();
-        rm = RetrievalMode.getLimited(lrs.getStart(), lrs.getEnd());
+        rm = new RetrievalMode();
+        rm.setLimitRecurrenceSet(cd.getLimitRecurrenceSet());
       }
     }
 
@@ -460,17 +461,19 @@ public class CaldavReportMethod extends ReportMethod {
         // Retrieve everything
         retrieveList = null;
       }
-    } else if (comp.getAllcomp()) {
+    } else if (comp.getAllcomp() != null) {
       // Retrieve everything
       retrieveList = null;
-    } else if (comp.getName().equals("VCALENDAR")) {
+    } else if (comp.getName().toUpperCase().equals("VCALENDAR")) {
       // Should have "VACALENDAR" as outer
 
       for (Comp calcomp: comp.getComps()) {
-        if (calcomp.getName().equals("VEVENT") ||
-            calcomp.getName().equals("VTODO") ||
-            calcomp.getName().equals("VJOURNAL")) {
-          if (calcomp.getAllprop() || Util.isEmpty(calcomp.getProps())) {
+        String nm = calcomp.getName().toUpperCase();
+        if (nm.equals("VEVENT") ||
+            nm.equals("VTODO") ||
+            nm.equals("VJOURNAL")) {
+          if ((calcomp.getAllprop() != null) ||
+              Util.isEmpty(calcomp.getProps())) {
             retrieveList = null;
             break;
           }

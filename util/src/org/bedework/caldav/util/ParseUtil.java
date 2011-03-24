@@ -28,6 +28,8 @@ import net.fortuna.ical4j.model.DateTime;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
+import ietf.params.xml.ns.caldav.UTCTimeRangeType;
+
 import java.util.Calendar;
 
 /** Some utilities for parsing caldav
@@ -109,6 +111,92 @@ public class ParseUtil {
     }
 
     return new TimeRange(start, end);
+  }
+
+  /** The given node must be a time-range style element
+   *  <!ELEMENT time-range EMPTY>
+   *
+   *  <!ATTLIST time-range start CDATA
+   *                       end CDATA>
+   *
+   *  Start and end are date with UTC time
+   *
+   * e.g.        <C:time-range start="20040902T000000Z"
+   *                           end="20040902T235959Z"/>
+   *
+   * @param val - an object to populate or null for a new object
+   * @param nd
+   * @param required - if true start and end MUST be present
+   * @return TimeRange
+   * @throws WebdavException
+   */
+  public static UTCTimeRangeType parseUTCTimeRange(final UTCTimeRangeType val,
+                                                   final Node nd,
+                                                final boolean required) throws WebdavException {
+    String st = null;
+    String et = null;
+
+    NamedNodeMap nnm = nd.getAttributes();
+
+    if (nnm == null) {
+      // Infinite time-range?
+      throw new WebdavBadRequest(CaldavTags.validFilter, "Infinite time range");
+    }
+
+    int attrCt = nnm.getLength();
+
+    if ((attrCt == 0) || (required && (attrCt != 2))) {
+      // Infinite time-range?
+      throw new WebdavBadRequest(CaldavTags.validFilter, "Infinite time range");
+    }
+
+    try {
+      Node nmAttr = nnm.getNamedItem("start");
+
+      if (nmAttr != null) {
+        attrCt--;
+        st = nmAttr.getNodeValue();
+        if (!checkUTC(st)){
+          throw new WebdavBadRequest(CaldavTags.validFilter, "Not UTC");
+        }
+      } else if (required) {
+        throw new WebdavBadRequest(CaldavTags.validFilter, "Missing start");
+      }
+
+      nmAttr = nnm.getNamedItem("end");
+
+      if (nmAttr != null) {
+        attrCt--;
+        et = nmAttr.getNodeValue();
+        if (!checkUTC(et)){
+          throw new WebdavBadRequest(CaldavTags.validFilter, "Not UTC");
+        }
+      } else if (required) {
+        throw new WebdavBadRequest(CaldavTags.validFilter, "Missing end");
+      }
+    } catch (WebdavException wde) {
+      throw wde;
+    } catch (Throwable t) {
+      throw new WebdavBadRequest(CaldavTags.validFilter, "Invalid time-range");
+    }
+
+    if (attrCt != 0) {
+      throw new WebdavBadRequest(CaldavTags.validFilter);
+    }
+
+    if (val == null) {
+      UTCTimeRangeType utr = new UTCTimeRangeType();
+
+      utr.setStart(st);
+      utr.setEnd(et);
+
+      return utr;
+    }
+
+    val.setStart(st);
+    val.setEnd(et);
+
+    return val;
   }
 
   /** Get a date/time range given by the rfc formatted parameters and limited to

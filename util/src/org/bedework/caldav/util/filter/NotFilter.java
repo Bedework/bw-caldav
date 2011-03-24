@@ -53,7 +53,7 @@ import java.util.Collection;
  * @author Mike Douglass
  * @version 1.0
  */
-public class NotFilter extends Filter {
+public class NotFilter extends FilterBase {
   /**
    */
   public NotFilter() {
@@ -69,10 +69,10 @@ public class NotFilter extends Filter {
 
     super.toStringSegment(sb);
 
-    Collection<Filter> c = getChildren();
+    Collection<FilterBase> c = getChildren();
 
     if (c != null) {
-      for (Filter f: c) {
+      for (FilterBase f: c) {
         sb.append("\n");
         sb.append(f);
       }

@@ -6,9 +6,9 @@
     Version 2.0 (the "License"); you may not use this file
     except in compliance with the License. You may obtain a
     copy of the License at:
-        
+
     http://www.apache.org/licenses/LICENSE-2.0
-        
+
     Unless required by applicable law or agreed to in writing,
     software distributed under the License is distributed on
     an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -19,6 +19,7 @@
 package org.bedework.caldav.server.calquery;
 
 import org.bedework.caldav.server.CaldavComponentNode;
+import org.bedework.caldav.util.DumpUtil;
 import org.bedework.caldav.util.ParseUtil;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
@@ -42,6 +43,15 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
+import ietf.params.xml.ns.caldav.Allcomp;
+import ietf.params.xml.ns.caldav.Allprop;
+import ietf.params.xml.ns.caldav.CalendarData;
+import ietf.params.xml.ns.caldav.Comp;
+import ietf.params.xml.ns.caldav.Expand;
+import ietf.params.xml.ns.caldav.LimitFreebusySet;
+import ietf.params.xml.ns.caldav.LimitRecurrenceSet;
+import ietf.params.xml.ns.caldav.Prop;
+
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
@@ -53,7 +63,7 @@ import javax.xml.namespace.QName;
  *
  *   @author Mike Douglass   douglm@rpi.edu
  */
-public class CalendarData extends WebdavProperty {
+public class CalData extends WebdavProperty {
   /*
       <!ELEMENT calendar-data ((comp?, (expand |
                                            limit-recurrence-set)?,
@@ -137,56 +147,22 @@ public class CalendarData extends WebdavProperty {
 
   protected transient Logger log;
 
-  private String returnContentType; // null for defaulted
-  private Comp comp;
-  private Expand ers;
-  private LimitRecurrenceSet lrs;
-  private LimitFreebusySet lfs;
+  private CalendarData calendarData;
 
   /** Constructor
    *
    * @param tag  QName name
-   * @param debug
    */
-  public CalendarData(final QName tag,
-                      final boolean debug) {
+  public CalData(final QName tag) {
     super(tag, null);
-    this.debug = debug;
+    debug = getLogger().isDebugEnabled();
   }
 
   /**
-   * @return String returnContentType
+   * @return CalendarData
    */
-  public String getReturnContentType() {
-    return returnContentType;
-  }
-
-  /**
-   * @return Comp
-   */
-  public Comp getComp() {
-    return comp;
-  }
-
-  /**
-   * @return ExpandRecurrenceSet
-   */
-  public Expand getErs() {
-    return ers;
-  }
-
-  /**
-   * @return LimitRecurrenceSet
-   */
-  public LimitRecurrenceSet getLrs() {
-    return lrs;
-  }
-
-  /**
-   * @return LimitFreebusySet
-   */
-  public LimitFreebusySet getLfs() {
-    return lfs;
+  public CalendarData getCalendarData() {
+    return calendarData;
   }
 
   /** The given node must be the Filter element
@@ -200,6 +176,9 @@ public class CalendarData extends WebdavProperty {
                                limit-recurrence-set)
      */
     NamedNodeMap nnm = nd.getAttributes();
+    CalendarData cd = new CalendarData();
+
+    calendarData = cd;
 
     if (nnm != null) {
       for (int nnmi = 0; nnmi < nnm.getLength(); nnmi++) {
@@ -207,8 +186,8 @@ public class CalendarData extends WebdavProperty {
         String attrName = attr.getNodeName();
 
         if (attrName.equals("content-type")) {
-          returnContentType = attr.getNodeValue();
-          if (returnContentType == null) {
+          cd.setContentType(attr.getNodeValue());
+          if (cd.getContentType() == null) {
             throw new WebdavBadRequest();
           }
         } else if (attrName.equals("xmlns")) {
@@ -232,29 +211,32 @@ public class CalendarData extends WebdavProperty {
         }
 
         if (XmlUtil.nodeMatches(curnode, CaldavTags.comp)) {
-          if (comp != null) {
+          if (cd.getComp() != null) {
             throw new WebdavBadRequest();
           }
 
-          comp = parseComp(curnode);
+          cd.setComp(parseComp(curnode));
         } else if (XmlUtil.nodeMatches(curnode, CaldavTags.expand)) {
-          if (ers != null) {
+          if (cd.getExpand() != null) {
             throw new WebdavBadRequest();
           }
 
-          ers = new Expand(ParseUtil.parseTimeRange(curnode, true));
+          cd.setExpand((Expand)ParseUtil.parseUTCTimeRange(new Expand(),
+                                                           curnode, true));
         } else if (XmlUtil.nodeMatches(curnode, CaldavTags.limitRecurrenceSet)) {
-          if (lrs != null) {
+          if (cd.getLimitRecurrenceSet() != null) {
             throw new WebdavBadRequest();
           }
 
-          lrs = new LimitRecurrenceSet(ParseUtil.parseTimeRange(curnode, true));
+          cd.setLimitRecurrenceSet((LimitRecurrenceSet)ParseUtil.parseUTCTimeRange(new LimitRecurrenceSet(),
+                                                                curnode, true));
         } else if (XmlUtil.nodeMatches(curnode, CaldavTags.limitFreebusySet)) {
-          if (lfs != null) {
+          if (cd.getLimitFreebusySet() != null) {
             throw new WebdavBadRequest();
           }
 
-          lfs = new LimitFreebusySet(ParseUtil.parseTimeRange(curnode, true));
+          cd.setLimitFreebusySet((LimitFreebusySet)ParseUtil.parseUTCTimeRange(new LimitFreebusySet(),
+                                                              curnode, true));
         } else {
           throw new WebdavBadRequest();
         }
@@ -263,6 +245,10 @@ public class CalendarData extends WebdavProperty {
       throw wbr;
     } catch (Throwable t) {
       throw new WebdavBadRequest();
+    }
+
+    if (debug) {
+      DumpUtil.dumpCalendarData(cd, getLogger());
     }
   }
 
@@ -280,8 +266,11 @@ public class CalendarData extends WebdavProperty {
 
     CaldavComponentNode node = (CaldavComponentNode)wdnode;
 
+    Comp comp = getCalendarData().getComp();
+    String contentType = getCalendarData().getContentType();
+
     if (comp == null) {
-      node.writeContent(xml, null, returnContentType);
+      node.writeContent(xml, null, contentType);
       return;
     }
 
@@ -292,12 +281,12 @@ public class CalendarData extends WebdavProperty {
     }
 
     // Top level must be VCALENDAR at this point?
-    if (!"VCALENDAR".equals(comp.getName())) {
+    if (!"VCALENDAR".equals(comp.getName().toUpperCase())) {
       throw new WebdavBadRequest();
     }
 
-    if (comp.getAllcomp()) {
-      node.writeContent(xml, null, returnContentType);
+    if (comp.getAllcomp() != null) {
+      node.writeContent(xml, null, contentType);
       return;
     }
 
@@ -310,18 +299,20 @@ public class CalendarData extends WebdavProperty {
 
     while (it.hasNext()) {
       Comp subcomp = (Comp)it.next();
+      String nm = subcomp.getName().toUpperCase();
 
-      if ("VEVENT".equals(subcomp.getName())) {
-        if (subcomp.getAllprop()) {
-          node.writeContent(xml, null, returnContentType);
+      if ("VEVENT".equals(nm) ||
+          "VTODO".equals(nm)) {
+        if (subcomp.getAllprop() != null) {
+          node.writeContent(xml, null, contentType);
           return;
         }
 
         try {
-          if ((returnContentType != null) &&
-              returnContentType.equals(XcalTags.mimetype)) {
+          if ((contentType != null) &&
+              contentType.equals(XcalTags.mimetype)) {
             // XXX Just return the whole lot for the moment
-            node.writeContent(xml, null, returnContentType);
+            node.writeContent(xml, null, contentType);
           } else {
             xml.cdataValue(transformVevent(node.getIcal(), subcomp.getProps()));
           }
@@ -334,7 +325,7 @@ public class CalendarData extends WebdavProperty {
 
     // No special instructions.
 
-    node.writeContent(xml, null, returnContentType);
+    node.writeContent(xml, null, contentType);
   }
 
   /* Transform one or more VEVENT objects based on a list of required
@@ -405,7 +396,8 @@ public class CalendarData extends WebdavProperty {
       throw new WebdavBadRequest();
     }
 
-    Comp c = new Comp(name);
+    Comp c = new Comp();
+    c.setName(name);
 
     Element[] children = getChildren(nd);
 
@@ -426,26 +418,26 @@ public class CalendarData extends WebdavProperty {
           throw new WebdavBadRequest();
         }
 
-        c.setAllcomp(true);
+        c.setAllcomp(new Allcomp());
       } else if (XmlUtil.nodeMatches(curnode, CaldavTags.comp)) {
-        if (c.getAllcomp()) {
+        if (c.getAllcomp() != null) {
           throw new WebdavBadRequest();
         }
 
-        c.addComp(parseComp(curnode));
+        c.getComps().add(parseComp(curnode));
         hadComps = true;
       } else if (XmlUtil.nodeMatches(curnode, CaldavTags.allprop)) {
         if (hadProps) {
           throw new WebdavBadRequest();
         }
 
-        c.setAllprop(true);
+        c.setAllprop(new Allprop());
       } else if (XmlUtil.nodeMatches(curnode, CaldavTags.prop)) {
-        if (c.getAllprop()) {
+        if (c.getAllprop() != null) {
           throw new WebdavBadRequest();
         }
 
-        c.addProp(parseProp(curnode));
+        c.getProps().add(parseProp(curnode));
         hadProps = true;
       } else {
         throw new WebdavBadRequest();
@@ -479,10 +471,11 @@ public class CalendarData extends WebdavProperty {
       throw new WebdavBadRequest();
     }
 
-    Prop pr = new Prop(name);
+    Prop pr = new Prop();
+    pr.setName(name);
 
-    if (val != null) {
-      pr.setNovalue(val.booleanValue());
+    if ((val != null) && val.booleanValue()) {
+      pr.setNovalue("yes");
     }
 
     return pr;
@@ -500,34 +493,6 @@ public class CalendarData extends WebdavProperty {
     }
   }
 
-  /*
-  private Element getOnlyChild(Node nd) throws WebdavException {
-    try {
-      return XmlUtil.getOnlyElement(nd);
-    } catch (Throwable t) {
-      if (debug) {
-        getLogger().error("<filter>: parse exception: ", t);
-      }
-
-      throw new WebdavBadRequest();
-    }
-  }
-
-  private String getOnlyAttribute(Node nd, String name) throws WebdavException {
-    NamedNodeMap nnm = nd.getAttributes();
-
-    if ((nnm == null) || (nnm.getLength() != 1)) {
-      throw new WebdavBadRequest();
-    }
-
-    String val = XmlUtil.getAttrVal(nnm, "name");
-    if (val == null) {
-      throw new WebdavBadRequest();
-    }
-
-    return val;
-  }*/
-
   /** Fetch required attribute. Return null for error
    *
    * @param nd
@@ -535,7 +500,7 @@ public class CalendarData extends WebdavProperty {
    * @return String
    * @throws WebdavException
    */
-  public String getOnlyAttrVal(final Node nd, final String name) throws WebdavException {
+  private String getOnlyAttrVal(final Node nd, final String name) throws WebdavException {
     NamedNodeMap nnm = nd.getAttributes();
 
     if ((nnm == null) || (nnm.getLength() != 1)) {
@@ -548,35 +513,6 @@ public class CalendarData extends WebdavProperty {
     }
 
     return res;
-  }
-
-  /* ====================================================================
-   *                   Dump methods
-   * ==================================================================== */
-
-  /**
-   *
-   */
-  public void dump() {
-    StringBuffer sb = new StringBuffer("  <calendar-data");
-
-    if (returnContentType != null) {
-      sb.append("  return-content-type=\"");
-      sb.append(returnContentType);
-      sb.append("\"");
-    }
-    sb.append(">");
-    trace(sb.toString());
-
-    if (comp != null) {
-      comp.dump(getLogger(), "    ");
-    }
-
-    if (ers != null) {
-      ers.dump(getLogger(), "    ");
-    }
-
-    trace("  </calendar-data>");
   }
 
   /* ====================================================================

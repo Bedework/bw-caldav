@@ -6,9 +6,9 @@
     Version 2.0 (the "License"); you may not use this file
     except in compliance with the License. You may obtain a
     copy of the License at:
-        
+
     http://www.apache.org/licenses/LICENSE-2.0
-        
+
     Unless required by applicable law or agreed to in writing,
     software distributed under the License is distributed on
     an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -21,7 +21,7 @@ package org.bedework.caldav.util.filter.parse;
 import org.bedework.caldav.util.TimeRange;
 import org.bedework.caldav.util.filter.EntityTimeRangeFilter;
 import org.bedework.caldav.util.filter.EntityTypeFilter;
-import org.bedework.caldav.util.filter.Filter;
+import org.bedework.caldav.util.filter.FilterBase;
 import org.bedework.caldav.util.filter.ObjectFilter;
 import org.bedework.caldav.util.filter.PresenceFilter;
 import org.bedework.caldav.util.filter.PropertyFilter;
@@ -34,151 +34,129 @@ import edu.rpi.cmt.calendar.PropertyIndex.PropertyInfoIndex;
 import edu.rpi.sss.util.Util;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 
-import org.apache.log4j.Logger;
+import net.fortuna.ical4j.model.DateTime;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.xml.sax.InputSource;
+
+import ietf.params.xml.ns.caldav.CompFilter;
+import ietf.params.xml.ns.caldav.Filter;
+import ietf.params.xml.ns.caldav.ParamFilter;
+import ietf.params.xml.ns.caldav.PropFilter;
+import ietf.params.xml.ns.caldav.TextMatch;
+import ietf.params.xml.ns.caldav.UTCTimeRangeType;
+
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
-/** Class to represent a calendar-query comp-filter
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+/** Class to parse and process query filters.
  *
  *   @author Mike Douglass   douglm@rpi.edu
  */
-public class CompFilter {
-  /* Name of component VEVENT etc */
-  private String name;
-
-  private boolean isNotDefined;
-
-  private TimeRange timeRange;
-
-  private Collection<CompFilter> compFilters;
-
-  private Collection<PropFilter> propFilters;
-
-  /** Constructor
-   * @param name
-   */
-  public CompFilter(final String name) {
-    this.name = name;
-  }
-
-  /**
-   * @param val
-   */
-  public void setName(final String val) {
-    name = val;
-  }
-
-  /**
-   * @return String name
-   */
-  public String getName() {
-    return name;
-  }
-
-  /**
-   * @param val
-   */
-  public void setIsNotDefined(final boolean val) {
-    isNotDefined = val;
-  }
-
-  /**
-   * @return boolean isNotDefined value
-   */
-  public boolean getIsNotDefined() {
-    return isNotDefined;
-  }
-
-  /**
-   * @param val
-   */
-  public void setTimeRange(final TimeRange val) {
-    timeRange = val;
-  }
-
-  /**
-   * @return TimeRange for filter
-   */
-  public TimeRange getTimeRange() {
-    return timeRange;
-  }
-
-  /**
-   * @return Collection of comp filters
-   */
-  public Collection<CompFilter> getCompFilters() {
-    if (compFilters == null) {
-      compFilters = new ArrayList<CompFilter>();
-    }
-
-    return compFilters;
-  }
-
-  /**
-   * @return boolean true if we have comp filters
-   */
-  public boolean hasCompFilters() {
-    return ((compFilters == null) || (compFilters.size() != 0));
-  }
-
-  /**
+public class Filters {
+  /** Convenience method
+   *
    * @param cf
+   * @return boolean true if this element matches all of the
+   *                  named component types.
    */
-  public void addCompFilter(final CompFilter cf) {
-    getCompFilters().add(cf);
-  }
-
-  /**
-   * @return Collection of prop filter
-   */
-  public Collection<PropFilter> getPropFilters() {
-    if (propFilters == null) {
-      propFilters = new ArrayList<PropFilter>();
-    }
-
-    return propFilters;
-  }
-
-  /**
-   * @return boolean true if we have prop filters
-   */
-  public boolean hasPropFilters() {
-    return ((propFilters == null) || (propFilters.size() != 0));
-  }
-
-  /**
-   * @param pf
-   */
-  public void addPropFilter(final PropFilter pf) {
-    getPropFilters().add(pf);
+  public static boolean matchAll(final CompFilter cf) {
+    return (cf.getTimeRange() == null)  &&
+            Util.isEmpty(cf.getCompFilters()) &&
+            Util.isEmpty(cf.getPropFilters());
   }
 
   /** Convenience method
    *
-   * @return boolean true ifthis element matches all of the
+   * @param tm
+   * @return boolean true if this element matches all of the
    *                  named component types.
    */
-  public boolean matchAll() {
-    return (timeRange == null)  &&
-            Util.isEmpty(compFilters) &&
-            Util.isEmpty(propFilters);
+  public static boolean caseless(final TextMatch tm) {
+    return tm.getCollation().equals("i;ascii-casemap");
+  }
+
+  /** Given a caldav like xml filter parse it
+   *
+   * @param xmlStr
+   * @return Filter
+   * @throws WebdavException
+   */
+  public static Filter parse(final String xmlStr) throws WebdavException {
+    try {
+      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+      factory.setNamespaceAware(true);
+
+      DocumentBuilder builder = factory.newDocumentBuilder();
+
+      Document doc = builder.parse(new InputSource(new StringReader(xmlStr)));
+
+      return parse(doc.getDocumentElement());
+    } catch (WebdavException cfe) {
+      throw cfe;
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
+  }
+
+  /** The given node must be the Filter element
+   *
+   * @param nd
+   * @return Filter
+   * @throws WebdavException
+   */
+  public static Filter parse(final Node nd) throws WebdavException {
+    try {
+      JAXBContext jc = JAXBContext.newInstance("ietf.params.xml.ns.caldav");
+      Unmarshaller u = jc.createUnmarshaller();
+
+      return (Filter)u.unmarshal(nd);
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
+  }
+
+  /** Return an object encapsulating the filter query.
+   *
+   * @param f
+   * @return EventQuery
+   * @throws WebdavException
+   */
+  public static EventQuery getQuery(final Filter f) throws WebdavException {
+    EventQuery eventq = new EventQuery();
+
+    eventq.filter = getQueryFilter(f.getCompFilter(), eventq, 0);
+
+    return eventq;
   }
 
   /** Returns a subtree of the filter used in querying
    *
+   * @param cf
    * @param eq - so we can update time range
    * @param exprDepth - allows us to do validity checks
-   * @return BwFilter - null for no filtering
+   * @return Filter - null for no filtering
    * @throws WebdavException
    */
-  public Filter getQueryFilter(final EventQuery eq,
-                                 final int exprDepth) throws WebdavException {
-    Filter filter = null;
+  public static FilterBase getQueryFilter(final CompFilter cf,
+                                          final EventQuery eq,
+                                          final int exprDepth) throws WebdavException {
+    FilterBase filter = null;
     int entityType = IcalDefs.entityTypeEvent;
 
+    boolean isNotDefined = cf.getIsNotDefined() != null;
+    String name = cf.getName();
+
     if (exprDepth == 0) {
-      if (!"VCALENDAR".equals(getName())) {
+      if (!"VCALENDAR".equals(name)) {
         throw new WebdavBadRequest();
       }
 
@@ -188,22 +166,22 @@ public class CompFilter {
     } else if (exprDepth == 1) {
       // Calendar components only
 
-      if ("VEVENT".equals(getName())) {
+      if ("VEVENT".equals(name)) {
         filter = EntityTypeFilter.eventFilter(null, isNotDefined);
         entityType = IcalDefs.entityTypeEvent;
       }
 
-      if ("VTODO".equals(getName())) {
+      if ("VTODO".equals(name)) {
         filter = EntityTypeFilter.todoFilter(null, isNotDefined);
         entityType = IcalDefs.entityTypeTodo;
       }
 
-      if ("VJOURNAL".equals(getName())) {
+      if ("VJOURNAL".equals(name)) {
         filter = EntityTypeFilter.journalFilter(null, isNotDefined);
         entityType = IcalDefs.entityTypeJournal;
       }
 
-      if ("VFREEBUSY".equals(getName())) {
+      if ("VFREEBUSY".equals(name)) {
         filter = EntityTypeFilter.freebusyFilter(null, isNotDefined);
         entityType = IcalDefs.entityTypeFreeAndBusy;
       }
@@ -217,7 +195,8 @@ public class CompFilter {
       // XXX
       entityType = IcalDefs.entityTypeAlarm;
 
-      filter = makeFilter(getName(), isNotDefined, matchAll(), timeRange, null,
+      filter = makeFilter(name, isNotDefined, matchAll(cf),
+                          makeTimeRange(cf.getTimeRange()), null,
                           null);
 
       if (filter == null) {
@@ -231,7 +210,7 @@ public class CompFilter {
       filter.setNot(true);
     }
 
-    if (matchAll()) {
+    if (matchAll(cf)) {
       return filter;
     }
 
@@ -239,14 +218,15 @@ public class CompFilter {
       /* XXX This is wrong - if filters handle time ranges OK we should remove
        * this merge which was here so post-processing could handle it.
        */
-      if (timeRange != null) {
+      if (cf.getTimeRange() != null) {
 /*        if (eq.trange == null) {
           eq.trange = timeRange;
         } else {
           eq.trange.merge(timeRange);
         } */
-        EntityTimeRangeFilter etrf = new EntityTimeRangeFilter(null, timeRange);
-        filter = Filter.addAndChild(filter, etrf);
+        EntityTimeRangeFilter etrf = new EntityTimeRangeFilter(null,
+                        makeTimeRange(cf.getTimeRange()));
+        filter = FilterBase.addAndChild(filter, etrf);
       }
     }
 
@@ -255,42 +235,55 @@ public class CompFilter {
        * If there are property filters turn this into an and of the current
        * filter with the or'd prop filters
        */
-      filter = Filter.addAndChild(filter, processPropFilters(eq, entityType));
+      filter = FilterBase.addAndChild(filter, processPropFilters(cf, eq, entityType));
     }
 
-    if (!Util.isEmpty(compFilters)) {
-      Filter cfilters = null;
-      for (CompFilter cf: compFilters) {
-        cfilters = Filter.addOrChild(cfilters, cf.getQueryFilter(eq, exprDepth + 1));
+    if (!Util.isEmpty(cf.getCompFilters())) {
+      FilterBase cfilters = null;
+      for (CompFilter subcf: cf.getCompFilters()) {
+        cfilters = FilterBase.addOrChild(cfilters, getQueryFilter(subcf,
+                                                              eq, exprDepth + 1));
       }
 
-      filter = Filter.addAndChild(filter, cfilters);
+      filter = FilterBase.addAndChild(filter, cfilters);
     }
 
     return filter;
   }
 
-  private Filter processPropFilters(final EventQuery eq,
-                                      final int entityType) throws WebdavException {
-    if (Util.isEmpty(propFilters)) {
+  private static TimeRange makeTimeRange(final UTCTimeRangeType utr) throws WebdavException {
+    try {
+      return new TimeRange(new DateTime(utr.getStart()),
+                           new DateTime(utr.getEnd()));
+    } catch (Throwable t) {
+      throw new WebdavBadRequest(CaldavTags.validFilter, "Invalid time-range");
+    }
+  }
+
+  private static FilterBase processPropFilters(final CompFilter cf,
+                                    final EventQuery eq,
+                                    final int entityType) throws WebdavException {
+    if (Util.isEmpty(cf.getPropFilters())) {
       return null;
     }
 
-    Filter pfilters = null;
+    FilterBase pfilters = null;
 
-    for (PropFilter pf: propFilters) {
+    for (PropFilter pf: cf.getPropFilters()) {
       String pname = pf.getName();
 
-      TimeRange tr = pf.getTimeRange();
-      TextMatch tm = pf.getMatch();
-      boolean isNotDefined = pf.getIsNotDefined();
+      UTCTimeRangeType tr = pf.getTimeRange();
+      TextMatch tm = pf.getTextMatch();
+      boolean isNotDefined = pf.getIsNotDefined() != null;
       boolean testPresent = !isNotDefined && (tr == null) && (tm == null) &&
                             (Util.isEmpty(pf.getParamFilters()));
-      Filter filter = makeFilter(pname, isNotDefined, testPresent,
-                                 tr, tm, pf.getParamFilters());
+
+      FilterBase filter = makeFilter(pname, isNotDefined, testPresent,
+                                 makeTimeRange(tr),
+                                 tm, pf.getParamFilters());
 
       if (filter != null) {
-        pfilters = Filter.addAndChild(pfilters, filter);
+        pfilters = FilterBase.addAndChild(pfilters, filter);
       } else {
         eq.postFilter = true;
 
@@ -314,12 +307,13 @@ public class CompFilter {
     return pfilters;
   }
 
-  private Filter makeFilter(final String pname, final boolean testNotDefined,
-                            final boolean testPresent,
-                            final TimeRange timeRange,
-                            final TextMatch match,
+  private static FilterBase makeFilter(final String pname,
+                                       final boolean testNotDefined,
+                                       final boolean testPresent,
+                                       final TimeRange timeRange,
+                                       final TextMatch match,
                             final Collection<ParamFilter> paramFilters) throws WebdavException {
-    Filter filter = null;
+    FilterBase filter = null;
 
     PropertyInfoIndex pi = PropertyInfoIndex.lookupPname(pname);
 
@@ -338,11 +332,12 @@ public class CompFilter {
       filter = ObjectFilter.makeFilter(null, pi, timeRange);
     } else if (match != null) {
       ObjectFilter<String> f = new ObjectFilter<String>(null, pi);
-      f.setEntity(match.getVal());
+      f.setEntity(match.getValue());
       f.setExact(false);
-      boolean caseless = (match.getCaseless() == null) || (match.getCaseless());
+
+      boolean caseless = match.getCollation().equals("i;ascii-casemap");
       f.setCaseless(caseless);
-      f.setNot(match.getNegated());
+      f.setNot(match.getNegateCondition().equals("yes"));
       filter = f;
     } else {
       // Must have param filters
@@ -355,17 +350,17 @@ public class CompFilter {
       return filter;
     }
 
-    return Filter.addAndChild(filter, processParamFilters(pi,
+    return FilterBase.addAndChild(filter, processParamFilters(pi,
                                                           paramFilters));
   }
 
-  private Filter processParamFilters(final PropertyInfoIndex parentIndex,
+  private static FilterBase processParamFilters(final PropertyInfoIndex parentIndex,
                                      final Collection<ParamFilter> paramFilters) throws WebdavException {
-    Filter parfilters = null;
+    FilterBase parfilters = null;
 
     for (ParamFilter pf: paramFilters) {
-      TextMatch tm = pf.getMatch();
-      boolean isNotDefined = pf.getIsNotDefined();
+      TextMatch tm = pf.getTextMatch();
+      boolean isNotDefined = pf.getIsNotDefined() != null;
       boolean testPresent = isNotDefined && (tm == null);
 
       PropertyFilter filter = (PropertyFilter)makeFilter(pf.getName(),
@@ -375,15 +370,15 @@ public class CompFilter {
 
       if (filter != null) {
         filter.setParentPropertyIndex(parentIndex);
-        parfilters = Filter.addOrChild(parfilters, filter);
+        parfilters = FilterBase.addOrChild(parfilters, filter);
       }
     }
 
     return parfilters;
   }
 
-  private Collection<PropFilter> addPropFilter(Collection<PropFilter> pfs,
-                                               final PropFilter val) {
+  private static List<PropFilter> addPropFilter(List<PropFilter> pfs,
+                                         final PropFilter val) {
     if (pfs == null) {
       pfs = new ArrayList<PropFilter>();
     }
@@ -391,40 +386,6 @@ public class CompFilter {
     pfs.add(val);
 
     return pfs;
-  }
-
-  /** Debug
-   *
-   * @param log
-   * @param indent
-   */
-  public void dump(final Logger log, final String indent) {
-    StringBuilder sb = new StringBuilder(indent);
-
-    sb.append("<comp-filter name=\"");
-    sb.append(name);
-    sb.append("\">");
-    log.debug(sb.toString());
-
-    if (isNotDefined) {
-      log.debug(indent + "  " + "<is-not-defined/>");
-    } else if (timeRange != null) {
-      timeRange.dump(log, indent + "  ");
-    }
-
-    if (compFilters != null) {
-      for (CompFilter cf: compFilters) {
-        cf.dump(log, indent + "  ");
-      }
-    }
-
-    if (propFilters != null) {
-      for (PropFilter pf: propFilters) {
-        pf.dump(log, indent + "  ");
-      }
-    }
-
-    log.debug(indent + "</comp-filter>");
   }
 }
 

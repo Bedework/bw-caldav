@@ -53,7 +53,7 @@ import java.util.Collection;
  * @author Mike Douglass
  * @version 1.0
  */
-public class BooleanFilter extends Filter {
+public class BooleanFilter extends FilterBase {
   private boolean val;
 
   /** */
@@ -86,10 +86,10 @@ public class BooleanFilter extends Filter {
     sb.append(", value=");
     sb.append(getValue());
 
-    Collection<Filter> c = getChildren();
+    Collection<FilterBase> c = getChildren();
 
     if (c != null) {
-      for (Filter f: c) {
+      for (FilterBase f: c) {
         sb.append("\n");
         sb.append(f);
       }

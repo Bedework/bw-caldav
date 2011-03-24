@@ -26,7 +26,7 @@ import java.util.Collection;
  * @author Mike Douglass
  * @version 2.0
  */
-public class AndFilter extends Filter {
+public class AndFilter extends FilterBase {
   /**
    */
   public AndFilter() {
@@ -42,10 +42,10 @@ public class AndFilter extends Filter {
 
     super.toStringSegment(sb);
 
-    Collection<Filter> c = getChildren();
+    Collection<FilterBase> c = getChildren();
 
     if (c != null) {
-      for (Filter f: c) {
+      for (FilterBase f: c) {
         sb.append("\n");
         sb.append(f);
       }

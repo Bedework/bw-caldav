@@ -6,9 +6,9 @@
     Version 2.0 (the "License"); you may not use this file
     except in compliance with the License. You may obtain a
     copy of the License at:
-        
+
     http://www.apache.org/licenses/LICENSE-2.0
-        
+
     Unless required by applicable law or agreed to in writing,
     software distributed under the License is distributed on
     an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -20,7 +20,7 @@ package org.bedework.caldav.server;
 
 import org.bedework.caldav.server.CaldavBwNode.PropertyTagXrdEntry;
 import org.bedework.caldav.server.PostMethod.RequestPars;
-import org.bedework.caldav.server.calquery.CalendarData;
+import org.bedework.caldav.server.calquery.CalData;
 import org.bedework.caldav.server.calquery.FreeBusyQuery;
 import org.bedework.caldav.server.filter.FilterHandler;
 import org.bedework.caldav.server.get.FreeBusyGetHandler;
@@ -76,6 +76,7 @@ import org.oasis_open.docs.ns.xri.xrd_1.Link;
 import org.oasis_open.docs.ns.xri.xrd_1.XRD;
 import org.w3c.dom.Element;
 
+import ietf.params.xml.ns.caldav.Filter;
 import ietf.params.xml.ns.icalendar_2.Icalendar;
 
 import java.io.CharArrayReader;
@@ -1449,9 +1450,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
     /* Handle the calendar-data element */
 
-    CalendarData caldata = new CalendarData(new QName(propnode.getNamespaceURI(),
-                                                      propnode.getLocalName()),
-                                                      debug);
+    CalData caldata = new CalData(new QName(propnode.getNamespaceURI(),
+                                            propnode.getLocalName()));
     caldata.parse(propnode);
 
     return caldata;
@@ -1510,11 +1510,11 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       if (tag.equals(CaldavTags.calendarData)) {
         // pr may be a CalendarData object - if not it's probably allprops
-        if (!(pr instanceof CalendarData)) {
-          pr = new CalendarData(tag, debug);
+        if (!(pr instanceof CalData)) {
+          pr = new CalData(tag);
         }
 
-        CalendarData caldata = (CalendarData)pr;
+        CalData caldata = (CalData)pr;
 
         if (debug) {
           trace("do CalendarData for " + node.getUri());
@@ -1590,11 +1590,12 @@ public class CaldavBWIntf extends WebdavNsIntf {
   public Collection<WebdavNsNode> query(final WebdavNsNode wdnode,
                                         final List<String> retrieveList,
                                         final RetrievalMode retrieveRecur,
-                                        final FilterHandler fltr) throws WebdavException {
+                                        final Filter fltr) throws WebdavException {
     CaldavBwNode node = (CaldavBwNode)wdnode;
 
-    Collection<CalDAVEvent> events = fltr.query(node,
-                                                retrieveList, retrieveRecur);
+    FilterHandler fh = new FilterHandler(fltr);
+    Collection<CalDAVEvent> events = fh.query(node,
+                                             retrieveList, retrieveRecur);
 
     /* We now need to build a node for each of the events in the collection.
        For each event we first determine what calendar it's in. We then take the
@@ -1631,7 +1632,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
         evnodes.add(evnode);
       }
 
-      return fltr.postFilter(evnodes);
+      return fh.postFilter(evnodes);
     } catch (WebdavException we) {
       throw we;
     } catch (Throwable t) {
