@@ -379,7 +379,7 @@ public class ExsynchwsHandler extends SoapHandler {
     } else {
       fir.setStatus(StatusType.OK);
       CalDAVEvent ev = ((CaldavComponentNode)elNode).getEvent();
-      fir.setIcalendar(getIntf().getSysi().toIcalendar(ev, false));
+      fir.setIcalendar(getIntf().getSysi().toIcalendar(ev, false, null));
     }
 
     try {
@@ -428,7 +428,7 @@ public class ExsynchwsHandler extends SoapHandler {
     }
 
     Document doc = makeDoc(XcalTags.icalendar,
-                           getIntf().getSysi().toIcalendar(ev, false));
+                           getIntf().getSysi().toIcalendar(ev, false, null));
 
     ArrayOfUpdates aupd = ui.getUpdates();
 

@@ -355,7 +355,7 @@ public class CalwsHandler extends SoapHandler {
 
         SchedRecipientResult sr = srrs.iterator().next();
 
-        frr.setIcalendar(getSysi().toIcalendar(sr.freeBusy, false));
+        frr.setIcalendar(getSysi().toIcalendar(sr.freeBusy, false, null));
         frr.setStatus(StatusType.OK);
       } // buildResponse
 
@@ -427,7 +427,7 @@ public class CalwsHandler extends SoapHandler {
 
             CalDAVEvent ev = ((CaldavComponentNode)curnode).getEvent();
 
-            cdr.setIcalendar(getIntf().getSysi().toIcalendar(ev, false));
+            cdr.setIcalendar(getIntf().getSysi().toIcalendar(ev, false, cq.getIcalendar()));
             cdr.setContentType("application/xml+calendar");
             cdr.setVersion("2.0");
           }
@@ -503,7 +503,7 @@ public class CalwsHandler extends SoapHandler {
     } else {
       fir.setStatus(StatusType.OK);
       CalDAVEvent ev = ((CaldavComponentNode)elNode).getEvent();
-      fir.setIcalendar(getIntf().getSysi().toIcalendar(ev, false));
+      fir.setIcalendar(getIntf().getSysi().toIcalendar(ev, false, null));
     }
 
     try {
@@ -542,7 +542,7 @@ public class CalwsHandler extends SoapHandler {
     }
 
     Document doc = makeDoc(XcalTags.icalendar,
-                           getIntf().getSysi().toIcalendar(ev, false));
+                           getIntf().getSysi().toIcalendar(ev, false, null));
 
     ArrayOfUpdates aupd = ui.getUpdates();
 

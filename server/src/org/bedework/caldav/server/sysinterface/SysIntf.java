@@ -613,11 +613,13 @@ public interface SysIntf {
    *
    * @param ev
    * @param incSchedMethod - true if we should emit the scheduling method
+   * @param pattern - non-null to restrict returned properties
    * @return IcalendarType
    * @throws WebdavException
    */
   public Icalendar toIcalendar(CalDAVEvent ev,
-                                   boolean incSchedMethod) throws WebdavException;
+                               boolean incSchedMethod,
+                               Icalendar pattern) throws WebdavException;
 
   /** Convert a Calendar to it's string form
    *
