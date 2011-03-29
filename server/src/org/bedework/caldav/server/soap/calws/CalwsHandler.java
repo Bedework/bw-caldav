@@ -40,30 +40,37 @@ import edu.rpi.cmt.calendar.ScheduleMethods;
 import edu.rpi.sss.util.Util;
 import edu.rpi.sss.util.xml.NsContext;
 import edu.rpi.sss.util.xml.XmlUtil;
+import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 import edu.rpi.sss.util.xml.tagdefs.XcalTags;
 
 import org.oasis_open.docs.ns.wscal.calws_soap.AddItem;
 import org.oasis_open.docs.ns.wscal.calws_soap.AddItemResponse;
 import org.oasis_open.docs.ns.wscal.calws_soap.AddType;
 import org.oasis_open.docs.ns.wscal.calws_soap.ArrayOfUpdates;
+import org.oasis_open.docs.ns.wscal.calws_soap.BaseResponseType;
 import org.oasis_open.docs.ns.wscal.calws_soap.BaseUpdateType;
 import org.oasis_open.docs.ns.wscal.calws_soap.CalendarDataResponseType;
 import org.oasis_open.docs.ns.wscal.calws_soap.CalendarQuery;
 import org.oasis_open.docs.ns.wscal.calws_soap.CalendarQueryResponse;
+import org.oasis_open.docs.ns.wscal.calws_soap.ErrorCodeType;
+import org.oasis_open.docs.ns.wscal.calws_soap.ErrorResponseType;
 import org.oasis_open.docs.ns.wscal.calws_soap.FetchItem;
 import org.oasis_open.docs.ns.wscal.calws_soap.FetchItemResponse;
 import org.oasis_open.docs.ns.wscal.calws_soap.FreebusyReport;
 import org.oasis_open.docs.ns.wscal.calws_soap.FreebusyReportResponse;
 import org.oasis_open.docs.ns.wscal.calws_soap.GetProperties;
 import org.oasis_open.docs.ns.wscal.calws_soap.GetPropertiesResponse;
+import org.oasis_open.docs.ns.wscal.calws_soap.InvalidFilterType;
 import org.oasis_open.docs.ns.wscal.calws_soap.MultistatResponseElementType;
 import org.oasis_open.docs.ns.wscal.calws_soap.MultistatusPropElementType;
 import org.oasis_open.docs.ns.wscal.calws_soap.NamespaceType;
 import org.oasis_open.docs.ns.wscal.calws_soap.NewValueType;
+import org.oasis_open.docs.ns.wscal.calws_soap.ObjectFactory;
 import org.oasis_open.docs.ns.wscal.calws_soap.Propstat;
 import org.oasis_open.docs.ns.wscal.calws_soap.RemoveType;
 import org.oasis_open.docs.ns.wscal.calws_soap.StatusType;
 import org.oasis_open.docs.ns.wscal.calws_soap.UTCTimeRangeType;
+import org.oasis_open.docs.ns.wscal.calws_soap.UidConflictType;
 import org.oasis_open.docs.ns.wscal.calws_soap.UpdateItem;
 import org.oasis_open.docs.ns.wscal.calws_soap.UpdateItemResponse;
 import org.w3c.dom.Document;
@@ -116,7 +123,11 @@ public class CalwsHandler extends SoapHandler {
     String synchToken;
   }
 
+  static String calwsNs = "http://docs.oasis-open.org/ns/wscal/calws-soap";
+
   static ActiveConnectionInfo activeConnection;
+
+  static ObjectFactory of = new ObjectFactory();
 
   /**
    * @param intf
@@ -435,13 +446,104 @@ public class CalwsHandler extends SoapHandler {
 
         cqr.setStatus(StatusType.OK);
       } // buildResponse
-
-      marshal(cqr, resp.getOutputStream());
     } catch (WebdavException we) {
-      cqr.setStatus(StatusType.ERROR);
-      throw we;
+      // Remove any partial results.
+      cqr.getResponses().clear();
+      errorResponse(cqr, we);
     } catch(Throwable t) {
       throw new WebdavException(t);
+    }
+
+    try {
+      marshal(cqr, resp.getOutputStream());
+    } catch (Throwable t) {
+      if (debug) {
+        error(t);
+      }
+      throw new WebdavException(t);
+    }
+  }
+
+
+  private void errorResponse(final BaseResponseType br,
+                             final WebdavException we) {
+    br.setStatus(StatusType.ERROR);
+    br.setMessage(we.getMessage());
+
+    ErrorResponseType er = new ErrorResponseType();
+
+    QName etag = we.getErrorTag();
+
+    setError: {
+      if (etag.equals(CaldavTags.validFilter)) {
+        InvalidFilterType invf = new InvalidFilterType();
+        er.setError(of.createInvalidFilter(invf));
+        break setError;
+      }
+
+      /*
+      if (etag.equals(CaldavTags.attendeeAllowed)) {
+        ErrorCodeType ec = new ErrorCodeType();
+        er.setError(of.(ec));
+        break setError;
+      }
+      */
+
+      if (etag.equals(CaldavTags.calendarCollectionLocationOk)) {
+        ErrorCodeType ec = new ErrorCodeType();
+        er.setError(of.createInvalidCalendarCollectionLocation(ec));
+        break setError;
+      }
+
+      if (etag.equals(CaldavTags.noUidConflict)) {
+        UidConflictType uc= new UidConflictType();
+        uc.setHref(we.getMessage()); // WRONG
+        er.setError(of.createUidConflict(uc));
+        break setError;
+      }
+
+      /* sched
+      if (etag.equals(CaldavTags.organizerAllowed)) {
+        ErrorCodeType ec = new ErrorCodeType();
+        er.setError(of(ec));
+        break setError;
+      }
+
+      if (etag.equals(CaldavTags.originatorAllowed)) {
+        ErrorCodeType ec = new ErrorCodeType();
+        er.setError(of(ec));
+        break setError;
+      }
+
+      if (etag.equals(CaldavTags.recipientPermissions)) {
+        ErrorCodeType ec = new ErrorCodeType();
+        er.setError(of(ec));
+        break setError;
+      }
+      */
+
+      if (etag.equals(CaldavTags.validCalendarData)) {
+        ErrorCodeType ec = new ErrorCodeType();
+        er.setError(of.createInvalidCalendarData(ec));
+        break setError;
+      }
+
+      if (etag.equals(CaldavTags.validCalendarObjectResource)) {
+        ErrorCodeType ec = new ErrorCodeType();
+        er.setError(of.createInvalidCalendarObjectResource(ec));
+        break setError;
+      }
+
+      if (etag.equals(CaldavTags.validFilter)) {
+        InvalidFilterType iv = new InvalidFilterType();
+        iv.setDetail(we.getMessage());
+        er.setError(of.createInvalidFilter(iv));
+        break setError;
+      }
+    } // setError
+
+    if (er.getError() != null) {
+      br.setErrorResponse(er);
     }
   }
 
