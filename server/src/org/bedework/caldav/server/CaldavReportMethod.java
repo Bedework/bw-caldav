@@ -325,7 +325,9 @@ public class CaldavReportMethod extends ReportMethod {
 
     String resourceUri = getResourceUri(req);
 
-    cqpars.depth = depth;
+    if (reportType == reportTypeQuery) {
+      cqpars.depth = depth;
+    }
 
     process(cqpars, resourceUri);
   }
