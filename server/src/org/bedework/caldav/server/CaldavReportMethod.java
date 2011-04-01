@@ -525,24 +525,28 @@ public class CaldavReportMethod extends ReportMethod {
     } else if (comp.getName().toUpperCase().equals("VCALENDAR")) {
       // Should have "VACALENDAR" as outer
 
-      for (Comp calcomp: comp.getComps()) {
-        String nm = calcomp.getName().toUpperCase();
-        if (nm.equals("VEVENT") ||
-            nm.equals("VTODO") ||
-            nm.equals("VJOURNAL")) {
-          if ((calcomp.getAllprop() != null) ||
-              Util.isEmpty(calcomp.getProps())) {
-            retrieveList = null;
-            break;
-          }
+      if (comp.getComps().isEmpty()) {
+        retrieveList = null;
+      } else {
+        for (Comp calcomp: comp.getComps()) {
+          String nm = calcomp.getName().toUpperCase();
+          if (nm.equals("VEVENT") ||
+              nm.equals("VTODO") ||
+              nm.equals("VJOURNAL")) {
+            if ((calcomp.getAllprop() != null) ||
+                Util.isEmpty(calcomp.getProps())) {
+              retrieveList = null;
+              break;
+            }
 
-          if (retrieveList == null) {
-            retrieveList = new ArrayList<String>();
-          }
+            if (retrieveList == null) {
+              retrieveList = new ArrayList<String>();
+            }
 
-          for (Prop p: calcomp.getProps()) {
-            if (!retrieveList.contains(p.getName())) {
-              retrieveList.add(p.getName());
+            for (Prop p: calcomp.getProps()) {
+              if (!retrieveList.contains(p.getName())) {
+                retrieveList.add(p.getName());
+              }
             }
           }
         }

@@ -272,14 +272,18 @@ public class Filters {
     for (PropFilter pf: cf.getPropFilters()) {
       String pname = pf.getName();
 
-      UTCTimeRangeType tr = pf.getTimeRange();
+      UTCTimeRangeType utr = pf.getTimeRange();
       TextMatch tm = pf.getTextMatch();
       boolean isNotDefined = pf.getIsNotDefined() != null;
-      boolean testPresent = !isNotDefined && (tr == null) && (tm == null) &&
+      boolean testPresent = !isNotDefined && (utr == null) && (tm == null) &&
                             (Util.isEmpty(pf.getParamFilters()));
+      TimeRange tr = null;
+      if (utr != null) {
+        tr = makeTimeRange(utr);
+      }
 
       FilterBase filter = makeFilter(pname, isNotDefined, testPresent,
-                                 makeTimeRange(tr),
+                                 tr,
                                  tm, pf.getParamFilters());
 
       if (filter != null) {
