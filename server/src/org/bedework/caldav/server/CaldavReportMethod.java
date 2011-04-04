@@ -349,34 +349,7 @@ public class CaldavReportMethod extends ReportMethod {
     if (reportType == reportTypeQuery) {
       nodes = doNodeAndChildren(cqp, node);
     } else if (reportType == reportTypeMultiGet) {
-      nodes = new ArrayList<WebdavNsNode>();
-
-      if (hrefs != null) {
-        for (String hr: hrefs) {
-          WebdavNsNode n = null;
-          try {
-            n = intf.getNode(intf.getUri(hr),
-                             WebdavNsIntf.existanceMust,
-                             WebdavNsIntf.nodeTypeUnknown);
-          } catch (WebdavException we) {
-            if (hr.endsWith("/")) {
-              n = new CaldavCalNode(intf.getSysi(),
-                                    we.getStatusCode(),
-                                    intf.getUri(hr), debug);
-            } else {
-              n = new CaldavComponentNode(intf.getSysi(),
-                                          we.getStatusCode(),
-                                          intf.getUri(hr), debug);
-            }
-          }
-
-          if (n != null) {
-            nodes.add(n);
-          } else {
-            badHrefs.add(hr);
-          }
-        }
-      }
+      nodes = getMgetNodes(hrefs, badHrefs);
     }
 
     if (status != HttpServletResponse.SC_OK) {
@@ -404,6 +377,50 @@ public class CaldavReportMethod extends ReportMethod {
     closeTag(WebdavTags.multistatus);
 
     flush();
+  }
+
+  /** Return collection of nodes specified by list of hrefs.
+   *
+   * @param hrefs
+   * @param badHrefs
+   * @return Collection of nodes
+   * @throws WebdavException
+   */
+  public Collection<WebdavNsNode> getMgetNodes(final Collection<String> hrefs,
+                                               final Collection<String> badHrefs) throws WebdavException {
+    Collection<WebdavNsNode> nodes = new ArrayList<WebdavNsNode>();
+    CaldavBWIntf intf = (CaldavBWIntf)getNsIntf();
+
+    if (hrefs == null) {
+      return nodes;
+    }
+
+    for (String hr: hrefs) {
+      WebdavNsNode n = null;
+      try {
+        n = intf.getNode(intf.getUri(hr),
+                         WebdavNsIntf.existanceMust,
+                         WebdavNsIntf.nodeTypeUnknown);
+      } catch (WebdavException we) {
+        if (hr.endsWith("/")) {
+          n = new CaldavCalNode(intf.getSysi(),
+                                we.getStatusCode(),
+                                intf.getUri(hr));
+        } else {
+          n = new CaldavComponentNode(intf.getSysi(),
+                                      we.getStatusCode(),
+                                      intf.getUri(hr));
+        }
+      }
+
+      if (n != null) {
+        nodes.add(n);
+      } else {
+        badHrefs.add(hr);
+      }
+    }
+
+    return nodes;
   }
 
   protected Collection<WebdavNsNode> doNodeAndChildren(final CalendarQueryPars cqp,

@@ -6,9 +6,9 @@
     Version 2.0 (the "License"); you may not use this file
     except in compliance with the License. You may obtain a
     copy of the License at:
-        
+
     http://www.apache.org/licenses/LICENSE-2.0
-        
+
     Unless required by applicable law or agreed to in writing,
     software distributed under the License is distributed on
     an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -96,9 +96,10 @@ public abstract class CaldavBwNode extends WebdavNsNode {
   /* for accessing calendars */
   private SysIntf sysi;
 
-  CaldavBwNode(final CaldavURI cdURI, final SysIntf sysi, final boolean debug) throws WebdavException {
+  CaldavBwNode(final CaldavURI cdURI,
+               final SysIntf sysi) throws WebdavException {
     super(sysi.getUrlHandler(), cdURI.getPath(), cdURI.isCollection(),
-          cdURI.getUri(), debug);
+          cdURI.getUri());
 
     //this.cdURI = cdURI;
     this.sysi = sysi;
@@ -106,8 +107,10 @@ public abstract class CaldavBwNode extends WebdavNsNode {
     rootNode = (uri != null) && uri.equals("/");
   }
 
-  CaldavBwNode(final boolean collection, final SysIntf sysi, final String uri, final boolean debug) {
-    super(sysi.getUrlHandler(), null, collection, uri, debug);
+  CaldavBwNode(final boolean collection,
+               final SysIntf sysi,
+               final String uri) {
+    super(sysi.getUrlHandler(), null, collection, uri);
 
     //this.cdURI = cdURI;
     this.sysi = sysi;

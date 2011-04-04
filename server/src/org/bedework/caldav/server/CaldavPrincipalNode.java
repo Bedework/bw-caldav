@@ -6,9 +6,9 @@
     Version 2.0 (the "License"); you may not use this file
     except in compliance with the License. You may obtain a
     copy of the License at:
-        
+
     http://www.apache.org/licenses/LICENSE-2.0
-        
+
     Unless required by applicable law or agreed to in writing,
     software distributed under the License is distributed on
     an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -61,16 +61,14 @@ public class CaldavPrincipalNode extends WebdavPrincipalNode {
    * @param sysi
    * @param ui
    * @param isUser
-   * @param debug
    * @throws WebdavException
    */
   public CaldavPrincipalNode(final CaldavURI cdURI, final SysIntf sysi,
                              final CalPrincipalInfo ui,
-                             final boolean isUser,
-                             final boolean debug) throws WebdavException {
+                             final boolean isUser) throws WebdavException {
     super(sysi.getUrlHandler(), cdURI.getPath(),
           cdURI.getPrincipal(),
-          cdURI.isCollection(), cdURI.getUri(), debug);
+          cdURI.isCollection(), cdURI.getUri());
     this.sysi = sysi;
     this.ui = ui;
 

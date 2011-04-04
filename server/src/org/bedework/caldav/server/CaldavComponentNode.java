@@ -6,9 +6,9 @@
     Version 2.0 (the "License"); you may not use this file
     except in compliance with the License. You may obtain a
     copy of the License at:
-        
+
     http://www.apache.org/licenses/LICENSE-2.0
-        
+
     Unless required by applicable law or agreed to in writing,
     software distributed under the License is distributed on
     an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -138,10 +138,11 @@ public class CaldavComponentNode extends CaldavBwNode {
    * @param sysi
    * @param status
    * @param uri
-   * @param debug
    */
-  public CaldavComponentNode(final SysIntf sysi, final int status, final String uri, final boolean debug) {
-    super(true, sysi, uri, debug);
+  public CaldavComponentNode(final SysIntf sysi,
+                             final int status,
+                             final String uri) {
+    super(true, sysi, uri);
     setStatus(status);
   }
 
@@ -149,12 +150,11 @@ public class CaldavComponentNode extends CaldavBwNode {
    *
    * @param cdURI
    * @param sysi
-   * @param debug
    * @throws WebdavException
    */
   public CaldavComponentNode(final CaldavURI cdURI,
-                             final SysIntf sysi, final boolean debug) throws WebdavException {
-    super(cdURI, sysi, debug);
+                             final SysIntf sysi) throws WebdavException {
+    super(cdURI, sysi);
 
     col = cdURI.getCol();
     collection = false;

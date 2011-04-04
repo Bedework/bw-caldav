@@ -1313,7 +1313,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       }
 
       res.add(new CaldavUserNode(new CaldavURI(getSysi().getPrincipal(href)),
-                                 getSysi(), null, debug));
+                                 getSysi(), null));
     }
 
     return res;
@@ -1345,7 +1345,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
     for (CalPrincipalInfo cui: sysi.getPrincipals(resourceUri, pps)) {
       pnodes.add(new CaldavUserNode(new CaldavURI(cui.principal),
-                                    getSysi(), cui, debug));
+                                    getSysi(), cui));
     }
 
     return pnodes;
@@ -1722,16 +1722,16 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       if (ap != null) {
         if (ap.getKind() == Ace.whoTypeUser) {
-          nd = new CaldavUserNode(wi, sysi, sysi.getCalPrincipalInfo(ap), debug);
+          nd = new CaldavUserNode(wi, sysi, sysi.getCalPrincipalInfo(ap));
         } else if (ap.getKind() == Ace.whoTypeGroup) {
-          nd = new CaldavGroupNode(wi, sysi, sysi.getCalPrincipalInfo(ap), debug);
+          nd = new CaldavGroupNode(wi, sysi, sysi.getCalPrincipalInfo(ap));
         }
       } else if (wi.isCollection()) {
-        nd = new CaldavCalNode(wi, sysi, debug);
+        nd = new CaldavCalNode(wi, sysi);
       } else if (wi.isResource()) {
-        nd = new CaldavResourceNode(wi, sysi, debug);
+        nd = new CaldavResourceNode(wi, sysi);
       } else {
-        nd = new CaldavComponentNode(wi, sysi, debug);
+        nd = new CaldavComponentNode(wi, sysi);
       }
 
       return nd;

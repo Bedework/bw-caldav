@@ -50,6 +50,7 @@ import org.oasis_open.docs.ns.wscal.calws_soap.ArrayOfUpdates;
 import org.oasis_open.docs.ns.wscal.calws_soap.BaseResponseType;
 import org.oasis_open.docs.ns.wscal.calws_soap.BaseUpdateType;
 import org.oasis_open.docs.ns.wscal.calws_soap.CalendarDataResponseType;
+import org.oasis_open.docs.ns.wscal.calws_soap.CalendarMultiget;
 import org.oasis_open.docs.ns.wscal.calws_soap.CalendarQuery;
 import org.oasis_open.docs.ns.wscal.calws_soap.CalendarQueryResponse;
 import org.oasis_open.docs.ns.wscal.calws_soap.ErrorCodeType;
@@ -88,6 +89,7 @@ import ietf.params.xml.ns.icalendar_2.UidPropType;
 import ietf.params.xml.ns.icalendar_2.VcalendarType;
 import ietf.params.xml.ns.icalendar_2.VfreebusyType;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 import java.util.TreeSet;
@@ -167,6 +169,11 @@ public class CalwsHandler extends SoapHandler {
 
       if (o instanceof FreebusyReport) {
         doFreebusyReport((FreebusyReport)o, resp);
+        return;
+      }
+
+      if (o instanceof CalendarMultiget) {
+        doCalendarMultiget((CalendarMultiget)o, resp);
         return;
       }
 
@@ -379,6 +386,66 @@ public class CalwsHandler extends SoapHandler {
     }
   }
 
+  private void doCalendarMultiget(final CalendarMultiget cm,
+                               final HttpServletResponse resp) throws WebdavException {
+    if (debug) {
+      trace("CalendarMultiget: ");
+    }
+
+    CalendarQueryResponse cqr = new CalendarQueryResponse();
+
+    try {
+      String url = cm.getHref();
+
+      buildResponse: {
+        if (url == null) {
+          cqr.setStatus(StatusType.ERROR);
+          cqr.setMessage("No href supplied");
+          break buildResponse;
+        }
+
+        Report rpt = new Report(getNsIntf());
+
+        Collection<String> badHrefs = new ArrayList<String>();
+
+        buildQueryResponse(cqr,
+                           rpt.getMgetNodes(cm.getHreves(), badHrefs),
+                           cm.getIcalendar());
+
+        if (!badHrefs.isEmpty()) {
+          for (String bh: badHrefs) {
+            MultistatResponseElementType mre = new MultistatResponseElementType();
+
+            mre.setHref(bh);
+
+            cqr.getResponses().add(mre);
+
+            Propstat ps = new Propstat();
+
+            mre.getPropstats().add(ps);
+
+            ps.setStatus(getStatus(HttpServletResponse.SC_NOT_FOUND, null));
+          }
+        }
+      } // buildResponse
+    } catch (WebdavException we) {
+      // Remove any partial results.
+      cqr.getResponses().clear();
+      errorResponse(cqr, we);
+    } catch(Throwable t) {
+      throw new WebdavException(t);
+    }
+
+    try {
+      marshal(cqr, resp.getOutputStream());
+    } catch (Throwable t) {
+      if (debug) {
+        error(t);
+      }
+      throw new WebdavException(t);
+    }
+  }
+
   private void doCalendarQuery(final CalendarQuery cq,
                                final HttpServletResponse resp) throws WebdavException {
     if (debug) {
@@ -399,50 +466,7 @@ public class CalwsHandler extends SoapHandler {
 
         Report rpt = new Report(getNsIntf());
 
-        Collection<WebdavNsNode> nodes = rpt.query(url, cq);
-
-        if (nodes != null) {
-          for (WebdavNsNode curnode: nodes) {
-            MultistatResponseElementType mre = new MultistatResponseElementType();
-
-            mre.setHref(curnode.getPrefixedUri());
-            mre.setEtag(curnode.getEtagValue(true));
-
-            cqr.getResponses().add(mre);
-
-            Propstat ps = new Propstat();
-
-            mre.getPropstats().add(ps);
-
-            ps.setStatus(getStatus(curnode.getStatus(), null));
-
-            if (!curnode.getExists()) {
-              continue;
-            }
-
-            if (!(curnode instanceof CaldavComponentNode)) {
-              continue;
-            }
-
-            /* For the moment always return the full calendar data. Need to
-             * implement the properties thing
-             */
-
-            MultistatusPropElementType mpe = new MultistatusPropElementType();
-
-            ps.getProps().add(mpe);
-
-            CalendarDataResponseType cdr = new CalendarDataResponseType();
-
-            mpe.setCalendarData(cdr);
-
-            CalDAVEvent ev = ((CaldavComponentNode)curnode).getEvent();
-
-            cdr.setIcalendar(getIntf().getSysi().toIcalendar(ev, false, cq.getIcalendar()));
-            cdr.setContentType("application/xml+calendar");
-            cdr.setVersion("2.0");
-          }
-        }
+        buildQueryResponse(cqr, rpt.query(url, cq), cq.getIcalendar());
 
         cqr.setStatus(StatusType.OK);
       } // buildResponse
@@ -464,6 +488,54 @@ public class CalwsHandler extends SoapHandler {
     }
   }
 
+  private void buildQueryResponse(final CalendarQueryResponse cqr,
+                                  final Collection<WebdavNsNode> nodes,
+                                  final Icalendar pattern) throws WebdavException {
+    if (nodes == null) {
+      return;
+    }
+
+    for (WebdavNsNode curnode: nodes) {
+      MultistatResponseElementType mre = new MultistatResponseElementType();
+
+      mre.setHref(curnode.getPrefixedUri());
+      mre.setEtag(curnode.getEtagValue(true));
+
+      cqr.getResponses().add(mre);
+
+      Propstat ps = new Propstat();
+
+      mre.getPropstats().add(ps);
+
+      ps.setStatus(getStatus(curnode.getStatus(), null));
+
+      if (!curnode.getExists()) {
+        continue;
+      }
+
+      if (!(curnode instanceof CaldavComponentNode)) {
+        continue;
+      }
+
+      /* For the moment always return the full calendar data. Need to
+       * implement the properties thing
+       */
+
+      MultistatusPropElementType mpe = new MultistatusPropElementType();
+
+      ps.getProps().add(mpe);
+
+      CalendarDataResponseType cdr = new CalendarDataResponseType();
+
+      mpe.setCalendarData(cdr);
+
+      CalDAVEvent ev = ((CaldavComponentNode)curnode).getEvent();
+
+      cdr.setIcalendar(getIntf().getSysi().toIcalendar(ev, false, pattern));
+      cdr.setContentType("application/xml+calendar");
+      cdr.setVersion("2.0");
+    }
+  }
 
   private void errorResponse(final BaseResponseType br,
                              final WebdavException we) {
