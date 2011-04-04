@@ -46,6 +46,7 @@ import edu.rpi.sss.util.xml.tagdefs.XcalTags;
 import org.oasis_open.docs.ns.wscal.calws_soap.AddItem;
 import org.oasis_open.docs.ns.wscal.calws_soap.AddItemResponse;
 import org.oasis_open.docs.ns.wscal.calws_soap.AddType;
+import org.oasis_open.docs.ns.wscal.calws_soap.ArrayOfHrefs;
 import org.oasis_open.docs.ns.wscal.calws_soap.ArrayOfUpdates;
 import org.oasis_open.docs.ns.wscal.calws_soap.BaseResponseType;
 import org.oasis_open.docs.ns.wscal.calws_soap.BaseUpdateType;
@@ -408,24 +409,31 @@ public class CalwsHandler extends SoapHandler {
 
         Collection<String> badHrefs = new ArrayList<String>();
 
+        ArrayOfHrefs hrefs = cm.getHrefs();
+        if (hrefs == null) {
+          break buildResponse;
+        }
+
         buildQueryResponse(cqr,
-                           rpt.getMgetNodes(cm.getHreves(), badHrefs),
+                           rpt.getMgetNodes(hrefs.getHreves(), badHrefs),
                            cm.getIcalendar());
 
-        if (!badHrefs.isEmpty()) {
-          for (String bh: badHrefs) {
-            MultistatResponseElementType mre = new MultistatResponseElementType();
+        if (badHrefs.isEmpty()) {
+          break buildResponse;
+        }
 
-            mre.setHref(bh);
+        for (String bh: badHrefs) {
+          MultistatResponseElementType mre = new MultistatResponseElementType();
 
-            cqr.getResponses().add(mre);
+          mre.setHref(bh);
 
-            Propstat ps = new Propstat();
+          cqr.getResponses().add(mre);
 
-            mre.getPropstats().add(ps);
+          Propstat ps = new Propstat();
 
-            ps.setStatus(getStatus(HttpServletResponse.SC_NOT_FOUND, null));
-          }
+          mre.getPropstats().add(ps);
+
+          ps.setStatus(getStatus(HttpServletResponse.SC_NOT_FOUND, null));
         }
       } // buildResponse
     } catch (WebdavException we) {
@@ -498,7 +506,7 @@ public class CalwsHandler extends SoapHandler {
     for (WebdavNsNode curnode: nodes) {
       MultistatResponseElementType mre = new MultistatResponseElementType();
 
-      mre.setHref(curnode.getPrefixedUri());
+      mre.setHref(curnode.getUri());
       mre.setEtag(curnode.getEtagValue(true));
 
       cqr.getResponses().add(mre);
@@ -547,6 +555,10 @@ public class CalwsHandler extends SoapHandler {
     QName etag = we.getErrorTag();
 
     setError: {
+      if (etag == null) {
+        break setError;
+      }
+
       if (etag.equals(CaldavTags.validFilter)) {
         InvalidFilterType invf = new InvalidFilterType();
         er.setError(of.createInvalidFilter(invf));
