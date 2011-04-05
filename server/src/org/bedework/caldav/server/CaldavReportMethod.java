@@ -45,7 +45,9 @@ import org.w3c.dom.Element;
 
 import ietf.params.xml.ns.caldav.CalendarData;
 import ietf.params.xml.ns.caldav.Comp;
+import ietf.params.xml.ns.caldav.Expand;
 import ietf.params.xml.ns.caldav.Filter;
+import ietf.params.xml.ns.caldav.LimitRecurrenceSet;
 import ietf.params.xml.ns.caldav.Prop;
 
 import java.io.StringReader;
@@ -425,66 +427,7 @@ public class CaldavReportMethod extends ReportMethod {
 
   protected Collection<WebdavNsNode> doNodeAndChildren(final CalendarQueryPars cqp,
                                     final WebdavNsNode node) throws WebdavException {
-    return doNodeAndChildren(cqp, node, 0, defaultDepth(cqp.depth, 0));
-  }
 
-  /* ====================================================================
-   *                   Private methods
-   * ==================================================================== */
-
-  private Collection<WebdavNsNode> doNodeAndChildren(final CalendarQueryPars cqp,
-                                                     final WebdavNsNode node,
-                                       int curDepth,
-                                       final int maxDepth) throws WebdavException {
-    if (debug) {
-      trace("doNodeAndChildren: curDepth=" + curDepth +
-            " maxDepth=" + maxDepth + " uri=" + node.getUri());
-    }
-
-    Collection<WebdavNsNode> nodes = new ArrayList<WebdavNsNode>();
-
-    if (node instanceof CaldavComponentNode) {
-      // Targetted directly at component
-      nodes.add(node);
-      return nodes;
-    }
-
-    if (!(node instanceof CaldavCalNode)) {
-      throw new WebdavBadRequest();
-    }
-
-    CaldavCalNode calnode = (CaldavCalNode)node;
-
-    /* TODO - should we return info about the collection?
-     * Probably if the filter allows it.
-     */
-    curDepth++;
-
-    if (curDepth > maxDepth) {
-      return nodes;
-    }
-
-    if (calnode.isCalendarCollection()) {
-      return getNodes(cqp, node);
-    }
-
-    for (WebdavNsNode child: getNsIntf().getChildren(node)) {
-      nodes.addAll(doNodeAndChildren(cqp, child, curDepth, maxDepth));
-    }
-
-    return nodes;
-  }
-
-  private Collection<WebdavNsNode> getNodes(final CalendarQueryPars cqp,
-                                            final WebdavNsNode node)
-          throws WebdavException {
-    if (debug) {
-      trace("getNodes: " + node.getUri());
-    }
-
-    CaldavBWIntf intf = (CaldavBWIntf)getNsIntf();
-
-    RetrievalMode rm = null;
     List<String> retrieveList = null;
     CalData caldata = null;
 
@@ -512,20 +455,15 @@ public class CaldavReportMethod extends ReportMethod {
     }
 
     Comp comp = null;
+    Expand expand = null;
+    LimitRecurrenceSet lrs = null;
 
     if (caldata != null) {
       CalendarData cd = caldata.getCalendarData();
       comp = cd.getComp();
 
-      if (cd.getExpand() != null) {
-        /* expand with time range */
-        rm = new RetrievalMode();
-        rm.setExpand(cd.getExpand());
-      } else if (cd.getLimitRecurrenceSet() != null) {
-        /* Only return master event and overrides in range */
-        rm = new RetrievalMode();
-        rm.setLimitRecurrenceSet(cd.getLimitRecurrenceSet());
-      }
+      expand = cd.getExpand();
+      lrs = cd.getLimitRecurrenceSet();
     }
 
     /* This isn't ideal - we build a list which is an accumulation of all
@@ -573,6 +511,95 @@ public class CaldavReportMethod extends ReportMethod {
     if (Util.isEmpty(retrieveList)) {
       retrieveList = null;
     }
+
+    return doNodeAndChildren(cqp, node, expand, lrs, retrieveList);
+  }
+
+  protected Collection<WebdavNsNode> doNodeAndChildren(final CalendarQueryPars cqp,
+                                    final WebdavNsNode node,
+                                    final Expand expand,
+                                    final LimitRecurrenceSet lrs,
+                                    final List<String> retrieveList) throws WebdavException {
+    RetrievalMode rm = null;
+
+    if (expand != null) {
+      /* expand with time range */
+      rm = new RetrievalMode();
+      rm.setExpand(expand);
+    } else if (lrs != null) {
+      /* Only return master event and overrides in range */
+      rm = new RetrievalMode();
+      rm.setLimitRecurrenceSet(lrs);
+    }
+
+    return doNodeAndChildren(cqp, node, 0, defaultDepth(cqp.depth, 0),
+                             rm, retrieveList);
+  }
+
+  /* ====================================================================
+   *                   Private methods
+   * ==================================================================== */
+
+  private Collection<WebdavNsNode> doNodeAndChildren(final CalendarQueryPars cqp,
+                                                     final WebdavNsNode node,
+                                       int curDepth,
+                                       final int maxDepth,
+                                       final RetrievalMode rm,
+                                       final List<String> retrieveList) throws WebdavException {
+    if (debug) {
+      trace("doNodeAndChildren: curDepth=" + curDepth +
+            " maxDepth=" + maxDepth + " uri=" + node.getUri());
+    }
+
+    Collection<WebdavNsNode> nodes = new ArrayList<WebdavNsNode>();
+
+    if (node instanceof CaldavComponentNode) {
+      // Targetted directly at component
+      nodes.add(node);
+      return nodes;
+    }
+
+    if (!(node instanceof CaldavCalNode)) {
+      throw new WebdavBadRequest();
+    }
+
+    CaldavCalNode calnode = (CaldavCalNode)node;
+
+    /* TODO - should we return info about the collection?
+     * Probably if the filter allows it.
+     */
+    curDepth++;
+
+    if (curDepth > maxDepth) {
+      return nodes;
+    }
+
+    if (calnode.isCalendarCollection()) {
+      return getNodes(cqp, node, rm, retrieveList);
+    }
+
+    for (WebdavNsNode child: getNsIntf().getChildren(node)) {
+      nodes.addAll(doNodeAndChildren(cqp,
+                                     child,
+                                     curDepth,
+                                     maxDepth,
+                                     rm,
+                                     retrieveList));
+    }
+
+    return nodes;
+  }
+
+  private Collection<WebdavNsNode> getNodes(final CalendarQueryPars cqp,
+                                            final WebdavNsNode node,
+                                            final RetrievalMode rm,
+                                            final List<String> retrieveList)
+          throws WebdavException {
+    if (debug) {
+      trace("getNodes: " + node.getUri());
+    }
+
+    CaldavBWIntf intf = (CaldavBWIntf)getNsIntf();
 
     return intf.query(node, retrieveList, rm, cqp.filter);
   }

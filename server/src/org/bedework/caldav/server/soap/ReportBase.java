@@ -99,7 +99,10 @@ public class ReportBase extends CaldavReportMethod {
     cqp.filter = cq.getFilter();
     cqp.depth = 1;
 
-    return doNodeAndChildren(cqp, node);
+    return doNodeAndChildren(cqp, node,
+                             cq.getExpand(),
+                             cq.getLimitRecurrenceSet(),
+                             null);
   }
 
   Icalendar fetch(final String resourceUri,
