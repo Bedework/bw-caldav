@@ -37,6 +37,7 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
 import edu.rpi.cmt.calendar.ScheduleMethods;
+import edu.rpi.cmt.calendar.XcalUtil;
 import edu.rpi.sss.util.Util;
 import edu.rpi.sss.util.xml.NsContext;
 import edu.rpi.sss.util.xml.XmlUtil;
@@ -405,14 +406,14 @@ public class CalwsHandler extends SoapHandler {
           break buildResponse;
         }
 
-        Report rpt = new Report(getNsIntf());
-
-        Collection<String> badHrefs = new ArrayList<String>();
-
         ArrayOfHrefs hrefs = cm.getHrefs();
         if (hrefs == null) {
           break buildResponse;
         }
+
+        Report rpt = new Report(getNsIntf());
+
+        Collection<String> badHrefs = new ArrayList<String>();
 
         buildQueryResponse(cqr,
                            rpt.getMgetNodes(hrefs.getHreves(), badHrefs),
@@ -635,32 +636,58 @@ public class CalwsHandler extends SoapHandler {
                          final HttpServletRequest req,
                          final HttpServletResponse resp) throws WebdavException {
     if (debug) {
-      trace("AddItem:       cal=" + ai.getHref());
-    }
-
-    WebdavNsNode elNode = getNsIntf().getNode(ai.getHref(),
-                                              WebdavNsIntf.existanceNot,
-                                              WebdavNsIntf.nodeTypeEntity);
-
-    boolean added = false;
-
-    try {
-      added = getIntf().putEvent(req, (CaldavComponentNode)elNode,
-                                 ai.getIcalendar(),
-                                 true, null);
-    } catch (Throwable t) {
-      if (debug) {
-        error(t);
-      }
+      trace("AddItem: cal=" + ai.getHref());
     }
 
     AddItemResponse air = new AddItemResponse();
 
-    if (added) {
-      air.setStatus(StatusType.OK);
-    } else {
-      air.setStatus(StatusType.ERROR);
-    }
+    addEntity: {
+      /* Manufacture a name */
+
+      UidPropType uidp = (UidPropType)XcalUtil.findProperty(
+                 XcalUtil.findEntity(ai.getIcalendar()), XcalTags.uid);
+
+      if ((uidp == null) || (uidp.getText() == null)) {
+        air.setStatus(StatusType.ERROR);
+        break addEntity;
+      }
+
+      String entityPath = ai.getHref();
+
+      if (!entityPath.endsWith("/")) {
+        entityPath += "/";
+      }
+
+      entityPath += uidp.getText() + ".ics";
+
+      WebdavNsNode elNode = getNsIntf().getNode(entityPath,
+                                                WebdavNsIntf.existanceNot,
+                                                WebdavNsIntf.nodeTypeEntity);
+
+      try {
+        /*
+         *     String ifStag = Headers.ifScheduleTagMatch(req);
+               boolean noInvites = req.getHeader("Bw-NoInvites") != null; // based on header?
+         */
+        if (getIntf().putEvent((CaldavComponentNode)elNode,
+                               ai.getIcalendar(),
+                               true,
+                               false,  // noinvites
+                               null,   // ifStag
+                               null)) {
+          air.setStatus(StatusType.OK);
+          air.setHref(elNode.getUri());
+        } else {
+          air.setStatus(StatusType.ERROR);
+        }
+      } catch (WebdavException we) {
+        errorResponse(air, we);
+      } catch (Throwable t) {
+        if (debug) {
+          error(t);
+        }
+      }
+    } // addEntity
 
     try {
       marshal(air, resp.getOutputStream());

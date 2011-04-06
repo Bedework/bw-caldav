@@ -890,23 +890,21 @@ public class CaldavBWIntf extends WebdavNsIntf {
   }
 
   /**
-   * @param req
    * @param bwnode
    * @param ical
    * @param create
+   * @param noInvites
+   * @param ifStag
    * @param ifEtag
    * @return true for OK
    * @throws WebdavException
    */
-  public boolean putEvent(final HttpServletRequest req,
-                          final CaldavComponentNode bwnode,
+  public boolean putEvent(final CaldavComponentNode bwnode,
                           final Icalendar ical,
                           final boolean create,
+                          final boolean noInvites,
+                          final String ifStag,
                           final String ifEtag) throws WebdavException {
-    String ifStag = Headers.ifScheduleTagMatch(req);
-    boolean noInvites = req.getHeader("Bw-NoInvites") != null; // based on header?
-
-    //BwEvent ev = evinfo.getEvent();
     String entityName = bwnode.getEntityName();
 
     CalDAVCollection col = (CalDAVCollection)bwnode.getCollection(true); // deref
