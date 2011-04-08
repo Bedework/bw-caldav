@@ -487,7 +487,8 @@ public class CaldavReportMethod extends ReportMethod {
           String nm = calcomp.getName().toUpperCase();
           if (nm.equals("VEVENT") ||
               nm.equals("VTODO") ||
-              nm.equals("VJOURNAL")) {
+              nm.equals("VJOURNAL") ||
+              nm.equals("VAVAILABILITY")) {
             if ((calcomp.getAllprop() != null) ||
                 Util.isEmpty(calcomp.getProps())) {
               retrieveList = null;

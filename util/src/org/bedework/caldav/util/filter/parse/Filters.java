@@ -186,6 +186,11 @@ public class Filters {
         entityType = IcalDefs.entityTypeFreeAndBusy;
       }
 
+      if ("VAVAILABILITY".equals(name)) {
+        filter = EntityTypeFilter.vavailabilityFilter(null, isNotDefined);
+        entityType = IcalDefs.entityTypeVavailability;
+      }
+
       if (filter == null) {
         throw new WebdavBadRequest();
       }

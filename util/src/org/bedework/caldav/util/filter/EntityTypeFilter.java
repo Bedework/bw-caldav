@@ -6,9 +6,9 @@
     Version 2.0 (the "License"); you may not use this file
     except in compliance with the License. You may obtain a
     copy of the License at:
-        
+
     http://www.apache.org/licenses/LICENSE-2.0
-        
+
     Unless required by applicable law or agreed to in writing,
     software distributed under the License is distributed on
     an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -17,8 +17,6 @@
     under the License.
 */
 package org.bedework.caldav.util.filter;
-
-import org.bedework.caldav.util.filter.ObjectFilter;
 
 import edu.rpi.cmt.calendar.IcalDefs;
 import edu.rpi.cmt.calendar.PropertyIndex.PropertyInfoIndex;
@@ -33,7 +31,7 @@ public class EntityTypeFilter extends ObjectFilter<Integer> {
    *
    * @param name - null one will be created
    */
-  public EntityTypeFilter(String name) {
+  public EntityTypeFilter(final String name) {
     super(name, PropertyInfoIndex.ENTITY_TYPE);
   }
 
@@ -42,7 +40,7 @@ public class EntityTypeFilter extends ObjectFilter<Integer> {
    * @param not true to test for inequality
    * @return a filter for events.
    */
-  public static EntityTypeFilter eventFilter(String name, boolean not) {
+  public static EntityTypeFilter eventFilter(final String name, final boolean not) {
     EntityTypeFilter f = new EntityTypeFilter(name);
     f.setEntity(IcalDefs.entityTypeEvent);
     f.setNot(not);
@@ -55,7 +53,7 @@ public class EntityTypeFilter extends ObjectFilter<Integer> {
    * @param not true to test for inequality
    * @return a filter for todos.
    */
-  public static EntityTypeFilter todoFilter(String name, boolean not) {
+  public static EntityTypeFilter todoFilter(final String name, final boolean not) {
     EntityTypeFilter f = new EntityTypeFilter(name);
     f.setEntity(IcalDefs.entityTypeTodo);
     f.setNot(not);
@@ -68,7 +66,7 @@ public class EntityTypeFilter extends ObjectFilter<Integer> {
    * @param not true to test for inequality
    * @return a filter for todos.
    */
-  public static EntityTypeFilter freebusyFilter(String name, boolean not) {
+  public static EntityTypeFilter freebusyFilter(final String name, final boolean not) {
     EntityTypeFilter f = new EntityTypeFilter(name);
     f.setEntity(IcalDefs.entityTypeFreeAndBusy);
     f.setNot(not);
@@ -81,7 +79,7 @@ public class EntityTypeFilter extends ObjectFilter<Integer> {
    * @param not true to test for inequality
    * @return a filter for journals.
    */
-  public static EntityTypeFilter journalFilter(String name, boolean not) {
+  public static EntityTypeFilter journalFilter(final String name, final boolean not) {
     EntityTypeFilter f = new EntityTypeFilter(name);
     f.setEntity(IcalDefs.entityTypeJournal);
     f.setNot(not);
@@ -92,9 +90,37 @@ public class EntityTypeFilter extends ObjectFilter<Integer> {
   /**
    * @param name
    * @param not true to test for inequality
+   * @return a filter for vavailability.
+   */
+  public static EntityTypeFilter vavailabilityFilter(final String name,
+                                                     final boolean not) {
+    EntityTypeFilter f = new EntityTypeFilter(name);
+    f.setEntity(IcalDefs.entityTypeVavailability);
+    f.setNot(not);
+
+    return f;
+  }
+
+  /**
+   * @param name
+   * @param not true to test for inequality
+   * @return a filter for available.
+   */
+  public static EntityTypeFilter availableFilter(final String name,
+                                                     final boolean not) {
+    EntityTypeFilter f = new EntityTypeFilter(name);
+    f.setEntity(IcalDefs.entityTypeAvailable);
+    f.setNot(not);
+
+    return f;
+  }
+
+  /**
+   * @param name
+   * @param not true to test for inequality
    * @return a filter for events.
    */
-  public static EntityTypeFilter alarmFilter(String name, boolean not) {
+  public static EntityTypeFilter alarmFilter(final String name, final boolean not) {
     EntityTypeFilter f = new EntityTypeFilter(name);
     f.setEntity(IcalDefs.entityTypeAlarm);
     f.setNot(not);
@@ -102,6 +128,7 @@ public class EntityTypeFilter extends ObjectFilter<Integer> {
     return f;
   }
 
+  @Override
   public String toString() {
     StringBuilder sb = new StringBuilder("(");
 

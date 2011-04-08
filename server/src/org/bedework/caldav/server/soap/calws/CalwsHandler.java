@@ -88,7 +88,7 @@ import ietf.params.xml.ns.icalendar_2.DtstartPropType;
 import ietf.params.xml.ns.icalendar_2.Icalendar;
 import ietf.params.xml.ns.icalendar_2.OrganizerPropType;
 import ietf.params.xml.ns.icalendar_2.UidPropType;
-import ietf.params.xml.ns.icalendar_2.VcalendarType;
+import ietf.params.xml.ns.icalendar_2.Vcalendar;
 import ietf.params.xml.ns.icalendar_2.VfreebusyType;
 
 import java.util.ArrayList;
@@ -275,7 +275,7 @@ public class CalwsHandler extends SoapHandler {
         /* Build an icalendar freebusy object out of the parameters */
 
         Icalendar ical = new Icalendar();
-        VcalendarType vcal = new VcalendarType();
+        Vcalendar vcal = new Vcalendar();
 
         ical.getVcalendars().add(vcal);
 

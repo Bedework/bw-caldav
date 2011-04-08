@@ -797,6 +797,10 @@ public class CaldavCalNode extends CaldavBwNode {
         xml.attribute("name", "VTODO");
         xml.endEmptyTag();
         xml.newline();
+        xml.startTag(CaldavTags.comp);
+        xml.attribute("name", "VAVAILABILITY");
+        xml.endEmptyTag();
+        xml.newline();
         xml.closeTag(tag);
         return true;
       }
