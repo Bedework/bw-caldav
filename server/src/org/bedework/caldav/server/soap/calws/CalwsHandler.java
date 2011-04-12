@@ -22,6 +22,7 @@ import org.bedework.caldav.server.CalDAVCollection;
 import org.bedework.caldav.server.CalDAVEvent;
 import org.bedework.caldav.server.CaldavBWIntf;
 import org.bedework.caldav.server.CaldavBwNode;
+import org.bedework.caldav.server.CaldavCalNode;
 import org.bedework.caldav.server.CaldavComponentNode;
 import org.bedework.caldav.server.CaldavPrincipalNode;
 import org.bedework.caldav.server.SysiIcalendar;
@@ -34,8 +35,10 @@ import org.bedework.caldav.util.ParseUtil;
 import org.bedework.caldav.util.TimeRange;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
+import edu.rpi.cct.webdav.servlet.shared.WebdavNotFound;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
+import edu.rpi.cct.webdav.servlet.shared.WebdavUnauthorized;
 import edu.rpi.cmt.calendar.ScheduleMethods;
 import edu.rpi.cmt.calendar.XcalUtil;
 import edu.rpi.sss.util.Util;
@@ -55,6 +58,8 @@ import org.oasis_open.docs.ns.wscal.calws_soap.CalendarDataResponseType;
 import org.oasis_open.docs.ns.wscal.calws_soap.CalendarMultiget;
 import org.oasis_open.docs.ns.wscal.calws_soap.CalendarQuery;
 import org.oasis_open.docs.ns.wscal.calws_soap.CalendarQueryResponse;
+import org.oasis_open.docs.ns.wscal.calws_soap.DeleteItem;
+import org.oasis_open.docs.ns.wscal.calws_soap.DeleteItemResponse;
 import org.oasis_open.docs.ns.wscal.calws_soap.ErrorCodeType;
 import org.oasis_open.docs.ns.wscal.calws_soap.ErrorResponseType;
 import org.oasis_open.docs.ns.wscal.calws_soap.FetchItem;
@@ -191,6 +196,11 @@ public class CalwsHandler extends SoapHandler {
 
       if (o instanceof FetchItem) {
         doFetchItem((FetchItem)o, req, resp);
+        return;
+      }
+
+      if (o instanceof DeleteItem) {
+        doDeleteItem((DeleteItem)o, req, resp);
         return;
       }
 
@@ -553,9 +563,21 @@ public class CalwsHandler extends SoapHandler {
 
     ErrorResponseType er = new ErrorResponseType();
 
-    QName etag = we.getErrorTag();
-
     setError: {
+      if (we instanceof WebdavNotFound) {
+        ErrorCodeType ec = new ErrorCodeType();
+        er.setError(of.createTargetDoesNotExist(ec));
+        break setError;
+      }
+
+      if (we instanceof WebdavUnauthorized) {
+        ErrorCodeType ec = new ErrorCodeType();
+        er.setError(of.createTargetNotEntity(ec));
+        break setError;
+      }
+
+      QName etag = we.getErrorTag();
+
       if (etag == null) {
         break setError;
       }
@@ -686,6 +708,7 @@ public class CalwsHandler extends SoapHandler {
         if (debug) {
           error(t);
         }
+        errorResponse(air, new WebdavException(t));
       }
     } // addEntity
 
@@ -705,22 +728,72 @@ public class CalwsHandler extends SoapHandler {
       trace("FetchItem:       cal=" + fi.getHref());
     }
 
-    WebdavNsNode elNode = getNsIntf().getNode(fi.getHref(),
-                                              WebdavNsIntf.existanceMust,
-                                              WebdavNsIntf.nodeTypeEntity);
-
     FetchItemResponse fir = new FetchItemResponse();
 
-    if (elNode == null) {
-      fir.setStatus(StatusType.ERROR);
-    } else {
-      fir.setStatus(StatusType.OK);
-      CalDAVEvent ev = ((CaldavComponentNode)elNode).getEvent();
-      fir.setIcalendar(getIntf().getSysi().toIcalendar(ev, false, null));
+    try {
+      WebdavNsNode elNode = getNsIntf().getNode(fi.getHref(),
+                                                WebdavNsIntf.existanceMust,
+                                                WebdavNsIntf.nodeTypeEntity);
+
+      if (elNode == null) {
+        errorResponse(fir, new WebdavNotFound());
+      } else {
+        fir.setStatus(StatusType.OK);
+        CalDAVEvent ev = ((CaldavComponentNode)elNode).getEvent();
+        fir.setIcalendar(getIntf().getSysi().toIcalendar(ev, false, null));
+      }
+    } catch (WebdavException we) {
+      errorResponse(fir, we);
+    } catch (Throwable t) {
+      if (debug) {
+        error(t);
+      }
+      errorResponse(fir, new WebdavException(t));
     }
 
     try {
       marshal(fir, resp.getOutputStream());
+    } catch (WebdavException we) {
+      throw we;
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
+  }
+
+  private void doDeleteItem(final DeleteItem di,
+                           final HttpServletRequest req,
+                           final HttpServletResponse resp) throws WebdavException {
+    if (debug) {
+      trace("DeleteItem:       cal=" + di.getHref());
+    }
+
+    DeleteItemResponse dir = new DeleteItemResponse();
+
+    try {
+      WebdavNsNode node = getNsIntf().getNode(di.getHref(),
+                                              WebdavNsIntf.existanceMust,
+                                              WebdavNsIntf.nodeTypeUnknown);
+
+      if (node == null) {
+        errorResponse(dir, new WebdavNotFound());
+      } else if (node instanceof CaldavCalNode) {
+        // Don't allow that here
+        errorResponse(dir, new WebdavUnauthorized());
+      } else {
+        getNsIntf().delete(node);
+        dir.setStatus(StatusType.OK);
+      }
+    } catch (WebdavException we) {
+      errorResponse(dir, we);
+    } catch (Throwable t) {
+      if (debug) {
+        error(t);
+      }
+      errorResponse(dir, new WebdavException(t));
+    }
+
+    try {
+      marshal(dir, resp.getOutputStream());
     } catch (WebdavException we) {
       throw we;
     } catch (Throwable t) {
