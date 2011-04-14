@@ -39,7 +39,13 @@ import edu.rpi.sss.util.xml.tagdefs.CalWSXrdDefs;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 
+import org.oasis_open.docs.ns.wscal.calws_soap.SupportedCalendarComponentSet;
 import org.w3c.dom.Element;
+
+import ietf.params.xml.ns.icalendar_2.ObjectFactory;
+import ietf.params.xml.ns.icalendar_2.VavailabilityType;
+import ietf.params.xml.ns.icalendar_2.VeventType;
+import ietf.params.xml.ns.icalendar_2.VtodoType;
 
 import java.io.Writer;
 import java.util.ArrayList;
@@ -93,6 +99,7 @@ public class CaldavCalNode extends CaldavBwNode {
     addXrdEntry(xrdNames, CalWSXrdDefs.minDateTime, true, false);
     addXrdEntry(xrdNames, CalWSXrdDefs.principalHome, true, true);
     addXrdEntry(xrdNames, CalWSXrdDefs.timezone, true, false);
+    addXrdEntry(xrdNames, CalWSXrdDefs.supportedCalendarComponentSet, true, false);
   }
 
   /** Place holder for status
@@ -1001,6 +1008,25 @@ public class CaldavCalNode extends CaldavBwNode {
         }
 
         props.add(xrdProperty(name, tzid));
+
+        return true;
+      }
+
+      if (false && name.equals(CalWSXrdDefs.supportedCalendarComponentSet)) {
+        SupportedCalendarComponentSet sccs = new SupportedCalendarComponentSet();
+
+        ObjectFactory of = new ObjectFactory();
+
+        VeventType ev = new VeventType();
+        sccs.getBaseComponents().add(of.createVevent(ev));
+
+        VtodoType td = new VtodoType();
+        sccs.getBaseComponents().add(of.createVtodo(td));
+
+        VavailabilityType av = new VavailabilityType();
+        sccs.getBaseComponents().add(of.createVavailability(av));
+
+        props.add(sccs);
 
         return true;
       }

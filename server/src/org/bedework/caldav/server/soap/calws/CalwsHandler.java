@@ -81,6 +81,7 @@ import org.oasis_open.docs.ns.wscal.calws_soap.UTCTimeRangeType;
 import org.oasis_open.docs.ns.wscal.calws_soap.UidConflictType;
 import org.oasis_open.docs.ns.wscal.calws_soap.UpdateItem;
 import org.oasis_open.docs.ns.wscal.calws_soap.UpdateItemResponse;
+import org.oasis_open.docs.ns.xri.xrd_1.XRD;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -148,7 +149,8 @@ public class CalwsHandler extends SoapHandler {
 
   @Override
   protected String getJaxbContextPath() {
-    return "org.oasis_open.docs.ns.wscal.calws_soap";
+    return "org.oasis_open.docs.ns.wscal.calws_soap:" +
+           XRD.class.getPackage().getName();
   }
 
   /**
