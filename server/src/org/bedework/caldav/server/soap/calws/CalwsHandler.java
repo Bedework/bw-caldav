@@ -18,7 +18,6 @@
 */
 package org.bedework.caldav.server.soap.calws;
 
-import org.bedework.caldav.server.CalDAVCollection;
 import org.bedework.caldav.server.CalDAVEvent;
 import org.bedework.caldav.server.CaldavBWIntf;
 import org.bedework.caldav.server.CaldavBwNode;
@@ -31,6 +30,7 @@ import org.bedework.caldav.server.soap.SoapHandler;
 import org.bedework.caldav.server.sysinterface.SystemProperties;
 import org.bedework.caldav.server.sysinterface.SysIntf.IcalResultType;
 import org.bedework.caldav.server.sysinterface.SysIntf.SchedRecipientResult;
+import org.bedework.caldav.server.sysinterface.SysIntf.UpdateResult;
 import org.bedework.caldav.util.ParseUtil;
 import org.bedework.caldav.util.TimeRange;
 
@@ -42,18 +42,13 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavUnauthorized;
 import edu.rpi.cmt.calendar.ScheduleMethods;
 import edu.rpi.cmt.calendar.XcalUtil;
 import edu.rpi.sss.util.Util;
-import edu.rpi.sss.util.xml.NsContext;
-import edu.rpi.sss.util.xml.XmlUtil;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 import edu.rpi.sss.util.xml.tagdefs.XcalTags;
 
 import org.oasis_open.docs.ns.wscal.calws_soap.AddItem;
 import org.oasis_open.docs.ns.wscal.calws_soap.AddItemResponse;
-import org.oasis_open.docs.ns.wscal.calws_soap.AddType;
 import org.oasis_open.docs.ns.wscal.calws_soap.ArrayOfHrefs;
-import org.oasis_open.docs.ns.wscal.calws_soap.ArrayOfUpdates;
 import org.oasis_open.docs.ns.wscal.calws_soap.BaseResponseType;
-import org.oasis_open.docs.ns.wscal.calws_soap.BaseUpdateType;
 import org.oasis_open.docs.ns.wscal.calws_soap.CalendarDataResponseType;
 import org.oasis_open.docs.ns.wscal.calws_soap.CalendarMultiget;
 import org.oasis_open.docs.ns.wscal.calws_soap.CalendarQuery;
@@ -71,28 +66,22 @@ import org.oasis_open.docs.ns.wscal.calws_soap.GetPropertiesResponse;
 import org.oasis_open.docs.ns.wscal.calws_soap.InvalidFilterType;
 import org.oasis_open.docs.ns.wscal.calws_soap.MultistatResponseElementType;
 import org.oasis_open.docs.ns.wscal.calws_soap.MultistatusPropElementType;
-import org.oasis_open.docs.ns.wscal.calws_soap.NamespaceType;
-import org.oasis_open.docs.ns.wscal.calws_soap.NewValueType;
 import org.oasis_open.docs.ns.wscal.calws_soap.ObjectFactory;
 import org.oasis_open.docs.ns.wscal.calws_soap.Propstat;
-import org.oasis_open.docs.ns.wscal.calws_soap.RemoveType;
 import org.oasis_open.docs.ns.wscal.calws_soap.StatusType;
 import org.oasis_open.docs.ns.wscal.calws_soap.UTCTimeRangeType;
 import org.oasis_open.docs.ns.wscal.calws_soap.UidConflictType;
 import org.oasis_open.docs.ns.wscal.calws_soap.UpdateItem;
 import org.oasis_open.docs.ns.wscal.calws_soap.UpdateItemResponse;
 import org.oasis_open.docs.ns.xri.xrd_1.XRD;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
-import ietf.params.xml.ns.icalendar_2.ArrayOfComponents;
-import ietf.params.xml.ns.icalendar_2.ArrayOfProperties;
 import ietf.params.xml.ns.icalendar_2.AttendeePropType;
+import ietf.params.xml.ns.icalendar_2.Components;
 import ietf.params.xml.ns.icalendar_2.DtendPropType;
 import ietf.params.xml.ns.icalendar_2.DtstartPropType;
 import ietf.params.xml.ns.icalendar_2.Icalendar;
 import ietf.params.xml.ns.icalendar_2.OrganizerPropType;
+import ietf.params.xml.ns.icalendar_2.Properties;
 import ietf.params.xml.ns.icalendar_2.UidPropType;
 import ietf.params.xml.ns.icalendar_2.Vcalendar;
 import ietf.params.xml.ns.icalendar_2.VfreebusyType;
@@ -105,16 +94,7 @@ import java.util.TreeSet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBElement;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
 /** Class extended by classes which handle special GET requests, e.g. the
  * freebusy service, web calendars, ischedule etc.
@@ -296,7 +276,7 @@ public class CalwsHandler extends SoapHandler {
         JAXBElement<VfreebusyType> compel =
           new JAXBElement<VfreebusyType>(XcalTags.vfreebusy,
                                          VfreebusyType.class, vfb);
-        ArrayOfComponents aoc = new ArrayOfComponents();
+        Components aoc = new Components();
 
         vcal.setComponents(aoc);
         aoc.getBaseComponents().add(compel);
@@ -314,7 +294,7 @@ public class CalwsHandler extends SoapHandler {
                                            java.util.Calendar.DATE,
                                            sysp.getMaxFBPeriod());
 
-        ArrayOfProperties aop = new ArrayOfProperties();
+        Properties aop = new Properties();
         vfb.setProperties(aop);
 
         DtstartPropType dtstart = new DtstartPropType();
@@ -829,163 +809,19 @@ public class CalwsHandler extends SoapHandler {
       trace("event: " + ev);
     }
 
-    Document doc = makeDoc(XcalTags.icalendar,
-                           getIntf().getSysi().toIcalendar(ev, false, null));
-
-    ArrayOfUpdates aupd = ui.getUpdates();
-
-    NsContext ctx = new NsContext(null);
-    ctx.clear();
-
-    for (NamespaceType ns: ui.getNamespaces().getNamespaces()) {
-      ctx.add(ns.getPrefix(), ns.getUri());
-    }
-
-    XPathFactory xpathFact = XPathFactory.newInstance();
-    XPath xpath = xpathFact.newXPath();
-
-    xpath.setNamespaceContext(ctx);
-
-    uir.setStatus(StatusType.OK);
-
     try {
-      for (JAXBElement<? extends BaseUpdateType> jel: aupd.getBaseUpdates()) {
-        BaseUpdateType but = jel.getValue();
+      UpdateResult ur = getIntf().getSysi().updateEvent(ev, ui.getSelects());
 
-        XPathExpression expr = xpath.compile(but.getSel());
-
-        NodeList nodes = (NodeList)expr.evaluate(doc, XPathConstants.NODESET);
-
-        int nlen = nodes.getLength();
-        if (debug) {
-          trace("expr: " + but.getSel() + " found " + nlen);
-        }
-
-        if (nlen != 1) {
-          // We only allow updates to a single node.
-          uir.setStatus(StatusType.ERROR);
-          getIntf().getSysi().rollback();
-          break;
-        }
-
-        Node nd = nodes.item(0);
-
-        if (but instanceof RemoveType) {
-          removeNode(nd);
-          continue;
-        }
-
-        NewValueType nv = (NewValueType)but;
-
-        /* Replacement or new value must be of same type
-         */
-        if (!processNewValue(nv, nd, doc)) {
-          uir.setStatus(StatusType.ERROR);
-          getIntf().getSysi().rollback();
-          break;
-        }
-      }
-
-      if (uir.getStatus() == StatusType.OK) {
-        Unmarshaller u = jc.createUnmarshaller();
-
-        Icalendar ical = (Icalendar)u.unmarshal(doc);
-
-  //      WebdavNsNode calNode = getNsIntf().getNode(ui.getCalendarHref(),
-  //                                                 WebdavNsIntf.existanceMust,
-  //                                                 WebdavNsIntf.nodeTypeCollection);
-        CalDAVCollection col = (CalDAVCollection)compNode.getCollection(true); // deref
-
-        SysiIcalendar cal = getIntf().getSysi().fromIcal(col,
-                                                         ical,
-                                                         IcalResultType.OneComponent);
-
-        CalDAVEvent newEv = (CalDAVEvent)cal.iterator().next();
-
-        ev.setParentPath(col.getPath());
-        newEv.setName(ev.getName());
-
-        getIntf().getSysi().updateEvent(newEv);
+      if (ur.getOk()) {
+        uir.setStatus(StatusType.OK);
+      } else {
+        uir.setStatus(StatusType.ERROR);
+        uir.setMessage(ur.getReason());
       }
 
       marshal(uir, resp.getOutputStream());
-    } catch (XPathExpressionException xpe) {
-      throw new WebdavException(xpe);
     } catch (WebdavException we) {
       throw we;
-    } catch (Throwable t) {
-      throw new WebdavException(t);
-    }
-  }
-
-  private boolean processNewValue(final NewValueType nv,
-                                  final Node nd,
-                                  final Document evDoc) throws WebdavException {
-    Node parent = nd.getParentNode();
-    Node matchNode;
-
-    boolean add = nv instanceof AddType;
-    QName valName;
-
-    if (add) {
-      matchNode = nd;
-      valName = new QName("urn:ietf:params:xml:ns:pidf-diff", "add");
-    } else {
-      matchNode = parent;
-      valName = new QName("urn:ietf:params:xml:ns:pidf-diff", "replace");
-    }
-
-    validate: {
-      if (nv.getBaseComponent() != null) {
-        // parent must be a components element
-        if (!XmlUtil.nodeMatches(matchNode, XcalTags.components)) {
-          return false;
-        }
-
-        break validate;
-      }
-
-      if (nv.getBaseProperty() != null) {
-        // parent must be a properties element
-        if (!XmlUtil.nodeMatches(matchNode, XcalTags.properties)) {
-          return false;
-        }
-        break validate;
-      }
-
-      if (nv.getBaseParameter() != null) {
-        // parent must be a parameters element
-        if (!XmlUtil.nodeMatches(matchNode, XcalTags.parameters)) {
-          return false;
-        }
-        break validate;
-      }
-
-      return false;
-    } // validate
-
-    try {
-      DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-      dbf.setNamespaceAware(true);
-      DocumentBuilder db = dbf.newDocumentBuilder();
-      Document doc = db.newDocument();
-
-      Marshaller m = jc.createMarshaller();
-
-      m.marshal(makeJAXBElement(valName, nv.getClass(), nv),
-                doc);
-
-      Node newNode = doc.getFirstChild().getFirstChild();
-
-      if (add) {
-        matchNode.appendChild(evDoc.importNode(newNode, true));
-
-        return true;
-      }
-
-      parent.replaceChild(evDoc.importNode(newNode, true), nd);
-
-      return true;
     } catch (Throwable t) {
       throw new WebdavException(t);
     }

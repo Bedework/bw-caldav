@@ -68,6 +68,7 @@ import edu.rpi.sss.util.xml.tagdefs.CalWSXrdDefs;
 import edu.rpi.sss.util.xml.tagdefs.CaldavDefs;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
+import edu.rpi.sss.util.xml.tagdefs.XcalTags;
 import edu.rpi.sss.util.xml.tagdefs.XrdTags;
 import edu.rpi.sss.util.xml.tagdefs.XsiTags;
 
@@ -659,6 +660,16 @@ public class CaldavBWIntf extends WebdavNsIntf {
       c.written = true;
 
       node.writeContent(null, resp.getWriter(), accept);
+      if (accept == null) {
+        accept = getSysi().getDefaultContentType();
+      }
+
+      if (accept.equals(XcalTags.mimetype)) {
+        // No charset
+        c.contentType = accept;
+      } else {
+        c.contentType = accept + "; charset=UTF-8";
+      }
 
       return c;
     } catch (WebdavException we) {

@@ -40,6 +40,8 @@ import edu.rpi.sss.util.xml.XmlEmit;
 
 import net.fortuna.ical4j.model.Calendar;
 
+import org.oasis_open.docs.ns.wscal.calws_soap.Select;
+
 import ietf.params.xml.ns.icalendar_2.Icalendar;
 
 import java.io.Reader;
@@ -314,6 +316,61 @@ public interface SysIntf {
    * @throws WebdavException
    */
   public void updateEvent(CalDAVEvent event) throws WebdavException;
+
+  /** Show the outcome of an update
+   * @author douglm
+   */
+  public class UpdateResult {
+    private boolean ok;
+
+    private String reason;
+
+    private static UpdateResult okResult = new UpdateResult();
+
+    /**
+     * @return result indicating OK.
+     */
+    public static UpdateResult getOkResult() {
+      return okResult;
+    }
+
+    /**
+     */
+    private UpdateResult() {
+      ok = true;
+    }
+
+    /**
+     * @param reason
+     */
+    public UpdateResult(final String reason) {
+      this.reason = reason;
+    }
+
+    /**
+     * @return True for an OK update
+     */
+    public boolean getOk() {
+      return ok;
+    }
+
+    /**
+     * @return Non-null if !ok
+     */
+    public String getReason() {
+      return reason;
+    }
+  }
+
+  /** Update the supplied event using the web services update message.
+   *
+   * @param event         updated CalDAVEvent object
+   * @param updates       set of updates to be applied
+   * @return UpdateResult
+   * @throws WebdavException
+   */
+  public UpdateResult updateEvent(CalDAVEvent event,
+                                  List<Select> updates) throws WebdavException;
 
   /** Return the events for the current user in the given collection using the
    * supplied filter. Stored freebusy objects are returned as BwEvent

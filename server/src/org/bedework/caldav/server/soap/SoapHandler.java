@@ -28,10 +28,10 @@ import edu.rpi.sss.util.xml.tagdefs.XcalTags;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import ietf.params.xml.ns.icalendar_2.ArrayOfParameters;
 import ietf.params.xml.ns.icalendar_2.BaseParameterType;
 import ietf.params.xml.ns.icalendar_2.BasePropertyType;
 import ietf.params.xml.ns.icalendar_2.DateDatetimePropertyType;
+import ietf.params.xml.ns.icalendar_2.Parameters;
 import ietf.params.xml.ns.icalendar_2.TzidParamType;
 
 import java.io.OutputStream;
@@ -199,7 +199,7 @@ public abstract class SoapHandler extends MethodBase {
   }
 
   protected String findTzid(final BasePropertyType bp) {
-    ArrayOfParameters aop = bp.getParameters();
+    Parameters aop = bp.getParameters();
 
     for (JAXBElement<? extends BaseParameterType> el: aop.getBaseParameters()) {
       if (el.getName().equals(XcalTags.tzid)) {
