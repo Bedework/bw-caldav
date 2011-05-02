@@ -81,37 +81,4 @@
     <build-jar module-base="${org.bedework.caldav.server.base}" 
                jar-file="${server.jar}" />
   </target>
-
-<!-- ==================== Javadoc Target ===============================
-     The "javadoc" target creates Javadoc API documentation for the Java
-     classes included in your application.  Normally, this is only required
-     when preparing a distribution release, but is available as a separate
-     target in case the developer wants to create Javadocs independently.
-     =================================================================== -->
-
-  <target name="javadoc" depends="init"
-          description="Create Javadoc API documentation">
-    <property name="destdir" location="${dist.home}/docs/api"/>
-    <mkdir dir="${destdir}"/>
-
-    <javadoc sourcepath="${org.bedework.caldav.util.base}/src:
-                         ${org.bedework.caldav.server.base}/src:"
-           classpathref="compile.classpath"
-                destdir="${destdir}"
-           packagenames="org.bedework.*,
-                         edu.rpi.*"
-                 access="public"
-                 author="true"
-                version="true"
-          breakiterator="yes"
-            windowtitle="${project.name} ${project.version} API Documentation">
-      <doctitle><![CDATA[${project.name} ${project.version}<br/>API Documentation]]></doctitle>
-      <header><![CDATA[${project.name} ${project.version}<br/>API Documentation]]></header>
-      <link href="../../access/api" />
-      <link href="../../davutil/api" />
-      <link href="../../rpiutil/api" />
-      <link href="../../webdav/api" />
-      <link href="${env.JAVA_HOME}/docs/api" />
-    </javadoc>
-  </target>
 </project>
