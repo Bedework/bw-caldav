@@ -188,7 +188,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       config.setCalWS(calWs);
 
-      String runAs = req.getHeader("Schedule-Assistant-Run-As");
+      String runAs = req.getHeader("Run-As");
 
       sysi.init(req, account, runAs, config, debug);
 
