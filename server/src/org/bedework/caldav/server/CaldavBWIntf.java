@@ -188,7 +188,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       config.setCalWS(calWs);
 
-      sysi.init(req, account, config, debug);
+      String runAs = req.getHeader("Schedule-Assistant-Run-As");
+
+      sysi.init(req, account, runAs, config, debug);
 
       accessUtil = new AccessUtil(namespacePrefix, xml,
                                   new CalDavAccessXmlCb(sysi), debug);
@@ -221,7 +223,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       sysi = getSysi(config.getSysintfImpl());
 
-      sysi.init(req, account, config, debug);
+      sysi.init(req, account, null, config, debug);
 
       accessUtil = new AccessUtil(namespacePrefix, xml,
                                   new CalDavAccessXmlCb(sysi), debug);

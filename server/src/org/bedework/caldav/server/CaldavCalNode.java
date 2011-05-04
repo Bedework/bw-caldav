@@ -54,6 +54,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 
 /** Class to represent a calendar in caldav.
@@ -1026,7 +1027,14 @@ public class CaldavCalNode extends CaldavBwNode {
         VavailabilityType av = new VavailabilityType();
         sccs.getBaseComponents().add(of.createVavailability(av));
 
-        props.add(sccs);
+        QName qn = new QName(CalWSXrdDefs.namespace,
+                             CalWSXrdDefs.supportedCalendarComponentSet);
+
+        JAXBElement<SupportedCalendarComponentSet> el =
+              new JAXBElement<SupportedCalendarComponentSet>(qn,
+                                         SupportedCalendarComponentSet.class,
+                                         sccs);
+        props.add(el);
 
         return true;
       }

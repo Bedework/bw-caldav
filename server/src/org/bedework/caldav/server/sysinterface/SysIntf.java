@@ -67,12 +67,14 @@ public interface SysIntf {
    *
    * @param req
    * @param account
+   * @param runAs
    * @param conf  per application type configuration
    * @param debug
    * @throws WebdavException
    */
   public void init(HttpServletRequest req,
                    String account,
+                   String runAs,
                    CalDAVConfig conf,
                    boolean debug) throws WebdavException;
 
