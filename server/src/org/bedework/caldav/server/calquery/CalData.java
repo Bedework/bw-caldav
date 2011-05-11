@@ -43,14 +43,14 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
-import ietf.params.xml.ns.caldav.Allcomp;
-import ietf.params.xml.ns.caldav.Allprop;
-import ietf.params.xml.ns.caldav.CalendarData;
-import ietf.params.xml.ns.caldav.Comp;
-import ietf.params.xml.ns.caldav.Expand;
-import ietf.params.xml.ns.caldav.LimitFreebusySet;
-import ietf.params.xml.ns.caldav.LimitRecurrenceSet;
-import ietf.params.xml.ns.caldav.Prop;
+import ietf.params.xml.ns.caldav.AllcompType;
+import ietf.params.xml.ns.caldav.AllpropType;
+import ietf.params.xml.ns.caldav.CalendarDataType;
+import ietf.params.xml.ns.caldav.CompType;
+import ietf.params.xml.ns.caldav.ExpandType;
+import ietf.params.xml.ns.caldav.LimitFreebusySetType;
+import ietf.params.xml.ns.caldav.LimitRecurrenceSetType;
+import ietf.params.xml.ns.caldav.PropType;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -147,7 +147,7 @@ public class CalData extends WebdavProperty {
 
   protected transient Logger log;
 
-  private CalendarData calendarData;
+  private CalendarDataType calendarData;
 
   /** Constructor
    *
@@ -161,7 +161,7 @@ public class CalData extends WebdavProperty {
   /**
    * @return CalendarData
    */
-  public CalendarData getCalendarData() {
+  public CalendarDataType getCalendarData() {
     return calendarData;
   }
 
@@ -176,7 +176,7 @@ public class CalData extends WebdavProperty {
                                limit-recurrence-set)
      */
     NamedNodeMap nnm = nd.getAttributes();
-    CalendarData cd = new CalendarData();
+    CalendarDataType cd = new CalendarDataType();
 
     calendarData = cd;
 
@@ -221,21 +221,21 @@ public class CalData extends WebdavProperty {
             throw new WebdavBadRequest();
           }
 
-          cd.setExpand((Expand)ParseUtil.parseUTCTimeRange(new Expand(),
+          cd.setExpand((ExpandType)ParseUtil.parseUTCTimeRange(new ExpandType(),
                                                            curnode, true));
         } else if (XmlUtil.nodeMatches(curnode, CaldavTags.limitRecurrenceSet)) {
           if (cd.getLimitRecurrenceSet() != null) {
             throw new WebdavBadRequest();
           }
 
-          cd.setLimitRecurrenceSet((LimitRecurrenceSet)ParseUtil.parseUTCTimeRange(new LimitRecurrenceSet(),
+          cd.setLimitRecurrenceSet((LimitRecurrenceSetType)ParseUtil.parseUTCTimeRange(new LimitRecurrenceSetType(),
                                                                 curnode, true));
         } else if (XmlUtil.nodeMatches(curnode, CaldavTags.limitFreebusySet)) {
           if (cd.getLimitFreebusySet() != null) {
             throw new WebdavBadRequest();
           }
 
-          cd.setLimitFreebusySet((LimitFreebusySet)ParseUtil.parseUTCTimeRange(new LimitFreebusySet(),
+          cd.setLimitFreebusySet((LimitFreebusySetType)ParseUtil.parseUTCTimeRange(new LimitFreebusySetType(),
                                                               curnode, true));
         } else {
           throw new WebdavBadRequest();
@@ -266,7 +266,7 @@ public class CalData extends WebdavProperty {
 
     CaldavComponentNode node = (CaldavComponentNode)wdnode;
 
-    Comp comp = getCalendarData().getComp();
+    CompType comp = getCalendarData().getComp();
     String contentType = getCalendarData().getContentType();
 
     if (comp == null) {
@@ -295,10 +295,10 @@ public class CalData extends WebdavProperty {
     // Currently we only handle VEVENT -
     // If there's no VEVENT element what does that imply?
 
-    Iterator it = comp.getComps().iterator();
+    Iterator it = comp.getComp().iterator();
 
     while (it.hasNext()) {
-      Comp subcomp = (Comp)it.next();
+      CompType subcomp = (CompType)it.next();
       String nm = subcomp.getName().toUpperCase();
 
       if ("VEVENT".equals(nm) ||
@@ -314,7 +314,7 @@ public class CalData extends WebdavProperty {
             // XXX Just return the whole lot for the moment
             node.writeContent(xml, null, contentType);
           } else {
-            xml.cdataValue(transformVevent(node.getIcal(), subcomp.getProps()));
+            xml.cdataValue(transformVevent(node.getIcal(), subcomp.getProp()));
           }
         } catch (IOException ioe) {
           throw new WebdavException(ioe);
@@ -332,7 +332,7 @@ public class CalData extends WebdavProperty {
    * properties.
    */
   private String transformVevent(final Calendar ical,
-                                 final Collection<Prop> props)  throws WebdavException {
+                                 final Collection<PropType> props)  throws WebdavException {
     try {
       Calendar nical = new Calendar();
       PropertyList pl = ical.getProperties();
@@ -361,7 +361,7 @@ public class CalData extends WebdavProperty {
           PropertyList vpl = c.getProperties();
           PropertyList nvpl = v.getProperties();
 
-          for (Prop pr: props) {
+          for (PropType pr: props) {
             Property p = vpl.getProperty(pr.getName());
 
             if (p != null) {
@@ -387,7 +387,7 @@ public class CalData extends WebdavProperty {
    *                   Private parsing methods
    * ==================================================================== */
 
-  private Comp parseComp(final Node nd) throws WebdavException {
+  private CompType parseComp(final Node nd) throws WebdavException {
     /* Either allcomp + (either allprop or 0 or more prop) or
               0 or more comp + (either allprop or 0 or more prop)
      */
@@ -396,7 +396,7 @@ public class CalData extends WebdavProperty {
       throw new WebdavBadRequest();
     }
 
-    Comp c = new Comp();
+    CompType c = new CompType();
     c.setName(name);
 
     Element[] children = getChildren(nd);
@@ -418,26 +418,26 @@ public class CalData extends WebdavProperty {
           throw new WebdavBadRequest();
         }
 
-        c.setAllcomp(new Allcomp());
+        c.setAllcomp(new AllcompType());
       } else if (XmlUtil.nodeMatches(curnode, CaldavTags.comp)) {
         if (c.getAllcomp() != null) {
           throw new WebdavBadRequest();
         }
 
-        c.getComps().add(parseComp(curnode));
+        c.getComp().add(parseComp(curnode));
         hadComps = true;
       } else if (XmlUtil.nodeMatches(curnode, CaldavTags.allprop)) {
         if (hadProps) {
           throw new WebdavBadRequest();
         }
 
-        c.setAllprop(new Allprop());
+        c.setAllprop(new AllpropType());
       } else if (XmlUtil.nodeMatches(curnode, CaldavTags.prop)) {
         if (c.getAllprop() != null) {
           throw new WebdavBadRequest();
         }
 
-        c.getProps().add(parseProp(curnode));
+        c.getProp().add(parseProp(curnode));
         hadProps = true;
       } else {
         throw new WebdavBadRequest();
@@ -447,7 +447,7 @@ public class CalData extends WebdavProperty {
     return c;
   }
 
-  private Prop parseProp(final Node nd) throws WebdavException {
+  private PropType parseProp(final Node nd) throws WebdavException {
     NamedNodeMap nnm = nd.getAttributes();
 
     if ((nnm == null) || (nnm.getLength() == 0)) {
@@ -471,7 +471,7 @@ public class CalData extends WebdavProperty {
       throw new WebdavBadRequest();
     }
 
-    Prop pr = new Prop();
+    PropType pr = new PropType();
     pr.setName(name);
 
     if ((val != null) && val.booleanValue()) {

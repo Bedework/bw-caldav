@@ -18,9 +18,11 @@
 */
 package org.bedework.caldav.server.sysinterface;
 
-import ietf.params.xml.ns.caldav.Expand;
-import ietf.params.xml.ns.caldav.LimitFreebusySet;
-import ietf.params.xml.ns.caldav.LimitRecurrenceSet;
+import org.apache.tools.ant.taskdefs.Expand;
+
+import ietf.params.xml.ns.caldav.ExpandType;
+import ietf.params.xml.ns.caldav.LimitFreebusySetType;
+import ietf.params.xml.ns.caldav.LimitRecurrenceSetType;
 
 import java.io.Serializable;
 
@@ -37,9 +39,9 @@ public class RetrievalMode implements Serializable {
    *   Expand recurrences
    */
 
-  private Expand expand;
-  private LimitRecurrenceSet limitRecurrenceSet;
-  private LimitFreebusySet limitFreebusySet;
+  private ExpandType expand;
+  private LimitRecurrenceSetType limitRecurrenceSet;
+  private LimitFreebusySetType limitFreebusySet;
 
   /**
    * Sets the value of the expand property.
@@ -49,7 +51,7 @@ public class RetrievalMode implements Serializable {
    *     {@link Expand }
    *
    */
-  public void setExpand(final Expand val) {
+  public void setExpand(final ExpandType val) {
       expand = val;
   }
 
@@ -61,7 +63,7 @@ public class RetrievalMode implements Serializable {
    *     {@link Expand }
    *
    */
-  public Expand getExpand() {
+  public ExpandType getExpand() {
       return expand;
   }
 
@@ -70,10 +72,10 @@ public class RetrievalMode implements Serializable {
    *
    * @param val
    *     allowed object is
-   *     {@link LimitRecurrenceSet }
+   *     {@link LimitRecurrenceSetType }
    *
    */
-  public void setLimitRecurrenceSet(final LimitRecurrenceSet val) {
+  public void setLimitRecurrenceSet(final LimitRecurrenceSetType val) {
       limitRecurrenceSet = val;
   }
 
@@ -82,10 +84,10 @@ public class RetrievalMode implements Serializable {
    *
    * @return
    *     possible object is
-   *     {@link LimitRecurrenceSet }
+   *     {@link LimitRecurrenceSetType }
    *
    */
-  public LimitRecurrenceSet getLimitRecurrenceSet() {
+  public LimitRecurrenceSetType getLimitRecurrenceSet() {
       return limitRecurrenceSet;
   }
 
@@ -94,10 +96,10 @@ public class RetrievalMode implements Serializable {
    *
    * @param val
    *     allowed object is
-   *     {@link LimitFreebusySet }
+   *     {@link LimitFreebusySetType }
    *
    */
-  public void setLimitFreebusySet(final LimitFreebusySet val) {
+  public void setLimitFreebusySet(final LimitFreebusySetType val) {
       limitFreebusySet = val;
   }
 
@@ -106,10 +108,10 @@ public class RetrievalMode implements Serializable {
    *
    * @return
    *     possible object is
-   *     {@link LimitFreebusySet }
+   *     {@link LimitFreebusySetType }
    *
    */
-  public LimitFreebusySet getLimitFreebusySet() {
+  public LimitFreebusySetType getLimitFreebusySet() {
       return limitFreebusySet;
   }
 

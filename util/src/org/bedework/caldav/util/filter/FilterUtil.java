@@ -25,8 +25,8 @@ import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.PropertyList;
 import net.fortuna.ical4j.model.property.DateProperty;
 
-import ietf.params.xml.ns.caldav.PropFilter;
-import ietf.params.xml.ns.caldav.TextMatch;
+import ietf.params.xml.ns.caldav.PropFilterType;
+import ietf.params.xml.ns.caldav.TextMatchType;
 import ietf.params.xml.ns.caldav.UTCTimeRangeType;
 
 /**
@@ -46,7 +46,7 @@ public class FilterUtil {
    * @return boolean true if the given component matches the property filter
    * @throws WebdavException
    */
-  public static boolean filter(final PropFilter pf,
+  public static boolean filter(final PropFilterType pf,
                                final Component c) throws WebdavException {
     try {
       PropertyList pl = c.getProperties();
@@ -61,7 +61,7 @@ public class FilterUtil {
         return pf.getIsNotDefined() != null;
       }
 
-      TextMatch match = pf.getTextMatch();
+      TextMatchType match = pf.getTextMatch();
       if (match != null) {
         return matches(match, prop.getValue());
       }
@@ -83,7 +83,7 @@ public class FilterUtil {
    * @param candidate
    * @return boolean true if matches
    */
-  public static boolean matches(final TextMatch tm,
+  public static boolean matches(final TextMatchType tm,
                                 final String candidate) {
     if (candidate == null) {
       return false;

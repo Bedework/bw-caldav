@@ -40,9 +40,9 @@ import edu.rpi.sss.util.xml.XmlEmit;
 
 import net.fortuna.ical4j.model.Calendar;
 
-import org.oasis_open.docs.ns.wscal.calws_soap.Select;
+import org.oasis_open.docs.ns.wscal.calws_soap.SelectElementType;
 
-import ietf.params.xml.ns.icalendar_2.Icalendar;
+import ietf.params.xml.ns.icalendar_2.IcalendarType;
 
 import java.io.Reader;
 import java.io.Writer;
@@ -372,7 +372,7 @@ public interface SysIntf {
    * @throws WebdavException
    */
   public UpdateResult updateEvent(CalDAVEvent event,
-                                  List<Select> updates) throws WebdavException;
+                                  List<SelectElementType> updates) throws WebdavException;
 
   /** Return the events for the current user in the given collection using the
    * supplied filter. Stored freebusy objects are returned as BwEvent
@@ -676,9 +676,9 @@ public interface SysIntf {
    * @return IcalendarType
    * @throws WebdavException
    */
-  public Icalendar toIcalendar(CalDAVEvent ev,
+  public IcalendarType toIcalendar(CalDAVEvent ev,
                                boolean incSchedMethod,
-                               Icalendar pattern) throws WebdavException;
+                               IcalendarType pattern) throws WebdavException;
 
   /** Convert a Calendar to it's string form
    *
@@ -747,7 +747,7 @@ public interface SysIntf {
    * @throws WebdavException
    */
   public SysiIcalendar fromIcal(CalDAVCollection col,
-                                final Icalendar ical,
+                                final IcalendarType ical,
                                 IcalResultType rtype) throws WebdavException;
 
   /** Create a Calendar object from the named timezone and convert to

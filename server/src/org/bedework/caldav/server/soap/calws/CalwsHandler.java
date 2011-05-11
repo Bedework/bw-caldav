@@ -45,45 +45,45 @@ import edu.rpi.sss.util.Util;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 import edu.rpi.sss.util.xml.tagdefs.XcalTags;
 
-import org.oasis_open.docs.ns.wscal.calws_soap.AddItem;
-import org.oasis_open.docs.ns.wscal.calws_soap.AddItemResponse;
+import org.oasis_open.docs.ns.wscal.calws_soap.AddItemResponseType;
+import org.oasis_open.docs.ns.wscal.calws_soap.AddItemType;
 import org.oasis_open.docs.ns.wscal.calws_soap.ArrayOfHrefs;
 import org.oasis_open.docs.ns.wscal.calws_soap.BaseResponseType;
 import org.oasis_open.docs.ns.wscal.calws_soap.CalendarDataResponseType;
-import org.oasis_open.docs.ns.wscal.calws_soap.CalendarMultiget;
-import org.oasis_open.docs.ns.wscal.calws_soap.CalendarQuery;
-import org.oasis_open.docs.ns.wscal.calws_soap.CalendarQueryResponse;
-import org.oasis_open.docs.ns.wscal.calws_soap.DeleteItem;
-import org.oasis_open.docs.ns.wscal.calws_soap.DeleteItemResponse;
+import org.oasis_open.docs.ns.wscal.calws_soap.CalendarMultigetType;
+import org.oasis_open.docs.ns.wscal.calws_soap.CalendarQueryResponseType;
+import org.oasis_open.docs.ns.wscal.calws_soap.CalendarQueryType;
+import org.oasis_open.docs.ns.wscal.calws_soap.DeleteItemResponseType;
+import org.oasis_open.docs.ns.wscal.calws_soap.DeleteItemType;
 import org.oasis_open.docs.ns.wscal.calws_soap.ErrorCodeType;
 import org.oasis_open.docs.ns.wscal.calws_soap.ErrorResponseType;
-import org.oasis_open.docs.ns.wscal.calws_soap.FetchItem;
-import org.oasis_open.docs.ns.wscal.calws_soap.FetchItemResponse;
-import org.oasis_open.docs.ns.wscal.calws_soap.FreebusyReport;
-import org.oasis_open.docs.ns.wscal.calws_soap.FreebusyReportResponse;
-import org.oasis_open.docs.ns.wscal.calws_soap.GetProperties;
-import org.oasis_open.docs.ns.wscal.calws_soap.GetPropertiesResponse;
+import org.oasis_open.docs.ns.wscal.calws_soap.FetchItemResponseType;
+import org.oasis_open.docs.ns.wscal.calws_soap.FetchItemType;
+import org.oasis_open.docs.ns.wscal.calws_soap.FreebusyReportResponseType;
+import org.oasis_open.docs.ns.wscal.calws_soap.FreebusyReportType;
+import org.oasis_open.docs.ns.wscal.calws_soap.GetPropertiesResponseType;
+import org.oasis_open.docs.ns.wscal.calws_soap.GetPropertiesType;
 import org.oasis_open.docs.ns.wscal.calws_soap.InvalidFilterType;
 import org.oasis_open.docs.ns.wscal.calws_soap.MultistatResponseElementType;
 import org.oasis_open.docs.ns.wscal.calws_soap.MultistatusPropElementType;
 import org.oasis_open.docs.ns.wscal.calws_soap.ObjectFactory;
-import org.oasis_open.docs.ns.wscal.calws_soap.Propstat;
+import org.oasis_open.docs.ns.wscal.calws_soap.PropstatType;
 import org.oasis_open.docs.ns.wscal.calws_soap.StatusType;
 import org.oasis_open.docs.ns.wscal.calws_soap.UTCTimeRangeType;
 import org.oasis_open.docs.ns.wscal.calws_soap.UidConflictType;
-import org.oasis_open.docs.ns.wscal.calws_soap.UpdateItem;
-import org.oasis_open.docs.ns.wscal.calws_soap.UpdateItemResponse;
-import org.oasis_open.docs.ns.xri.xrd_1.XRD;
+import org.oasis_open.docs.ns.wscal.calws_soap.UpdateItemResponseType;
+import org.oasis_open.docs.ns.wscal.calws_soap.UpdateItemType;
+import org.oasis_open.docs.ns.xri.xrd_1.XRDType;
 
+import ietf.params.xml.ns.icalendar_2.ArrayOfProperties;
+import ietf.params.xml.ns.icalendar_2.ArrayOfVcalendarContainedComponents;
 import ietf.params.xml.ns.icalendar_2.AttendeePropType;
-import ietf.params.xml.ns.icalendar_2.Components;
 import ietf.params.xml.ns.icalendar_2.DtendPropType;
 import ietf.params.xml.ns.icalendar_2.DtstartPropType;
-import ietf.params.xml.ns.icalendar_2.Icalendar;
+import ietf.params.xml.ns.icalendar_2.IcalendarType;
 import ietf.params.xml.ns.icalendar_2.OrganizerPropType;
-import ietf.params.xml.ns.icalendar_2.Properties;
 import ietf.params.xml.ns.icalendar_2.UidPropType;
-import ietf.params.xml.ns.icalendar_2.Vcalendar;
+import ietf.params.xml.ns.icalendar_2.VcalendarType;
 import ietf.params.xml.ns.icalendar_2.VfreebusyType;
 
 import java.util.ArrayList;
@@ -130,7 +130,7 @@ public class CalwsHandler extends SoapHandler {
   @Override
   protected String getJaxbContextPath() {
     return "org.oasis_open.docs.ns.wscal.calws_soap:" +
-           XRD.class.getPackage().getName();
+           XRDType.class.getPackage().getName();
   }
 
   /**
@@ -151,43 +151,43 @@ public class CalwsHandler extends SoapHandler {
         o = ((JAXBElement)o).getValue();
       }
 
-      if (o instanceof GetProperties) {
-        doGetProperties((GetProperties)o, resp);
+      if (o instanceof GetPropertiesType) {
+        doGetProperties((GetPropertiesType)o, resp);
         return;
       }
 
-      if (o instanceof FreebusyReport) {
-        doFreebusyReport((FreebusyReport)o, resp);
+      if (o instanceof FreebusyReportType) {
+        doFreebusyReport((FreebusyReportType)o, resp);
         return;
       }
 
-      if (o instanceof CalendarMultiget) {
-        doCalendarMultiget((CalendarMultiget)o, resp);
+      if (o instanceof CalendarMultigetType) {
+        doCalendarMultiget((CalendarMultigetType)o, resp);
         return;
       }
 
-      if (o instanceof CalendarQuery) {
-        doCalendarQuery((CalendarQuery)o, resp);
+      if (o instanceof CalendarQueryType) {
+        doCalendarQuery((CalendarQueryType)o, resp);
         return;
       }
 
-      if (o instanceof AddItem) {
-        doAddItem((AddItem)o, req, resp);
+      if (o instanceof AddItemType) {
+        doAddItem((AddItemType)o, req, resp);
         return;
       }
 
-      if (o instanceof FetchItem) {
-        doFetchItem((FetchItem)o, req, resp);
+      if (o instanceof FetchItemType) {
+        doFetchItem((FetchItemType)o, req, resp);
         return;
       }
 
-      if (o instanceof DeleteItem) {
-        doDeleteItem((DeleteItem)o, req, resp);
+      if (o instanceof DeleteItemType) {
+        doDeleteItem((DeleteItemType)o, req, resp);
         return;
       }
 
-      if (o instanceof UpdateItem) {
-        doUpdateItem((UpdateItem)o, req, resp);
+      if (o instanceof UpdateItemType) {
+        doUpdateItem((UpdateItemType)o, req, resp);
         return;
       }
 
@@ -203,7 +203,7 @@ public class CalwsHandler extends SoapHandler {
    *                   Private methods
    * ==================================================================== */
 
-  private void doGetProperties(final GetProperties gp,
+  private void doGetProperties(final GetPropertiesType gp,
                                final HttpServletResponse resp) throws WebdavException {
     if (debug) {
       trace("GetProperties: ");
@@ -212,7 +212,7 @@ public class CalwsHandler extends SoapHandler {
     try {
       String url = gp.getHref();
 
-      GetPropertiesResponse gpr = new GetPropertiesResponse();
+      GetPropertiesResponseType gpr = new GetPropertiesResponseType();
 
       if (url != null) {
         WebdavNsNode calNode = getNsIntf().getNode(url,
@@ -234,13 +234,13 @@ public class CalwsHandler extends SoapHandler {
     }
   }
 
-  private void doFreebusyReport(final FreebusyReport fr,
+  private void doFreebusyReport(final FreebusyReportType fr,
                                 final HttpServletResponse resp) throws WebdavException {
     if (debug) {
       trace("FreebusyReport: ");
     }
 
-    FreebusyReportResponse frr = new FreebusyReportResponse();
+    FreebusyReportResponseType frr = new FreebusyReportResponseType();
 
     try {
       String url = fr.getHref();
@@ -266,20 +266,20 @@ public class CalwsHandler extends SoapHandler {
 
         /* Build an icalendar freebusy object out of the parameters */
 
-        Icalendar ical = new Icalendar();
-        Vcalendar vcal = new Vcalendar();
+        IcalendarType ical = new IcalendarType();
+        VcalendarType vcal = new VcalendarType();
 
-        ical.getVcalendars().add(vcal);
+        ical.getVcalendar().add(vcal);
 
         VfreebusyType vfb = new VfreebusyType();
 
         JAXBElement<VfreebusyType> compel =
           new JAXBElement<VfreebusyType>(XcalTags.vfreebusy,
                                          VfreebusyType.class, vfb);
-        Components aoc = new Components();
+        ArrayOfVcalendarContainedComponents aoc = new ArrayOfVcalendarContainedComponents();
 
         vcal.setComponents(aoc);
-        aoc.getBaseComponents().add(compel);
+        aoc.getVcalendarContainedComponent().add(compel);
 
         /* Use timerange to limit the requested time */
 
@@ -294,7 +294,7 @@ public class CalwsHandler extends SoapHandler {
                                            java.util.Calendar.DATE,
                                            sysp.getMaxFBPeriod());
 
-        Properties aop = new Properties();
+        ArrayOfProperties aop = new ArrayOfProperties();
         vfb.setProperties(aop);
 
         DtstartPropType dtstart = new DtstartPropType();
@@ -304,7 +304,7 @@ public class CalwsHandler extends SoapHandler {
           new JAXBElement<DtstartPropType>(XcalTags.dtstart,
                                            DtstartPropType.class, dtstart);
 
-        aop.getBaseProperties().add(dtstartProp);
+        aop.getBaseProperty().add(dtstartProp);
 
         DtendPropType dtend = new DtendPropType();
         dtend.setDateTime(tr.getEnd().toString());
@@ -313,7 +313,7 @@ public class CalwsHandler extends SoapHandler {
           new JAXBElement<DtendPropType>(XcalTags.dtend,
                                            DtendPropType.class, dtend);
 
-        aop.getBaseProperties().add(dtendProp);
+        aop.getBaseProperty().add(dtendProp);
 
         /* Add a uid */
 
@@ -324,7 +324,7 @@ public class CalwsHandler extends SoapHandler {
           new JAXBElement<UidPropType>(XcalTags.uid,
                                        UidPropType.class, uid);
 
-        aop.getBaseProperties().add(uidProp);
+        aop.getBaseProperty().add(uidProp);
 
         /* Add the cua as the organizer */
 
@@ -335,7 +335,7 @@ public class CalwsHandler extends SoapHandler {
           new JAXBElement<OrganizerPropType>(XcalTags.organizer,
                                              OrganizerPropType.class, org);
 
-        aop.getBaseProperties().add(orgProp);
+        aop.getBaseProperty().add(orgProp);
 
         /* We should be in as an attendee */
 
@@ -346,7 +346,7 @@ public class CalwsHandler extends SoapHandler {
           new JAXBElement<AttendeePropType>(XcalTags.attendee,
                                             AttendeePropType.class, att);
 
-        aop.getBaseProperties().add(attProp);
+        aop.getBaseProperty().add(attProp);
 
         SysiIcalendar sical = getSysi().fromIcal(null, ical,
                                                  IcalResultType.OneComponent);
@@ -380,13 +380,13 @@ public class CalwsHandler extends SoapHandler {
     }
   }
 
-  private void doCalendarMultiget(final CalendarMultiget cm,
+  private void doCalendarMultiget(final CalendarMultigetType cm,
                                final HttpServletResponse resp) throws WebdavException {
     if (debug) {
       trace("CalendarMultiget: ");
     }
 
-    CalendarQueryResponse cqr = new CalendarQueryResponse();
+    CalendarQueryResponseType cqr = new CalendarQueryResponseType();
 
     try {
       String url = cm.getHref();
@@ -408,7 +408,7 @@ public class CalwsHandler extends SoapHandler {
         Collection<String> badHrefs = new ArrayList<String>();
 
         buildQueryResponse(cqr,
-                           rpt.getMgetNodes(hrefs.getHreves(), badHrefs),
+                           rpt.getMgetNodes(hrefs.getHref(), badHrefs),
                            cm.getIcalendar());
 
         if (badHrefs.isEmpty()) {
@@ -420,18 +420,18 @@ public class CalwsHandler extends SoapHandler {
 
           mre.setHref(bh);
 
-          cqr.getResponses().add(mre);
+          cqr.getResponse().add(mre);
 
-          Propstat ps = new Propstat();
+          PropstatType ps = new PropstatType();
 
-          mre.getPropstats().add(ps);
+          mre.getPropstat().add(ps);
 
           ps.setStatus(getStatus(HttpServletResponse.SC_NOT_FOUND, null));
         }
       } // buildResponse
     } catch (WebdavException we) {
       // Remove any partial results.
-      cqr.getResponses().clear();
+      cqr.getResponse().clear();
       errorResponse(cqr, we);
     } catch(Throwable t) {
       throw new WebdavException(t);
@@ -447,13 +447,13 @@ public class CalwsHandler extends SoapHandler {
     }
   }
 
-  private void doCalendarQuery(final CalendarQuery cq,
+  private void doCalendarQuery(final CalendarQueryType cq,
                                final HttpServletResponse resp) throws WebdavException {
     if (debug) {
       trace("CalendarQuery: ");
     }
 
-    CalendarQueryResponse cqr = new CalendarQueryResponse();
+    CalendarQueryResponseType cqr = new CalendarQueryResponseType();
 
     try {
       String url = cq.getHref();
@@ -473,7 +473,7 @@ public class CalwsHandler extends SoapHandler {
       } // buildResponse
     } catch (WebdavException we) {
       // Remove any partial results.
-      cqr.getResponses().clear();
+      cqr.getResponse().clear();
       errorResponse(cqr, we);
     } catch(Throwable t) {
       throw new WebdavException(t);
@@ -489,9 +489,9 @@ public class CalwsHandler extends SoapHandler {
     }
   }
 
-  private void buildQueryResponse(final CalendarQueryResponse cqr,
+  private void buildQueryResponse(final CalendarQueryResponseType cqr,
                                   final Collection<WebdavNsNode> nodes,
-                                  final Icalendar pattern) throws WebdavException {
+                                  final IcalendarType pattern) throws WebdavException {
     if (nodes == null) {
       return;
     }
@@ -502,11 +502,11 @@ public class CalwsHandler extends SoapHandler {
       mre.setHref(curnode.getUri());
       mre.setEtag(curnode.getEtagValue(true));
 
-      cqr.getResponses().add(mre);
+      cqr.getResponse().add(mre);
 
-      Propstat ps = new Propstat();
+      PropstatType ps = new PropstatType();
 
-      mre.getPropstats().add(ps);
+      mre.getPropstat().add(ps);
 
       ps.setStatus(getStatus(curnode.getStatus(), null));
 
@@ -524,7 +524,7 @@ public class CalwsHandler extends SoapHandler {
 
       MultistatusPropElementType mpe = new MultistatusPropElementType();
 
-      ps.getProps().add(mpe);
+      ps.getProp().add(mpe);
 
       CalendarDataResponseType cdr = new CalendarDataResponseType();
 
@@ -636,14 +636,14 @@ public class CalwsHandler extends SoapHandler {
     }
   }
 
-  private void doAddItem(final AddItem ai,
+  private void doAddItem(final AddItemType ai,
                          final HttpServletRequest req,
                          final HttpServletResponse resp) throws WebdavException {
     if (debug) {
       trace("AddItem: cal=" + ai.getHref());
     }
 
-    AddItemResponse air = new AddItemResponse();
+    AddItemResponseType air = new AddItemResponseType();
 
     addEntity: {
       /* Manufacture a name */
@@ -703,14 +703,14 @@ public class CalwsHandler extends SoapHandler {
     }
   }
 
-  private void doFetchItem(final FetchItem fi,
+  private void doFetchItem(final FetchItemType fi,
                            final HttpServletRequest req,
                            final HttpServletResponse resp) throws WebdavException {
     if (debug) {
       trace("FetchItem:       cal=" + fi.getHref());
     }
 
-    FetchItemResponse fir = new FetchItemResponse();
+    FetchItemResponseType fir = new FetchItemResponseType();
 
     try {
       WebdavNsNode elNode = getNsIntf().getNode(fi.getHref(),
@@ -742,14 +742,14 @@ public class CalwsHandler extends SoapHandler {
     }
   }
 
-  private void doDeleteItem(final DeleteItem di,
+  private void doDeleteItem(final DeleteItemType di,
                            final HttpServletRequest req,
                            final HttpServletResponse resp) throws WebdavException {
     if (debug) {
       trace("DeleteItem:       cal=" + di.getHref());
     }
 
-    DeleteItemResponse dir = new DeleteItemResponse();
+    DeleteItemResponseType dir = new DeleteItemResponseType();
 
     try {
       WebdavNsNode node = getNsIntf().getNode(di.getHref(),
@@ -783,7 +783,7 @@ public class CalwsHandler extends SoapHandler {
     }
   }
 
-  private void doUpdateItem(final UpdateItem ui,
+  private void doUpdateItem(final UpdateItemType ui,
                             final HttpServletRequest req,
                             final HttpServletResponse resp) throws WebdavException {
     if (debug) {
@@ -794,7 +794,7 @@ public class CalwsHandler extends SoapHandler {
                                               WebdavNsIntf.existanceMust,
                                               WebdavNsIntf.nodeTypeEntity);
 
-    UpdateItemResponse uir = new UpdateItemResponse();
+    UpdateItemResponseType uir = new UpdateItemResponseType();
 
     if (elNode == null) {
       uir.setStatus(StatusType.ERROR);
@@ -810,7 +810,7 @@ public class CalwsHandler extends SoapHandler {
     }
 
     try {
-      UpdateResult ur = getIntf().getSysi().updateEvent(ev, ui.getSelects());
+      UpdateResult ur = getIntf().getSysi().updateEvent(ev, ui.getSelect());
 
       if (ur.getOk()) {
         uir.setStatus(StatusType.OK);

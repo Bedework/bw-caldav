@@ -27,28 +27,28 @@ import org.bedework.caldav.server.SysiIcalendar;
 import org.bedework.caldav.server.PostMethod.RequestPars;
 import org.bedework.caldav.server.soap.SoapHandler;
 import org.bedework.caldav.server.sysinterface.SysIntf.IcalResultType;
-import org.bedework.exsynch.wsmessages.AddItem;
-import org.bedework.exsynch.wsmessages.AddItemResponse;
+import org.bedework.exsynch.wsmessages.AddItemResponseType;
+import org.bedework.exsynch.wsmessages.AddItemType;
 import org.bedework.exsynch.wsmessages.AddType;
 import org.bedework.exsynch.wsmessages.ArrayOfUpdates;
 import org.bedework.exsynch.wsmessages.BaseUpdateType;
-import org.bedework.exsynch.wsmessages.FetchItem;
-import org.bedework.exsynch.wsmessages.FetchItemResponse;
-import org.bedework.exsynch.wsmessages.GetProperties;
-import org.bedework.exsynch.wsmessages.GetPropertiesResponse;
-import org.bedework.exsynch.wsmessages.GetSycnchInfo;
+import org.bedework.exsynch.wsmessages.FetchItemResponseType;
+import org.bedework.exsynch.wsmessages.FetchItemType;
+import org.bedework.exsynch.wsmessages.GetPropertiesResponseType;
+import org.bedework.exsynch.wsmessages.GetPropertiesType;
+import org.bedework.exsynch.wsmessages.GetSynchInfoType;
 import org.bedework.exsynch.wsmessages.NamespaceType;
 import org.bedework.exsynch.wsmessages.NewValueType;
 import org.bedework.exsynch.wsmessages.ObjectFactory;
 import org.bedework.exsynch.wsmessages.RemoveType;
-import org.bedework.exsynch.wsmessages.StartServiceNotification;
-import org.bedework.exsynch.wsmessages.StartServiceResponse;
+import org.bedework.exsynch.wsmessages.StartServiceNotificationType;
+import org.bedework.exsynch.wsmessages.StartServiceResponseType;
 import org.bedework.exsynch.wsmessages.StatusType;
-import org.bedework.exsynch.wsmessages.SynchInfoResponse;
+import org.bedework.exsynch.wsmessages.SynchInfoResponseType;
 import org.bedework.exsynch.wsmessages.SynchInfoType;
-import org.bedework.exsynch.wsmessages.UpdateItem;
-import org.bedework.exsynch.wsmessages.UpdateItemResponse;
-import org.bedework.exsynch.wsmessages.SynchInfoResponse.SynchInfoResponses;
+import org.bedework.exsynch.wsmessages.UpdateItemResponseType;
+import org.bedework.exsynch.wsmessages.UpdateItemType;
+import org.bedework.exsynch.wsmessages.SynchInfoResponseType.SynchInfoResponses;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
@@ -61,7 +61,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import ietf.params.xml.ns.icalendar_2.Icalendar;
+import ietf.params.xml.ns.icalendar_2.IcalendarType;
 
 import java.util.List;
 
@@ -129,33 +129,33 @@ public class ExsynchwsHandler extends SoapHandler {
         o = ((JAXBElement)o).getValue();
       }
 
-      if (o instanceof GetProperties) {
-        doGetProperties((GetProperties)o, resp);
+      if (o instanceof GetPropertiesType) {
+        doGetProperties((GetPropertiesType)o, resp);
         return;
       }
 
-      if (o instanceof GetSycnchInfo) {
-        doGetSycnchInfo((GetSycnchInfo)o, req, resp);
+      if (o instanceof GetSynchInfoType) {
+        doGetSycnchInfo((GetSynchInfoType)o, req, resp);
         return;
       }
 
-      if (o instanceof StartServiceNotification) {
-        doStartService((StartServiceNotification)o, resp);
+      if (o instanceof StartServiceNotificationType) {
+        doStartService((StartServiceNotificationType)o, resp);
         return;
       }
 
-      if (o instanceof AddItem) {
-        doAddItem((AddItem)o, req, resp);
+      if (o instanceof AddItemType) {
+        doAddItem((AddItemType)o, req, resp);
         return;
       }
 
-      if (o instanceof FetchItem) {
-        doFetchItem((FetchItem)o, req, resp);
+      if (o instanceof FetchItemType) {
+        doFetchItem((FetchItemType)o, req, resp);
         return;
       }
 
-      if (o instanceof UpdateItem) {
-        doUpdateItem((UpdateItem)o, req, resp);
+      if (o instanceof UpdateItemType) {
+        doUpdateItem((UpdateItemType)o, req, resp);
         return;
       }
 
@@ -171,7 +171,7 @@ public class ExsynchwsHandler extends SoapHandler {
    *                   Private methods
    * ==================================================================== */
 
-  private void doGetProperties(final GetProperties gp,
+  private void doGetProperties(final GetPropertiesType gp,
                               final HttpServletResponse resp) throws WebdavException {
     if (debug) {
       trace("GetProperties: ");
@@ -188,7 +188,7 @@ public class ExsynchwsHandler extends SoapHandler {
         url = gp.getCalendarHref();
       }
 
-      GetPropertiesResponse gpr = new GetPropertiesResponse();
+      GetPropertiesResponseType gpr = new GetPropertiesResponseType();
 
       if (url != null) {
         WebdavNsNode calNode = getNsIntf().getNode(url,
@@ -210,7 +210,7 @@ public class ExsynchwsHandler extends SoapHandler {
     }
   }
 
-  private void doStartService(final StartServiceNotification ssn,
+  private void doStartService(final StartServiceNotificationType ssn,
                               final HttpServletResponse resp) throws WebdavException {
     if (debug) {
       trace("StartServiceNotification: url=" + ssn.getSubscribeUrl() +
@@ -236,7 +236,7 @@ public class ExsynchwsHandler extends SoapHandler {
       resp.setStatus(HttpServletResponse.SC_OK);
       resp.setContentType("text/xml; charset=UTF-8");
 
-      StartServiceResponse ssr = of.createStartServiceResponse();
+      StartServiceResponseType ssr = of.createStartServiceResponseType();
 
       if (ok) {
         ssr.setStatus(StatusType.OK);
@@ -254,7 +254,7 @@ public class ExsynchwsHandler extends SoapHandler {
     }
   }
 
-  private void doGetSycnchInfo(final GetSycnchInfo gsi,
+  private void doGetSycnchInfo(final GetSynchInfoType gsi,
                                final HttpServletRequest req,
                                final HttpServletResponse resp) throws WebdavException {
     if (debug) {
@@ -270,7 +270,7 @@ public class ExsynchwsHandler extends SoapHandler {
                                 "Invalid synch token");
     }
 
-    SynchInfoResponse sir = new SynchInfoResponse();
+    SynchInfoResponseType sir = new SynchInfoResponseType();
 
     sir.setCalendarHref(gsi.getCalendarHref());
 
@@ -287,7 +287,7 @@ public class ExsynchwsHandler extends SoapHandler {
 
     SynchInfoResponses sirs = new SynchInfoResponses();
     sir.setSynchInfoResponses(sirs);
-    sirs.getSynchInfos().addAll(sis);
+    sirs.getSynchInfo().addAll(sis);
 
     try {
       marshal(sir, resp.getOutputStream());
@@ -298,7 +298,7 @@ public class ExsynchwsHandler extends SoapHandler {
     }
   }
 
-  private void doAddItem(final AddItem ai,
+  private void doAddItem(final AddItemType ai,
                          final HttpServletRequest req,
                          final HttpServletResponse resp) throws WebdavException {
     if (debug) {
@@ -339,7 +339,7 @@ public class ExsynchwsHandler extends SoapHandler {
       }
     }
 
-    AddItemResponse air = new AddItemResponse();
+    AddItemResponseType air = new AddItemResponseType();
 
     if (added) {
       air.setStatus(StatusType.OK);
@@ -356,7 +356,7 @@ public class ExsynchwsHandler extends SoapHandler {
     }
   }
 
-  private void doFetchItem(final FetchItem fi,
+  private void doFetchItem(final FetchItemType fi,
                            final HttpServletRequest req,
                            final HttpServletResponse resp) throws WebdavException {
     if (debug) {
@@ -379,7 +379,7 @@ public class ExsynchwsHandler extends SoapHandler {
                                               WebdavNsIntf.existanceMust,
                                               WebdavNsIntf.nodeTypeEntity);
 
-    FetchItemResponse fir = new FetchItemResponse();
+    FetchItemResponseType fir = new FetchItemResponseType();
 
     if (elNode == null) {
       fir.setStatus(StatusType.ERROR);
@@ -398,7 +398,7 @@ public class ExsynchwsHandler extends SoapHandler {
     }
   }
 
-  private void doUpdateItem(final UpdateItem ui,
+  private void doUpdateItem(final UpdateItemType ui,
                             final HttpServletRequest req,
                             final HttpServletResponse resp) throws WebdavException {
     if (debug) {
@@ -420,7 +420,7 @@ public class ExsynchwsHandler extends SoapHandler {
                                               WebdavNsIntf.existanceMust,
                                               WebdavNsIntf.nodeTypeEntity);
 
-    UpdateItemResponse uir = new UpdateItemResponse();
+    UpdateItemResponseType uir = new UpdateItemResponseType();
 
     if (elNode == null) {
       uir.setStatus(StatusType.ERROR);
@@ -442,7 +442,7 @@ public class ExsynchwsHandler extends SoapHandler {
     NsContext ctx = new NsContext(null);
     ctx.clear();
 
-    for (NamespaceType ns: ui.getNamespaces().getNamespaces()) {
+    for (NamespaceType ns: ui.getNamespaces().getNamespace()) {
       ctx.add(ns.getPrefix(), ns.getUri());
     }
 
@@ -454,7 +454,7 @@ public class ExsynchwsHandler extends SoapHandler {
     uir.setStatus(StatusType.OK);
 
     try {
-      for (JAXBElement<? extends BaseUpdateType> jel: aupd.getBaseUpdates()) {
+      for (JAXBElement<? extends BaseUpdateType> jel: aupd.getBaseUpdate()) {
         BaseUpdateType but = jel.getValue();
 
         XPathExpression expr = xpath.compile(but.getSel());
@@ -494,7 +494,7 @@ public class ExsynchwsHandler extends SoapHandler {
       if (uir.getStatus() == StatusType.OK) {
         Unmarshaller u = jc.createUnmarshaller();
 
-        Icalendar ical = (Icalendar)u.unmarshal(doc);
+        IcalendarType ical = (IcalendarType)u.unmarshal(doc);
 
   //      WebdavNsNode calNode = getNsIntf().getNode(ui.getCalendarHref(),
   //                                                 WebdavNsIntf.existanceMust,

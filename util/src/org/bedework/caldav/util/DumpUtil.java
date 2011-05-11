@@ -20,14 +20,14 @@ package org.bedework.caldav.util;
 
 import org.apache.log4j.Logger;
 
-import ietf.params.xml.ns.caldav.CalendarData;
-import ietf.params.xml.ns.caldav.Comp;
-import ietf.params.xml.ns.caldav.CompFilter;
-import ietf.params.xml.ns.caldav.Filter;
-import ietf.params.xml.ns.caldav.ParamFilter;
-import ietf.params.xml.ns.caldav.Prop;
-import ietf.params.xml.ns.caldav.PropFilter;
-import ietf.params.xml.ns.caldav.TextMatch;
+import ietf.params.xml.ns.caldav.CalendarDataType;
+import ietf.params.xml.ns.caldav.CompFilterType;
+import ietf.params.xml.ns.caldav.CompType;
+import ietf.params.xml.ns.caldav.FilterType;
+import ietf.params.xml.ns.caldav.ParamFilterType;
+import ietf.params.xml.ns.caldav.PropFilterType;
+import ietf.params.xml.ns.caldav.PropType;
+import ietf.params.xml.ns.caldav.TextMatchType;
 import ietf.params.xml.ns.caldav.UTCTimeRangeType;
 
 /** Various debug dump methods
@@ -39,7 +39,7 @@ public class DumpUtil {
    * @param cd
    * @param log
    */
-  public static void dumpCalendarData(final CalendarData cd,
+  public static void dumpCalendarData(final CalendarDataType cd,
                                       final Logger log) {
     StringBuffer sb = new StringBuffer("  <calendar-data");
 
@@ -78,7 +78,7 @@ public class DumpUtil {
    * @param log
    * @param indent
    */
-  public static void dumpComp(final Comp comp,
+  public static void dumpComp(final CompType comp,
                               final Logger log,
                               final String indent) {
     StringBuffer sb = new StringBuffer(indent);
@@ -91,7 +91,7 @@ public class DumpUtil {
     if (comp.getAllcomp() != null) {
       log.debug(indent + "  <allcomp/>");
     } else {
-      for (Comp c: comp.getComps()) {
+      for (CompType c: comp.getComp()) {
         dumpComp(c, log, indent + "  ");
       }
     }
@@ -99,7 +99,7 @@ public class DumpUtil {
     if (comp.getAllprop() != null) {
       log.debug(indent + "  <allprop/>");
     } else {
-      for (Prop prop: comp.getProps()) {
+      for (PropType prop: comp.getProp()) {
         dumpProp(prop, log, indent + "  ");
       }
     }
@@ -113,7 +113,7 @@ public class DumpUtil {
    * @param log
    * @param indent
    */
-  public static void dumpProp(final Prop prop,
+  public static void dumpProp(final PropType prop,
                               final Logger log, final String indent) {
     StringBuffer sb = new StringBuffer(indent);
 
@@ -164,7 +164,7 @@ public class DumpUtil {
    * @param f
    * @param log
    */
-  public static void dumpFilter(final Filter f,
+  public static void dumpFilter(final FilterType f,
                                       final Logger log) {
     log.debug("<filter>");
     dumpCompFilter(f.getCompFilter(), log, "  ");
@@ -178,7 +178,7 @@ public class DumpUtil {
    * @param log
    * @param indent
    */
-  public static void dumpCompFilter(final CompFilter cf,
+  public static void dumpCompFilter(final CompFilterType cf,
                                     final Logger log, final String indent) {
     StringBuilder sb = new StringBuilder(indent);
 
@@ -194,14 +194,14 @@ public class DumpUtil {
                        indent + "  ");
     }
 
-    if (cf.getCompFilters() != null) {
-      for (CompFilter subcf: cf.getCompFilters()) {
+    if (cf.getCompFilter() != null) {
+      for (CompFilterType subcf: cf.getCompFilter()) {
         dumpCompFilter(subcf, log, indent + "  ");
       }
     }
 
-    if (cf.getPropFilters() != null) {
-      for (PropFilter pf: cf.getPropFilters()) {
+    if (cf.getPropFilter() != null) {
+      for (PropFilterType pf: cf.getPropFilter()) {
         dumpPropFilter(pf, log, indent + "  ");
       }
     }
@@ -215,7 +215,7 @@ public class DumpUtil {
    * @param log
    * @param indent
    */
-  public static void dumpPropFilter(final PropFilter pf,
+  public static void dumpPropFilter(final PropFilterType pf,
                                     final Logger log, final String indent) {
     StringBuilder sb = new StringBuilder(indent);
 
@@ -233,8 +233,8 @@ public class DumpUtil {
       dumpTextMatch(pf.getTextMatch(), log, indent + "  ");
     }
 
-    if (pf.getParamFilters() != null) {
-      for (ParamFilter parf: pf.getParamFilters()) {
+    if (pf.getParamFilter() != null) {
+      for (ParamFilterType parf: pf.getParamFilter()) {
         dumpParamFilter(parf, log, indent + "  ");
       }
     }
@@ -248,7 +248,7 @@ public class DumpUtil {
    * @param log
    * @param indent
    */
-  public static void dumpParamFilter(final ParamFilter pf,
+  public static void dumpParamFilter(final ParamFilterType pf,
                                      final Logger log, final String indent) {
     StringBuilder sb = new StringBuilder(indent);
 
@@ -272,7 +272,7 @@ public class DumpUtil {
    * @param log
    * @param indent
    */
-  public static void dumpTextMatch(final TextMatch tm,
+  public static void dumpTextMatch(final TextMatchType tm,
                                    final Logger log, final String indent) {
     StringBuilder sb = new StringBuilder(indent);
 

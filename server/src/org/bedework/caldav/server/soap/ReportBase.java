@@ -25,10 +25,10 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
 
-import org.oasis_open.docs.ns.wscal.calws_soap.CalendarQuery;
+import org.oasis_open.docs.ns.wscal.calws_soap.CalendarQueryType;
 import org.w3c.dom.Document;
 
-import ietf.params.xml.ns.icalendar_2.Icalendar;
+import ietf.params.xml.ns.icalendar_2.IcalendarType;
 
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -89,7 +89,7 @@ public class ReportBase extends CaldavReportMethod {
    * @throws WebdavException
    */
   public Collection<WebdavNsNode> query(final String resourceUri,
-                                        final CalendarQuery cq) throws WebdavException {
+                                        final CalendarQueryType cq) throws WebdavException {
     WebdavNsNode node = getNsIntf().getNode(resourceUri,
                                             WebdavNsIntf.existanceMust,
                                             WebdavNsIntf.nodeTypeUnknown);
@@ -105,8 +105,8 @@ public class ReportBase extends CaldavReportMethod {
                              null);
   }
 
-  Icalendar fetch(final String resourceUri,
-                  final String uid) throws WebdavException {
+  IcalendarType fetch(final String resourceUri,
+                      final String uid) throws WebdavException {
     // Build a report query and execute it.
 
     StringBuilder sb = new StringBuilder();

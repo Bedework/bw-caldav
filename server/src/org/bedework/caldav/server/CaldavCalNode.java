@@ -39,7 +39,7 @@ import edu.rpi.sss.util.xml.tagdefs.CalWSXrdDefs;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 
-import org.oasis_open.docs.ns.wscal.calws_soap.SupportedCalendarComponentSet;
+import org.oasis_open.docs.ns.wscal.calws_soap.SupportedCalendarComponentSetType;
 import org.w3c.dom.Element;
 
 import ietf.params.xml.ns.icalendar_2.ObjectFactory;
@@ -1014,25 +1014,25 @@ public class CaldavCalNode extends CaldavBwNode {
       }
 
       if (false && name.equals(CalWSXrdDefs.supportedCalendarComponentSet)) {
-        SupportedCalendarComponentSet sccs = new SupportedCalendarComponentSet();
+        SupportedCalendarComponentSetType sccs = new SupportedCalendarComponentSetType();
 
         ObjectFactory of = new ObjectFactory();
 
         VeventType ev = new VeventType();
-        sccs.getBaseComponents().add(of.createVevent(ev));
+        sccs.getBaseComponent().add(of.createVevent(ev));
 
         VtodoType td = new VtodoType();
-        sccs.getBaseComponents().add(of.createVtodo(td));
+        sccs.getBaseComponent().add(of.createVtodo(td));
 
         VavailabilityType av = new VavailabilityType();
-        sccs.getBaseComponents().add(of.createVavailability(av));
+        sccs.getBaseComponent().add(of.createVavailability(av));
 
         QName qn = new QName(CalWSXrdDefs.namespace,
                              CalWSXrdDefs.supportedCalendarComponentSet);
 
-        JAXBElement<SupportedCalendarComponentSet> el =
-              new JAXBElement<SupportedCalendarComponentSet>(qn,
-                                         SupportedCalendarComponentSet.class,
+        JAXBElement<SupportedCalendarComponentSetType> el =
+              new JAXBElement<SupportedCalendarComponentSetType>(qn,
+                                         SupportedCalendarComponentSetType.class,
                                          sccs);
         props.add(el);
 

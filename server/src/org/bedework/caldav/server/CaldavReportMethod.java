@@ -43,12 +43,12 @@ import net.fortuna.ical4j.model.TimeZone;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import ietf.params.xml.ns.caldav.CalendarData;
-import ietf.params.xml.ns.caldav.Comp;
-import ietf.params.xml.ns.caldav.Expand;
-import ietf.params.xml.ns.caldav.Filter;
-import ietf.params.xml.ns.caldav.LimitRecurrenceSet;
-import ietf.params.xml.ns.caldav.Prop;
+import ietf.params.xml.ns.caldav.CalendarDataType;
+import ietf.params.xml.ns.caldav.CompType;
+import ietf.params.xml.ns.caldav.ExpandType;
+import ietf.params.xml.ns.caldav.FilterType;
+import ietf.params.xml.ns.caldav.LimitRecurrenceSetType;
+import ietf.params.xml.ns.caldav.PropType;
 
 import java.io.StringReader;
 import java.net.URLDecoder;
@@ -75,7 +75,7 @@ public class CaldavReportMethod extends ReportMethod {
   private FreeBusyQuery freeBusy;
 
   protected static class CalendarQueryPars {
-    public Filter filter;
+    public FilterType filter;
     public String tzid;
     public int depth;
 
@@ -454,12 +454,12 @@ public class CaldavReportMethod extends ReportMethod {
       }
     }
 
-    Comp comp = null;
-    Expand expand = null;
-    LimitRecurrenceSet lrs = null;
+    CompType comp = null;
+    ExpandType expand = null;
+    LimitRecurrenceSetType lrs = null;
 
     if (caldata != null) {
-      CalendarData cd = caldata.getCalendarData();
+      CalendarDataType cd = caldata.getCalendarData();
       comp = cd.getComp();
 
       expand = cd.getExpand();
@@ -480,17 +480,17 @@ public class CaldavReportMethod extends ReportMethod {
     } else if (comp.getName().toUpperCase().equals("VCALENDAR")) {
       // Should have "VACALENDAR" as outer
 
-      if (comp.getComps().isEmpty()) {
+      if (comp.getComp().isEmpty()) {
         retrieveList = null;
       } else {
-        for (Comp calcomp: comp.getComps()) {
+        for (CompType calcomp: comp.getComp()) {
           String nm = calcomp.getName().toUpperCase();
           if (nm.equals("VEVENT") ||
               nm.equals("VTODO") ||
               nm.equals("VJOURNAL") ||
               nm.equals("VAVAILABILITY")) {
             if ((calcomp.getAllprop() != null) ||
-                Util.isEmpty(calcomp.getProps())) {
+                Util.isEmpty(calcomp.getProp())) {
               retrieveList = null;
               break;
             }
@@ -499,7 +499,7 @@ public class CaldavReportMethod extends ReportMethod {
               retrieveList = new ArrayList<String>();
             }
 
-            for (Prop p: calcomp.getProps()) {
+            for (PropType p: calcomp.getProp()) {
               if (!retrieveList.contains(p.getName())) {
                 retrieveList.add(p.getName());
               }
@@ -518,8 +518,8 @@ public class CaldavReportMethod extends ReportMethod {
 
   protected Collection<WebdavNsNode> doNodeAndChildren(final CalendarQueryPars cqp,
                                     final WebdavNsNode node,
-                                    final Expand expand,
-                                    final LimitRecurrenceSet lrs,
+                                    final ExpandType expand,
+                                    final LimitRecurrenceSetType lrs,
                                     final List<String> retrieveList) throws WebdavException {
     RetrievalMode rm = null;
 

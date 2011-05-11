@@ -73,12 +73,12 @@ import edu.rpi.sss.util.xml.tagdefs.XrdTags;
 import edu.rpi.sss.util.xml.tagdefs.XsiTags;
 
 import org.oasis_open.docs.ns.xri.xrd_1.AnyURI;
-import org.oasis_open.docs.ns.xri.xrd_1.Link;
-import org.oasis_open.docs.ns.xri.xrd_1.XRD;
+import org.oasis_open.docs.ns.xri.xrd_1.LinkType;
+import org.oasis_open.docs.ns.xri.xrd_1.XRDType;
 import org.w3c.dom.Element;
 
-import ietf.params.xml.ns.caldav.Filter;
-import ietf.params.xml.ns.icalendar_2.Icalendar;
+import ietf.params.xml.ns.caldav.FilterType;
+import ietf.params.xml.ns.icalendar_2.IcalendarType;
 
 import java.io.CharArrayReader;
 import java.io.InputStream;
@@ -913,7 +913,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
    * @throws WebdavException
    */
   public boolean putEvent(final CaldavComponentNode bwnode,
-                          final Icalendar ical,
+                          final IcalendarType ical,
                           final boolean create,
                           final boolean noInvites,
                           final String ifStag,
@@ -1111,7 +1111,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
     resp.setContentType("application/xrd+xml; charset=UTF-8");
 
     try {
-      XRD xrd = getXRD(node);
+      XRDType xrd = getXRD(node);
 
       JAXBContext jc = JAXBContext.newInstance(xrd.getClass().getPackage().getName());
 
@@ -1134,9 +1134,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
    * @return the XRD object for the node
    * @throws WebdavException
    */
-  public XRD getXRD(final CaldavBwNode node) throws WebdavException {
+  public XRDType getXRD(final CaldavBwNode node) throws WebdavException {
     try {
-      XRD xrd = new XRD();
+      XRDType xrd = new XRDType();
 
       AnyURI uri = new AnyURI();
 
@@ -1145,7 +1145,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       for (PropertyTagXrdEntry pxe: node.getXrdNames()) {
         if (pxe.inPropAll) {
-          node.generateXrdProperties(xrd.getAliasAndPropertiesAndLinks(),
+          node.generateXrdProperties(xrd.getAliasOrPropertyOrLink(),
                                      pxe.xrdName, this, true);
         }
       }
@@ -1156,13 +1156,13 @@ public class CaldavBWIntf extends WebdavNsIntf {
         for (WebdavNsNode child: getChildren(node)) {
           CaldavBwNode cn = (CaldavBwNode)child;
 
-          Link l = new Link();
+          LinkType l = new LinkType();
           l.setRel(CalWSXrdDefs.childCollection);
           l.setHref(cn.getUrlValue());
 
           for (PropertyTagXrdEntry pxe: node.getXrdNames()) {
             if (pxe.inLink) {
-              cn.generateXrdProperties(l.getTitlesAndPropertiesAndAnies(),
+              cn.generateXrdProperties(l.getTitleOrPropertyOrAny(),
                                        pxe.xrdName, this, true);
             }
           }
@@ -1601,7 +1601,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
   public Collection<WebdavNsNode> query(final WebdavNsNode wdnode,
                                         final List<String> retrieveList,
                                         final RetrievalMode retrieveRecur,
-                                        final Filter fltr) throws WebdavException {
+                                        final FilterType fltr) throws WebdavException {
     CaldavBwNode node = (CaldavBwNode)wdnode;
 
     FilterHandler fh = new FilterHandler(fltr);

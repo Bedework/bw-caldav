@@ -37,9 +37,9 @@ import net.fortuna.ical4j.model.Component;
 
 import org.apache.log4j.Logger;
 
-import ietf.params.xml.ns.caldav.CompFilter;
-import ietf.params.xml.ns.caldav.Filter;
-import ietf.params.xml.ns.caldav.PropFilter;
+import ietf.params.xml.ns.caldav.CompFilterType;
+import ietf.params.xml.ns.caldav.FilterType;
+import ietf.params.xml.ns.caldav.PropFilterType;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -132,7 +132,7 @@ public class FilterHandler {
   /* Query we executed */
   private EventQuery eventq;
 
-  private Filter f;
+  private FilterType f;
 
   private boolean debug;
 
@@ -142,7 +142,7 @@ public class FilterHandler {
    *
    * @param f
    */
-  public FilterHandler(final Filter f) {
+  public FilterHandler(final FilterType f) {
     this.f = f;
     debug = getLogger().isDebugEnabled();
   }
@@ -212,7 +212,7 @@ public class FilterHandler {
       trace("post filtering needed");
     }
 
-    CompFilter cfltr = f.getCompFilter();
+    CompFilterType cfltr = f.getCompFilter();
 
     // Currently only handle VCALENDAR for top level.
     if (!"VCALENDAR".equals(cfltr.getName())) {
@@ -231,7 +231,7 @@ public class FilterHandler {
 
         int entityType = curnode.getEvent().getEntityType();
 
-        Collection<PropFilter> pfs = null;
+        Collection<PropFilterType> pfs = null;
 
         if (entityType == IcalDefs.entityTypeEvent) {
           pfs = eventq.eventFilters;
@@ -244,7 +244,7 @@ public class FilterHandler {
         if (!WebdavUtils.emptyCollection(pfs)) {
           Component comp = curnode.getComponent();
 
-          for (PropFilter pf: pfs) {
+          for (PropFilterType pf: pfs) {
             if (FilterUtil.filter(pf, comp)) {
               filtered.add(curnode);
               break;

@@ -20,7 +20,7 @@ package org.bedework.caldav.util.filter.parse;
 
 import org.bedework.caldav.util.filter.FilterBase;
 
-import ietf.params.xml.ns.caldav.PropFilter;
+import ietf.params.xml.ns.caldav.PropFilterType;
 
 import java.io.Serializable;
 import java.util.List;
@@ -39,17 +39,17 @@ public class EventQuery implements Serializable {
 
   /** PostFilter: If non-null apply to retrieved event components
    */
-  public List<PropFilter> eventFilters;
+  public List<PropFilterType> eventFilters;
 
   /** PostFilter: If non-null apply to retrieved tod components
    */
-  public List<PropFilter> todoFilters;
+  public List<PropFilterType> todoFilters;
 
   /** PostFilter: If non-null apply to retrieved journal components
    */
-  public List<PropFilter> journalFilters;
+  public List<PropFilterType> journalFilters;
 
   /** PostFilter: If non-null apply to retrieved alarm components
    */
-  public List<PropFilter> alarmFilters;
+  public List<PropFilterType> alarmFilters;
 }
