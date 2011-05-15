@@ -30,6 +30,7 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavForbidden;
 import edu.rpi.cmt.calendar.IcalDefs;
+import edu.rpi.cmt.calendar.XcalUtil;
 import edu.rpi.cmt.calendar.PropertyIndex.PropertyInfoIndex;
 import edu.rpi.sss.util.Util;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
@@ -264,8 +265,8 @@ public class Filters {
 
   private static TimeRange makeTimeRange(final UTCTimeRangeType utr) throws WebdavException {
     try {
-      return new TimeRange(new DateTime(utr.getStart()),
-                           new DateTime(utr.getEnd()));
+      return new TimeRange(new DateTime(XcalUtil.xmlDtToIcalDt(utr.getStart().toString())),
+                           new DateTime(XcalUtil.xmlDtToIcalDt(utr.getEnd().toString())));
     } catch (Throwable t) {
       throw new WebdavBadRequest(CaldavTags.validFilter, "Invalid time-range");
     }

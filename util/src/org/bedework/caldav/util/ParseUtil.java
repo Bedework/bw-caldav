@@ -20,6 +20,7 @@ package org.bedework.caldav.util;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
+import edu.rpi.cmt.calendar.XcalUtil;
 import edu.rpi.sss.util.DateTimeUtil;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 
@@ -174,29 +175,29 @@ public class ParseUtil {
       } else if (required) {
         throw new WebdavBadRequest(CaldavTags.validFilter, "Missing end");
       }
+
+      if (attrCt != 0) {
+        throw new WebdavBadRequest(CaldavTags.validFilter);
+      }
+
+      if (val == null) {
+        UTCTimeRangeType utr = new UTCTimeRangeType();
+
+        utr.setStart(XcalUtil.getXMlUTCCal(st));
+        utr.setEnd(XcalUtil.getXMlUTCCal(et));
+
+        return utr;
+      }
+
+      val.setStart(XcalUtil.getXMlUTCCal(st));
+      val.setEnd(XcalUtil.getXMlUTCCal(et));
+
+      return val;
     } catch (WebdavException wde) {
       throw wde;
     } catch (Throwable t) {
       throw new WebdavBadRequest(CaldavTags.validFilter, "Invalid time-range");
     }
-
-    if (attrCt != 0) {
-      throw new WebdavBadRequest(CaldavTags.validFilter);
-    }
-
-    if (val == null) {
-      UTCTimeRangeType utr = new UTCTimeRangeType();
-
-      utr.setStart(st);
-      utr.setEnd(et);
-
-      return utr;
-    }
-
-    val.setStart(st);
-    val.setEnd(et);
-
-    return val;
   }
 
   /** Get a date/time range given by the rfc formatted parameters and limited to

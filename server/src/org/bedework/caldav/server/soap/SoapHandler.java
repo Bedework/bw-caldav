@@ -23,6 +23,7 @@ import org.bedework.caldav.server.sysinterface.SysIntf;
 
 import edu.rpi.cct.webdav.servlet.common.MethodBase;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
+import edu.rpi.cmt.calendar.XcalUtil;
 import edu.rpi.sss.util.xml.tagdefs.XcalTags;
 
 import org.w3c.dom.Document;
@@ -226,10 +227,11 @@ public abstract class SoapHandler extends MethodBase {
       return null;
     }
 
-    String dt = d.getDateTime();
-    if (dt== null) {
+    if (d.getDateTime() == null) {
       return null;
     }
+
+    String dt = XcalUtil.xmlDtToIcalDt(d.getDateTime().toString());
 
     if ((dt.length() == 18) && (dt.charAt(17) == 'Z')) {
       return dt;

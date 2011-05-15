@@ -125,16 +125,16 @@ public class RetrievalMode implements Serializable {
 
     if (expand != null) {
       name = "expand";
-      start = expand.getStart();
-      end = expand.getEnd();
+      start = expand.getStart().toString();
+      end = expand.getEnd().toString();
     } else if (limitFreebusySet != null) {
       name = "limit-freebusy-set";
-      start = limitFreebusySet.getStart();
-      end = limitFreebusySet.getEnd();
+      start = limitFreebusySet.getStart().toString();
+      end = limitFreebusySet.getEnd().toString();
     } else if (limitRecurrenceSet != null) {
       name = "limit-recurrence-set";
-      start = limitRecurrenceSet.getStart();
-      end = limitRecurrenceSet.getEnd();
+      start = limitRecurrenceSet.getStart().toString();
+      end = limitRecurrenceSet.getEnd().toString();
     }
 
     sb.append(name);
