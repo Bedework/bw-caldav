@@ -287,8 +287,8 @@ public class CalwsHandler extends SoapHandler {
 
         UTCTimeRangeType utr = fr.getTimeRange();
 
-        TimeRange tr = ParseUtil.getPeriod(XcalUtil.xmlDtToIcalDt(utr.getStart().toString()),
-                                           XcalUtil.xmlDtToIcalDt(utr.getEnd().toString()),
+        TimeRange tr = ParseUtil.getPeriod(XcalUtil.getIcalFormatDateTime(utr.getStart().toString()),
+                                           XcalUtil.getIcalFormatDateTime(utr.getEnd().toString()),
                                            java.util.Calendar.DATE,
                                            sysp.getDefaultFBPeriod(),
                                            java.util.Calendar.DATE,
@@ -673,7 +673,8 @@ public class CalwsHandler extends SoapHandler {
          *     String ifStag = Headers.ifScheduleTagMatch(req);
                boolean noInvites = req.getHeader("Bw-NoInvites") != null; // based on header?
          */
-        if (getIntf().putEvent((CaldavComponentNode)elNode,
+        if (getIntf().putEvent(resp,
+                               (CaldavComponentNode)elNode,
                                ai.getIcalendar(),
                                true,
                                false,  // noinvites

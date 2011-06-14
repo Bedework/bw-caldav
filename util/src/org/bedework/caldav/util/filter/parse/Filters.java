@@ -264,9 +264,22 @@ public class Filters {
   }
 
   private static TimeRange makeTimeRange(final UTCTimeRangeType utr) throws WebdavException {
+    if (utr == null) {
+      return null;
+    }
+
     try {
-      return new TimeRange(new DateTime(XcalUtil.xmlDtToIcalDt(utr.getStart().toString())),
-                           new DateTime(XcalUtil.xmlDtToIcalDt(utr.getEnd().toString())));
+      DateTime st = null;
+      DateTime et = null;
+
+      if (utr.getStart() != null) {
+        st = new DateTime(XcalUtil.getIcalFormatDateTime(utr.getStart()));
+      }
+
+      if (utr.getEnd() != null) {
+        et = new DateTime(XcalUtil.getIcalFormatDateTime(utr.getEnd()));
+      }
+      return new TimeRange(st, et);
     } catch (Throwable t) {
       throw new WebdavBadRequest(CaldavTags.validFilter, "Invalid time-range");
     }

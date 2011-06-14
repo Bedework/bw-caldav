@@ -710,10 +710,11 @@ public class CaldavBWIntf extends WebdavNsIntf {
   }
 
   /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#putContent(javax.servlet.http.HttpServletRequest, edu.rpi.cct.webdav.servlet.shared.WebdavNsNode, java.lang.String[], java.io.Reader, boolean, java.lang.String)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#putContent(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, edu.rpi.cct.webdav.servlet.shared.WebdavNsNode, java.lang.String[], java.io.Reader, boolean, java.lang.String)
    */
   @Override
   public PutContentResult putContent(final HttpServletRequest req,
+                                     final HttpServletResponse resp,
                                      final WebdavNsNode node,
                                      final String[] contentTypePars,
                                      final Reader contentRdr,
@@ -745,7 +746,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
        * containing freebusy information or an event or todo and possible overrides.
        */
 
-      pcr.created = putEvent(req, bwnode,
+      pcr.created = putEvent(req, resp, bwnode,
                              contentRdr,
                              contentTypePars[0],
                              create, ifEtag);
@@ -818,6 +819,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
   }
 
   private boolean putEvent(final HttpServletRequest req,
+                           final HttpServletResponse resp,
                            final CaldavComponentNode bwnode,
                            final Reader contentRdr,
                            final String contentType,
@@ -833,7 +835,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
     boolean created = false;
 
     SysiIcalendar cal = sysi.fromIcal(col, contentRdr, contentType,
-                                      IcalResultType.OneComponent);
+                                      IcalResultType.OneComponent,
+                                      ifStag != null); // mergeAttendees
     if (cal.getMethod() != null) {
       throw new WebdavForbidden(CaldavTags.validCalendarObjectResource,
                                 "No method on PUT");
@@ -878,16 +881,17 @@ public class CaldavBWIntf extends WebdavNsIntf {
           debugMsg("putContent: etag mismatch if=" + ifEtag +
                    "prev=" + bwnode.getPrevEtagValue(true));
         }
+        rollback();
         throw new WebdavException(HttpServletResponse.SC_PRECONDITION_FAILED);
       }
 
-      if (config.getDoScheduleTag() &&
-          (ifStag != null) &&
+      if ((ifStag != null) &&
           (!ifStag.equals(bwnode.getPrevStagValue()))) {
         if (debug) {
           debugMsg("putContent: stag mismatch if=" + ifStag +
                    "prev=" + bwnode.getPrevStagValue());
         }
+        rollback();
         throw new WebdavException(HttpServletResponse.SC_PRECONDITION_FAILED);
       }
 
@@ -895,6 +899,11 @@ public class CaldavBWIntf extends WebdavNsIntf {
         debugMsg("putContent: update event " + ev);
       }
       sysi.updateEvent(ev);
+    }
+
+    if (ev.getOrganizerSchedulingObject() ||
+        ev.getAttendeeSchedulingObject()) {
+      resp.setHeader("Schedule-Tag", ev.getScheduleTag());
     }
 
     return created;
@@ -910,7 +919,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
    * @return true for OK
    * @throws WebdavException
    */
-  public boolean putEvent(final CaldavComponentNode bwnode,
+  public boolean putEvent(final HttpServletResponse resp,
+                          final CaldavComponentNode bwnode,
                           final IcalendarType ical,
                           final boolean create,
                           final boolean noInvites,
@@ -967,16 +977,17 @@ public class CaldavBWIntf extends WebdavNsIntf {
           debugMsg("putContent: etag mismatch if=" + ifEtag +
                    "prev=" + bwnode.getPrevEtagValue(true));
         }
+        rollback();
         throw new WebdavException(HttpServletResponse.SC_PRECONDITION_FAILED);
       }
 
-      if (config.getDoScheduleTag() &&
-          (ifStag != null) &&
+      if ((ifStag != null) &&
           (!ifStag.equals(bwnode.getPrevStagValue()))) {
         if (debug) {
           debugMsg("putContent: stag mismatch if=" + ifStag +
                    "prev=" + bwnode.getPrevStagValue());
         }
+        rollback();
         throw new WebdavException(HttpServletResponse.SC_PRECONDITION_FAILED);
       }
 
@@ -984,6 +995,11 @@ public class CaldavBWIntf extends WebdavNsIntf {
         debugMsg("putContent: update event " + ev);
       }
       sysi.updateEvent(ev);
+    }
+
+    if (ev.getOrganizerSchedulingObject() ||
+        ev.getAttendeeSchedulingObject()) {
+      resp.setHeader("Schedule-Tag", ev.getScheduleTag());
     }
 
     return created;

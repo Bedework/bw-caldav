@@ -231,7 +231,7 @@ public abstract class SoapHandler extends MethodBase {
       return null;
     }
 
-    String dt = XcalUtil.xmlDtToIcalDt(d.getDateTime().toString());
+    String dt = XcalUtil.getIcalFormatDateTime(d.getDateTime().toString());
 
     if ((dt.length() == 18) && (dt.charAt(17) == 'Z')) {
       return dt;

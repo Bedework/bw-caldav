@@ -327,7 +327,8 @@ public class ExsynchwsHandler extends SoapHandler {
        *     String ifStag = Headers.ifScheduleTagMatch(req);
              boolean noInvites = req.getHeader("Bw-NoInvites") != null; // based on header?
        */
-      added = getIntf().putEvent((CaldavComponentNode)elNode,
+      added = getIntf().putEvent(resp,
+                                 (CaldavComponentNode)elNode,
                                  ai.getIcalendar(),
                                  true,
                                  false,  // noinvites

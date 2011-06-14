@@ -20,7 +20,6 @@ package org.bedework.caldav.util;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
-import edu.rpi.cmt.calendar.XcalUtil;
 import edu.rpi.sss.util.DateTimeUtil;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 
@@ -183,14 +182,19 @@ public class ParseUtil {
       if (val == null) {
         UTCTimeRangeType utr = new UTCTimeRangeType();
 
-        utr.setStart(XcalUtil.getXMlUTCCal(st));
-        utr.setEnd(XcalUtil.getXMlUTCCal(et));
+        utr.setStart(st);
+        utr.setEnd(et);
 
         return utr;
       }
 
-      val.setStart(XcalUtil.getXMlUTCCal(st));
-      val.setEnd(XcalUtil.getXMlUTCCal(et));
+      if (st != null) {
+        val.setStart(st);
+      }
+
+      if (et != null) {
+        val.setEnd(et);
+      }
 
       return val;
     } catch (WebdavException wde) {

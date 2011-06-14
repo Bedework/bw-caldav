@@ -409,7 +409,8 @@ public class PostMethod extends MethodBase {
 
       pars.ic = intf.getSysi().fromIcal(pars.cal, pars.reqRdr,
                                         pars.contentTypePars[0],
-                                        IcalResultType.OneComponent);
+                                        IcalResultType.OneComponent,
+                                        false);
 
       /* (CALDAV:valid-calendar-data) -- checjed in fromIcal */
 
@@ -562,7 +563,8 @@ public class PostMethod extends MethodBase {
 
       pars.ic = sysi.fromIcal(pars.cal, pars.reqRdr,
                               pars.contentTypePars[0],
-                              IcalResultType.OneComponent);
+                              IcalResultType.OneComponent,
+                              false);
 
       /* (ISCHED:valid-calendar-data) -- checked in fromIcal */
 

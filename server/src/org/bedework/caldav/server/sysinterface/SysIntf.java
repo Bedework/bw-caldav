@@ -728,13 +728,15 @@ public interface SysIntf {
    * @param rdr
    * @param contentType  null for ICalendar or valid calendar mime type
    * @param rtype
+   * @param mergeAttendees True if we should only update our own attendee.
    * @return SysiIcalendar
    * @throws WebdavException
    */
   public SysiIcalendar fromIcal(CalDAVCollection col,
                                 Reader rdr,
                                 String contentType,
-                                IcalResultType rtype) throws WebdavException;
+                                IcalResultType rtype,
+                                boolean mergeAttendees) throws WebdavException;
 
   /** Convert the Icalendar object to a Collection of Calendar objects
    *

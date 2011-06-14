@@ -237,7 +237,8 @@ public class CaldavReportMethod extends ReportMethod {
           SysiIcalendar ical = intf.getSysi().fromIcal(null,
                                                    new StringReader(tzdef),
                                                    null,
-                                                   IcalResultType.TimeZone);
+                                                   IcalResultType.TimeZone,
+                                                   false);
           Collection<TimeZone> tzs = ical.getTimeZones();
           cqpars.tzid = tzs.iterator().next().getID();
         }

@@ -30,8 +30,6 @@ public class CalDAVConfig implements Serializable {
 
   private boolean guestMode;
 
-  private boolean doScheduleTag;
-
   /* System interface implementation */
   private String sysintfImpl;
 
@@ -85,21 +83,6 @@ public class CalDAVConfig implements Serializable {
    */
   public boolean getGuestMode() {
     return guestMode;
-  }
-
-  /** True for schedule tag support.
-   *
-   * @param val
-   */
-  public void setDoScheduleTag(final boolean val) {
-    doScheduleTag = val;
-  }
-
-  /**
-   * @return boolean
-   */
-  public boolean getDoScheduleTag() {
-    return doScheduleTag;
   }
 
   /** Set the System interface implementation

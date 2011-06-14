@@ -509,9 +509,7 @@ public boolean generatePropertyValue(final QName tag,
       return null;
     }
 
-    String val = ev.getScheduleTag();
-
-    return "\"" + val + "\"";
+    return ev.getScheduleTag();
   }
 
   /**
@@ -526,9 +524,7 @@ public boolean generatePropertyValue(final QName tag,
       return null;
     }
 
-    String val = ev.getPrevScheduleTag();
-
-    return "\"" + val + "\"";
+    return ev.getPrevScheduleTag();
   }
 
   @Override
