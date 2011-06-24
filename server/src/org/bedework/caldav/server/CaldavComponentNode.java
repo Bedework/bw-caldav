@@ -536,13 +536,13 @@ public boolean generatePropertyValue(final QName tag,
       return null;
     }
 
-    String val = ev.getTagValue();
+    String val = ev.getEtag();
 
     if (strong) {
-      return "\"" + val + "\"";
+      return val;
     }
 
-    return "W/\"" + val + "\"";
+    return "W/" + val;
   }
 
   /**
@@ -558,13 +558,13 @@ public boolean generatePropertyValue(final QName tag,
       return null;
     }
 
-    String val = ev.getPrevTagValue();
+    String val = ev.getPreviousEtag();
 
     if (strong) {
-      return "\"" + val + "\"";
+      return val;
     }
 
-    return "W/\"" + val + "\"";
+    return "W/" + val;
   }
 
   @Override

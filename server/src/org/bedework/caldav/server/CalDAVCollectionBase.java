@@ -6,9 +6,9 @@
     Version 2.0 (the "License"); you may not use this file
     except in compliance with the License. You may obtain a
     copy of the License at:
-        
+
     http://www.apache.org/licenses/LICENSE-2.0
-        
+
     Unless required by applicable law or agreed to in writing,
     software distributed under the License is distributed on
     an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -27,7 +27,7 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavException;
  * @author douglm
  *
  */
-public class CalDAVCollectionBase extends CalDAVCollection {
+public abstract class CalDAVCollectionBase extends CalDAVCollection {
   private int calType;
 
   /** Resource collection. According to the CalDAV spec a collection may exist
@@ -49,8 +49,8 @@ public class CalDAVCollectionBase extends CalDAVCollection {
    * @param freebusyAllowed
    * @throws WebdavException
    */
-  public CalDAVCollectionBase(int calType,
-                              boolean freebusyAllowed) throws WebdavException {
+  public CalDAVCollectionBase(final int calType,
+                              final boolean freebusyAllowed) throws WebdavException {
     super();
 
     this.calType = calType;
@@ -64,6 +64,7 @@ public class CalDAVCollectionBase extends CalDAVCollection {
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WdCollection#isAlias()
    */
+  @Override
   public boolean isAlias() throws WebdavException {
     return false;
   }
@@ -71,6 +72,7 @@ public class CalDAVCollectionBase extends CalDAVCollection {
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WdCollection#getAliasTarget()
    */
+  @Override
   public WdCollection getAliasTarget() throws WebdavException {
     return null;
   }
@@ -78,14 +80,17 @@ public class CalDAVCollectionBase extends CalDAVCollection {
   /* (non-Javadoc)
    * @see org.bedework.caldav.server.CalDAVCollection#setCalType(int)
    */
-  public void setCalType(int val) throws WebdavException {
+  @Override
+  public void setCalType(final int val) throws WebdavException {
     calType = val;
   }
 
+  @Override
   public int getCalType() throws WebdavException {
     return calType;
   }
 
+  @Override
   public boolean freebusyAllowed() throws WebdavException {
     return freebusyAllowed;
   }
@@ -93,6 +98,7 @@ public class CalDAVCollectionBase extends CalDAVCollection {
   /* (non-Javadoc)
    * @see org.bedework.caldav.server.CalDAVCollection#entitiesAllowed()
    */
+  @Override
   public boolean entitiesAllowed() throws WebdavException {
     return (calType == calTypeCalendarCollection) ||
            (calType == calTypeInbox) ||
@@ -102,13 +108,15 @@ public class CalDAVCollectionBase extends CalDAVCollection {
   /* (non-Javadoc)
    * @see org.bedework.caldav.server.CalDAVCollection#setAffectsFreeBusy(boolean)
    */
-  public void setAffectsFreeBusy(boolean val) throws WebdavException {
+  @Override
+  public void setAffectsFreeBusy(final boolean val) throws WebdavException {
     affectsFreeBusy = val;
   }
 
   /* (non-Javadoc)
    * @see org.bedework.caldav.server.CalDAVCollection#getAffectsFreeBusy()
    */
+  @Override
   public boolean getAffectsFreeBusy() throws WebdavException {
     return affectsFreeBusy;
   }
@@ -116,13 +124,15 @@ public class CalDAVCollectionBase extends CalDAVCollection {
   /* (non-Javadoc)
    * @see org.bedework.caldav.server.CalDAVCollection#setTimezone(java.lang.String)
    */
-  public void setTimezone(String val) throws WebdavException {
+  @Override
+  public void setTimezone(final String val) throws WebdavException {
     timezone = val;
   }
 
   /* (non-Javadoc)
    * @see org.bedework.caldav.server.CalDAVCollection#getTimezone()
    */
+  @Override
   public String getTimezone() throws WebdavException {
     return timezone;
   }
@@ -130,13 +140,15 @@ public class CalDAVCollectionBase extends CalDAVCollection {
   /* (non-Javadoc)
    * @see org.bedework.caldav.server.CalDAVCollection#setColor(java.lang.String)
    */
-  public void setColor(String val) throws WebdavException {
+  @Override
+  public void setColor(final String val) throws WebdavException {
     color = val;
   }
 
   /* (non-Javadoc)
    * @see org.bedework.caldav.server.CalDAVCollection#getColor()
    */
+  @Override
   public String getColor() throws WebdavException {
     return color;
   }

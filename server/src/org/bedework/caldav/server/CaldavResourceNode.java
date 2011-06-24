@@ -230,13 +230,13 @@ public class CaldavResourceNode extends CaldavBwNode {
       return null;
     }
 
-    String val = resource.getTagValue();
+    String val = resource.getEtag();
 
     if (strong) {
-      return "\"" + val + "\"";
+      return val;
     }
 
-    return "W/\"" + val + "\"";
+    return "W/" + val;
   }
 
   /* *

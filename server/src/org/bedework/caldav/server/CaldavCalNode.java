@@ -167,13 +167,13 @@ public class CaldavCalNode extends CaldavBwNode {
       return null;
     }
 
-    String val = c.getTagValue();
+    String val = c.getEtag();
 
     if (strong) {
-      return "\"" + val + "\"";
+      return val;
     }
 
-    return "W/\"" + val + "\"";
+    return "W/" + val;
   }
 
   /**
@@ -652,9 +652,9 @@ public class CaldavCalNode extends CaldavBwNode {
 
       if (tag.equals(AppleServerTags.getctag)) {
         if (c != null) {
-          xml.property(tag, c.getTagValue());
+          xml.property(tag, c.getEtag());
         } else {
-          xml.property(tag, col.getTagValue());
+          xml.property(tag, col.getEtag());
         }
 
         return true;
