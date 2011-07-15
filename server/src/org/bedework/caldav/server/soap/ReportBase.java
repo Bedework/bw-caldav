@@ -24,8 +24,17 @@ import edu.rpi.cct.webdav.servlet.common.PropFindMethod;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
+import edu.rpi.cmt.calendar.XcalUtil;
 
 import org.oasis_open.docs.ns.wscal.calws_soap.CalendarQueryType;
+import org.oasis_open.docs.ns.wscal.calws_soap.CompFilterType;
+import org.oasis_open.docs.ns.wscal.calws_soap.ExpandType;
+import org.oasis_open.docs.ns.wscal.calws_soap.FilterType;
+import org.oasis_open.docs.ns.wscal.calws_soap.LimitRecurrenceSetType;
+import org.oasis_open.docs.ns.wscal.calws_soap.ParamFilterType;
+import org.oasis_open.docs.ns.wscal.calws_soap.PropFilterType;
+import org.oasis_open.docs.ns.wscal.calws_soap.TextMatchType;
+import org.oasis_open.docs.ns.wscal.calws_soap.UTCTimeRangeType;
 import org.w3c.dom.Document;
 
 import ietf.params.xml.ns.icalendar_2.IcalendarType;
@@ -96,12 +105,12 @@ public class ReportBase extends CaldavReportMethod {
 
     CalendarQueryPars cqp = new CalendarQueryPars();
 
-    cqp.filter = cq.getFilter();
+    cqp.filter = convertFilter(cq.getFilter());
     cqp.depth = 1;
 
     return doNodeAndChildren(cqp, node,
-                             cq.getExpand(),
-                             cq.getLimitRecurrenceSet(),
+                             convertExpand(cq.getExpand()),
+                             convertLimitRecurrenceSet(cq.getLimitRecurrenceSet()),
                              null);
   }
 
@@ -146,4 +155,142 @@ public class ReportBase extends CaldavReportMethod {
     return null;
   }
 
+  /** The SOAP FilterType is an almost exact replica of the CalDAV FilterType.
+   * Unfortunately not quite so we have to translate it here.
+   *
+   * @param val
+   * @return converted filter.
+   */
+  private ietf.params.xml.ns.caldav.FilterType convertFilter(final FilterType val) {
+    if (val == null) {
+      return null;
+    }
+
+    ietf.params.xml.ns.caldav.FilterType filter =
+        new ietf.params.xml.ns.caldav.FilterType();
+
+    filter.setCompFilter(convertCompFilter(val.getCompFilter()));
+
+    return filter;
+  }
+
+  private ietf.params.xml.ns.caldav.CompFilterType convertCompFilter(final CompFilterType val) {
+    if (val == null) {
+      return null;
+    }
+
+    ietf.params.xml.ns.caldav.CompFilterType compFilter =
+        new ietf.params.xml.ns.caldav.CompFilterType();
+
+    if (val.getIsNotDefined() != null) {
+      compFilter.setIsNotDefined(new ietf.params.xml.ns.caldav.IsNotDefinedType());
+    }
+
+    compFilter.setTimeRange(convertTimeRange(val.getTimeRange()));
+
+    for (PropFilterType pf: val.getPropFilter()) {
+      compFilter.getPropFilter().add(convertPropFilter(pf));
+    }
+
+    for (CompFilterType cf: val.getCompFilter()) {
+      compFilter.getCompFilter().add(convertCompFilter(cf));
+    }
+
+    compFilter.setName(val.getName());
+
+    return compFilter;
+  }
+
+  private ietf.params.xml.ns.caldav.UTCTimeRangeType convertTimeRange(final UTCTimeRangeType val) {
+    if (val == null) {
+      return null;
+    }
+
+    ietf.params.xml.ns.caldav.UTCTimeRangeType res =
+        new ietf.params.xml.ns.caldav.UTCTimeRangeType();
+
+    res.setStart(XcalUtil.getIcalFormatDateTime(val.getStart()));
+    res.setEnd(XcalUtil.getIcalFormatDateTime(val.getEnd()));
+
+    return res;
+  }
+
+  private ietf.params.xml.ns.caldav.ExpandType convertExpand(final ExpandType val) {
+    if (val == null) {
+      return null;
+    }
+
+    ietf.params.xml.ns.caldav.ExpandType res =
+        new ietf.params.xml.ns.caldav.ExpandType();
+
+    res.setStart(XcalUtil.getIcalFormatDateTime(val.getStart()));
+    res.setEnd(XcalUtil.getIcalFormatDateTime(val.getEnd()));
+
+    return res;
+  }
+
+  private ietf.params.xml.ns.caldav.LimitRecurrenceSetType convertLimitRecurrenceSet(final LimitRecurrenceSetType val) {
+    if (val == null) {
+      return null;
+    }
+
+    ietf.params.xml.ns.caldav.LimitRecurrenceSetType res =
+        new ietf.params.xml.ns.caldav.LimitRecurrenceSetType();
+
+    res.setStart(XcalUtil.getIcalFormatDateTime(val.getStart()));
+    res.setEnd(XcalUtil.getIcalFormatDateTime(val.getEnd()));
+
+    return res;
+  }
+
+  private ietf.params.xml.ns.caldav.PropFilterType convertPropFilter(final PropFilterType val) {
+    ietf.params.xml.ns.caldav.PropFilterType pf =
+        new ietf.params.xml.ns.caldav.PropFilterType();
+
+    if (val.getIsNotDefined() != null) {
+      pf.setIsNotDefined(new ietf.params.xml.ns.caldav.IsNotDefinedType());
+    }
+
+    pf.setTimeRange(convertTimeRange(val.getTimeRange()));
+    pf.setTextMatch(convertTextMatch(val.getTextMatch()));
+
+    for (ParamFilterType parf: val.getParamFilter()) {
+      pf.getParamFilter().add(convertParamFilter(parf));
+    }
+
+    pf.setName(val.getName());
+
+    return pf;
+  }
+
+  private ietf.params.xml.ns.caldav.TextMatchType convertTextMatch(final TextMatchType val) {
+    ietf.params.xml.ns.caldav.TextMatchType tm =
+        new ietf.params.xml.ns.caldav.TextMatchType();
+
+    tm.setValue(val.getValue());
+    tm.setCollation(val.getCollation());
+
+    if (val.isNegateCondition()) {
+      tm.setNegateCondition("yes");
+    } else {
+      tm.setNegateCondition("no");
+    }
+
+    return tm;
+  }
+
+  private ietf.params.xml.ns.caldav.ParamFilterType convertParamFilter(final ParamFilterType val) {
+    ietf.params.xml.ns.caldav.ParamFilterType pf =
+        new ietf.params.xml.ns.caldav.ParamFilterType();
+
+    if (val.getIsNotDefined() != null) {
+      pf.setIsNotDefined(new ietf.params.xml.ns.caldav.IsNotDefinedType());
+    }
+
+    pf.setTextMatch(convertTextMatch(val.getTextMatch()));
+
+    pf.setName(val.getName());
+
+    return pf;
+  }
 }

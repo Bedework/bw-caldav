@@ -118,6 +118,13 @@ public abstract class CaldavBwNode extends WebdavNsNode {
     rootNode = (uri != null) && uri.equals("/");
   }
 
+  /** Returns a string value suitable for the web service token
+   *
+   * @return String token
+   * @throws WebdavException
+   */
+  public abstract String getEtokenValue() throws WebdavException;
+
   /* ====================================================================
    *                         Public methods
    * ==================================================================== */
@@ -397,6 +404,24 @@ public abstract class CaldavBwNode extends WebdavNsNode {
     PropertyTagXrdEntry pte = new PropertyTagXrdEntry(null, xrdName,
                                                       inAllProp, inLink);
     xrdNames.put(xrdName, pte);
+  }
+
+  protected String concatEtoken(final String... val) {
+    StringBuilder sb = new StringBuilder();
+
+    for (int i = 0; i < val.length; i++) {
+      sb.append(val[i]);
+
+      if ((i + 1) < val.length) {
+        sb.append('\t');
+      }
+    }
+
+    return sb.toString();
+  }
+
+  protected String[] splitEtoken(final String val) {
+    return val.split("\t");
   }
 
   /* ====================================================================

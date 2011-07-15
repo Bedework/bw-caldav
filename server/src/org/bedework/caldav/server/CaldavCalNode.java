@@ -28,8 +28,8 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavForbidden;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cmt.access.AccessPrincipal;
-import edu.rpi.cmt.access.PrivilegeDefs;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
+import edu.rpi.cmt.access.PrivilegeDefs;
 import edu.rpi.sss.util.DateTimeUtil;
 import edu.rpi.sss.util.xml.XmlEmit;
 import edu.rpi.sss.util.xml.XmlUtil;
@@ -174,6 +174,14 @@ public class CaldavCalNode extends CaldavBwNode {
     }
 
     return "W/" + val;
+  }
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.CaldavBwNode#getEtokenValue()
+   */
+  @Override
+  public String getEtokenValue() throws WebdavException {
+    return concatEtoken(getEtagValue(true), "");
   }
 
   /**

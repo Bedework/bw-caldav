@@ -42,6 +42,14 @@
     <property name="util.jar"
               location="${dist.home}/${edu.rpi.cmt.caldav.util.jar}-${project.version}.jar" />
   </target>
+
+  <!-- =================================================================
+       Clean projects we depend on
+       ================================================================= -->
+  <target name="clean">
+    <execProject project="bwxml" target="clean" />
+    <antcall target="doDeftasks.clean"/>
+  </target>
     
   <target name="build-init" depends="init">
     <!-- Make sure bwxml is built -->
@@ -66,6 +74,10 @@
             projecthome="${bedework.home}/../bwxml" />
 
     <getJar name="bw-calws-soapschema" 
+            version="${org.bedework.bwxml.version}" project="bwxml" 
+            projecthome="${bedework.home}/../bwxml" />
+
+    <getJar name="bw-caldavschema" 
             version="${org.bedework.bwxml.version}" project="bwxml" 
             projecthome="${bedework.home}/../bwxml" />
   </target>
