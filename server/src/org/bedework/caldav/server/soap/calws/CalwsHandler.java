@@ -764,6 +764,19 @@ public class CalwsHandler extends SoapHandler {
         CaldavComponentNode compNode = (CaldavComponentNode)elNode;
         String etoken = ui.getEtoken();
 
+        if (etoken == null) {
+          // Why can this happen? minOccurs = 1
+          uir.setStatus(StatusType.ERROR);
+
+          ErrorResponseType er = new ErrorResponseType();
+
+          ErrorCodeType ec = new ErrorCodeType();
+          er.setError(of.createMissingEtoken(ec));
+          uir.setErrorResponse(er);
+          uir.setMessage("Missing token");
+          break updateItem;
+        }
+
         // XXX Just do a straight compare for the moment
 
         if (!etoken.equals(compNode.getEtokenValue())) {
