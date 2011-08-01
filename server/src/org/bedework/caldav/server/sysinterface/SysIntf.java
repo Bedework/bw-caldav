@@ -22,8 +22,8 @@ import org.bedework.caldav.server.CalDAVCollection;
 import org.bedework.caldav.server.CalDAVEvent;
 import org.bedework.caldav.server.CalDAVResource;
 import org.bedework.caldav.server.PropertyHandler;
-import org.bedework.caldav.server.SysiIcalendar;
 import org.bedework.caldav.server.PropertyHandler.PropertyType;
+import org.bedework.caldav.server.SysiIcalendar;
 import org.bedework.caldav.util.CalDAVConfig;
 import org.bedework.caldav.util.TimeRange;
 import org.bedework.caldav.util.filter.FilterBase;
@@ -40,7 +40,7 @@ import edu.rpi.sss.util.xml.XmlEmit;
 
 import net.fortuna.ical4j.model.Calendar;
 
-import org.oasis_open.docs.ns.wscal.calws_soap.SelectElementType;
+import org.oasis_open.docs.ns.wscal.calws_soap.ComponentSelectionType;
 
 import ietf.params.xml.ns.icalendar_2.IcalendarType;
 
@@ -370,7 +370,7 @@ public interface SysIntf {
    * @throws WebdavException
    */
   public UpdateResult updateEvent(CalDAVEvent event,
-                                  List<SelectElementType> updates) throws WebdavException;
+                                  List<ComponentSelectionType> updates) throws WebdavException;
 
   /** Return the events for the current user in the given collection using the
    * supplied filter. Stored freebusy objects are returned as BwEvent
