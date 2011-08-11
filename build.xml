@@ -69,7 +69,7 @@
     <getJar name="bw-webdavserver" 
             version="${org.bedework.webdav.version}" project="webdav" />
 
-    <getJar name="bw-exsynchwsschema" 
+    <getJar name="bw-synchwsschema" 
             version="${org.bedework.bwxml.version}" project="bwxml" 
             projecthome="${bedework.home}/../bwxml" />
 

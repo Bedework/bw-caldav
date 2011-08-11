@@ -19,7 +19,7 @@
 package org.bedework.caldav.server.soap.calws;
 
 import org.bedework.caldav.server.soap.ReportBase;
-import org.bedework.exsynch.wsmessages.SynchInfoType;
+import org.bedework.synch.wsmessages.SynchInfoType;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;

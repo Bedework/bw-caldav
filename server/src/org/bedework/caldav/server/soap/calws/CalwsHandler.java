@@ -167,7 +167,7 @@ public class CalwsHandler extends SoapHandler {
    *                   Private methods
    * ==================================================================== */
 
-  private JAXBElement<? extends BaseResponseType> processRequest(
+  protected JAXBElement<? extends BaseResponseType> processRequest(
                                           final HttpServletRequest req,
                                           final HttpServletResponse resp,
                                           final BaseRequestType breq,

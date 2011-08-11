@@ -19,7 +19,7 @@
 package org.bedework.caldav.server;
 
 import org.bedework.caldav.server.soap.calws.CalwsHandler;
-import org.bedework.caldav.server.soap.exsynch.ExsynchwsHandler;
+import org.bedework.caldav.server.soap.synch.SynchwsHandler;
 import org.bedework.caldav.server.sysinterface.CalPrincipalInfo;
 import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.caldav.server.sysinterface.SysIntf.IcalResultType;
@@ -32,8 +32,8 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavForbidden;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
 import edu.rpi.cmt.calendar.IcalDefs;
-import edu.rpi.cmt.calendar.ScheduleMethods;
 import edu.rpi.cmt.calendar.IcalDefs.IcalComponentType;
+import edu.rpi.cmt.calendar.ScheduleMethods;
 import edu.rpi.sss.util.xml.XmlEmit.NameSpace;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 import edu.rpi.sss.util.xml.tagdefs.IscheduleTags;
@@ -107,8 +107,8 @@ public class PostMethod extends MethodBase {
     /** true if web service create of entity */
     public boolean entityCreate;
 
-    /** true if this is an exsynch web service request */
-    public boolean exsynchws;
+    /** true if this is an synch web service request */
+    public boolean synchws;
 
     /** true if this is a calws soap web service request */
     public boolean calwsSoap;
@@ -163,9 +163,9 @@ public class PostMethod extends MethodBase {
             if ("create".equals(req.getParameter("action"))) {
               entityCreate = true;
             }
-          } else if (conf.getExsynchWsURI() != null) {
-            exsynchws = conf.getExsynchWsURI().equals(resourceUri);
-            if (exsynchws) {
+          } else if (conf.getSynchWsURI() != null) {
+            synchws = conf.getSynchWsURI().equals(resourceUri);
+            if (synchws) {
               getTheReader = false;
             }
           } else if (conf.getCalSoapWsURI() != null) {
@@ -249,8 +249,8 @@ public class PostMethod extends MethodBase {
       return;
     }
 
-    if (pars.exsynchws) {
-      new ExsynchwsHandler(intf).processPost(req, resp, pars);
+    if (pars.synchws) {
+      new SynchwsHandler(intf).processPost(req, resp, pars);
 
       return;
     }
