@@ -489,7 +489,7 @@ public class CalwsHandler extends SoapHandler {
 
           mre.getPropstat().add(ps);
 
-          ps.setStatus(getStatus(HttpServletResponse.SC_NOT_FOUND, null));
+          ps.setStatus(StatusType.NOT_FOUND);
         }
       } // buildResponse
     } catch (WebdavException we) {
@@ -848,7 +848,8 @@ public class CalwsHandler extends SoapHandler {
 
       mre.getPropstat().add(ps);
 
-      ps.setStatus(getStatus(curnode.getStatus(), null));
+      ps.setStatus(StatusType.ERROR);
+      ps.setMessage(getStatus(curnode.getStatus(), null));
 
       if (!curnode.getExists()) {
         continue;
