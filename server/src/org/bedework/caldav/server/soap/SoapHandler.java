@@ -47,6 +47,7 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPBody;
+import javax.xml.soap.SOAPHeader;
 import javax.xml.soap.SOAPMessage;
 
 /** Class extended by classes which handle special SOAP requests, e.g. the
@@ -108,17 +109,36 @@ public abstract class SoapHandler extends MethodBase {
 
   }
 
-  protected Object unmarshal(final HttpServletRequest req) throws WebdavException {
+  /** Unpack the headers and body
+   */
+  public static class UnmarshalResult {
+    public Object[] hdrs;
+    public Object body;
+  }
+
+  protected UnmarshalResult unmarshal(final HttpServletRequest req) throws WebdavException {
     try {
+      UnmarshalResult res = new UnmarshalResult();
+
       SOAPMessage msg = soapMsgFactory.createMessage(null, // headers
                                                      req.getInputStream());
 
-
       SOAPBody body = msg.getSOAPBody();
+      SOAPHeader hdrMsg = msg.getSOAPHeader();
 
       Unmarshaller u = jc.createUnmarshaller();
 
-      return u.unmarshal(body.getFirstChild());
+      Object hdr = null;
+
+      // Only expect one header at most.
+      if ((hdrMsg != null) && hdrMsg.hasChildNodes()) {
+        res.hdrs = new Object[1];
+        res.hdrs[0] = u.unmarshal(hdrMsg.getFirstChild());
+      }
+
+      res.body = u.unmarshal(body.getFirstChild());
+
+      return res;
     } catch(Throwable t) {
       throw new WebdavException(t);
     }

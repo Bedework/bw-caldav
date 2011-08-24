@@ -23,6 +23,8 @@ import org.bedework.caldav.server.PostMethod.RequestPars;
 import org.bedework.caldav.server.soap.calws.CalwsHandler;
 import org.bedework.caldav.server.soap.calws.Report;
 import org.bedework.synch.wsmessages.GetSynchInfoType;
+import org.bedework.synch.wsmessages.KeepAliveNotificationType;
+import org.bedework.synch.wsmessages.KeepAliveResponseType;
 import org.bedework.synch.wsmessages.ObjectFactory;
 import org.bedework.synch.wsmessages.StartServiceNotificationType;
 import org.bedework.synch.wsmessages.StartServiceResponseType;
@@ -38,7 +40,10 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
 import org.oasis_open.docs.ns.wscal.calws_soap.BaseRequestType;
 import org.oasis_open.docs.ns.wscal.calws_soap.StatusType;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -50,18 +55,20 @@ import javax.xml.bind.JAXBElement;
  * @author Mike Douglass
  */
 public class SynchwsHandler extends CalwsHandler {
-  /** This represents an active connection to a synch engine. It's possible we
-   * would have more than one of these running I guess. For the moment we'll
-   * only have one but these probably need a table indexed by url.
+  /** This represents an active connection to a synch engine.
    *
    */
   class ActiveConnectionInfo {
     String subscribeUrl;
 
     String synchToken;
+
+    long lastPing;
   }
 
-  static ActiveConnectionInfo activeConnection;
+  /* A map indexed by the url which identifies 'open' connections */
+  static Map<String, ActiveConnectionInfo> activeConnections =
+      new HashMap<String, ActiveConnectionInfo>();
 
   private ObjectFactory of = new ObjectFactory();
 
@@ -75,7 +82,7 @@ public class SynchwsHandler extends CalwsHandler {
 
   @Override
   protected String getJaxbContextPath() {
-    return "org.bedework.exsynch.wsmessages";
+    return "org.bedework.synch.wsmessages";
   }
 
   /**
@@ -89,33 +96,49 @@ public class SynchwsHandler extends CalwsHandler {
                           final HttpServletResponse resp,
                           final RequestPars pars) throws WebdavException {
     try {
-      Object o = unmarshal(req);
+      UnmarshalResult ur = unmarshal(req);
 
-      SynchIdTokenType idToken = new SynchIdTokenType(); // Actually from message
+      Object body = ur.body;
+      if (body instanceof JAXBElement) {
+        body = ((JAXBElement)body).getValue();
+      }
+
+      if (body instanceof StartServiceNotificationType) {
+        doStartService((StartServiceNotificationType)body, resp);
+        return;
+      }
+
+      if (body instanceof KeepAliveNotificationType) {
+        doKeepAlive((KeepAliveNotificationType)body, resp);
+        return;
+      }
+
+      SynchIdTokenType idToken = null;
+      Object o = null;
+      if (ur.hdrs.length == 1) {
+        o = ur.hdrs[0];
+        if (o instanceof JAXBElement) {
+          o = ((JAXBElement)o).getValue();
+        }
+        if (o instanceof SynchIdTokenType) {
+          idToken = (SynchIdTokenType)o;
+        }
+      }
 
       if (idToken != null) {
         handleIdToken(req, idToken);
       }
 
-      if (o instanceof JAXBElement) {
-        o = ((JAXBElement)o).getValue();
-      }
-
-      if (o instanceof BaseRequestType) {
+      if (body instanceof BaseRequestType) {
         processRequest(req, resp,
-                       (BaseRequestType)o,
+                       (BaseRequestType)body,
                        pars,
                        false);
         return;
       }
 
-      if (o instanceof GetSynchInfoType) {
-        doGetSycnchInfo((GetSynchInfoType)o, req, resp);
-        return;
-      }
-
-      if (o instanceof StartServiceNotificationType) {
-        doStartService((StartServiceNotificationType)o, resp);
+      if (body instanceof GetSynchInfoType) {
+        doGetSycnchInfo((GetSynchInfoType)body, req, resp);
         return;
       }
 
@@ -134,33 +157,80 @@ public class SynchwsHandler extends CalwsHandler {
   private void doStartService(final StartServiceNotificationType ssn,
                               final HttpServletResponse resp) throws WebdavException {
     if (debug) {
-      trace("StartServiceNotification: url=" + ssn.getSubscribeUrl() +
-            "\n                token=" + ssn.getToken());
+      trace("StartServiceNotification: url=" + ssn.getSubscribeUrl());
     }
 
     synchronized (monitor) {
-      if (activeConnection == null) {
-        activeConnection = new ActiveConnectionInfo();
+      ActiveConnectionInfo aci = activeConnections.get(ssn.getSubscribeUrl());
+
+      if (aci == null) {
+        aci = new ActiveConnectionInfo();
+        activeConnections.put(ssn.getSubscribeUrl(), aci);
       }
 
-      activeConnection.subscribeUrl = ssn.getSubscribeUrl();
-      activeConnection.synchToken = ssn.getToken();
+      aci.synchToken = UUID.randomUUID().toString();
+      aci.lastPing = System.currentTimeMillis();
+
+      startServiceResponse(resp, aci, true);
+    }
+  }
+
+  private void doKeepAlive(final KeepAliveNotificationType kan,
+                           final HttpServletResponse resp) throws WebdavException {
+    if (debug) {
+      trace("KeepAliveNotification: url=" + kan.getSubscribeUrl() +
+            "\n                token=" + kan.getToken());
     }
 
-    notificationResponse(resp, true);
+    try {
+      synchronized (monitor) {
+        KeepAliveResponseType kar = of.createKeepAliveResponseType();
+
+        ActiveConnectionInfo aci = activeConnections.get(kan.getSubscribeUrl());
+
+        if (aci == null) {
+          kar.setStatus(StatusType.NOT_FOUND);
+        } else if (!aci.synchToken.equals(kan.getToken())) {
+          kar.setStatus(StatusType.ERROR);
+        } else {
+          kar.setStatus(StatusType.OK);
+          aci.lastPing = System.currentTimeMillis();
+        }
+
+        resp.setCharacterEncoding("UTF-8");
+        resp.setStatus(HttpServletResponse.SC_OK);
+        resp.setContentType("text/xml; charset=UTF-8");
+
+        JAXBElement<KeepAliveResponseType> jax = of.createKeepAliveResponse(kar);
+
+        marshal(jax, resp.getOutputStream());
+      }
+    } catch (WebdavException we) {
+      throw we;
+    } catch(Throwable t) {
+      throw new WebdavException(t);
+    }
   }
 
   private void handleIdToken(final HttpServletRequest req,
                              final SynchIdTokenType idToken) throws WebdavException {
-    getIntf().reAuth(req, idToken.getPrincipalHref());
-
-    if (!idToken.getSynchToken().equals(activeConnection.synchToken)) {
-      throw new WebdavException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-                                "Invalid synch token");
+    if (idToken.getPrincipalHref() != null) {
+      getIntf().reAuth(req, idToken.getPrincipalHref());
     }
+
+    ActiveConnectionInfo aci = activeConnections.get(idToken.getSubscribeUrl());
+
+    if ((aci != null) &&
+        (idToken.getSynchToken().equals(aci.synchToken))) {
+      return;
+    }
+
+    throw new WebdavException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                              "Invalid synch token");
   }
 
-  private void notificationResponse(final HttpServletResponse resp,
+  private void startServiceResponse(final HttpServletResponse resp,
+                                    final ActiveConnectionInfo aci,
                                     final boolean ok) throws WebdavException {
     try {
       resp.setCharacterEncoding("UTF-8");
@@ -171,13 +241,14 @@ public class SynchwsHandler extends CalwsHandler {
 
       if (ok) {
         ssr.setStatus(StatusType.OK);
+        ssr.setToken(aci.synchToken);
       } else {
         ssr.setStatus(StatusType.ERROR);
       }
 
-      ssr.setToken(activeConnection.synchToken);
+      JAXBElement<StartServiceResponseType> jax = of.createStartServiceResponse(ssr);
 
-      marshal(ssr, resp.getOutputStream());
+      marshal(jax, resp.getOutputStream());
     } catch (WebdavException we) {
       throw we;
     } catch(Throwable t) {
@@ -212,7 +283,9 @@ public class SynchwsHandler extends CalwsHandler {
     sirs.getSynchInfo().addAll(sis);
 
     try {
-      marshal(sir, resp.getOutputStream());
+      JAXBElement<SynchInfoResponseType> jax = of.createSynchInfoResponse(sir);
+
+      marshal(jax, resp.getOutputStream());
     } catch (WebdavException we) {
       throw we;
     } catch (Throwable t) {

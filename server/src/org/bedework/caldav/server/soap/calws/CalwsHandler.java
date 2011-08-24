@@ -106,20 +106,7 @@ import javax.xml.namespace.QName;
  * @author Mike Douglass
  */
 public class CalwsHandler extends SoapHandler {
-  /** This represents an active connection to a synch engine. It's possible we
-   * would have more than one of these running I guess. For the moment we'll
-   * only have one but these probably need a table indexed by url.
-   *
-   */
-  class ActiveConnectionInfo {
-    String subscribeUrl;
-
-    String synchToken;
-  }
-
   static String calwsNs = "http://docs.oasis-open.org/ns/wscal/calws-soap";
-
-  static ActiveConnectionInfo activeConnection;
 
   static ObjectFactory of = new ObjectFactory();
 
