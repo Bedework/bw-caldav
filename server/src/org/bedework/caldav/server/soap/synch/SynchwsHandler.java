@@ -36,13 +36,12 @@ import org.bedework.synch.wsmessages.SynchInfoType;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
+import edu.rpi.cmt.jboss.MBeanUtil;
 
 import org.oasis_open.docs.ns.wscal.calws_soap.BaseRequestType;
 import org.oasis_open.docs.ns.wscal.calws_soap.StatusType;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -55,21 +54,6 @@ import javax.xml.bind.JAXBElement;
  * @author Mike Douglass
  */
 public class SynchwsHandler extends CalwsHandler {
-  /** This represents an active connection to a synch engine.
-   *
-   */
-  class ActiveConnectionInfo {
-    String subscribeUrl;
-
-    String synchToken;
-
-    long lastPing;
-  }
-
-  /* A map indexed by the url which identifies 'open' connections */
-  static Map<String, ActiveConnectionInfo> activeConnections =
-      new HashMap<String, ActiveConnectionInfo>();
-
   private ObjectFactory of = new ObjectFactory();
 
   /**
@@ -156,22 +140,28 @@ public class SynchwsHandler extends CalwsHandler {
 
   private void doStartService(final StartServiceNotificationType ssn,
                               final HttpServletResponse resp) throws WebdavException {
-    if (debug) {
-      trace("StartServiceNotification: url=" + ssn.getSubscribeUrl());
-    }
-
-    synchronized (monitor) {
-      ActiveConnectionInfo aci = activeConnections.get(ssn.getSubscribeUrl());
-
-      if (aci == null) {
-        aci = new ActiveConnectionInfo();
-        activeConnections.put(ssn.getSubscribeUrl(), aci);
+    try {
+      if (debug) {
+        trace("StartServiceNotification: url=" + ssn.getSubscribeUrl());
       }
 
-      aci.synchToken = UUID.randomUUID().toString();
-      aci.lastPing = System.currentTimeMillis();
+      SynchConnection sc = getActiveConnection(ssn.getSubscribeUrl());
 
-      startServiceResponse(resp, aci, true);
+      if (sc == null) {
+        sc = new SynchConnection(ssn.getSubscribeUrl(),
+                                 UUID.randomUUID().toString());
+      } else {
+        sc.setSynchToken(UUID.randomUUID().toString());
+      }
+
+      sc.setLastPing(System.currentTimeMillis());
+      setActiveConnection(sc);
+
+      startServiceResponse(resp, sc, true);
+    } catch (WebdavException we) {
+      throw we;
+    } catch(Throwable t) {
+      throw new WebdavException(t);
     }
   }
 
@@ -186,15 +176,16 @@ public class SynchwsHandler extends CalwsHandler {
       synchronized (monitor) {
         KeepAliveResponseType kar = of.createKeepAliveResponseType();
 
-        ActiveConnectionInfo aci = activeConnections.get(kan.getSubscribeUrl());
+        SynchConnection sc = getActiveConnection(kan.getSubscribeUrl());
 
-        if (aci == null) {
+        if (sc == null) {
           kar.setStatus(StatusType.NOT_FOUND);
-        } else if (!aci.synchToken.equals(kan.getToken())) {
+        } else if (!sc.getSynchToken().equals(kan.getToken())) {
           kar.setStatus(StatusType.ERROR);
         } else {
           kar.setStatus(StatusType.OK);
-          aci.lastPing = System.currentTimeMillis();
+          sc.setLastPing(System.currentTimeMillis());
+          setActiveConnection(sc);
         }
 
         resp.setCharacterEncoding("UTF-8");
@@ -214,23 +205,29 @@ public class SynchwsHandler extends CalwsHandler {
 
   private void handleIdToken(final HttpServletRequest req,
                              final SynchIdTokenType idToken) throws WebdavException {
-    if (idToken.getPrincipalHref() != null) {
-      getIntf().reAuth(req, idToken.getPrincipalHref());
+    try {
+      if (idToken.getPrincipalHref() != null) {
+        getIntf().reAuth(req, idToken.getPrincipalHref());
+      }
+
+      SynchConnection sc = getActiveConnection(idToken.getSubscribeUrl());
+
+      if ((sc != null) &&
+          (idToken.getSynchToken().equals(sc.getSynchToken()))) {
+        return;
+      }
+
+      throw new WebdavException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                                "Invalid synch token");
+    } catch (WebdavException we) {
+      throw we;
+    } catch(Throwable t) {
+      throw new WebdavException(t);
     }
-
-    ActiveConnectionInfo aci = activeConnections.get(idToken.getSubscribeUrl());
-
-    if ((aci != null) &&
-        (idToken.getSynchToken().equals(aci.synchToken))) {
-      return;
-    }
-
-    throw new WebdavException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-                              "Invalid synch token");
   }
 
   private void startServiceResponse(final HttpServletResponse resp,
-                                    final ActiveConnectionInfo aci,
+                                    final SynchConnection sc,
                                     final boolean ok) throws WebdavException {
     try {
       resp.setCharacterEncoding("UTF-8");
@@ -241,7 +238,7 @@ public class SynchwsHandler extends CalwsHandler {
 
       if (ok) {
         ssr.setStatus(StatusType.OK);
-        ssr.setToken(aci.synchToken);
+        ssr.setToken(sc.getSynchToken());
       } else {
         ssr.setStatus(StatusType.ERROR);
       }
@@ -291,5 +288,24 @@ public class SynchwsHandler extends CalwsHandler {
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
+  }
+
+  private SynchConnectionsMBean conns;
+
+  private SynchConnectionsMBean getActiveConnections() throws Throwable {
+    if (conns == null) {
+      conns = (SynchConnectionsMBean)MBeanUtil.getMBean(SynchConnectionsMBean.class,
+                                         "org.bedework:service=SynchConnections");
+    }
+
+    return conns;
+  }
+
+  private void setActiveConnection(final SynchConnection val) throws Throwable {
+    getActiveConnections().setConnection(val);
+  }
+
+  private SynchConnection getActiveConnection(final String url) throws Throwable {
+    return getActiveConnections().getConnection(url);
   }
 }
