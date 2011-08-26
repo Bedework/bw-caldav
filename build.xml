@@ -46,15 +46,11 @@
   <!-- =================================================================
        Clean projects we depend on
        ================================================================= -->
-  <target name="clean">
-    <execProject project="bwxml" target="clean" />
+  <target name="clean" depends="clean.bwxml">
     <antcall target="doDeftasks.clean"/>
   </target>
     
-  <target name="build-init" depends="init">
-    <!-- Make sure bwxml is built -->
-    <ant antfile="${bedework.home}/../bwxml/build.xml" inheritall="false" />
-
+  <target name="build-init" depends="init,build.bwxml">
     <getJar name="commons-httpclient" version="3.0" />
     <getJar name="ical4j" version="head-20100601" />
     <getJar name="log4j" version="1.2.8" />
