@@ -52,6 +52,13 @@ public interface SynchConnectionsMBean {
    */
   public SynchConnection getConnection(String callbackUrl);
 
+  /** Get a connection for outbound calls by id
+   *
+   * @param id
+   * @return a connection or null
+   */
+  public SynchConnection getConnectionById(String id);
+
   /**
    * @return list of connections
    */

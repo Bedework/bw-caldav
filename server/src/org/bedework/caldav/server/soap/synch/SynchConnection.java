@@ -26,6 +26,8 @@ import java.util.Date;
  * @author douglm
  */
 public class SynchConnection {
+  private String connectorId;
+
   private String subscribeUrl;
 
   private String synchToken;
@@ -33,13 +35,30 @@ public class SynchConnection {
   private long lastPing;
 
   /**
+   * @param connectorId
    * @param subscribeUrl
    * @param synchToken
    */
-  public SynchConnection(final String subscribeUrl,
+  public SynchConnection(final String connectorId,
+                         final String subscribeUrl,
                          final String synchToken) {
+    this.connectorId = connectorId;
     this.subscribeUrl = subscribeUrl;
     this.synchToken = synchToken;
+  }
+
+  /**
+   * @param val connector id
+   */
+  public void setConnectorId(final String val) {
+    connectorId = val;
+  }
+
+  /**
+   * @return the connector id
+   */
+  public String getConnectorId() {
+    return connectorId;
   }
 
   /**
@@ -92,7 +111,10 @@ public class SynchConnection {
 
     sb.append("{");
 
-    sb.append("url: \"");
+    sb.append("id: \"");
+    sb.append(getConnectorId());
+
+    sb.append("\", url: \"");
     sb.append(getSubscribeUrl());
 
     sb.append("\", token: \"");

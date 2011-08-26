@@ -148,7 +148,8 @@ public class SynchwsHandler extends CalwsHandler {
       SynchConnection sc = getActiveConnection(ssn.getSubscribeUrl());
 
       if (sc == null) {
-        sc = new SynchConnection(ssn.getSubscribeUrl(),
+        sc = new SynchConnection(ssn.getConnectorId(),
+                                 ssn.getSubscribeUrl(),
                                  UUID.randomUUID().toString());
       } else {
         sc.setSynchToken(UUID.randomUUID().toString());

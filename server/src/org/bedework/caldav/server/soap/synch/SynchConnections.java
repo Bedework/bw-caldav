@@ -42,6 +42,9 @@ public class SynchConnections implements SynchConnectionsMBean {
   static Map<String, SynchConnection> activeConnections =
       new HashMap<String, SynchConnection>();
 
+  /* A map indexed by the url which identifies 'open' connections */
+  static Map<String, SynchConnection> activeConnectionsById =
+      new HashMap<String, SynchConnection>();
 
   /* ========================================================================
    * Attributes
@@ -63,10 +66,15 @@ public class SynchConnections implements SynchConnectionsMBean {
 
   public void setConnection(final SynchConnection val) {
     activeConnections.put(val.getSubscribeUrl(), val);
+    activeConnectionsById.put(val.getConnectorId(), val);
   }
 
   public SynchConnection getConnection(final String callbackUrl) {
     return activeConnections.get(callbackUrl);
+  }
+
+  public SynchConnection getConnectionById(final String id) {
+    return activeConnectionsById.get(id);
   }
 
   public String[] activeConnectionInfo() {
