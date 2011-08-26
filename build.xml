@@ -57,11 +57,15 @@
     <getJar name="servletapi" version="2.4" />
 
     <getJar name="bw-davio" 
-            version="${org.bedework.davutil.version}" project="davutil" />
+            version="${org.bedework.davutil.version}" project="davutil" 
+            projecthome="${bedework.home}/../davutil" />
     <getJar name="rpiaccess" 
-            version="${org.bedework.access.version}" project="access" />
+            version="${org.bedework.access.version}" project="access"
+            projecthome="${bedework.home}/../access" />
     <getJar name="rpiutil" 
-            version="${org.bedework.rpiutil.version}" project="rpiutil" />
+            version="${org.bedework.rpiutil.version}" project="rpiutil"
+            projecthome="${bedework.home}/../rpiutil" />
+    
     <getJar name="bw-webdavserver" 
             version="${org.bedework.webdav.version}" project="webdav" />
 
