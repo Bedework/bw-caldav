@@ -6,13 +6,15 @@
 -->
 
 <project name="caldav" default="build-all">
+  <taskdef resource="net/sf/antcontrib/antcontrib.properties" />
+
   <property environment="env"/>
   <dirname property="project.home" file="${ant.file}"/>
 
   <property file="${project.home}/build.properties" />
   
   <property name="bedework.home"
-            location="${project.home}/../.." />
+            location="${project.home}/../bedework" />
 
   <property name="build.dir" location="${bedework.home}/build"/>
 
@@ -67,7 +69,8 @@
             projecthome="${bedework.home}/../rpiutil" />
     
     <getJar name="bw-webdavserver" 
-            version="${org.bedework.webdav.version}" project="webdav" />
+            version="${org.bedework.webdav.version}" project="webdav"
+            projecthome="${bedework.home}/../webdav" />
 
     <getJar name="bw-synchwsschema" 
             version="${org.bedework.bwxml.version}" project="bwxml" 

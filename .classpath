@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="server/src"/>
+	<classpathentry kind="src" path="util/src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/access/dist/rpiaccess-3.7.jar"/>
+	<classpathentry kind="lib" path="/bwxml/dist/bw-caldavschema-3.7.jar"/>
+	<classpathentry kind="lib" path="/bwxml/dist/bw-calws-soapschema-3.7.jar" sourcepath="/bwxml/calws-soap/gensrc"/>
+	<classpathentry kind="lib" path="/bwxml/dist/bw-synchwsschema-3.7.jar"/>
+	<classpathentry kind="lib" path="lib/commons-httpclient-3.0.jar"/>
+	<classpathentry kind="lib" path="lib/ical4j-head-20100601.jar"/>
+	<classpathentry kind="lib" path="lib/log4j-1.2.8.jar"/>
+	<classpathentry kind="lib" path="lib/servletapi-2.4.jar"/>
+	<classpathentry kind="lib" path="/davutil/dist/bw-davio-3.7.jar"/>
+	<classpathentry kind="lib" path="/rpituil/dist/rpiutil-3.7.jar"/>
+	<classpathentry kind="lib" path="/webdav/dist/bw-webdavserver-3.7.jar"/>
+	<classpathentry kind="output" path="bin/eclipse-build"/>
+</classpath>

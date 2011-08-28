@@ -18,8 +18,6 @@
 */
 package org.bedework.caldav.server.sysinterface;
 
-import org.apache.tools.ant.taskdefs.Expand;
-
 import ietf.params.xml.ns.caldav.ExpandType;
 import ietf.params.xml.ns.caldav.LimitFreebusySetType;
 import ietf.params.xml.ns.caldav.LimitRecurrenceSetType;
