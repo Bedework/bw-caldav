@@ -44,15 +44,8 @@
     <property name="util.jar"
               location="${dist.home}/${edu.rpi.cmt.caldav.util.jar}-${project.version}.jar" />
   </target>
-
-  <!-- =================================================================
-       Clean projects we depend on
-       ================================================================= -->
-  <target name="clean" depends="clean.bwxml">
-    <antcall target="doDeftasks.clean"/>
-  </target>
     
-  <target name="build-init" depends="init,build.bwxml">
+  <target name="build-init" depends="init">
     <getJar name="commons-httpclient" version="3.0" />
     <getJar name="ical4j" version="head-20100601" />
     <getJar name="log4j" version="1.2.8" />

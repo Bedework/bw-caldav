@@ -317,7 +317,7 @@ public class PostMethod extends MethodBase {
      */
 
     CaldavReportMethod method = new CaldavReportMethod();
-    method.init(intf, debug, true);
+    method.init(intf, true);
     method.doMethod(pars.req, resp);
   }
 

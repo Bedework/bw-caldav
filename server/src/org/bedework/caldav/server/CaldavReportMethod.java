@@ -25,8 +25,8 @@ import org.bedework.caldav.server.sysinterface.SysIntf.IcalResultType;
 import org.bedework.caldav.util.DumpUtil;
 import org.bedework.caldav.util.filter.parse.Filters;
 
-import edu.rpi.cct.webdav.servlet.common.ReportMethod;
 import edu.rpi.cct.webdav.servlet.common.PropFindMethod.PropRequest;
+import edu.rpi.cct.webdav.servlet.common.ReportMethod;
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
@@ -171,7 +171,7 @@ public class CaldavReportMethod extends ReportMethod {
 
       if (reportType == reportTypeFreeBusy) {
         /* Expect exactly one time-range */
-        freeBusy = new FreeBusyQuery(debug);
+        freeBusy = new FreeBusyQuery();
         freeBusy.parse(getOnlyChild(root));
         if (debug) {
           trace("REPORT: free-busy");

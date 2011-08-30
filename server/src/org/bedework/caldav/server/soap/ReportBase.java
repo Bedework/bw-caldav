@@ -66,7 +66,7 @@ public class ReportBase extends CaldavReportMethod {
   public Document query(final String qstring,
                         final String resourceUri) throws WebdavException {
     pm = new PropFindMethod();
-    pm.init(getNsIntf(), debug, true);
+    pm.init(getNsIntf(), true);
 
     Document doc = parseContent(qstring.length(),
                                 new StringReader(qstring));
@@ -141,7 +141,7 @@ public class ReportBase extends CaldavReportMethod {
     sb.append("</C:calendar-query>");
 
     pm = new PropFindMethod();
-    pm.init(getNsIntf(), debug, true);
+    pm.init(getNsIntf(), true);
 
     Document doc = parseContent(sb.length(),
                                 new StringReader(sb.toString()));

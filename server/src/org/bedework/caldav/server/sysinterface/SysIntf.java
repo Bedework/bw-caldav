@@ -68,13 +68,11 @@ public interface SysIntf {
    * @param req
    * @param account
    * @param conf  per application type configuration
-   * @param debug
    * @throws WebdavException
    */
   public void init(HttpServletRequest req,
                    String account,
-                   CalDAVConfig conf,
-                   boolean debug) throws WebdavException;
+                   CalDAVConfig conf) throws WebdavException;
 
   /** Return CalDAV relevant properties about the system.
    *

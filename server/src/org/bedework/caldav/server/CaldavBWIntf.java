@@ -35,9 +35,9 @@ import org.bedework.caldav.util.CalDAVConfig;
 
 import edu.rpi.cct.webdav.servlet.common.AccessUtil;
 import edu.rpi.cct.webdav.servlet.common.Headers;
+import edu.rpi.cct.webdav.servlet.common.MethodBase.MethodInfo;
 import edu.rpi.cct.webdav.servlet.common.WebdavServlet;
 import edu.rpi.cct.webdav.servlet.common.WebdavUtils;
-import edu.rpi.cct.webdav.servlet.common.MethodBase.MethodInfo;
 import edu.rpi.cct.webdav.servlet.shared.PrincipalPropertySearch;
 import edu.rpi.cct.webdav.servlet.shared.WdEntity;
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
@@ -53,16 +53,16 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavUnauthorized;
 import edu.rpi.cct.webdav.servlet.shared.WebdavUnsupportedMediaType;
 import edu.rpi.cmt.access.AccessException;
 import edu.rpi.cmt.access.AccessPrincipal;
+import edu.rpi.cmt.access.AccessXmlUtil.AccessXmlCb;
 import edu.rpi.cmt.access.Ace;
 import edu.rpi.cmt.access.AceWho;
 import edu.rpi.cmt.access.Acl;
 import edu.rpi.cmt.access.PrivilegeDefs;
 import edu.rpi.cmt.access.WhoDefs;
-import edu.rpi.cmt.access.AccessXmlUtil.AccessXmlCb;
 import edu.rpi.sss.util.OptionsI;
 import edu.rpi.sss.util.xml.XmlEmit;
-import edu.rpi.sss.util.xml.XmlUtil;
 import edu.rpi.sss.util.xml.XmlEmit.NameSpace;
+import edu.rpi.sss.util.xml.XmlUtil;
 import edu.rpi.sss.util.xml.tagdefs.CalWSTags;
 import edu.rpi.sss.util.xml.tagdefs.CalWSXrdDefs;
 import edu.rpi.sss.util.xml.tagdefs.CaldavDefs;
@@ -157,14 +157,13 @@ public class CaldavBWIntf extends WebdavNsIntf {
   @Override
   public void init(final WebdavServlet servlet,
                    final HttpServletRequest req,
-                   final boolean debug,
                    final HashMap<String, MethodInfo> methods,
                    final boolean dumpContent) throws WebdavException {
     try {
       // Needed before any other initialization
       calWs = Boolean.parseBoolean(servlet.getInitParameter("calws"));
 
-      super.init(servlet, req, debug, methods, dumpContent);
+      super.init(servlet, req, methods, dumpContent);
 
       HttpSession session = req.getSession();
       ServletContext sc = session.getServletContext();
@@ -178,7 +177,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       namespacePrefix = WebdavUtils.getUrlPrefix(req);
       namespace = namespacePrefix + "/schema";
 
-      OptionsI opts = CalDAVOptionsFactory.getOptions(debug);
+      OptionsI opts = CalDAVOptionsFactory.getOptions();
       config = (CalDAVConfig)opts.getAppProperty(appName);
       if (config == null) {
         config = new CalDAVConfig();
@@ -188,10 +187,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       config.setCalWS(calWs);
 
-      sysi.init(req, account, config, debug);
+      sysi.init(req, account, config);
 
       accessUtil = new AccessUtil(namespacePrefix, xml,
-                                  new CalDavAccessXmlCb(sysi), debug);
+                                  new CalDavAccessXmlCb(sysi));
     } catch (WebdavException we) {
       throw we;
     } catch (Throwable t) {
@@ -221,10 +220,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       sysi = getSysi(config.getSysintfImpl());
 
-      sysi.init(req, account, config, debug);
+      sysi.init(req, account, config);
 
       accessUtil = new AccessUtil(namespacePrefix, xml,
-                                  new CalDavAccessXmlCb(sysi), debug);
+                                  new CalDavAccessXmlCb(sysi));
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
@@ -275,6 +274,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
     /* (non-Javadoc)
      * @see edu.rpi.cmt.access.AccessXmlUtil.AccessXmlCb#makeHref(java.lang.String, int)
      */
+    @Override
     public String makeHref(final String id, final int whoType) throws AccessException {
       try {
         return sysi.makeHref(id, whoType);
@@ -283,6 +283,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       }
     }
 
+    @Override
     public AccessPrincipal getPrincipal() throws AccessException {
       try {
         return sysi.getPrincipal();
@@ -291,6 +292,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       }
     }
 
+    @Override
     public AccessPrincipal getPrincipal(final String href) throws AccessException {
       try {
         return sysi.getPrincipal(sysi.getUrlHandler().unprefix(href));
@@ -302,6 +304,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
     /* (non-Javadoc)
      * @see edu.rpi.cmt.access.AccessXmlUtil.AccessXmlCb#setErrorTag(edu.rpi.sss.util.xml.QName)
      */
+    @Override
     public void setErrorTag(final QName tag) throws AccessException {
       errorTag = tag;
     }
@@ -309,6 +312,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
     /* (non-Javadoc)
      * @see edu.rpi.cmt.access.AccessXmlUtil.AccessXmlCb#getErrorTag()
      */
+    @Override
     public QName getErrorTag() throws AccessException {
       return errorTag;
     }
@@ -316,6 +320,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
     /* (non-Javadoc)
      * @see edu.rpi.cmt.access.AccessXmlUtil.AccessXmlCb#setErrorMsg(java.lang.String)
      */
+    @Override
     public void setErrorMsg(final String val) throws AccessException {
       errorMsg = val;
     }
@@ -323,6 +328,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
     /* (non-Javadoc)
      * @see edu.rpi.cmt.access.AccessXmlUtil.AccessXmlCb#getErrorMsg()
      */
+    @Override
     public String getErrorMsg() throws AccessException {
       return errorMsg;
     }
@@ -1231,7 +1237,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
     } else {
       resp.setStatus(HttpServletResponse.SC_CREATED);
-      Headers.makeLocation(resp, getLocation(to), debug);
+      Headers.makeLocation(resp, getLocation(to));
     }
   }
 
@@ -1261,7 +1267,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
     } else {
       resp.setStatus(HttpServletResponse.SC_CREATED);
-      Headers.makeLocation(resp, getLocation(to), debug);
+      Headers.makeLocation(resp, getLocation(to));
     }
   }
 
@@ -1288,7 +1294,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
     } else {
       resp.setStatus(HttpServletResponse.SC_CREATED);
-      Headers.makeLocation(resp, getLocation(to), debug);
+      Headers.makeLocation(resp, getLocation(to));
     }
   }
   /* (non-Javadoc)
