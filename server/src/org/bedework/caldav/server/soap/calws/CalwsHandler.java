@@ -590,7 +590,8 @@ public class CalwsHandler extends SoapHandler {
          *     String ifStag = Headers.ifScheduleTagMatch(req);
                boolean noInvites = req.getHeader("Bw-NoInvites") != null; // based on header?
          */
-        if (getIntf().putEvent(resp,
+        if ((elNode != null) &&
+            getIntf().putEvent(resp,
                                (CaldavComponentNode)elNode,
                                ai.getIcalendar(),
                                true,

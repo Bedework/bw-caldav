@@ -32,6 +32,7 @@ import org.bedework.synch.wsmessages.SynchIdTokenType;
 import org.bedework.synch.wsmessages.SynchInfoResponseType;
 import org.bedework.synch.wsmessages.SynchInfoResponseType.SynchInfoResponses;
 import org.bedework.synch.wsmessages.SynchInfoType;
+import org.bedework.synch.wsmessages.UnreachableTargetType;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
@@ -39,6 +40,7 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
 import edu.rpi.cmt.jboss.MBeanUtil;
 
 import org.oasis_open.docs.ns.wscal.calws_soap.BaseRequestType;
+import org.oasis_open.docs.ns.wscal.calws_soap.ErrorResponseType;
 import org.oasis_open.docs.ns.wscal.calws_soap.StatusType;
 
 import java.util.List;
@@ -270,15 +272,16 @@ public class SynchwsHandler extends CalwsHandler {
                                                WebdavNsIntf.nodeTypeCollection);
 
     if (calNode == null) {
-      // Drop this subscription
-      throw new WebdavException("Unreachable " + gsi.getCalendarHref());
+      sir.setStatus(StatusType.ERROR);
+      sir.setErrorResponse(new ErrorResponseType());
+      sir.getErrorResponse().setError(of.createUnreachableTarget(new UnreachableTargetType()));
+    } else {
+      List<SynchInfoType> sis = new Report(nsIntf).query(gsi.getCalendarHref());
+
+      SynchInfoResponses sirs = new SynchInfoResponses();
+      sir.setSynchInfoResponses(sirs);
+      sirs.getSynchInfo().addAll(sis);
     }
-
-    List<SynchInfoType> sis = new Report(nsIntf).query(gsi.getCalendarHref());
-
-    SynchInfoResponses sirs = new SynchInfoResponses();
-    sir.setSynchInfoResponses(sirs);
-    sirs.getSynchInfo().addAll(sis);
 
     try {
       JAXBElement<SynchInfoResponseType> jax = of.createSynchInfoResponse(sir);
