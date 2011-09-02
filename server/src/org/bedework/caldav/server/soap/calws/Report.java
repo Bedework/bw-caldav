@@ -129,7 +129,8 @@ public class Report extends ReportBase {
         SynchInfoType si = new SynchInfoType();
 
         si.setUid(uid);
-        si.setExchangeLastmod(lm);
+        si.setLastMod(lm);
+        // XXX si.setLastSynch(??);
 
         sis.add(si);
       }
