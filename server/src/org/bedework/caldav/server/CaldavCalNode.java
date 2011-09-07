@@ -865,6 +865,7 @@ public class CaldavCalNode extends CaldavBwNode {
     }
   }
 
+  @SuppressWarnings("unused")
   @Override
   public boolean generateXrdProperties(final List<Object> props,
                                        final String name,

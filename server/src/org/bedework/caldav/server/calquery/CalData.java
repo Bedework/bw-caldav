@@ -454,14 +454,10 @@ public class CalData extends WebdavProperty {
       throw new WebdavBadRequest();
     }
 
-    int attrCt = nnm.getLength();
-
     String name = XmlUtil.getAttrVal(nnm, "name");
     if (name == null) {
       throw new WebdavBadRequest();
     }
-
-    attrCt--;
 
     Boolean val = null;
 

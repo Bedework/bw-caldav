@@ -128,8 +128,6 @@ public abstract class SoapHandler extends MethodBase {
 
       Unmarshaller u = jc.createUnmarshaller();
 
-      Object hdr = null;
-
       // Only expect one header at most.
       if ((hdrMsg != null) && hdrMsg.hasChildNodes()) {
         res.hdrs = new Object[1];

@@ -186,6 +186,10 @@ public class ReportBase extends CaldavReportMethod {
       compFilter.setIsNotDefined(new ietf.params.xml.ns.caldav.IsNotDefinedType());
     }
 
+    if (val.getTest() != null) {
+      compFilter.setTest(val.getTest());
+    }
+
     compFilter.setTimeRange(convertTimeRange(val.getTimeRange()));
 
     for (PropFilterType pf: val.getPropFilter()) {
@@ -249,6 +253,10 @@ public class ReportBase extends CaldavReportMethod {
 
     if (val.getIsNotDefined() != null) {
       pf.setIsNotDefined(new ietf.params.xml.ns.caldav.IsNotDefinedType());
+    }
+
+    if (val.getTest() != null) {
+      pf.setTest(val.getTest());
     }
 
     pf.setTimeRange(convertTimeRange(val.getTimeRange()));

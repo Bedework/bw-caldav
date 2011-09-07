@@ -21,29 +21,19 @@ package org.bedework.caldav.server.soap.synch;
 import org.bedework.caldav.server.CaldavBWIntf;
 import org.bedework.caldav.server.PostMethod.RequestPars;
 import org.bedework.caldav.server.soap.calws.CalwsHandler;
-import org.bedework.caldav.server.soap.calws.Report;
-import org.bedework.synch.wsmessages.GetSynchInfoType;
 import org.bedework.synch.wsmessages.KeepAliveNotificationType;
 import org.bedework.synch.wsmessages.KeepAliveResponseType;
 import org.bedework.synch.wsmessages.ObjectFactory;
 import org.bedework.synch.wsmessages.StartServiceNotificationType;
 import org.bedework.synch.wsmessages.StartServiceResponseType;
 import org.bedework.synch.wsmessages.SynchIdTokenType;
-import org.bedework.synch.wsmessages.SynchInfoResponseType;
-import org.bedework.synch.wsmessages.SynchInfoResponseType.SynchInfoResponses;
-import org.bedework.synch.wsmessages.SynchInfoType;
-import org.bedework.synch.wsmessages.UnreachableTargetType;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
-import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
-import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
 import edu.rpi.cmt.jboss.MBeanUtil;
 
 import org.oasis_open.docs.ns.wscal.calws_soap.BaseRequestType;
-import org.oasis_open.docs.ns.wscal.calws_soap.ErrorResponseType;
 import org.oasis_open.docs.ns.wscal.calws_soap.StatusType;
 
-import java.util.List;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -120,11 +110,6 @@ public class SynchwsHandler extends CalwsHandler {
                        (BaseRequestType)body,
                        pars,
                        false);
-        return;
-      }
-
-      if (body instanceof GetSynchInfoType) {
-        doGetSycnchInfo((GetSynchInfoType)body, req, resp);
         return;
       }
 
@@ -252,44 +237,6 @@ public class SynchwsHandler extends CalwsHandler {
     } catch (WebdavException we) {
       throw we;
     } catch(Throwable t) {
-      throw new WebdavException(t);
-    }
-  }
-
-  private void doGetSycnchInfo(final GetSynchInfoType gsi,
-                               final HttpServletRequest req,
-                               final HttpServletResponse resp) throws WebdavException {
-    if (debug) {
-      trace("GetSycnchInfo: cal=" + gsi.getCalendarHref());
-    }
-
-    SynchInfoResponseType sir = new SynchInfoResponseType();
-
-    sir.setCalendarHref(gsi.getCalendarHref());
-
-    WebdavNsNode calNode = getNsIntf().getNode(gsi.getCalendarHref(),
-                                               WebdavNsIntf.existanceMust,
-                                               WebdavNsIntf.nodeTypeCollection);
-
-    if (calNode == null) {
-      sir.setStatus(StatusType.ERROR);
-      sir.setErrorResponse(new ErrorResponseType());
-      sir.getErrorResponse().setError(of.createUnreachableTarget(new UnreachableTargetType()));
-    } else {
-      List<SynchInfoType> sis = new Report(nsIntf).query(gsi.getCalendarHref());
-
-      SynchInfoResponses sirs = new SynchInfoResponses();
-      sir.setSynchInfoResponses(sirs);
-      sirs.getSynchInfo().addAll(sis);
-    }
-
-    try {
-      JAXBElement<SynchInfoResponseType> jax = of.createSynchInfoResponse(sir);
-
-      marshal(jax, resp.getOutputStream());
-    } catch (WebdavException we) {
-      throw we;
-    } catch (Throwable t) {
       throw new WebdavException(t);
     }
   }

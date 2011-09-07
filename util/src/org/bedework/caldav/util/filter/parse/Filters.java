@@ -30,8 +30,8 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavForbidden;
 import edu.rpi.cmt.calendar.IcalDefs;
-import edu.rpi.cmt.calendar.XcalUtil;
 import edu.rpi.cmt.calendar.PropertyIndex.PropertyInfoIndex;
+import edu.rpi.cmt.calendar.XcalUtil;
 import edu.rpi.sss.util.Util;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 
@@ -160,6 +160,7 @@ public class Filters {
     int entityType = IcalDefs.entityTypeEvent;
 
     boolean isNotDefined = cf.getIsNotDefined() != null;
+    boolean andThem = "allof".equals(cf.getTest());
     String name = cf.getName().toUpperCase();
 
     if (exprDepth == 0) {
@@ -208,7 +209,7 @@ public class Filters {
       entityType = IcalDefs.entityTypeAlarm;
 
       filter = makeFilter(name, isNotDefined, matchAll(cf),
-                          makeTimeRange(cf.getTimeRange()), null,
+                          makeTimeRange(cf.getTimeRange()), null, false,
                           null);
 
       if (filter == null) {
@@ -253,8 +254,13 @@ public class Filters {
     if (!Util.isEmpty(cf.getCompFilter())) {
       FilterBase cfilters = null;
       for (CompFilterType subcf: cf.getCompFilter()) {
-        cfilters = FilterBase.addOrChild(cfilters, getQueryFilter(subcf,
-                                                              eq, exprDepth + 1));
+        FilterBase subqf = getQueryFilter(subcf,
+                                          eq, exprDepth + 1);
+        if (andThem) {
+          cfilters = FilterBase.addAndChild(cfilters, subqf);
+        } else {
+          cfilters = FilterBase.addOrChild(cfilters, subqf);
+        }
       }
 
       filter = FilterBase.addAndChild(filter, cfilters);
@@ -293,6 +299,7 @@ public class Filters {
     }
 
     FilterBase pfilters = null;
+    boolean andThem = "allof".equals(cf.getTest());
 
     for (PropFilterType pf: cf.getPropFilter()) {
       String pname = pf.getName();
@@ -306,13 +313,18 @@ public class Filters {
       if (utr != null) {
         tr = makeTimeRange(utr);
       }
+      boolean andParams = "allof".equals(pf.getTest());
 
       FilterBase filter = makeFilter(pname, isNotDefined, testPresent,
                                  tr,
-                                 tm, pf.getParamFilter());
+                                 tm, andParams, pf.getParamFilter());
 
       if (filter != null) {
-        pfilters = FilterBase.addAndChild(pfilters, filter);
+        if (andThem) {
+          pfilters = FilterBase.addAndChild(pfilters, filter);
+        } else {
+          pfilters = FilterBase.addOrChild(pfilters, filter);
+        }
       } else {
         eq.postFilter = true;
 
@@ -341,6 +353,7 @@ public class Filters {
                                        final boolean testPresent,
                                        final TimeRange timeRange,
                                        final TextMatchType match,
+                                       final boolean andParamFilters,
                             final Collection<ParamFilterType> paramFilters) throws WebdavException {
     FilterBase filter = null;
 
@@ -380,10 +393,12 @@ public class Filters {
     }
 
     return FilterBase.addAndChild(filter, processParamFilters(pi,
-                                                          paramFilters));
+                                                              andParamFilters,
+                                                              paramFilters));
   }
 
   private static FilterBase processParamFilters(final PropertyInfoIndex parentIndex,
+                                                final boolean andThem,
                                      final Collection<ParamFilterType> paramFilters) throws WebdavException {
     FilterBase parfilters = null;
 
@@ -395,11 +410,15 @@ public class Filters {
       PropertyFilter filter = (PropertyFilter)makeFilter(pf.getName(),
                                                          isNotDefined,
                                                          testPresent,
-                                                         null, tm, null);
+                                                         null, tm, false, null);
 
       if (filter != null) {
         filter.setParentPropertyIndex(parentIndex);
-        parfilters = FilterBase.addOrChild(parfilters, filter);
+        if (andThem) {
+          parfilters = FilterBase.addAndChild(parfilters, filter);
+        } else {
+          parfilters = FilterBase.addOrChild(parfilters, filter);
+        }
       }
     }
 
