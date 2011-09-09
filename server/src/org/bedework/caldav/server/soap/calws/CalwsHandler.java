@@ -35,6 +35,7 @@ import org.bedework.caldav.util.ParseUtil;
 import org.bedework.caldav.util.TimeRange;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
+import edu.rpi.cct.webdav.servlet.shared.WebdavForbidden;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNotFound;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
@@ -836,7 +837,7 @@ public class CalwsHandler extends SoapHandler {
 
       mre.getPropstat().add(ps);
 
-      ps.setStatus(StatusType.ERROR);
+      ps.setStatus(StatusType.OK);
       ps.setMessage(getStatus(curnode.getStatus(), null));
 
       if (!curnode.getExists()) {
@@ -875,6 +876,12 @@ public class CalwsHandler extends SoapHandler {
     ErrorResponseType er = new ErrorResponseType();
 
     setError: {
+      if (we instanceof WebdavForbidden) {
+        ErrorCodeType ec = new ErrorCodeType();
+        er.setError(of.createForbidden(ec));
+        break setError;
+      }
+
       if (we instanceof WebdavNotFound) {
         ErrorCodeType ec = new ErrorCodeType();
         er.setError(of.createTargetDoesNotExist(ec));
