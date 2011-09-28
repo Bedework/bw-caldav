@@ -200,6 +200,13 @@ public class ReportBase extends CaldavReportMethod {
       compFilter.getCompFilter().add(convertCompFilter(cf));
     }
 
+    /*
+    if (val.getAnyComp() != null) {
+      compFilter.setName("*");
+    } else {
+      compFilter.setName(val.getBaseComponent().getName().getLocalPart());
+    }
+    */
     compFilter.setName(val.getName());
 
     return compFilter;
@@ -266,6 +273,7 @@ public class ReportBase extends CaldavReportMethod {
       pf.getParamFilter().add(convertParamFilter(parf));
     }
 
+    //pf.setName(val.getBaseProperty().getName().getLocalPart());
     pf.setName(val.getName());
 
     return pf;
@@ -297,6 +305,7 @@ public class ReportBase extends CaldavReportMethod {
 
     pf.setTextMatch(convertTextMatch(val.getTextMatch()));
 
+    //pf.setName(val.getBaseParameter().getName().getLocalPart());
     pf.setName(val.getName());
 
     return pf;

@@ -7,12 +7,12 @@
 	<classpathentry kind="lib" path="lib/ical4j-head-20100601.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.8.jar"/>
 	<classpathentry kind="lib" path="lib/servletapi-2.4.jar"/>
-	<classpathentry kind="lib" path="/access/dist/rpiaccess-3.8.jar"/>
 	<classpathentry kind="lib" path="/bwxml/dist/bw-caldavschema-3.8.jar"/>
 	<classpathentry kind="lib" path="/bwxml/dist/bw-calws-soapschema-3.8.jar"/>
 	<classpathentry kind="lib" path="/bwxml/dist/bw-synchwsschema-3.8.jar"/>
-	<classpathentry kind="lib" path="/rpituil/dist/rpiutil-3.8.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/davutil"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/webdav"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/access"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/rpituil"/>
 	<classpathentry kind="output" path="bin/eclipse-build"/>
 </classpath>
