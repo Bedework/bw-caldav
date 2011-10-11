@@ -391,7 +391,7 @@ public class CaldavCalNode extends CaldavBwNode {
       return null;
     }
 
-    return col.getName();
+    return col.getDisplayName();
   }
 
   /* (non-Javadoc)
