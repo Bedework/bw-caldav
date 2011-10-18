@@ -382,4 +382,13 @@ public class CaldavResourceNode extends CaldavBwNode {
       throw new WebdavException(t);
     }
   }
+
+  @Override
+  public boolean getDeleted() throws WebdavException {
+    if (resource == null) {
+      return false;
+    }
+
+    return resource.getDeleted();
+  }
 }

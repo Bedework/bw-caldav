@@ -80,8 +80,8 @@ import org.oasis_open.docs.ns.wscal.calws_soap.UpdateItemResponseType;
 import org.oasis_open.docs.ns.wscal.calws_soap.UpdateItemType;
 import org.oasis_open.docs.ns.xri.xrd_1.XRDType;
 
+import ietf.params.xml.ns.icalendar_2.ArrayOfComponents;
 import ietf.params.xml.ns.icalendar_2.ArrayOfProperties;
-import ietf.params.xml.ns.icalendar_2.ArrayOfVcalendarContainedComponents;
 import ietf.params.xml.ns.icalendar_2.AttendeePropType;
 import ietf.params.xml.ns.icalendar_2.DtendPropType;
 import ietf.params.xml.ns.icalendar_2.DtstartPropType;
@@ -320,10 +320,10 @@ public class CalwsHandler extends SoapHandler {
         JAXBElement<VfreebusyType> compel =
           new JAXBElement<VfreebusyType>(XcalTags.vfreebusy,
                                          VfreebusyType.class, vfb);
-        ArrayOfVcalendarContainedComponents aoc = new ArrayOfVcalendarContainedComponents();
+        ArrayOfComponents aoc = new ArrayOfComponents();
 
         vcal.setComponents(aoc);
-        aoc.getVcalendarContainedComponent().add(compel);
+        aoc.getBaseComponent().add(compel);
 
         /* Use timerange to limit the requested time */
 

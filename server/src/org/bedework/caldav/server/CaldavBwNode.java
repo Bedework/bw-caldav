@@ -98,10 +98,16 @@ public abstract class CaldavBwNode extends WebdavNsNode {
 
   CaldavBwNode(final CaldavURI cdURI,
                final SysIntf sysi) throws WebdavException {
-    super(sysi.getUrlHandler(), cdURI.getPath(), cdURI.isCollection(),
+    this(sysi, cdURI.getPath(), cdURI.isCollection(),
           cdURI.getUri());
+  }
 
-    //this.cdURI = cdURI;
+  CaldavBwNode(final SysIntf sysi,
+               final String path,
+               final boolean collection,
+               final String uri) {
+    super(sysi.getUrlHandler(), path, collection, uri);
+
     this.sysi = sysi;
 
     rootNode = (uri != null) && uri.equals("/");

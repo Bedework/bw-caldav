@@ -31,6 +31,8 @@ import org.bedework.caldav.server.sysinterface.CalPrincipalInfo;
 import org.bedework.caldav.server.sysinterface.RetrievalMode;
 import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.caldav.server.sysinterface.SysIntf.IcalResultType;
+import org.bedework.caldav.server.sysinterface.SysIntf.SynchReportData;
+import org.bedework.caldav.server.sysinterface.SysIntf.SynchReportData.SynchReportDataItem;
 import org.bedework.caldav.util.CalDAVConfig;
 
 import edu.rpi.cct.webdav.servlet.common.AccessUtil;
@@ -40,6 +42,8 @@ import edu.rpi.cct.webdav.servlet.common.WebdavServlet;
 import edu.rpi.cct.webdav.servlet.common.WebdavUtils;
 import edu.rpi.cct.webdav.servlet.shared.PrincipalPropertySearch;
 import edu.rpi.cct.webdav.servlet.shared.WdEntity;
+import edu.rpi.cct.webdav.servlet.shared.WdSynchReport;
+import edu.rpi.cct.webdav.servlet.shared.WdSynchReport.WdSynchReportItem;
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavForbidden;
@@ -238,7 +242,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
       return super.getDavHeader(node) + ", calendar-access";
     }
 
-    return super.getDavHeader(node) + ", calendar-access, calendar-schedule, calendar-auto-schedule";
+    return super.getDavHeader(node) +
+        ", calendar-access" +
+        ", calendar-schedule" +
+        ", calendar-auto-schedule";
   }
 
   @Override
@@ -1322,6 +1329,38 @@ public class CaldavBWIntf extends WebdavNsIntf {
     handler.process(req, resp, pars);
 
     return true;
+  }
+
+  @Override
+  public WdSynchReport getSynchReport(final String path,
+                                      final String token,
+                                      final int limit,
+                                      final boolean recurse) throws WebdavException {
+    SynchReportData srd = getSysi().getSynchReport(path, token, limit, recurse);
+
+    if (srd == null) {
+      return null;
+    }
+
+    WdSynchReport wsr = new WdSynchReport();
+
+    wsr.token = srd.token;
+    wsr.truncated = srd.truncated;
+    wsr.items = new TreeSet<WdSynchReportItem>();
+
+    for (SynchReportDataItem srdi: srd.items) {
+      WebdavNsNode node;
+
+      if (srdi.col != null) {
+        node = new CaldavCalNode(srdi.col, getSysi());
+      } else {
+        node = new CaldavComponentNode(srdi.entity, getSysi());
+      }
+
+      wsr.items.add(new WdSynchReportItem(node));
+    }
+
+    return wsr;
   }
 
   /* ====================================================================

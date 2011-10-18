@@ -132,6 +132,16 @@ public class CaldavCalNode extends CaldavBwNode {
     exists = cdURI.getExists();
   }
 
+  public CaldavCalNode(final CalDAVCollection col,
+                       final SysIntf sysi) throws WebdavException {
+    super(sysi, col.getParentPath(), true, col.getPath());
+
+    allowsGet = false;
+
+    this.col = col;
+    exists = true;
+  }
+
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getOwner()
    */
@@ -409,6 +419,11 @@ public class CaldavCalNode extends CaldavBwNode {
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
+  }
+
+  @Override
+  public boolean getDeleted() throws WebdavException {
+    return col.getDeleted();
   }
 
   /* ====================================================================
@@ -1096,6 +1111,7 @@ public class CaldavCalNode extends CaldavBwNode {
     }
 
     res.addAll(super.getSupportedReports());
+    res.add(WebdavTags.syncCollection);        // XXX - probably not every collection
 
     /* Cannot do free-busy on in and outbox */
     if (c.freebusyAllowed()) {

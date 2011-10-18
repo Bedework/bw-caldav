@@ -164,6 +164,22 @@ public class CaldavComponentNode extends CaldavBwNode {
     event = cdURI.getEntity();
   }
 
+  /** Constructor
+   *
+   * @param event
+   * @param sysi
+   * @throws WebdavException
+   */
+  public CaldavComponentNode(final CalDAVEvent event,
+                             final SysIntf sysi) throws WebdavException {
+    super(sysi, event.getParentPath(), false, event.getPath());
+
+    allowsGet = true;
+    entityName = event.getName();
+
+    this.event = event;
+  }
+
   @Override
   public void init(final boolean content) throws WebdavException {
     if (!content) {
@@ -659,6 +675,11 @@ public boolean generatePropertyValue(final QName tag,
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
+  }
+
+  @Override
+  public boolean getDeleted() throws WebdavException {
+    return getEvent().getDeleted();
   }
 
   /* ====================================================================

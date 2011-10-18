@@ -654,6 +654,98 @@ public interface SysIntf {
                               boolean copy,
                               boolean overwrite) throws WebdavException;
 
+  /* ====================================================================
+   *                   Synch Reports
+   * ==================================================================== */
+
+  /** Data for Synch Report
+   *
+   *   @author Mike Douglass   douglm@rpi.edu
+   */
+  public static class SynchReportData {
+    /** The changed entity may be an event or a collection. If it is deleted then
+     * it will be marked as tombstoned.
+     *
+     * @author douglm
+     */
+    public static class SynchReportDataItem implements Comparable<SynchReportDataItem> {
+      /**
+       */
+      public String lastmod;
+
+      /** Non-null if this is for an entity */
+      public CalDAVEvent entity;
+
+      /** Non-null if this is for a collection */
+      public CalDAVCollection col;
+
+      /**
+       * @param entity
+       * @throws WebdavException
+       */
+      public SynchReportDataItem(final CalDAVEvent entity) throws WebdavException {
+        this.entity = entity;
+        lastmod = entity.getLastmod();
+      }
+
+      /**
+       * @param col
+       * @throws WebdavException
+       */
+      public SynchReportDataItem(final CalDAVCollection col) throws WebdavException {
+        this.col = col;
+        lastmod = col.getLastmod();
+      }
+
+      /* (non-Javadoc)
+       * @see java.lang.Comparable#compareTo(java.lang.Object)
+       */
+      @Override
+      public int compareTo(final SynchReportDataItem that) {
+        return lastmod.compareTo(that.lastmod);
+      }
+
+      @Override
+      public int hashCode() {
+        return lastmod.hashCode();
+      }
+
+      @Override
+      public boolean equals(final Object o) {
+        return compareTo((SynchReportDataItem)o) == 0;
+      }
+    }
+
+    /**
+     */
+    public Set<SynchReportDataItem> items;
+
+    /** True if the report was truncated
+     */
+    public boolean truncated;
+
+    /** Token for next time.
+     */
+    public String token;
+  }
+
+  /**
+   * @param path
+   * @param token
+   * @param limit - negative for no limit on result set size
+   * @param recurse
+   * @return report
+   * @throws WebdavException
+   */
+  public SynchReportData getSynchReport(String path,
+                                        String token,
+                                        int limit,
+                                        boolean recurse) throws WebdavException;
+
+  /* ====================================================================
+   *                   Misc
+   * ==================================================================== */
+
   /** Make an ical Calendar from an event.
    *
    * @param ev
