@@ -192,6 +192,11 @@ public abstract class CaldavBwNode extends WebdavNsNode {
     return res;
   }
 
+  @Override
+  public String getSyncToken() throws WebdavException {
+    return null;
+  }
+
   /* ====================================================================
    *                   Required webdav properties
    * ==================================================================== */

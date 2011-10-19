@@ -384,6 +384,11 @@ public class CaldavResourceNode extends CaldavBwNode {
   }
 
   @Override
+  public boolean allowsSyncReport() throws WebdavException {
+    return false;
+  }
+
+  @Override
   public boolean getDeleted() throws WebdavException {
     if (resource == null) {
       return false;

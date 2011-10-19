@@ -81,6 +81,13 @@ public interface SysIntf {
    */
   public SystemProperties getSystemProperties() throws WebdavException;
 
+  /**
+   * @param col
+   * @return true if this is a collection which allows a sync-report.
+   * @throws WebdavException
+   */
+  public boolean allowsSyncReport(CalDAVCollection col) throws WebdavException;
+
   /** Return default content type for this service.
    *
    * @return String - never null.
@@ -536,7 +543,7 @@ public interface SysIntf {
 
   /** Get a collection given the path
    *
-   * @param  path     String path of calendar
+   * @param  path     String path of collection
    * @return CalDAVCollection null for unknown collection
    * @throws WebdavException
    */
@@ -730,6 +737,13 @@ public interface SysIntf {
   }
 
   /**
+   * @param col
+   * @return A sync-token which must be a URI.
+   * @throws WebdavException
+   */
+  public String getSyncToken(CalDAVCollection col) throws WebdavException;
+
+  /**
    * @param path
    * @param token
    * @param limit - negative for no limit on result set size
@@ -737,10 +751,10 @@ public interface SysIntf {
    * @return report
    * @throws WebdavException
    */
-  public SynchReportData getSynchReport(String path,
-                                        String token,
-                                        int limit,
-                                        boolean recurse) throws WebdavException;
+  public SynchReportData getSyncReport(String path,
+                                       String token,
+                                       int limit,
+                                       boolean recurse) throws WebdavException;
 
   /* ====================================================================
    *                   Misc

@@ -1336,7 +1336,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
                                       final String token,
                                       final int limit,
                                       final boolean recurse) throws WebdavException {
-    SynchReportData srd = getSysi().getSynchReport(path, token, limit, recurse);
+    SynchReportData srd = getSysi().getSyncReport(path, token, limit, recurse);
 
     if (srd == null) {
       return null;

@@ -422,8 +422,18 @@ public class CaldavCalNode extends CaldavBwNode {
   }
 
   @Override
+  public boolean allowsSyncReport() throws WebdavException {
+    return getSysi().allowsSyncReport(col);
+  }
+
+  @Override
   public boolean getDeleted() throws WebdavException {
     return col.getDeleted();
+  }
+
+  @Override
+  public String getSyncToken() throws WebdavException {
+    return getSysi().getSyncToken(col);
   }
 
   /* ====================================================================
@@ -936,7 +946,7 @@ public class CaldavCalNode extends CaldavBwNode {
         }
 
         props.add(xrdProperty(name,
-                                                            getUrlValue(cinfo.userHomePath, true)));
+                              getUrlValue(cinfo.userHomePath, true)));
 
         return true;
       }
@@ -1111,7 +1121,6 @@ public class CaldavCalNode extends CaldavBwNode {
     }
 
     res.addAll(super.getSupportedReports());
-    res.add(WebdavTags.syncCollection);        // XXX - probably not every collection
 
     /* Cannot do free-busy on in and outbox */
     if (c.freebusyAllowed()) {

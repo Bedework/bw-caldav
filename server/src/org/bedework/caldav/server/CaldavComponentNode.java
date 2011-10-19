@@ -678,6 +678,11 @@ public boolean generatePropertyValue(final QName tag,
   }
 
   @Override
+  public boolean allowsSyncReport() throws WebdavException {
+    return false;
+  }
+
+  @Override
   public boolean getDeleted() throws WebdavException {
     return getEvent().getDeleted();
   }
