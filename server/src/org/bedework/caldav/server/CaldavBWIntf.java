@@ -1346,7 +1346,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
     wsr.token = srd.token;
     wsr.truncated = srd.truncated;
-    wsr.items = new TreeSet<WdSynchReportItem>();
+    wsr.items = new ArrayList<WdSynchReportItem>();
 
     for (SynchReportDataItem srdi: srd.items) {
       WebdavNsNode node;

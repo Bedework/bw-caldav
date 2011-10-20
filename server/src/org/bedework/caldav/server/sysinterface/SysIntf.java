@@ -725,7 +725,7 @@ public interface SysIntf {
 
     /**
      */
-    public Set<SynchReportDataItem> items;
+    public List<SynchReportDataItem> items;
 
     /** True if the report was truncated
      */
