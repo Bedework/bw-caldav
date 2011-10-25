@@ -37,6 +37,7 @@ import org.bedework.caldav.util.CalDAVConfig;
 
 import edu.rpi.cct.webdav.servlet.common.AccessUtil;
 import edu.rpi.cct.webdav.servlet.common.Headers;
+import edu.rpi.cct.webdav.servlet.common.Headers.IfHeaders;
 import edu.rpi.cct.webdav.servlet.common.MethodBase.MethodInfo;
 import edu.rpi.cct.webdav.servlet.common.WebdavServlet;
 import edu.rpi.cct.webdav.servlet.common.WebdavUtils;
@@ -723,7 +724,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
   }
 
   /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#putContent(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, edu.rpi.cct.webdav.servlet.shared.WebdavNsNode, java.lang.String[], java.io.Reader, boolean, java.lang.String)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#putContent(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, edu.rpi.cct.webdav.servlet.shared.WebdavNsNode, java.lang.String[], java.io.Reader, edu.rpi.cct.webdav.servlet.common.Headers.IfHeaders)
    */
   @Override
   public PutContentResult putContent(final HttpServletRequest req,
@@ -731,8 +732,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
                                      final WebdavNsNode node,
                                      final String[] contentTypePars,
                                      final Reader contentRdr,
-                                     final boolean create,
-                                     final String ifEtag) throws WebdavException {
+                                     final IfHeaders ifHeaders) throws WebdavException {
     try {
       PutContentResult pcr = new PutContentResult();
       pcr.node = node;
@@ -762,7 +762,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       pcr.created = putEvent(req, resp, bwnode,
                              contentRdr,
                              contentTypePars[0],
-                             create, ifEtag);
+                             ifHeaders);
 
       return pcr;
     } catch (WebdavException we) {
@@ -772,16 +772,12 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
   }
 
-  /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#putBinaryContent(javax.servlet.http.HttpServletRequest, edu.rpi.cct.webdav.servlet.shared.WebdavNsNode, java.lang.String[], java.io.InputStream, boolean, java.lang.String)
-   */
   @Override
   public PutContentResult putBinaryContent(final HttpServletRequest req,
                                            final WebdavNsNode node,
                                            final String[] contentTypePars,
                                            final InputStream contentStream,
-                                           boolean create,
-                                           final String ifEtag) throws WebdavException {
+                                           final IfHeaders ifHeaders) throws WebdavException {
     try {
       PutContentResult pcr = new PutContentResult();
       pcr.node = node;
@@ -801,7 +797,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       CalDAVResource r = bwnode.getResource();
 
       if (r.isNew()) {
-        create = true;
+        ifHeaders.create = true;
       }
 
       String contentType = null;
@@ -818,7 +814,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       r.setContentType(contentType);
       r.setBinaryContent(contentStream);
 
-      if (create) {
+      if (ifHeaders.create) {
         sysi.putFile(col, r);
       } else {
         sysi.updateFile(r, true);
@@ -836,8 +832,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
                            final CaldavComponentNode bwnode,
                            final Reader contentRdr,
                            final String contentType,
-                           final boolean create,
-                           final String ifEtag) throws WebdavException {
+                           final IfHeaders ifHeaders) throws WebdavException {
     String ifStag = Headers.ifScheduleTagMatch(req);
     boolean noInvites = req.getHeader("Bw-NoInvites") != null; // based on header?
 
@@ -878,7 +873,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       sysi.addEvent(ev, noInvites, true);
 
       bwnode.setEvent(ev);
-    } else if (create) {
+    } else if (ifHeaders.create) {
       /* Resource already exists */
 
       throw new WebdavException(HttpServletResponse.SC_PRECONDITION_FAILED);
@@ -888,10 +883,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
         throw new WebdavForbidden(CaldavTags.noUidConflict);
       }
 
-      if ((ifEtag != null) &&
-          (!ifEtag.equals(bwnode.getPrevEtagValue(true)))) {
+      if ((ifHeaders.ifEtag != null) &&
+          (!ifHeaders.ifEtag.equals(bwnode.getPrevEtagValue(true)))) {
         if (debug) {
-          debugMsg("putContent: etag mismatch if=" + ifEtag +
+          debugMsg("putContent: etag mismatch if=" + ifHeaders.ifEtag +
                    "prev=" + bwnode.getPrevEtagValue(true));
         }
         rollback();
@@ -1361,6 +1356,20 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
 
     return wsr;
+  }
+
+  @Override
+  public String getSyncToken(final String path) throws WebdavException{
+    String url = sysi.getUrlHandler().unprefix(fixPath(path));
+
+    CalDAVCollection col = getSysi().getCollection(url);
+
+    if (col == null) {
+      throw new WebdavException(HttpServletResponse.SC_PRECONDITION_FAILED,
+                                "Bad If header - unknown resource");
+    }
+
+    return getSysi().getSyncToken(col);
   }
 
   /* ====================================================================

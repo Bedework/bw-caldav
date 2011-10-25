@@ -6,9 +6,9 @@
     Version 2.0 (the "License"); you may not use this file
     except in compliance with the License. You may obtain a
     copy of the License at:
-        
+
     http://www.apache.org/licenses/LICENSE-2.0
-        
+
     Unless required by applicable law or agreed to in writing,
     software distributed under the License is distributed on
     an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -18,6 +18,8 @@
 */
 package org.bedework.caldav.server;
 
+import edu.rpi.cct.webdav.servlet.common.Headers;
+import edu.rpi.cct.webdav.servlet.common.Headers.IfHeaders;
 import edu.rpi.cct.webdav.servlet.common.PropPatchMethod;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
@@ -48,6 +50,15 @@ public class MkcalendarMethod extends PropPatchMethod {
                         final HttpServletResponse resp) throws WebdavException {
     if (debug) {
       trace("MkcalendarMethod: doMethod");
+    }
+
+    WebdavNsIntf intf = getNsIntf();
+
+    IfHeaders ifHeaders = Headers.processIfHeaders(req);
+    if ((ifHeaders.ifHeader != null) &&
+        !intf.syncTokenMatch(ifHeaders.ifHeader)) {
+      intf.rollback();
+      throw new WebdavException(HttpServletResponse.SC_PRECONDITION_FAILED);
     }
 
     /* Parse any content */

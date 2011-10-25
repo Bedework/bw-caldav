@@ -26,6 +26,7 @@ import org.bedework.caldav.server.sysinterface.SysIntf.IcalResultType;
 import org.bedework.caldav.server.sysinterface.SysIntf.SchedRecipientResult;
 import org.bedework.caldav.util.CalDAVConfig;
 
+import edu.rpi.cct.webdav.servlet.common.Headers.IfHeaders;
 import edu.rpi.cct.webdav.servlet.common.MethodBase;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavForbidden;
@@ -301,7 +302,9 @@ public class PostMethod extends MethodBase {
   public void doEntityCreate(final CaldavBWIntf intf,
                              final RequestPars pars,
                              final HttpServletResponse resp) throws WebdavException {
-    intf.putContent(pars.req, resp, true, true, null);
+    IfHeaders ih = new IfHeaders();
+    ih.create = true;
+    intf.putContent(pars.req, resp, true, ih);
   }
 
   private void doWsQuery(final CaldavBWIntf intf,
