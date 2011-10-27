@@ -299,26 +299,24 @@ public class CaldavCalNode extends CaldavBwNode {
   }
 
   @Override
-  public boolean writeContent(final XmlEmit xml,
-                              final Writer wtr,
-                              final String contentType) throws WebdavException {
+  public String writeContent(final XmlEmit xml,
+                             final Writer wtr,
+                             final String contentType) throws WebdavException {
     try {
       Collection<CalDAVEvent> evs = new ArrayList<CalDAVEvent>();
 
       evs.add(ical);
 
-      getSysi().writeCalendar(evs,
-                              MethodEmitted.noMethod,
-                              xml,
-                              wtr,
-                              contentType);
+      return getSysi().writeCalendar(evs,
+                                     MethodEmitted.noMethod,
+                                     xml,
+                                     wtr,
+                                     contentType);
     } catch (WebdavException we) {
       throw we;
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
-
-    return true;
   }
 
   /* (non-Javadoc)

@@ -281,10 +281,10 @@ public class CaldavResourceNode extends CaldavBwNode {
    * ==================================================================== */
 
   @Override
-  public boolean writeContent(final XmlEmit xml,
-                              final Writer wtr,
-                              final String contentType) throws WebdavException {
-    return false;
+  public String writeContent(final XmlEmit xml,
+                             final Writer wtr,
+                             final String contentType) throws WebdavException {
+    return null;
   }
 
   /* (non-Javadoc)

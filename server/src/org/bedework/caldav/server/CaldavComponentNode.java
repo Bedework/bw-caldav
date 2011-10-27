@@ -452,9 +452,9 @@ public boolean generatePropertyValue(final QName tag,
   */
 
   @Override
-  public boolean writeContent(final XmlEmit xml,
-                              final Writer wtr,
-                              final String contentType) throws WebdavException {
+  public String writeContent(final XmlEmit xml,
+                             final Writer wtr,
+                             final String contentType) throws WebdavException {
     try {
       Collection<CalDAVEvent> evs = new ArrayList<CalDAVEvent>();
 
@@ -469,18 +469,16 @@ public boolean generatePropertyValue(final QName tag,
         method = MethodEmitted.noMethod;
       }
 
-      getSysi().writeCalendar(evs,
-                              method,
-                              xml,
-                              wtr,
-                              contentType);
+      return getSysi().writeCalendar(evs,
+                                     method,
+                                     xml,
+                                     wtr,
+                                     contentType);
     } catch (WebdavException we) {
       throw we;
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
-
-    return true;
   }
 
   @Override

@@ -808,14 +808,15 @@ public interface SysIntf {
    * @param method - what scheduling method?
    * @param xml - if this is embedded in an xml stream
    * @param wtr - if standalone output or no xml stream initialized.
-   * @param contentType
+   * @param contentType - requested type. null for default
+   * @return actual contentType written
    * @throws WebdavException
    */
-  public void writeCalendar(Collection<CalDAVEvent> evs,
-                            MethodEmitted method,
-                            XmlEmit xml,
-                            Writer wtr,
-                            String contentType) throws WebdavException;
+  public String writeCalendar(Collection<CalDAVEvent> evs,
+                              MethodEmitted method,
+                              XmlEmit xml,
+                              Writer wtr,
+                              String contentType) throws WebdavException;
 
   /** Expected result type */
   public enum IcalResultType {
