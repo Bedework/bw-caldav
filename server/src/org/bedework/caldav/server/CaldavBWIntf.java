@@ -1809,7 +1809,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       return nd;
     } catch (WebdavNotFound wnf) {
-      return null;
+      throw wnf;
     } catch (WebdavException we) {
       throw we;
     } catch (Throwable t) {
@@ -2027,6 +2027,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
       //putUriPath(curi);
 
       return curi;
+    } catch (WebdavNotFound wnf) {
+      throw wnf;
     } catch (WebdavException wde) {
       throw wde;
     } catch (Throwable t) {

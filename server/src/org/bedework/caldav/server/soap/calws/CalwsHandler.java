@@ -58,15 +58,20 @@ import org.oasis_open.docs.ns.wscal.calws_soap.CalendarQueryResponseType;
 import org.oasis_open.docs.ns.wscal.calws_soap.CalendarQueryType;
 import org.oasis_open.docs.ns.wscal.calws_soap.DeleteItemResponseType;
 import org.oasis_open.docs.ns.wscal.calws_soap.DeleteItemType;
-import org.oasis_open.docs.ns.wscal.calws_soap.ErrorCodeType;
 import org.oasis_open.docs.ns.wscal.calws_soap.ErrorResponseType;
 import org.oasis_open.docs.ns.wscal.calws_soap.FetchItemResponseType;
 import org.oasis_open.docs.ns.wscal.calws_soap.FetchItemType;
+import org.oasis_open.docs.ns.wscal.calws_soap.ForbiddenType;
 import org.oasis_open.docs.ns.wscal.calws_soap.FreebusyReportResponseType;
 import org.oasis_open.docs.ns.wscal.calws_soap.FreebusyReportType;
 import org.oasis_open.docs.ns.wscal.calws_soap.GetPropertiesResponseType;
 import org.oasis_open.docs.ns.wscal.calws_soap.GetPropertiesType;
+import org.oasis_open.docs.ns.wscal.calws_soap.InvalidCalendarCollectionLocationType;
+import org.oasis_open.docs.ns.wscal.calws_soap.InvalidCalendarDataType;
+import org.oasis_open.docs.ns.wscal.calws_soap.InvalidCalendarObjectResourceType;
 import org.oasis_open.docs.ns.wscal.calws_soap.InvalidFilterType;
+import org.oasis_open.docs.ns.wscal.calws_soap.MismatchedChangeTokenType;
+import org.oasis_open.docs.ns.wscal.calws_soap.MissingChangeTokenType;
 import org.oasis_open.docs.ns.wscal.calws_soap.MultiOpResponseType;
 import org.oasis_open.docs.ns.wscal.calws_soap.MultiOpType;
 import org.oasis_open.docs.ns.wscal.calws_soap.MultistatResponseElementType;
@@ -74,6 +79,8 @@ import org.oasis_open.docs.ns.wscal.calws_soap.MultistatusPropElementType;
 import org.oasis_open.docs.ns.wscal.calws_soap.ObjectFactory;
 import org.oasis_open.docs.ns.wscal.calws_soap.PropstatType;
 import org.oasis_open.docs.ns.wscal.calws_soap.StatusType;
+import org.oasis_open.docs.ns.wscal.calws_soap.TargetDoesNotExistType;
+import org.oasis_open.docs.ns.wscal.calws_soap.TargetNotEntityType;
 import org.oasis_open.docs.ns.wscal.calws_soap.UTCTimeRangeType;
 import org.oasis_open.docs.ns.wscal.calws_soap.UidConflictType;
 import org.oasis_open.docs.ns.wscal.calws_soap.UpdateItemResponseType;
@@ -759,8 +766,8 @@ public class CalwsHandler extends SoapHandler {
 
           ErrorResponseType er = new ErrorResponseType();
 
-          ErrorCodeType ec = new ErrorCodeType();
-          er.setError(of.createMissingEtoken(ec));
+          MissingChangeTokenType ec = new MissingChangeTokenType();
+          er.setError(of.createMissingChangeToken(ec));
           uir.setErrorResponse(er);
           uir.setMessage("Missing token");
           break updateItem;
@@ -773,8 +780,8 @@ public class CalwsHandler extends SoapHandler {
 
           ErrorResponseType er = new ErrorResponseType();
 
-          ErrorCodeType ec = new ErrorCodeType();
-          er.setError(of.createMismatchedEtoken(ec));
+          MismatchedChangeTokenType ec = new MismatchedChangeTokenType();
+          er.setError(of.createMismatchedChangeToken(ec));
           uir.setErrorResponse(er);
           uir.setMessage("Token mismatch");
           break updateItem;
@@ -877,19 +884,19 @@ public class CalwsHandler extends SoapHandler {
 
     setError: {
       if (we instanceof WebdavForbidden) {
-        ErrorCodeType ec = new ErrorCodeType();
+        ForbiddenType ec = new ForbiddenType();
         er.setError(of.createForbidden(ec));
         break setError;
       }
 
       if (we instanceof WebdavNotFound) {
-        ErrorCodeType ec = new ErrorCodeType();
+        TargetDoesNotExistType ec = new TargetDoesNotExistType();
         er.setError(of.createTargetDoesNotExist(ec));
         break setError;
       }
 
       if (we instanceof WebdavUnauthorized) {
-        ErrorCodeType ec = new ErrorCodeType();
+        TargetNotEntityType ec = new TargetNotEntityType();
         er.setError(of.createTargetNotEntity(ec));
         break setError;
       }
@@ -915,7 +922,7 @@ public class CalwsHandler extends SoapHandler {
       */
 
       if (etag.equals(CaldavTags.calendarCollectionLocationOk)) {
-        ErrorCodeType ec = new ErrorCodeType();
+        InvalidCalendarCollectionLocationType ec = new InvalidCalendarCollectionLocationType();
         er.setError(of.createInvalidCalendarCollectionLocation(ec));
         break setError;
       }
@@ -948,13 +955,13 @@ public class CalwsHandler extends SoapHandler {
       */
 
       if (etag.equals(CaldavTags.validCalendarData)) {
-        ErrorCodeType ec = new ErrorCodeType();
+        InvalidCalendarDataType ec = new InvalidCalendarDataType();
         er.setError(of.createInvalidCalendarData(ec));
         break setError;
       }
 
       if (etag.equals(CaldavTags.validCalendarObjectResource)) {
-        ErrorCodeType ec = new ErrorCodeType();
+        InvalidCalendarObjectResourceType ec = new InvalidCalendarObjectResourceType();
         er.setError(of.createInvalidCalendarObjectResource(ec));
         break setError;
       }

@@ -202,6 +202,8 @@ public class ReportBase extends CaldavReportMethod {
 
     if (val.getAnyComp() != null) {
       compFilter.setName("*");
+    } else if (val.getVcalendar() != null) {
+      compFilter.setName("vcalendar");
     } else {
       compFilter.setName(val.getBaseComponent().getName().getLocalPart());
     }
