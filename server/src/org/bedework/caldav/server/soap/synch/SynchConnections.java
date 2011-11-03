@@ -27,11 +27,11 @@ import java.util.Map;
 /** This is a simple bean to handle the dynamic connections made between bedework
  * and synch engines. These connections are defined by no more than an id and token.
  *
- * <p>The are stored in a table with a url as the key. The url is the callback
+ * <p>They are stored in a table with a url as the key. The url is the callback
  * url of the synch service.
  *
  * <p>At this point I'm not sure how there can be more than one useful callback
- * url. How do we selct which one to callback to?
+ * url. How do we select which one to callback to?
  *
  * @author douglm
  */
@@ -42,7 +42,7 @@ public class SynchConnections implements SynchConnectionsMBean {
   static Map<String, SynchConnection> activeConnections =
       new HashMap<String, SynchConnection>();
 
-  /* A map indexed by the url which identifies 'open' connections */
+  /* A map indexed by the id which identifies 'open' connections */
   static Map<String, SynchConnection> activeConnectionsById =
       new HashMap<String, SynchConnection>();
 
@@ -53,30 +53,35 @@ public class SynchConnections implements SynchConnectionsMBean {
   /* (non-Javadoc)
    * @see org.bedework.dumprestore.BwDumpRestoreMBean#getName()
    */
+  @Override
   public String getName() {
     /* This apparently must be the same as the name attribute in the
      * jboss service definition
      */
-    return "org.bedework:service=DumpRestore";
+    return "org.bedework:service=SynchConnections";
   }
 
   /* ========================================================================
    * Operations
    * ======================================================================== */
 
+  @Override
   public void setConnection(final SynchConnection val) {
     activeConnections.put(val.getSubscribeUrl(), val);
     activeConnectionsById.put(val.getConnectorId(), val);
   }
 
+  @Override
   public SynchConnection getConnection(final String callbackUrl) {
     return activeConnections.get(callbackUrl);
   }
 
+  @Override
   public SynchConnection getConnectionById(final String id) {
     return activeConnectionsById.get(id);
   }
 
+  @Override
   public String[] activeConnectionInfo() {
     Collection<SynchConnection> conns = activeConnections.values();
 
@@ -102,6 +107,7 @@ public class SynchConnections implements SynchConnectionsMBean {
   /* (non-Javadoc)
    * @see org.bedework.dumprestore.BwDumpRestoreMBean#create()
    */
+  @Override
   public void create() {
     // An opportunity to initialise
   }
@@ -109,6 +115,7 @@ public class SynchConnections implements SynchConnectionsMBean {
   /* (non-Javadoc)
    * @see org.bedework.indexer.BwIndexerMBean#start()
    */
+  @Override
   public void start() {
     started = true;
   }
@@ -116,6 +123,7 @@ public class SynchConnections implements SynchConnectionsMBean {
   /* (non-Javadoc)
    * @see org.bedework.indexer.BwIndexerMBean#stop()
    */
+  @Override
   public void stop() {
     started = false;
   }
@@ -123,6 +131,7 @@ public class SynchConnections implements SynchConnectionsMBean {
   /* (non-Javadoc)
    * @see org.bedework.indexer.BwIndexerMBean#isStarted()
    */
+  @Override
   public boolean isStarted() {
     return started;
   }
@@ -130,6 +139,7 @@ public class SynchConnections implements SynchConnectionsMBean {
   /* (non-Javadoc)
    * @see org.bedework.dumprestore.BwDumpRestoreMBean#destroy()
    */
+  @Override
   public void destroy() {
   }
 }
