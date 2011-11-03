@@ -232,14 +232,25 @@ public class CaldavReportMethod extends ReportMethod {
           DumpUtil.dumpFilter(cqpars.filter, getLogger());
         }
 
-        if ((preq == null) && (chiter.hasNext())) {
-          // Try for the props again
-          preq = pm.tryPropRequest(chiter.next());
+        if (chiter.hasNext()) {
+          curnode = chiter.next();
+        } else {
+          curnode = null;
         }
 
-        if (chiter.hasNext()) {
+        if ((preq == null) && (curnode != null)) {
+          // Try for the props again
+          preq = pm.tryPropRequest(curnode);
+
+          if ((preq != null) && (chiter.hasNext())) {
+            curnode = chiter.next();
+          } else {
+            curnode = null;
+          }
+        }
+
+        if (curnode != null) {
           // Only timezone allowed
-          curnode = chiter.next();
 
           if (!XmlUtil.nodeMatches(curnode, CaldavTags.timezone)) {
             throw new WebdavBadRequest("Expected timezone");
