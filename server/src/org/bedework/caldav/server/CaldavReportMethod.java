@@ -193,23 +193,31 @@ public class CaldavReportMethod extends ReportMethod {
                                     DAV:prop)?, filter, timezone?)>
        */
 
+      /* NOTE the first release of IOS5 has the filter before the properties
+       * for the calendar query. Discovered during the Prague CalConnect
+       * interop and apparently not fixed for the first release. Note that the
+       * spec does specify the order.
+       */
+
       if (children.isEmpty()) {
         throw new WebdavBadRequest();
       }
 
       Iterator<Element> chiter = children.iterator();
 
-      /* First try for a property request */
-      preq = pm.tryPropRequest(chiter.next());
-
-      if (!chiter.hasNext()) {
-        throw new WebdavBadRequest();
-      }
-
       Element curnode = chiter.next();
 
       if (reportType == reportTypeQuery) {
-        // Filter required next
+        /* First try for a property request */
+        preq = pm.tryPropRequest(curnode);
+
+        if (preq != null) {
+          if (!chiter.hasNext()) {
+            throw new WebdavBadRequest();
+          }
+
+          curnode = chiter.next();
+        }
 
         cqpars = new CalendarQueryPars();
 
@@ -222,6 +230,11 @@ public class CaldavReportMethod extends ReportMethod {
         if (debug) {
           trace("REPORT: query");
           DumpUtil.dumpFilter(cqpars.filter, getLogger());
+        }
+
+        if ((preq == null) && (chiter.hasNext())) {
+          // Try for the props again
+          preq = pm.tryPropRequest(chiter.next());
         }
 
         if (chiter.hasNext()) {
@@ -247,6 +260,17 @@ public class CaldavReportMethod extends ReportMethod {
       }
 
       if (reportType == reportTypeMultiGet) {
+        /* First try for a property request */
+        preq = pm.tryPropRequest(curnode);
+
+        if (preq != null) {
+          if (!chiter.hasNext()) {
+            throw new WebdavBadRequest();
+          }
+
+          curnode = chiter.next();
+        }
+
         // One or more hrefs
 
         for (;;) {
