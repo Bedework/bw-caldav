@@ -608,7 +608,7 @@ public class CalwsHandler extends SoapHandler {
                                null)) {
           air.setStatus(StatusType.OK);
           air.setHref(elNode.getUri());
-          air.setEtoken(((CaldavBwNode)elNode).getEtokenValue());
+          air.setChangeToken(((CaldavBwNode)elNode).getEtokenValue());
         } else {
           air.setStatus(StatusType.ERROR);
         }
@@ -658,7 +658,7 @@ public class CalwsHandler extends SoapHandler {
         CaldavComponentNode comp = (CaldavComponentNode)elNode;
 
         fir.setStatus(StatusType.OK);
-        fir.setEtoken(comp.getEtokenValue());
+        fir.setChangeToken(comp.getEtokenValue());
 
         CalDAVEvent ev = comp.getEvent();
         fir.setIcalendar(getIntf().getSysi().toIcalendar(ev, false, null));
@@ -758,9 +758,9 @@ public class CalwsHandler extends SoapHandler {
         }
 
         CaldavComponentNode compNode = (CaldavComponentNode)elNode;
-        String etoken = ui.getEtoken();
+        String changeToken = ui.getChangeToken();
 
-        if (etoken == null) {
+        if (changeToken == null) {
           // Why can this happen? minOccurs = 1
           uir.setStatus(StatusType.ERROR);
 
@@ -775,7 +775,7 @@ public class CalwsHandler extends SoapHandler {
 
         // XXX Just do a straight compare for the moment
 
-        if (!etoken.equals(compNode.getEtokenValue())) {
+        if (!changeToken.equals(compNode.getEtokenValue())) {
           uir.setStatus(StatusType.ERROR);
 
           ErrorResponseType er = new ErrorResponseType();
@@ -836,7 +836,7 @@ public class CalwsHandler extends SoapHandler {
       MultistatResponseElementType mre = new MultistatResponseElementType();
 
       mre.setHref(curnode.getUri());
-      mre.setEtoken(((CaldavBwNode)curnode).getEtokenValue());
+      mre.setChangeToken(((CaldavBwNode)curnode).getEtokenValue());
 
       cqr.getResponse().add(mre);
 
