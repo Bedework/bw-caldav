@@ -246,7 +246,7 @@ public class SynchwsHandler extends CalwsHandler {
   private SynchConnectionsMBean getActiveConnections() throws Throwable {
     if (conns == null) {
       conns = (SynchConnectionsMBean)MBeanUtil.getMBean(SynchConnectionsMBean.class,
-                                         "org.bedework:service=SynchConnections");
+                                         "org.bedework:service=CalDAVSynchConnections");
     }
 
     return conns;
