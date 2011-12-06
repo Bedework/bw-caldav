@@ -24,8 +24,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-/** This is a simple bean to handle the dynamic connections made between bedework
- * and synch engines. These connections are defined by no more than an id and token.
+/** This is a simple bean to handle the dynamic connections made between the
+ * CalDAV server and synch engines. These connections are defined by no more
+ * than an id and token.
  *
  * <p>They are stored in a table with a url as the key. The url is the callback
  * url of the synch service.
@@ -58,7 +59,7 @@ public class SynchConnections implements SynchConnectionsMBean {
     /* This apparently must be the same as the name attribute in the
      * jboss service definition
      */
-    return "org.bedework:service=SynchConnections";
+    return "org.bedework:service=CalDAVSynchConnections";
   }
 
   /* ========================================================================
