@@ -13,6 +13,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/davutil"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/webdav"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/access"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/rpituil"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/rpiutil"/>
 	<classpathentry kind="output" path="bin/eclipse-build"/>
 </classpath>
