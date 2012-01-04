@@ -25,10 +25,19 @@ import edu.rpi.cct.webdav.servlet.shared.WdEntity;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
+import edu.rpi.cmt.calendar.XcalUtil;
+import edu.rpi.sss.util.xml.tagdefs.CalWSSoapTags;
 import edu.rpi.sss.util.xml.tagdefs.CalWSXrdDefs;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 import edu.rpi.sss.util.xml.tagdefs.XrdTags;
 
+import org.oasis_open.docs.ns.wscal.calws_soap.CalendarAccessFeatureType;
+import org.oasis_open.docs.ns.wscal.calws_soap.CreationDateTimeType;
+import org.oasis_open.docs.ns.wscal.calws_soap.DisplayNameType;
+import org.oasis_open.docs.ns.wscal.calws_soap.GetPropertiesBasePropertyType;
+import org.oasis_open.docs.ns.wscal.calws_soap.ResourceOwnerType;
+import org.oasis_open.docs.ns.wscal.calws_soap.SupportedFeaturesType;
+import org.oasis_open.docs.ns.xri.xrd_1.LinkType;
 import org.oasis_open.docs.ns.xri.xrd_1.PropertyType;
 
 import java.util.ArrayList;
@@ -55,12 +64,22 @@ public abstract class CaldavBwNode extends WebdavNsNode {
 
   private final static Collection<QName> supportedReports = new ArrayList<QName>();
 
+  private final static HashMap<QName, PropertyTagEntry> calWSSoapNames =
+    new HashMap<QName, PropertyTagEntry>();
+
   static {
     supportedReports.add(CaldavTags.calendarMultiget); // Calendar access
     supportedReports.add(CaldavTags.calendarQuery);    // Calendar access
+
+    addCalWSSoapName(CalWSSoapTags.creationDateTime, true);
+    addCalWSSoapName(CalWSSoapTags.displayName, true);
+    addCalWSSoapName(CalWSSoapTags.lastModifiedDateTime, true);
+    addCalWSSoapName(CalWSSoapTags.supportedFeatures, true);
   }
 
-  /** */
+  /** Information about properties returned in an XRD object for the restful
+   * protocol
+   */
   public static final class PropertyTagXrdEntry extends PropertyTagEntry {
     /** */
     public String xrdName;
@@ -256,6 +275,74 @@ public abstract class CaldavBwNode extends WebdavNsNode {
    * @param name
    * @param intf
    * @param allProp
+   * @return true if property emitted
+   * @throws WebdavException
+   */
+  public boolean generateCalWsProperty(final List<GetPropertiesBasePropertyType> props,
+                                       final QName tag,
+                                       final WebdavNsIntf intf,
+                                       final boolean allProp) throws WebdavException {
+    try {
+      if (tag.equals(CalWSSoapTags.creationDateTime)) {
+        String val = getCreDate();
+        if (val == null) {
+          return true;
+        }
+
+        CreationDateTimeType cdt = new CreationDateTimeType();
+        cdt.setDateTime(XcalUtil.fromDtval(val));
+        props.add(cdt);
+        return true;
+      }
+
+      if (tag.equals(CalWSSoapTags.displayName)) {
+        String val = getDisplayname();
+        if (val == null) {
+          return true;
+        }
+
+        DisplayNameType dn = new DisplayNameType();
+        dn.setString(val);
+        props.add(dn);
+        return true;
+      }
+
+      if (tag.equals(CalWSSoapTags.supportedFeatures)) {
+        SupportedFeaturesType sf = new SupportedFeaturesType();
+
+        sf.getCalendarAccessFeature().add(new CalendarAccessFeatureType());
+
+        props.add(sf);
+        return true;
+      }
+
+      if (tag.equals(CalWSSoapTags.resourceOwner)) {
+        String href = intf.makeUserHref(getOwner().getPrincipalRef());
+        if (!href.endsWith("/")) {
+          href += "/";
+        }
+
+        ResourceOwnerType ro = new ResourceOwnerType();
+
+        ro.setString(href);
+        props.add(ro);
+
+        return true;
+      }
+
+      return false;
+    } catch (WebdavException wde) {
+      throw wde;
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
+  }
+
+  /**
+   * @param props
+   * @param name
+   * @param intf
+   * @param allProp
    * @return true if proeprty emitted
    * @throws WebdavException
    */
@@ -325,6 +412,16 @@ public abstract class CaldavBwNode extends WebdavNsNode {
     return xrdNames.values();
   }
 
+  /** Return a set of PropertyTagEntry defining CalWS-SOAP properties this node
+   * supports.
+   *
+   * @return Collection of PropertyTagEntry
+   * @throws WebdavException
+   */
+  public Collection<PropertyTagEntry> getCalWSSoapNames() throws WebdavException {
+    return calWSSoapNames.values();
+  }
+
   @SuppressWarnings("unchecked")
   protected JAXBElement<PropertyType> xrdProperty(final String name,
                                      final String val) throws WebdavException {
@@ -333,6 +430,16 @@ public abstract class CaldavBwNode extends WebdavNsNode {
     p.setValue(val);
 
     return new JAXBElement(XrdTags.property, PropertyType.class, p);
+  }
+
+  @SuppressWarnings("unchecked")
+  protected JAXBElement<LinkType> xrdLink(final String name,
+                                          final Object val) throws WebdavException {
+    LinkType l = new LinkType();
+    l.setType(name);
+    l.getTitleOrPropertyOrAny().add(val);
+
+    return new JAXBElement(XrdTags.link, LinkType.class, l);
   }
 
   @SuppressWarnings("unchecked")
@@ -378,6 +485,12 @@ public abstract class CaldavBwNode extends WebdavNsNode {
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
+  }
+
+  protected static void addCalWSSoapName(final QName tag,
+                                         final boolean inAllProp) {
+    PropertyTagEntry pte = new PropertyTagEntry(tag, inAllProp);
+    calWSSoapNames.put(tag, pte);
   }
 
   protected static void addPropEntry(final HashMap<QName, PropertyTagEntry> propertyNames,

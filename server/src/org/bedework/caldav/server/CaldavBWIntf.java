@@ -51,6 +51,7 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavForbidden;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNotFound;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
+import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode.PropertyTagEntry;
 import edu.rpi.cct.webdav.servlet.shared.WebdavPrincipalNode;
 import edu.rpi.cct.webdav.servlet.shared.WebdavProperty;
 import edu.rpi.cct.webdav.servlet.shared.WebdavServerError;
@@ -76,6 +77,7 @@ import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 import edu.rpi.sss.util.xml.tagdefs.XrdTags;
 import edu.rpi.sss.util.xml.tagdefs.XsiTags;
 
+import org.oasis_open.docs.ns.wscal.calws_soap.GetPropertiesBasePropertyType;
 import org.oasis_open.docs.ns.xri.xrd_1.AnyURI;
 import org.oasis_open.docs.ns.xri.xrd_1.LinkType;
 import org.oasis_open.docs.ns.xri.xrd_1.XRDType;
@@ -1142,6 +1144,15 @@ public class CaldavBWIntf extends WebdavNsIntf {
       return c;
     } catch (Throwable t) {
       throw new WebdavException(t);
+    }
+  }
+
+  public void getCalWSProperties(final CaldavBwNode node,
+                                 final List<GetPropertiesBasePropertyType> props) throws WebdavException {
+    for (PropertyTagEntry pte: node.getCalWSSoapNames()) {
+      if (pte.inPropAll) {
+        node.generateCalWsProperty(props, pte.tag, this, true);
+      }
     }
   }
 

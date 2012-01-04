@@ -27,18 +27,37 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavForbidden;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
+import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
 import edu.rpi.cmt.access.AccessPrincipal;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
 import edu.rpi.cmt.access.PrivilegeDefs;
+import edu.rpi.cmt.calendar.XcalUtil;
 import edu.rpi.sss.util.DateTimeUtil;
 import edu.rpi.sss.util.xml.XmlEmit;
 import edu.rpi.sss.util.xml.XmlUtil;
 import edu.rpi.sss.util.xml.tagdefs.AppleIcalTags;
 import edu.rpi.sss.util.xml.tagdefs.AppleServerTags;
+import edu.rpi.sss.util.xml.tagdefs.CalWSSoapTags;
 import edu.rpi.sss.util.xml.tagdefs.CalWSXrdDefs;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 
+import org.oasis_open.docs.ns.wscal.calws_soap.CalendarCollectionType;
+import org.oasis_open.docs.ns.wscal.calws_soap.ChildCollectionType;
+import org.oasis_open.docs.ns.wscal.calws_soap.CollectionType;
+import org.oasis_open.docs.ns.wscal.calws_soap.GetPropertiesBasePropertyType;
+import org.oasis_open.docs.ns.wscal.calws_soap.InboxType;
+import org.oasis_open.docs.ns.wscal.calws_soap.IntegerPropertyType;
+import org.oasis_open.docs.ns.wscal.calws_soap.LastModifiedDateTimeType;
+import org.oasis_open.docs.ns.wscal.calws_soap.MaxAttendeesPerInstanceType;
+import org.oasis_open.docs.ns.wscal.calws_soap.MaxInstancesType;
+import org.oasis_open.docs.ns.wscal.calws_soap.MaxResourceSizeType;
+import org.oasis_open.docs.ns.wscal.calws_soap.OutboxType;
+import org.oasis_open.docs.ns.wscal.calws_soap.PrincipalHomeType;
+import org.oasis_open.docs.ns.wscal.calws_soap.ResourceDescriptionType;
+import org.oasis_open.docs.ns.wscal.calws_soap.ResourceTimezoneIdType;
+import org.oasis_open.docs.ns.wscal.calws_soap.ResourceTypeType;
+import org.oasis_open.docs.ns.wscal.calws_soap.StringPropertyType;
 import org.oasis_open.docs.ns.wscal.calws_soap.SupportedCalendarComponentSetType;
 import org.w3c.dom.Element;
 
@@ -48,6 +67,7 @@ import ietf.params.xml.ns.icalendar_2.VeventType;
 import ietf.params.xml.ns.icalendar_2.VtodoType;
 
 import java.io.Writer;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -73,6 +93,9 @@ public class CaldavCalNode extends CaldavBwNode {
 
   private final static HashMap<String, PropertyTagXrdEntry> xrdNames =
     new HashMap<String, PropertyTagXrdEntry>();
+
+  private final static HashMap<QName, PropertyTagEntry> calWSSoapNames =
+    new HashMap<QName, PropertyTagEntry>();
 
   static {
     addPropEntry(propertyNames, CaldavTags.calendarDescription);
@@ -101,6 +124,19 @@ public class CaldavCalNode extends CaldavBwNode {
     addXrdEntry(xrdNames, CalWSXrdDefs.principalHome, true, true);
     addXrdEntry(xrdNames, CalWSXrdDefs.timezone, true, false);
     addXrdEntry(xrdNames, CalWSXrdDefs.supportedCalendarComponentSet, true, false);
+
+    addCalWSSoapName(CalWSSoapTags.childCollection, true);
+    addCalWSSoapName(CalWSSoapTags.maxAttendeesPerInstance, true);
+    addCalWSSoapName(CalWSSoapTags.maxDateTime, true);
+    addCalWSSoapName(CalWSSoapTags.maxInstances, true);
+    addCalWSSoapName(CalWSSoapTags.maxResourceSize, true);
+    addCalWSSoapName(CalWSSoapTags.minDateTime, true);
+    addCalWSSoapName(CalWSSoapTags.principalHome, true);
+    addCalWSSoapName(CalWSSoapTags.resourceDescription, true);
+    addCalWSSoapName(CalWSSoapTags.resourceType, true);
+    addCalWSSoapName(CalWSSoapTags.resourceTimezoneId, true);
+    addCalWSSoapName(CalWSSoapTags.supportedCalendarComponentSet, true);
+    addCalWSSoapName(CalWSSoapTags.timezoneServer, true);
   }
 
   /** Place holder for status
@@ -888,7 +924,246 @@ public class CaldavCalNode extends CaldavBwNode {
     }
   }
 
-  @SuppressWarnings("unused")
+  @Override
+  public boolean generateCalWsProperty(final List<GetPropertiesBasePropertyType> props,
+                                       final QName tag,
+                                       final WebdavNsIntf intf,
+                                       final boolean allProp) throws WebdavException {
+    try {
+      /*
+
+    addCalWSSoapName(CalWSSoapTags.timezoneServer, true);
+       */
+
+      if (tag.equals(CalWSSoapTags.childCollection)) {
+        for (WebdavNsNode child: intf.getChildren(this)) {
+          CaldavBwNode cn = (CaldavBwNode)child;
+
+          ChildCollectionType cc = new ChildCollectionType();
+
+          cc.setHref(cn.getUrlValue());
+
+          List<Object> rtypes = cc.getCalendarCollectionOrCollection();
+
+          if (!cn.isCollection()) {
+            continue;
+          }
+
+          rtypes.add(new CollectionType());
+
+          if (cn.isCalendarCollection()) {
+            rtypes.add(new CalendarCollectionType());
+          }
+
+          props.add(cc);
+        }
+
+        return true;
+      }
+
+      if (tag.equals(CalWSSoapTags.lastModifiedDateTime)) {
+        String val = col.getLastmod();
+        if (val == null) {
+          return true;
+        }
+
+        LastModifiedDateTimeType lmdt = new LastModifiedDateTimeType();
+        lmdt.setDateTime(XcalUtil.fromDtval(val));
+        props.add(lmdt);
+        return true;
+      }
+
+      if (tag.equals(CalWSSoapTags.maxAttendeesPerInstance)) {
+        if (!rootNode) {
+          return true;
+        }
+
+        Integer val = getSysi().getSystemProperties().getMaxAttendeesPerInstance();
+
+        if (val != null) {
+          props.add(intProp(new MaxAttendeesPerInstanceType(),
+                            val));
+        }
+
+        return true;
+      }
+
+      if (tag.equals(CalWSSoapTags.maxDateTime)) {
+        return true;
+      }
+
+      /*
+      if (name.equals(CalWSXrdDefs.maxDateTime)) {
+        if (!rootNode) {
+          return true;
+        }
+
+        Integer val = getSysi().getSystemProperties().getMaxAttendeesPerInstance();
+
+        if (val == null) {
+          return false;
+        }
+
+        props.add(prop);
+
+        return true;
+      }*/
+
+      if (tag.equals(CalWSSoapTags.maxInstances)) {
+        if (!rootNode) {
+          return true;
+        }
+
+        Integer val = getSysi().getSystemProperties().getMaxInstances();
+
+        if (val != null) {
+          props.add(intProp(new MaxInstancesType(),
+                            val));
+        }
+
+        return true;
+      }
+
+      if (tag.equals(CalWSSoapTags.maxResourceSize)) {
+        if (!rootNode) {
+          return true;
+        }
+
+        Integer val = getSysi().getSystemProperties().getMaxUserEntitySize();
+
+        if (val != null) {
+          props.add(intProp(new MaxResourceSizeType(),
+                            val));
+        }
+
+        return true;
+      }
+
+      if (tag.equals(CalWSSoapTags.minDateTime)) {
+        return true;
+      }
+
+      /*
+      if (name.equals(CalWSXrdDefs.minDateTime)) {
+        if (!rootNode) {
+          return true;
+        }
+
+        String val = getSysi().getSystemProperties().getMinDateTime();
+
+        if (val == null) {
+          return false;
+        }
+
+        props.add(xrdProperty(name, val));
+
+        return true;
+      }
+      */
+
+      if (tag.equals(CalWSSoapTags.principalHome)) {
+        if (!rootNode || intf.getAnonymous()) {
+          return true;
+        }
+
+        SysIntf si = getSysi();
+        CalPrincipalInfo cinfo = si.getCalPrincipalInfo(si.getPrincipal());
+        if (cinfo.userHomePath != null) {
+          props.add(strProp(new PrincipalHomeType(), cinfo.userHomePath));
+        }
+
+        return true;
+      }
+
+      if (tag.equals(CalWSSoapTags.resourceDescription)) {
+        String s = col.getDescription();
+
+        if (s != null) {
+          props.add(strProp(new ResourceDescriptionType(), s));
+        }
+
+        return true;
+      }
+
+      if (tag.equals(CalWSSoapTags.resourceType)) {
+        ResourceTypeType rt = new ResourceTypeType();
+
+        int calType;
+        CalDAVCollection c = (CalDAVCollection)getCollection(true); // deref this
+        if (c == null) {
+          // Probably no access -- fake it up as a collection
+          calType = CalDAVCollection.calTypeCollection;
+        } else {
+          calType = c.getCalType();
+        }
+
+        List<Object> rtypes = rt.getCalendarCollectionOrCollectionOrInbox();
+
+        rtypes.add(new CollectionType());
+
+        if (calType == CalDAVCollection.calTypeInbox) {
+          rtypes.add(new InboxType());
+        } else if (calType == CalDAVCollection.calTypeOutbox) {
+          rtypes.add(new OutboxType());
+        } else if (calType == CalDAVCollection.calTypeCalendarCollection) {
+          rtypes.add(new CalendarCollectionType());
+        }
+
+        props.add(rt);
+
+        return true;
+      }
+
+      if (tag.equals(CalWSSoapTags.resourceTimezoneId)) {
+        String tzid = col.getTimezone();
+
+        if (tzid != null) {
+          props.add(strProp(new ResourceTimezoneIdType(), tzid));
+        }
+
+        return true;
+      }
+
+      if (tag.equals(CalWSSoapTags.supportedCalendarComponentSet)) {
+        SupportedCalendarComponentSetType sccs = new SupportedCalendarComponentSetType();
+
+        ObjectFactory of = new ObjectFactory();
+
+        VeventType ev = new VeventType();
+        sccs.getBaseComponent().add(of.createVevent(ev));
+
+        VtodoType td = new VtodoType();
+        sccs.getBaseComponent().add(of.createVtodo(td));
+
+        VavailabilityType av = new VavailabilityType();
+        sccs.getBaseComponent().add(of.createVavailability(av));
+
+        props.add(sccs);
+
+        return true;
+      }
+
+      // Not known - try higher
+      return super.generateCalWsProperty(props, tag, intf, allProp);
+    } catch (WebdavException wde) {
+      throw wde;
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
+  }
+
+  private GetPropertiesBasePropertyType intProp(final IntegerPropertyType prop,
+                                                final Integer val) {
+    prop.setInteger(BigInteger.valueOf(val.longValue()));
+    return prop;
+  }
+
+  private GetPropertiesBasePropertyType strProp(final StringPropertyType prop,
+                                                final String val) {
+    prop.setString(val);
+    return prop;
+  }
+
   @Override
   public boolean generateXrdProperties(final List<Object> props,
                                        final String name,
@@ -1045,7 +1320,7 @@ public class CaldavCalNode extends CaldavBwNode {
         return true;
       }
 
-      if (false && name.equals(CalWSXrdDefs.supportedCalendarComponentSet)) {
+      if (name.equals(CalWSXrdDefs.supportedCalendarComponentSet)) {
         SupportedCalendarComponentSetType sccs = new SupportedCalendarComponentSetType();
 
         ObjectFactory of = new ObjectFactory();
@@ -1059,11 +1334,8 @@ public class CaldavCalNode extends CaldavBwNode {
         VavailabilityType av = new VavailabilityType();
         sccs.getBaseComponent().add(of.createVavailability(av));
 
-        QName qn = new QName(CalWSXrdDefs.namespace,
-                             CalWSXrdDefs.supportedCalendarComponentSet);
-
         JAXBElement<SupportedCalendarComponentSetType> el =
-              new JAXBElement<SupportedCalendarComponentSetType>(qn,
+              new JAXBElement<SupportedCalendarComponentSetType>(CalWSSoapTags.supportedCalendarComponentSet,
                                          SupportedCalendarComponentSetType.class,
                                          sccs);
         props.add(el);
@@ -1089,6 +1361,16 @@ public class CaldavCalNode extends CaldavBwNode {
 
     res.addAll(super.getPropertyNames());
     res.addAll(propertyNames.values());
+
+    return res;
+  }
+
+  @Override
+  public Collection<PropertyTagEntry> getCalWSSoapNames() throws WebdavException {
+    Collection<PropertyTagEntry> res = new ArrayList<PropertyTagEntry>();
+
+    res.addAll(super.getCalWSSoapNames());
+    res.addAll(calWSSoapNames.values());
 
     return res;
   }

@@ -257,6 +257,7 @@ public class CalwsHandler extends SoapHandler {
       GetPropertiesResponseType gpr = new GetPropertiesResponseType();
       JAXBElement<GetPropertiesResponseType> jax = of.createGetPropertiesResponse(gpr);
       gpr.setId(gp.getId());
+      gpr.setHref(url);
 
       if (url != null) {
         WebdavNsNode calNode = getNsIntf().getNode(url,
@@ -266,7 +267,8 @@ public class CalwsHandler extends SoapHandler {
         if (calNode != null) {
           CaldavBwNode nd = (CaldavBwNode)calNode;
 
-          gpr.setXRD(((CaldavBWIntf)getNsIntf()).getXRD(nd));
+          ((CaldavBWIntf)getNsIntf()).getCalWSProperties(nd,
+                                                         gpr.getChildCollectionOrCreationDateTimeOrDisplayName());
         }
 
         if (!multi) {
