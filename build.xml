@@ -11,8 +11,6 @@
   <property environment="env"/>
   <dirname property="project.home" file="${ant.file}"/>
 
-  <property file="${project.home}/build.properties" />
-  
   <property name="bedework.home"
             location="${project.home}/../bedework" />
 
@@ -22,7 +20,7 @@
 
   <deftasks/>
 
-  <projectDefs name="${org.bedework.package.name}"
+  <projectDefs name="Bedework abstract CalDAV server"
                version="${org.bedework.caldav.version}" 
                subproject="true" />
 
@@ -39,17 +37,16 @@
     <property name="org.bedework.caldav.util.base" location="${project.home}/util" />
 
     <property name="server.jar"
-              location="${dist.home}/${edu.rpi.cmt.caldav.server.jar}-${project.version}.jar" />
+              location="${dist.home}/bw-cdvserver-${project.version}.jar" />
 
     <property name="util.jar"
-              location="${dist.home}/${edu.rpi.cmt.caldav.util.jar}-${project.version}.jar" />
+              location="${dist.home}/bw-cdvutil-${project.version}.jar" />
   </target>
     
   <target name="build-init" depends="init">
-    <getJar name="commons-httpclient" version="3.0" />
     <getJar name="ical4j" version="head-20100601" />
     <getJar name="log4j" version="1.2.8" />
-    <getJar name="servletapi" version="2.4" />
+    <getJar name="servlet-api" version="2.4" />
 
     <getJar name="bw-davio" 
             version="${org.bedework.davutil.version}" project="davutil" 
