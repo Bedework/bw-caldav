@@ -1611,7 +1611,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
           xml.openTagNoNewline(CaldavTags.calendarData);
           caldata.process(node, xml);
-          xml.closeTagNoblanks(CaldavTags.calendarData);
 
           return true;
         } catch (WebdavException wde) {
@@ -1620,6 +1619,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
             error(wde);
           }
           return false;
+        } finally {
+          xml.closeTagNoblanks(CaldavTags.calendarData);
         }
       }
 
