@@ -286,7 +286,7 @@ public class PostMethod extends MethodBase {
     }
 
     if (intf.getSysi().getPrincipal() == null) {
-      intf.reAuth(req, "realtime01");
+      intf.reAuth(req, "isched01", true);
     }
 
     doISchedule(intf, pars, resp);

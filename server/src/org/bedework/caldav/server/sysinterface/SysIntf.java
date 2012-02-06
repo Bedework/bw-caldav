@@ -67,11 +67,14 @@ public interface SysIntf {
    *
    * @param req
    * @param account
+   * @param service - true if this is a service call - e.g. iSchedule -
+   *                rather than a real user.
    * @param conf  per application type configuration
    * @throws WebdavException
    */
   public void init(HttpServletRequest req,
                    String account,
+                   boolean service,
                    CalDAVConfig conf) throws WebdavException;
 
   /** Return CalDAV relevant properties about the system.

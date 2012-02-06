@@ -193,7 +193,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       config.setCalWS(calWs);
 
-      sysi.init(req, account, config);
+      sysi.init(req, account, false, config);
 
       accessUtil = new AccessUtil(namespacePrefix, xml,
                                   new CalDavAccessXmlCb(sysi));
@@ -209,10 +209,13 @@ public class CaldavBWIntf extends WebdavNsIntf {
    *
    * @param req
    * @param account
+   * @param service - true if this is a service call - e.g. iSchedule -
+   *                rather than a real user.
    * @throws WebdavException
    */
   public void reAuth(final HttpServletRequest req,
-                     final String account) throws WebdavException {
+                     final String account,
+                     final boolean service) throws WebdavException {
     try {
       if (sysi != null) {
         try {
@@ -226,7 +229,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       sysi = getSysi(config.getSysintfImpl());
 
-      sysi.init(req, account, config);
+      sysi.init(req, account, service, config);
 
       accessUtil = new AccessUtil(namespacePrefix, xml,
                                   new CalDavAccessXmlCb(sysi));

@@ -195,7 +195,8 @@ public class SynchwsHandler extends CalwsHandler {
                              final SynchIdTokenType idToken) throws WebdavException {
     try {
       if (idToken.getPrincipalHref() != null) {
-        getIntf().reAuth(req, idToken.getPrincipalHref());
+        getIntf().reAuth(req, idToken.getPrincipalHref(),
+                         false); // service
       }
 
       SynchConnection sc = getActiveConnection(idToken.getSubscribeUrl());
