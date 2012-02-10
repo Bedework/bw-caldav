@@ -6,9 +6,9 @@
     Version 2.0 (the "License"); you may not use this file
     except in compliance with the License. You may obtain a
     copy of the License at:
-        
+
     http://www.apache.org/licenses/LICENSE-2.0
-        
+
     Unless required by applicable law or agreed to in writing,
     software distributed under the License is distributed on
     an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -47,6 +47,8 @@ public class CalPrincipalInfo implements Serializable {
    */
   public String outboxPath;
 
+  private long quota;
+
   /**
    * @param principal
    * @param userHomePath
@@ -54,14 +56,23 @@ public class CalPrincipalInfo implements Serializable {
    * @param inboxPath
    * @param outboxPath
    */
-  public CalPrincipalInfo(AccessPrincipal principal,
-                          String userHomePath,
-                          String defaultCalendarPath, String inboxPath,
-                          String outboxPath) {
+  public CalPrincipalInfo(final AccessPrincipal principal,
+                          final String userHomePath,
+                          final String defaultCalendarPath, final String inboxPath,
+                          final String outboxPath,
+                          final long quota) {
     this.principal = principal;
     this.userHomePath = userHomePath;
     this.defaultCalendarPath = defaultCalendarPath;
     this.inboxPath = inboxPath;
     this.outboxPath = outboxPath;
+    this.quota = quota;
+  }
+
+  /**
+   * @return long
+   */
+  public long getQuota() {
+    return quota;
   }
 }

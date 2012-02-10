@@ -803,10 +803,15 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       if ((contentTypePars != null) && (contentTypePars.length > 0)) {
         for (String c: contentTypePars) {
-          if (contentType != null) {
-            contentType += ";";
+          if (c == null) {
+            continue;
           }
-          contentType += c;
+
+          if (contentType != null) {
+            contentType += ";" + c;
+          } else {
+            contentType = c;
+          }
         }
       }
 
