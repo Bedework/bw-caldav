@@ -46,46 +46,46 @@ import edu.rpi.sss.util.Util;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 import edu.rpi.sss.util.xml.tagdefs.XcalTags;
 
-import org.oasis_open.docs.ns.wscal.calws_soap.AddItemResponseType;
-import org.oasis_open.docs.ns.wscal.calws_soap.AddItemType;
-import org.oasis_open.docs.ns.wscal.calws_soap.ArrayOfHrefs;
-import org.oasis_open.docs.ns.wscal.calws_soap.ArrayOfResponses;
-import org.oasis_open.docs.ns.wscal.calws_soap.BaseRequestType;
-import org.oasis_open.docs.ns.wscal.calws_soap.BaseResponseType;
-import org.oasis_open.docs.ns.wscal.calws_soap.CalendarDataResponseType;
-import org.oasis_open.docs.ns.wscal.calws_soap.CalendarMultigetType;
-import org.oasis_open.docs.ns.wscal.calws_soap.CalendarQueryResponseType;
-import org.oasis_open.docs.ns.wscal.calws_soap.CalendarQueryType;
-import org.oasis_open.docs.ns.wscal.calws_soap.DeleteItemResponseType;
-import org.oasis_open.docs.ns.wscal.calws_soap.DeleteItemType;
-import org.oasis_open.docs.ns.wscal.calws_soap.ErrorResponseType;
-import org.oasis_open.docs.ns.wscal.calws_soap.FetchItemResponseType;
-import org.oasis_open.docs.ns.wscal.calws_soap.FetchItemType;
-import org.oasis_open.docs.ns.wscal.calws_soap.ForbiddenType;
-import org.oasis_open.docs.ns.wscal.calws_soap.FreebusyReportResponseType;
-import org.oasis_open.docs.ns.wscal.calws_soap.FreebusyReportType;
-import org.oasis_open.docs.ns.wscal.calws_soap.GetPropertiesResponseType;
-import org.oasis_open.docs.ns.wscal.calws_soap.GetPropertiesType;
-import org.oasis_open.docs.ns.wscal.calws_soap.InvalidCalendarCollectionLocationType;
-import org.oasis_open.docs.ns.wscal.calws_soap.InvalidCalendarDataType;
-import org.oasis_open.docs.ns.wscal.calws_soap.InvalidCalendarObjectResourceType;
-import org.oasis_open.docs.ns.wscal.calws_soap.InvalidFilterType;
-import org.oasis_open.docs.ns.wscal.calws_soap.MismatchedChangeTokenType;
-import org.oasis_open.docs.ns.wscal.calws_soap.MissingChangeTokenType;
-import org.oasis_open.docs.ns.wscal.calws_soap.MultiOpResponseType;
-import org.oasis_open.docs.ns.wscal.calws_soap.MultiOpType;
-import org.oasis_open.docs.ns.wscal.calws_soap.MultistatResponseElementType;
-import org.oasis_open.docs.ns.wscal.calws_soap.MultistatusPropElementType;
-import org.oasis_open.docs.ns.wscal.calws_soap.ObjectFactory;
-import org.oasis_open.docs.ns.wscal.calws_soap.PropstatType;
-import org.oasis_open.docs.ns.wscal.calws_soap.StatusType;
-import org.oasis_open.docs.ns.wscal.calws_soap.TargetDoesNotExistType;
-import org.oasis_open.docs.ns.wscal.calws_soap.TargetNotEntityType;
-import org.oasis_open.docs.ns.wscal.calws_soap.UTCTimeRangeType;
-import org.oasis_open.docs.ns.wscal.calws_soap.UidConflictType;
-import org.oasis_open.docs.ns.wscal.calws_soap.UpdateItemResponseType;
-import org.oasis_open.docs.ns.wscal.calws_soap.UpdateItemType;
 import org.oasis_open.docs.ns.xri.xrd_1.XRDType;
+import org.oasis_open.docs.ws_calendar.ns.soap.AddItemResponseType;
+import org.oasis_open.docs.ws_calendar.ns.soap.AddItemType;
+import org.oasis_open.docs.ws_calendar.ns.soap.ArrayOfHrefs;
+import org.oasis_open.docs.ws_calendar.ns.soap.ArrayOfResponses;
+import org.oasis_open.docs.ws_calendar.ns.soap.BaseRequestType;
+import org.oasis_open.docs.ws_calendar.ns.soap.BaseResponseType;
+import org.oasis_open.docs.ws_calendar.ns.soap.CalendarDataResponseType;
+import org.oasis_open.docs.ws_calendar.ns.soap.CalendarMultigetType;
+import org.oasis_open.docs.ws_calendar.ns.soap.CalendarQueryResponseType;
+import org.oasis_open.docs.ws_calendar.ns.soap.CalendarQueryType;
+import org.oasis_open.docs.ws_calendar.ns.soap.DeleteItemResponseType;
+import org.oasis_open.docs.ws_calendar.ns.soap.DeleteItemType;
+import org.oasis_open.docs.ws_calendar.ns.soap.ErrorResponseType;
+import org.oasis_open.docs.ws_calendar.ns.soap.FetchItemResponseType;
+import org.oasis_open.docs.ws_calendar.ns.soap.FetchItemType;
+import org.oasis_open.docs.ws_calendar.ns.soap.ForbiddenType;
+import org.oasis_open.docs.ws_calendar.ns.soap.FreebusyReportResponseType;
+import org.oasis_open.docs.ws_calendar.ns.soap.FreebusyReportType;
+import org.oasis_open.docs.ws_calendar.ns.soap.GetPropertiesResponseType;
+import org.oasis_open.docs.ws_calendar.ns.soap.GetPropertiesType;
+import org.oasis_open.docs.ws_calendar.ns.soap.InvalidCalendarCollectionLocationType;
+import org.oasis_open.docs.ws_calendar.ns.soap.InvalidCalendarDataType;
+import org.oasis_open.docs.ws_calendar.ns.soap.InvalidCalendarObjectResourceType;
+import org.oasis_open.docs.ws_calendar.ns.soap.InvalidFilterType;
+import org.oasis_open.docs.ws_calendar.ns.soap.MismatchedChangeTokenType;
+import org.oasis_open.docs.ws_calendar.ns.soap.MissingChangeTokenType;
+import org.oasis_open.docs.ws_calendar.ns.soap.MultiOpResponseType;
+import org.oasis_open.docs.ws_calendar.ns.soap.MultiOpType;
+import org.oasis_open.docs.ws_calendar.ns.soap.MultistatResponseElementType;
+import org.oasis_open.docs.ws_calendar.ns.soap.MultistatusPropElementType;
+import org.oasis_open.docs.ws_calendar.ns.soap.ObjectFactory;
+import org.oasis_open.docs.ws_calendar.ns.soap.PropstatType;
+import org.oasis_open.docs.ws_calendar.ns.soap.StatusType;
+import org.oasis_open.docs.ws_calendar.ns.soap.TargetDoesNotExistType;
+import org.oasis_open.docs.ws_calendar.ns.soap.TargetNotEntityType;
+import org.oasis_open.docs.ws_calendar.ns.soap.UTCTimeRangeType;
+import org.oasis_open.docs.ws_calendar.ns.soap.UidConflictType;
+import org.oasis_open.docs.ws_calendar.ns.soap.UpdateItemResponseType;
+import org.oasis_open.docs.ws_calendar.ns.soap.UpdateItemType;
 
 import ietf.params.xml.ns.icalendar_2.ArrayOfComponents;
 import ietf.params.xml.ns.icalendar_2.ArrayOfProperties;
@@ -128,7 +128,7 @@ public class CalwsHandler extends SoapHandler {
 
   @Override
   protected String getJaxbContextPath() {
-    return "org.oasis_open.docs.ns.wscal.calws_soap:" +
+    return "org.oasis_open.docs.ws_calendar.ns.soap:" +
            XRDType.class.getPackage().getName();
   }
 

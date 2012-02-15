@@ -31,14 +31,14 @@ import edu.rpi.sss.util.xml.tagdefs.CalWSXrdDefs;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 import edu.rpi.sss.util.xml.tagdefs.XrdTags;
 
-import org.oasis_open.docs.ns.wscal.calws_soap.CalendarAccessFeatureType;
-import org.oasis_open.docs.ns.wscal.calws_soap.CreationDateTimeType;
-import org.oasis_open.docs.ns.wscal.calws_soap.DisplayNameType;
-import org.oasis_open.docs.ns.wscal.calws_soap.GetPropertiesBasePropertyType;
-import org.oasis_open.docs.ns.wscal.calws_soap.ResourceOwnerType;
-import org.oasis_open.docs.ns.wscal.calws_soap.SupportedFeaturesType;
 import org.oasis_open.docs.ns.xri.xrd_1.LinkType;
 import org.oasis_open.docs.ns.xri.xrd_1.PropertyType;
+import org.oasis_open.docs.ws_calendar.ns.soap.CalendarAccessFeatureType;
+import org.oasis_open.docs.ws_calendar.ns.soap.CreationDateTimeType;
+import org.oasis_open.docs.ws_calendar.ns.soap.DisplayNameType;
+import org.oasis_open.docs.ws_calendar.ns.soap.GetPropertiesBasePropertyType;
+import org.oasis_open.docs.ws_calendar.ns.soap.ResourceOwnerType;
+import org.oasis_open.docs.ws_calendar.ns.soap.SupportedFeaturesType;
 
 import java.util.ArrayList;
 import java.util.Collection;

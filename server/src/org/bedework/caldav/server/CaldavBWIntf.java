@@ -77,10 +77,10 @@ import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 import edu.rpi.sss.util.xml.tagdefs.XrdTags;
 import edu.rpi.sss.util.xml.tagdefs.XsiTags;
 
-import org.oasis_open.docs.ns.wscal.calws_soap.GetPropertiesBasePropertyType;
 import org.oasis_open.docs.ns.xri.xrd_1.AnyURI;
 import org.oasis_open.docs.ns.xri.xrd_1.LinkType;
 import org.oasis_open.docs.ns.xri.xrd_1.XRDType;
+import org.oasis_open.docs.ws_calendar.ns.soap.GetPropertiesBasePropertyType;
 import org.w3c.dom.Element;
 
 import ietf.params.xml.ns.caldav.FilterType;

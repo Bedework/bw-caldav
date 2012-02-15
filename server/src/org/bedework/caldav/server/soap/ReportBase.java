@@ -26,15 +26,15 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
 import edu.rpi.cmt.calendar.XcalUtil;
 
-import org.oasis_open.docs.ns.wscal.calws_soap.CalendarQueryType;
-import org.oasis_open.docs.ns.wscal.calws_soap.CompFilterType;
-import org.oasis_open.docs.ns.wscal.calws_soap.ExpandType;
-import org.oasis_open.docs.ns.wscal.calws_soap.FilterType;
-import org.oasis_open.docs.ns.wscal.calws_soap.LimitRecurrenceSetType;
-import org.oasis_open.docs.ns.wscal.calws_soap.ParamFilterType;
-import org.oasis_open.docs.ns.wscal.calws_soap.PropFilterType;
-import org.oasis_open.docs.ns.wscal.calws_soap.TextMatchType;
-import org.oasis_open.docs.ns.wscal.calws_soap.UTCTimeRangeType;
+import org.oasis_open.docs.ws_calendar.ns.soap.CalendarQueryType;
+import org.oasis_open.docs.ws_calendar.ns.soap.CompFilterType;
+import org.oasis_open.docs.ws_calendar.ns.soap.ExpandType;
+import org.oasis_open.docs.ws_calendar.ns.soap.FilterType;
+import org.oasis_open.docs.ws_calendar.ns.soap.LimitRecurrenceSetType;
+import org.oasis_open.docs.ws_calendar.ns.soap.ParamFilterType;
+import org.oasis_open.docs.ws_calendar.ns.soap.PropFilterType;
+import org.oasis_open.docs.ws_calendar.ns.soap.TextMatchType;
+import org.oasis_open.docs.ws_calendar.ns.soap.UTCTimeRangeType;
 import org.w3c.dom.Document;
 
 import ietf.params.xml.ns.icalendar_2.IcalendarType;

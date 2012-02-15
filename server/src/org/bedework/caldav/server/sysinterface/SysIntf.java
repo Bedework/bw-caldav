@@ -40,7 +40,7 @@ import edu.rpi.sss.util.xml.XmlEmit;
 
 import net.fortuna.ical4j.model.Calendar;
 
-import org.oasis_open.docs.ns.wscal.calws_soap.ComponentSelectionType;
+import org.oasis_open.docs.ws_calendar.ns.soap.ComponentSelectionType;
 
 import ietf.params.xml.ns.icalendar_2.IcalendarType;
 

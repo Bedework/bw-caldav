@@ -31,8 +31,8 @@ import org.bedework.synch.wsmessages.SynchIdTokenType;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cmt.jboss.MBeanUtil;
 
-import org.oasis_open.docs.ns.wscal.calws_soap.BaseRequestType;
-import org.oasis_open.docs.ns.wscal.calws_soap.StatusType;
+import org.oasis_open.docs.ws_calendar.ns.soap.BaseRequestType;
+import org.oasis_open.docs.ws_calendar.ns.soap.StatusType;
 
 import java.util.UUID;
 
