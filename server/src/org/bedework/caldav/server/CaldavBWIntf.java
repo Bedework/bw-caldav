@@ -69,7 +69,6 @@ import edu.rpi.sss.util.OptionsI;
 import edu.rpi.sss.util.xml.XmlEmit;
 import edu.rpi.sss.util.xml.XmlEmit.NameSpace;
 import edu.rpi.sss.util.xml.XmlUtil;
-import edu.rpi.sss.util.xml.tagdefs.CalWSTags;
 import edu.rpi.sss.util.xml.tagdefs.CalWSXrdDefs;
 import edu.rpi.sss.util.xml.tagdefs.CaldavDefs;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
@@ -437,7 +436,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
   public void addNamespace(final XmlEmit xml) throws WebdavException {
     try {
       if (calWs) {
-        xml.addNs(new NameSpace(CalWSTags.namespace, "CalWS"), true);
+        xml.addNs(new NameSpace(CalWSXrdDefs.namespace, "CalWS"), true);
         xml.addNs(new NameSpace(XsiTags.namespace, "xsi"), false);
         xml.addNs(new NameSpace(XrdTags.namespace, "xrd"), false);
 
