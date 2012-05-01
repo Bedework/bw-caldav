@@ -44,6 +44,7 @@
   </target>
     
   <target name="build-init" depends="init">
+    <!--
     <getJar name="ical4j" version="head-20100601" />
     <getJar name="log4j" version="1.2.8" />
     <getJar name="servlet-api" version="2.4" />
@@ -73,6 +74,8 @@
     <getJar name="bw-caldavschema" 
             version="${org.bedework.bwxml.version}" project="bwxml" 
             projecthome="${bedework.home}/../bwxml" />
+    -->
+    <resolveDependencies pomFile="pom.xml" />
   </target>
 
   <!-- ===================== bld-source Target ===============================
@@ -82,8 +85,14 @@
   <target name="build-source" depends="build-init" >
     <build-jar module-base="${org.bedework.caldav.util.base}" 
                jar-file="${util.jar}" />
+    
+    <installJar dir="${org.bedework.caldav.util.base}" name="${util.jar}"/>
 
     <build-jar module-base="${org.bedework.caldav.server.base}" 
                jar-file="${server.jar}" />
+    
+    <installJar dir="${org.bedework.caldav.server.base}" name="${server.jar}"/>
+    
+    <installPom dir="${project.home}"/>
   </target>
 </project>

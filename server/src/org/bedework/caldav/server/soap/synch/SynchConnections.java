@@ -20,6 +20,10 @@ package org.bedework.caldav.server.soap.synch;
 
 import edu.rpi.sss.util.Util;
 
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanLifecycle;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,7 +40,19 @@ import java.util.Map;
  *
  * @author douglm
  */
-public class SynchConnections implements SynchConnectionsMBean {
+public class SynchConnections implements SynchConnectionsMBean, GBeanLifecycle {
+  /** Geronimo gbean info
+   */
+  public static final GBeanInfo GBEAN_INFO;
+  static {
+    GBeanInfoBuilder infoB =
+        GBeanInfoBuilder.createStatic("CalDAVSynchConnections", SynchConnections.class);
+    infoB.addAttribute("account", String.class, true);
+    infoB.addAttribute("skipPaths", String.class, true);
+
+    GBEAN_INFO = infoB.getBeanInfo();
+  }
+
   private boolean started;
 
   /* A map indexed by the url which identifies 'open' connections */
@@ -142,5 +158,31 @@ public class SynchConnections implements SynchConnectionsMBean {
    */
   @Override
   public void destroy() {
+  }
+
+  /* ========================================================================
+   * Geronimo lifecycle methods
+   * ======================================================================== */
+
+  /**
+   * @return gbean info
+   */
+  public static GBeanInfo getGBeanInfo() {
+    return GBEAN_INFO;
+  }
+
+  @Override
+  public void doFail() {
+    stop();
+  }
+
+  @Override
+  public void doStart() throws Exception {
+    start();
+  }
+
+  @Override
+  public void doStop() throws Exception {
+    stop();
   }
 }
