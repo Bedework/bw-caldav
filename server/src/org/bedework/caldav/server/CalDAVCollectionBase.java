@@ -70,10 +70,10 @@ public abstract class CalDAVCollectionBase extends CalDAVCollection {
   }
 
   /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WdCollection#getAliasTarget()
+   * @see edu.rpi.cct.webdav.servlet.shared.WdEntity#resolveAlias(boolean)
    */
   @Override
-  public WdCollection getAliasTarget() throws WebdavException {
+  public WdCollection resolveAlias(final boolean resolveSubAlias) throws WebdavException {
     return null;
   }
 

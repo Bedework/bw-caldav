@@ -160,17 +160,7 @@ public abstract class CaldavBwNode extends WebdavNsNode {
       return col;
     }
 
-    WdCollection curCol = col;
-
-    if ((curCol != null) && curCol.isAlias()) {
-      curCol = (WdCollection)col.getAliasTarget();
-      if (curCol == null) {
-        getSysi().resolveAlias(col);
-        curCol = (WdCollection)col.getAliasTarget();
-      }
-    }
-
-    return curCol;
+    return (WdCollection)col.resolveAlias(true);
   }
 
   /**

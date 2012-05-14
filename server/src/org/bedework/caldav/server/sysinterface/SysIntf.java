@@ -575,14 +575,6 @@ public interface SysIntf {
   public Collection<CalDAVCollection> getCollections(CalDAVCollection col)
           throws WebdavException;
 
-  /** If the parameter is an alias and the target has not been resolved it will
-   * be fetched and implanted in the parameter object.
-   *
-   * @param col
-   * @throws WebdavException
-   */
-  public void resolveAlias(CalDAVCollection col) throws WebdavException;
-
   /* ====================================================================
    *                   Files
    * ==================================================================== */
