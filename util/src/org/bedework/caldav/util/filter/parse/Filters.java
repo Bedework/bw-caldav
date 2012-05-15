@@ -285,7 +285,14 @@ public class Filters {
       if (utr.getEnd() != null) {
         et = new DateTime(XcalUtil.getIcalFormatDateTime(utr.getEnd()));
       }
+
+      if ((st == null) && (et == null)) {
+        throw new WebdavBadRequest(CaldavTags.validFilter, "Invalid time-range - no start and no end");
+      }
+
       return new TimeRange(st, et);
+    } catch (WebdavException wde) {
+      throw wde;
     } catch (Throwable t) {
       throw new WebdavBadRequest(CaldavTags.validFilter, "Invalid time-range");
     }
