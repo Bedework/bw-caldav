@@ -113,6 +113,13 @@ public class CaldavCalNode extends CaldavBwNode {
     addPropEntry(propertyNames, AppleServerTags.getctag);
     addPropEntry(propertyNames, AppleIcalTags.calendarColor);
 
+    /* Default alarms */
+
+    addPropEntry(propertyNames, CaldavTags.defaultAlarmVeventDate);
+    addPropEntry(propertyNames, CaldavTags.defaultAlarmVeventDatetime);
+    addPropEntry(propertyNames, CaldavTags.defaultAlarmVtodoDate);
+    addPropEntry(propertyNames, CaldavTags.defaultAlarmVtodoDatetime);
+
     //addXrdEntry(xrdNames, CalWSXrdDefs.calendarCollection, true);
     addXrdEntry(xrdNames, CalWSXrdDefs.collection, true, true); // for all resource types
     addXrdEntry(xrdNames, CalWSXrdDefs.description, true, false);
@@ -168,6 +175,11 @@ public class CaldavCalNode extends CaldavBwNode {
     exists = cdURI.getExists();
   }
 
+  /**
+   * @param col
+   * @param sysi
+   * @throws WebdavException
+   */
   public CaldavCalNode(final CalDAVCollection col,
                        final SysIntf sysi) throws WebdavException {
     super(sysi, col.getParentPath(), true, col.getPath());
@@ -524,6 +536,16 @@ public class CaldavCalNode extends CaldavBwNode {
         return true;
       }
 
+      if (XmlUtil.nodeMatches(val, CaldavTags.defaultAlarmVeventDate) ||
+          XmlUtil.nodeMatches(val, CaldavTags.defaultAlarmVeventDatetime) ||
+          XmlUtil.nodeMatches(val, CaldavTags.defaultAlarmVtodoDate) ||
+          XmlUtil.nodeMatches(val, CaldavTags.defaultAlarmVtodoDatetime)) {
+        col.setProperty(new QName(val.getNamespaceURI(), val.getLocalName()),
+                        null);
+
+        return true;
+      }
+
       return false;
     } catch (WebdavException wde) {
       throw wde;
@@ -623,6 +645,28 @@ public class CaldavCalNode extends CaldavBwNode {
 
       if (XmlUtil.nodeMatches(val, AppleIcalTags.calendarColor)) {
         col.setColor(XmlUtil.getElementContent(val));
+
+        return true;
+      }
+
+      if (XmlUtil.nodeMatches(val, CaldavTags.defaultAlarmVeventDate) ||
+          XmlUtil.nodeMatches(val, CaldavTags.defaultAlarmVeventDatetime) ||
+          XmlUtil.nodeMatches(val, CaldavTags.defaultAlarmVtodoDate) ||
+          XmlUtil.nodeMatches(val, CaldavTags.defaultAlarmVtodoDatetime)) {
+        String al = XmlUtil.getElementContent(val, false);
+
+        if (al == null) {
+          return false;
+        }
+
+        if (al.length() > 0) {
+          if (!getSysi().validateAlarm(al)) {
+            return false;
+          }
+        }
+
+        col.setProperty(new QName(val.getNamespaceURI(), val.getLocalName()),
+                        al);
 
         return true;
       }
@@ -905,6 +949,25 @@ public class CaldavCalNode extends CaldavBwNode {
         }
 
         String val = getSysi().toStringTzCalendar(tzid);
+
+        if (val == null) {
+          return false;
+        }
+
+        xml.cdataProperty(tag, val);
+
+        return true;
+      }
+
+      if (tag.equals(CaldavTags.defaultAlarmVeventDate) ||
+          tag.equals(CaldavTags.defaultAlarmVeventDatetime) ||
+          tag.equals(CaldavTags.defaultAlarmVtodoDate) ||
+          tag.equals(CaldavTags.defaultAlarmVtodoDatetime)) {
+        if (c == null) {
+          return false;
+        }
+
+        String val =  c.getProperty(tag);
 
         if (val == null) {
           return false;

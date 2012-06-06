@@ -867,6 +867,14 @@ public interface SysIntf {
    */
   public String tzidFromTzdef(String val) throws WebdavException;
 
+  /** Validate an alarm component
+   *
+   * @param val
+   * @return boolean false for failure
+   * @throws WebdavException
+   */
+  public boolean validateAlarm(String val) throws WebdavException;
+
   /** Max size for an entity
    *
    * @return int
