@@ -249,7 +249,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
     return super.getDavHeader(node) +
         ", calendar-access" +
         ", calendar-schedule" +
-        ", calendar-auto-schedule";
+        ", calendar-auto-schedule" +
+        ", calendar-default-alarms";
   }
 
   @Override
