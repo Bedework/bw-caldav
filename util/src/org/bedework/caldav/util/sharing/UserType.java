@@ -19,6 +19,11 @@
 package org.bedework.caldav.util.sharing;
 
 import edu.rpi.sss.util.ToString;
+import edu.rpi.sss.util.xml.XmlEmit;
+import edu.rpi.sss.util.xml.tagdefs.AppleServerTags;
+import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
+
+import javax.xml.namespace.QName;
 
 /** Class to represent reply to a sharing request.
  *
@@ -27,7 +32,7 @@ import edu.rpi.sss.util.ToString;
 public class UserType {
   private String href;
   private String commonName;
-  private String status;
+  private QName inviteStatus;
   private AccessType access;
   private String summary;
 
@@ -62,15 +67,15 @@ public class UserType {
   /**
    * @param val status
    */
-  public void setStatus(final String val) {
-    status = val;
+  public void setInviteStatus(final QName val) {
+    inviteStatus = val;
   }
 
   /**
    * @return status
    */
-  public String getStatus() {
-    return status;
+  public QName getInviteStatus() {
+    return inviteStatus;
   }
 
   /**
@@ -105,6 +110,20 @@ public class UserType {
    *                   Convenience methods
    * ==================================================================== */
 
+  /**
+   * @param xml
+   * @throws Throwable
+   */
+  public void toXml(final XmlEmit xml) throws Throwable {
+    xml.openTag(AppleServerTags.user);
+    xml.property(WebdavTags.href, getHref());
+    xml.property(AppleServerTags.commonName, getCommonName());
+    xml.emptyTag(getInviteStatus());
+    getAccess().toXml(xml);
+    xml.property(AppleServerTags.summary, getSummary());
+    xml.closeTag(AppleServerTags.user);
+  }
+
   /** Add our stuff to the StringBuffer
    *
    * @param ts
@@ -112,7 +131,7 @@ public class UserType {
   protected void toStringSegment(final ToString ts) {
     ts.append("href", getHref());
     ts.append("commonName", getCommonName());
-    ts.append("status", getStatus());
+    ts.append("status", getInviteStatus().toString());
     ts.append(getAccess().toString());
     ts.append("summary", getSummary());
   }
@@ -124,5 +143,25 @@ public class UserType {
     toStringSegment(ts);
 
     return ts.toString();
+  }
+
+  /* ====================================================================
+   *                   Object methods
+   * ==================================================================== */
+
+  @Override
+  public int hashCode() {
+    return getHref().hashCode();
+  }
+
+  @Override
+  public boolean equals(final Object o) {
+    if (!(o instanceof UserType)) {
+      return false;
+    }
+
+    UserType that = (UserType)o;
+
+    return this.getHref().equals(that.getHref());
   }
 }

@@ -1459,7 +1459,16 @@ public class CaldavBWIntf extends WebdavNsIntf {
     CaldavBwNode node = (CaldavBwNode)getNode(info.what,
                                               WebdavNsIntf.existanceMust,
                                               WebdavNsIntf.nodeTypeUnknown);
+    updateAccess(info, node);
+  }
 
+  /**
+   * @param info
+   * @param node
+   * @throws WebdavException
+   */
+  public void updateAccess(final AclInfo info,
+                           final CaldavBwNode node) throws WebdavException {
     try {
       // May need a real principal hierarchy
       if (node instanceof CaldavCalNode) {

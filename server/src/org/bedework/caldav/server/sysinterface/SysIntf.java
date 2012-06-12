@@ -27,6 +27,8 @@ import org.bedework.caldav.server.SysiIcalendar;
 import org.bedework.caldav.util.CalDAVConfig;
 import org.bedework.caldav.util.TimeRange;
 import org.bedework.caldav.util.filter.FilterBase;
+import org.bedework.caldav.util.notifications.NotificationType;
+import org.bedework.caldav.util.sharing.InviteReplyType;
 
 import edu.rpi.cct.webdav.servlet.shared.PrincipalPropertySearch;
 import edu.rpi.cct.webdav.servlet.shared.UrlHandler;
@@ -51,6 +53,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.xml.namespace.QName;
 
 /** All interactions with the underlying calendar system are made via this
  * interface.
@@ -236,6 +239,57 @@ public interface SysIntf {
    * @throws WebdavException  for errors
    */
   public boolean validPrincipal(String href) throws WebdavException;
+
+  /* ====================================================================
+   *                   Notifications
+   * ==================================================================== */
+
+  /** Add the given notification to the notification collection for the
+   * indicated calendar user.
+   *
+   * @param href
+   * @param val
+   * @return false for unknown CU
+   * @throws WebdavException
+   */
+  public boolean sendNotification(String href,
+                                  NotificationType val) throws WebdavException;
+
+  /** Remove the given notification from the notification collection for the
+   * indicated calendar user.
+   *
+   * @param href
+   * @param val
+   * @throws WebdavException
+   */
+  public void removeNotification(String href,
+                                 NotificationType val) throws WebdavException;
+
+  /**
+   * @return notifications for this user
+   * @throws WebdavException
+   */
+  public List<NotificationType> getNotifications() throws WebdavException;
+
+  /**
+   * @param href of principal
+   * @param type of notification (null for all)
+   * @return notifications for the given principal of the given type
+   * @throws WebdavException
+   */
+  public List<NotificationType> getNotifications(String href,
+                                                 QName type) throws WebdavException;
+
+  /** Handle a reply to a sharing notification.
+   *
+   * @param uri - unchecked uri of sharers calendar home
+   * @param reply - the reply to the invitation.
+   * @return null for unknown sharer or no invitation otherwise the path to the
+   *                   new alias in the sharees calendar home.
+   * @throws WebdavException
+   */
+  public String sharingReply(String uri,
+                             InviteReplyType reply) throws WebdavException;
 
   /* ====================================================================
    *                   Scheduling

@@ -31,6 +31,8 @@ import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import java.io.InputStream;
+
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -56,12 +58,27 @@ public class Parser {
   private org.bedework.caldav.util.sharing.parse.Parser sharingParser;
 
   /**
-   * @param val
+   * @param is
+   * @return parsed notification or null
+   * @throws WebdavException
+   */
+  public static NotificationType fromXml(final InputStream is) throws WebdavException{
+    Document doc = parseXmlString(is);
+
+    if (doc == null) {
+      return null;
+    }
+
+    return new Parser().parseNotification(doc.getDocumentElement());
+  }
+
+  /**
+   * @param is
    * @return parsed Document
    * @throws WebdavException
    */
-  public static Document parseXmlString(final String val) throws WebdavException{
-    if ((val == null) || (val.length() == 0)) {
+  public static Document parseXmlString(final InputStream is) throws WebdavException{
+    if (is == null) {
       return null;
     }
 
@@ -71,7 +88,7 @@ public class Parser {
 
       DocumentBuilder builder = factory.newDocumentBuilder();
 
-      return builder.parse(new InputSource(val));
+      return builder.parse(new InputSource(is));
     } catch (SAXException e) {
       throw new WebdavBadRequest();
     } catch (Throwable t) {

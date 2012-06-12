@@ -19,6 +19,10 @@
 package org.bedework.caldav.util.notifications;
 
 import edu.rpi.sss.util.ToString;
+import edu.rpi.sss.util.xml.XmlEmit;
+import edu.rpi.sss.util.xml.tagdefs.AppleServerTags;
+
+import java.io.StringWriter;
 
 /** Class to represent notifications as defined by Apple.
  *
@@ -60,6 +64,31 @@ public class NotificationType {
   /* ====================================================================
    *                   Convenience methods
    * ==================================================================== */
+
+  /**
+   * @return XML version of notification
+   * @throws Throwable
+   */
+  public String toXml() throws Throwable {
+    StringWriter str = new StringWriter();
+    XmlEmit xml = new XmlEmit();
+
+    xml.startEmit(str);
+    toXml(xml);
+
+    return str.toString();
+  }
+
+  /**
+   * @param xml
+   * @throws Throwable
+   */
+  public void toXml(final XmlEmit xml) throws Throwable {
+    xml.openTag(AppleServerTags.notification);
+    xml.property(AppleServerTags.dtstamp, getDtstamp());
+    getNotification().toXml(xml);
+    xml.closeTag(AppleServerTags.notification);
+  }
 
   /** Add our stuff to the StringBuffer
    *

@@ -21,6 +21,7 @@ package org.bedework.caldav.util.sharing.parse;
 import org.bedework.caldav.util.sharing.AccessType;
 import org.bedework.caldav.util.sharing.InviteNotificationType;
 import org.bedework.caldav.util.sharing.InviteReplyType;
+import org.bedework.caldav.util.sharing.InviteType;
 import org.bedework.caldav.util.sharing.OrganizerType;
 import org.bedework.caldav.util.sharing.RemoveType;
 import org.bedework.caldav.util.sharing.SetType;
@@ -39,6 +40,9 @@ import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -49,47 +53,98 @@ import javax.xml.parsers.DocumentBuilderFactory;
  * @author Mike Douglass douglm
  */
 public class Parser {
-  private static QName accessTag = AppleServerTags.access;
+  /** */
+  public static final QName accessTag = AppleServerTags.access;
 
-  private static QName commonNameTag = AppleServerTags.commonName;
+  /** */
+  public static final QName commonNameTag = AppleServerTags.commonName;
 
-  private static QName hosturlTag = AppleServerTags.hosturl;
+  /** */
+  public static final QName hosturlTag = AppleServerTags.hosturl;
 
-  private static QName hrefTag = WebdavTags.href;
+  /** */
+  public static final QName hrefTag = WebdavTags.href;
 
-  private static QName inReplyToTag = AppleServerTags.inReplyTo;
+  /** */
+  public static final QName inReplyToTag = AppleServerTags.inReplyTo;
 
-  private static QName inviteAcceptedTag = AppleServerTags.inviteAccepted;
+  /** */
+  public static final QName inviteTag = AppleServerTags.invite;
 
-  private static QName inviteDeclinedTag = AppleServerTags.inviteDeclined;
+  /** */
+  public static final QName inviteAcceptedTag = AppleServerTags.inviteAccepted;
 
-  private static QName inviteDeletedTag = AppleServerTags.inviteDeleted;
+  /** */
+  public static final QName inviteDeclinedTag = AppleServerTags.inviteDeclined;
 
-  private static QName inviteInvalidTag = AppleServerTags.inviteInvalid;
+  /** */
+  public static final QName inviteDeletedTag = AppleServerTags.inviteDeleted;
 
-  private static QName inviteNoresponseTag = AppleServerTags.inviteNoresponse;
+  /** */
+  public static final QName inviteInvalidTag = AppleServerTags.inviteInvalid;
 
-  private static QName inviteNotificationTag = AppleServerTags.inviteNotification;
+  /** */
+  public static final QName inviteNoresponseTag = AppleServerTags.inviteNoresponse;
 
-  private static QName inviteReplyTag = AppleServerTags.inviteReply;
+  /** */
+  public static final QName inviteNotificationTag = AppleServerTags.inviteNotification;
 
-  private static QName organizerTag = AppleServerTags.organizer;
+  /** */
+  public static final QName inviteReplyTag = AppleServerTags.inviteReply;
 
-  private static QName readTag = AppleServerTags.read;
+  /** */
+  public static final QName organizerTag = AppleServerTags.organizer;
 
-  private static QName readWriteTag = AppleServerTags.readWrite;
+  /** */
+  public static final QName readTag = AppleServerTags.read;
 
-  private static QName removeTag = AppleServerTags.remove;
+  /** */
+  public static final QName readWriteTag = AppleServerTags.readWrite;
 
-  private static QName setTag = AppleServerTags.set;
+  /** */
+  public static final QName removeTag = AppleServerTags.remove;
 
-  private static QName shareTag = AppleServerTags.share;
+  /** */
+  public static final QName setTag = AppleServerTags.set;
 
-  private static QName summaryTag = AppleServerTags.summary;
+  /** */
+  public static final QName shareTag = AppleServerTags.share;
 
-  private static QName uidTag = AppleServerTags.uid;
+  /** */
+  public static final QName summaryTag = AppleServerTags.summary;
 
-  private static QName userTag = AppleServerTags.user;
+  /** */
+  public static final QName uidTag = AppleServerTags.uid;
+
+  /** */
+  public static final QName userTag = AppleServerTags.user;
+
+  private static Map<String, QName> statusToInviteStatus =
+      new HashMap<String, QName>();
+
+  private static Map<QName, String> inviteStatusToStatus =
+      new HashMap<QName, String>();
+
+  static {
+    setStatusMaps(inviteAcceptedTag);
+    setStatusMaps(inviteDeclinedTag);
+    setStatusMaps(inviteNoresponseTag);
+    setStatusMaps(inviteDeletedTag);
+    setStatusMaps(inviteInvalidTag);
+  }
+
+  private static void setStatusMaps(final QName val) {
+    statusToInviteStatus.put(val.getLocalPart(), val);
+    inviteStatusToStatus.put(val, val.getLocalPart());
+  }
+
+  /**
+   * @param val
+   * @return String form
+   */
+  public static String getInviteStatusToStatus(final QName val) {
+    return inviteStatusToStatus.get(val);
+  }
 
   /**
    * @param val
@@ -116,11 +171,55 @@ public class Parser {
   }
 
   /**
+   * @param val XML representation
+   * @return populated InviteType object
+   * @throws WebdavException
+   */
+  public InviteType parseInvite(final String val) throws WebdavException {
+    Document d = parseXmlString(val);
+
+    return parseInvite(d.getDocumentElement());
+  }
+
+  /**
+   * @param nd MUST be the invite xml element
+   * @return populated ShareType object
+   * @throws WebdavException
+   */
+  public InviteType parseInvite(final Node nd) throws WebdavException {
+    try {
+      if (!XmlUtil.nodeMatches(nd, inviteTag)) {
+        throw new WebdavBadRequest("Expected " + inviteTag);
+      }
+
+      InviteType in = new InviteType();
+      Element[] shareEls = XmlUtil.getElementsArray(nd);
+
+      for (Element curnode: shareEls) {
+        if (XmlUtil.nodeMatches(curnode, userTag)) {
+          in.getUsers().add(parseUser(curnode));
+          continue;
+        }
+
+        throw new WebdavBadRequest("Expected " + userTag);
+      }
+
+      return in;
+    } catch (SAXException e) {
+      throw new WebdavBadRequest();
+    } catch (WebdavException wde) {
+      throw wde;
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
+  }
+
+  /**
    * @param nd MUST be the share xml element
    * @return populated ShareType object
    * @throws WebdavException
    */
-  public ShareType parseShareType(final Node nd) throws WebdavException {
+  public ShareType parseShare(final Node nd) throws WebdavException {
     try {
       if (!XmlUtil.nodeMatches(nd, shareTag)) {
         throw new WebdavBadRequest("Expected " + shareTag);
@@ -279,11 +378,12 @@ public class Parser {
             XmlUtil.nodeMatches(curnode, inviteDeclinedTag) ||
             XmlUtil.nodeMatches(curnode, inviteNoresponseTag) ||
             XmlUtil.nodeMatches(curnode, inviteDeletedTag)) {
-          if (in.getStatus() != null) {
+          if (in.getInviteStatus() != null) {
             throw badAccess();
           }
 
-          in.setStatus(curnode.getLocalName());
+          in.setInviteStatus(new QName(AppleServerTags.appleCaldavNamespace,
+                                       curnode.getLocalName()));
 
           continue;
         }
@@ -382,11 +482,12 @@ public class Parser {
             XmlUtil.nodeMatches(curnode, inviteDeclinedTag) ||
             XmlUtil.nodeMatches(curnode, inviteNoresponseTag) ||
             XmlUtil.nodeMatches(curnode, inviteDeletedTag)) {
-          if (u.getStatus() != null) {
+          if (u.getInviteStatus() != null) {
             throw badAccess();
           }
 
-          u.setStatus(curnode.getLocalName());
+          u.setInviteStatus(new QName(AppleServerTags.appleCaldavNamespace,
+                                      curnode.getLocalName()));
 
           continue;
         }
@@ -413,7 +514,7 @@ public class Parser {
       }
 
       if ((u.getHref() == null) ||
-          (u.getStatus() == null) ||
+          (u.getInviteStatus() == null) ||
           (u.getAccess() == null)) {
         throw badUser();
       }

@@ -19,6 +19,8 @@
 package org.bedework.caldav.util.sharing;
 
 import edu.rpi.sss.util.ToString;
+import edu.rpi.sss.util.xml.XmlEmit;
+import edu.rpi.sss.util.xml.tagdefs.AppleServerTags;
 
 /** Class to represent access rights in sharing.
  *
@@ -59,6 +61,44 @@ public class AccessType {
   /* ====================================================================
    *                   Convenience methods
    * ==================================================================== */
+
+  /**
+   * @return true if read set and true, false otherwise
+   */
+  public boolean testRead() {
+    Boolean f = getRead();
+    if (f == null) {
+      return false;
+    }
+
+    return f;
+  }
+
+  /**
+   * @return true if read-write set and true, false otherwise
+   */
+  public boolean testReadWrite() {
+    Boolean f = getReadWrite();
+    if (f == null) {
+      return false;
+    }
+
+    return f;
+  }
+
+  /**
+   * @param xml
+   * @throws Throwable
+   */
+  public void toXml(final XmlEmit xml) throws Throwable {
+    xml.openTag(AppleServerTags.access);
+    if (read) {
+      xml.emptyTag(AppleServerTags.read);
+    } else if (readWrite) {
+      xml.emptyTag(AppleServerTags.readWrite);
+    }
+    xml.closeTag(AppleServerTags.access);
+  }
 
   /** Add our stuff to the StringBuffer
    *

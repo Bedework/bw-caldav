@@ -21,42 +21,27 @@ package org.bedework.caldav.util.sharing;
 import edu.rpi.sss.util.ToString;
 import edu.rpi.sss.util.xml.XmlEmit;
 import edu.rpi.sss.util.xml.tagdefs.AppleServerTags;
-import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 
-/** Class to represent an organizer (sharing owner) in a sharing request.
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
+
+/** Class to represent current sharing status.
  *
  * @author Mike Douglass douglm
  */
-public class OrganizerType {
-  private String href;
-  private String commonName;
+public class InviteType {
+  private List<UserType> users;
 
   /**
-   * @param val the href
+   * @return list of UserType - never null
    */
-  public void setHref(final String val) {
-    href = val;
-  }
+  public List<UserType> getUsers() {
+    if (users == null) {
+      users = new ArrayList<UserType>();
+    }
 
-  /**
-   * @return the href
-   */
-  public String getHref() {
-    return href;
-  }
-
-  /**
-   * @param val the common name
-   */
-  public void setCommonName(final String val) {
-    commonName = val;
-  }
-
-  /**
-   * @return the common name
-   */
-  public String getCommonName() {
-    return commonName;
+    return users;
   }
 
   /* ====================================================================
@@ -64,14 +49,30 @@ public class OrganizerType {
    * ==================================================================== */
 
   /**
+   * @return XML version of notification
+   * @throws Throwable
+   */
+  public String toXml() throws Throwable {
+    StringWriter str = new StringWriter();
+    XmlEmit xml = new XmlEmit();
+
+    xml.startEmit(str);
+    toXml(xml);
+
+    return str.toString();
+  }
+
+  /**
    * @param xml
    * @throws Throwable
    */
   public void toXml(final XmlEmit xml) throws Throwable {
-    xml.openTag(AppleServerTags.organizer);
-    xml.property(WebdavTags.href, getHref());
-    xml.property(AppleServerTags.commonName, getCommonName());
-    xml.closeTag(AppleServerTags.organizer);
+    xml.openTag(AppleServerTags.invite);
+
+    for (UserType u: getUsers()) {
+      u.toXml(xml);
+    }
+    xml.closeTag(AppleServerTags.invite);
   }
 
   /** Add our stuff to the StringBuffer
@@ -79,8 +80,7 @@ public class OrganizerType {
    * @param ts
    */
   protected void toStringSegment(final ToString ts) {
-    ts.append("href", getHref());
-    ts.append("commonName", getCommonName());
+    ts.append("users", getUsers());
   }
 
   @Override

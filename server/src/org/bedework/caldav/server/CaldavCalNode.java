@@ -271,6 +271,14 @@ public class CaldavCalNode extends CaldavBwNode {
   }
 
   /**
+   * @return sharing status or null if none.
+   * @throws WebdavException
+   */
+  public String getSharingStatus() throws WebdavException {
+    return getCollection(false).getProperty(AppleServerTags.invite);
+  }
+
+  /**
    * @param methodTag - acts as a flag for the method type
    * @throws WebdavException
    */
@@ -606,6 +614,19 @@ public class CaldavCalNode extends CaldavBwNode {
             c.setCalType(CalDAVCollection.calTypeCalendarCollection);
             continue;
           }
+
+          if (XmlUtil.nodeMatches(pval, AppleServerTags.sharedOwner)) {
+            // This is only valid for an the owner
+
+            CalDAVCollection c = (CalDAVCollection)getCollection(false); // Don't deref
+
+            if (!c.getOwner().equals(getSysi().getPrincipal())) {
+              throw new WebdavForbidden("Not owner");
+            }
+
+            c.setProperty(AppleServerTags.shared, "true");
+            continue;
+          }
         }
 
         return true;
@@ -727,6 +748,14 @@ public class CaldavCalNode extends CaldavBwNode {
           xml.emptyTag(CaldavTags.scheduleOutbox);
         } else if (calType == CalDAVCollection.calTypeCalendarCollection) {
           xml.emptyTag(CaldavTags.calendar);
+        }
+
+        if (Boolean.valueOf(c.getProperty(AppleServerTags.shared))) {
+          if (c.getOwner().equals(getSysi().getPrincipal())) {
+            xml.emptyTag(AppleServerTags.sharedOwner);
+          } else {
+            xml.emptyTag(AppleServerTags.shared);
+          }
         }
         xml.closeTag(tag);
 

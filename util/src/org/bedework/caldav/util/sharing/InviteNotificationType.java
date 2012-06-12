@@ -21,6 +21,11 @@ package org.bedework.caldav.util.sharing;
 import org.bedework.caldav.util.notifications.BaseNotificationType;
 
 import edu.rpi.sss.util.ToString;
+import edu.rpi.sss.util.xml.XmlEmit;
+import edu.rpi.sss.util.xml.tagdefs.AppleServerTags;
+import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
+
+import javax.xml.namespace.QName;
 
 /** Class to represent reply to a sharing request.
  *
@@ -29,7 +34,7 @@ import edu.rpi.sss.util.ToString;
 public class InviteNotificationType extends BaseNotificationType {
   private String uid;
   private String href;
-  private String status;
+  private QName inviteStatus;
   private AccessType access;
   private String hostUrl;
   private OrganizerType organizer;
@@ -66,15 +71,15 @@ public class InviteNotificationType extends BaseNotificationType {
   /**
    * @param val status
    */
-  public void setStatus(final String val) {
-    status = val;
+  public void setInviteStatus(final QName val) {
+    inviteStatus = val;
   }
 
   /**
    * @return status
    */
-  public String getStatus() {
-    return status;
+  public QName getInviteStatus() {
+    return inviteStatus;
   }
 
   /**
@@ -134,6 +139,28 @@ public class InviteNotificationType extends BaseNotificationType {
   }
 
   /* ====================================================================
+   *                   BaseNotificationType methods
+   * ==================================================================== */
+
+  @Override
+  public QName getElementName() {
+    return AppleServerTags.inviteNotification;
+  }
+
+  @Override
+  public void toXml(final XmlEmit xml) throws Throwable {
+    xml.openTag(AppleServerTags.inviteNotification);
+    xml.property(AppleServerTags.uid, getUid());
+    xml.property(WebdavTags.href, getHref());
+    xml.emptyTag(getInviteStatus());
+    getAccess().toXml(xml);
+    xml.property(AppleServerTags.hosturl, getHostUrl());
+    getOrganizer().toXml(xml);
+    xml.property(AppleServerTags.summary, getSummary());
+    xml.closeTag(AppleServerTags.inviteNotification);
+  }
+
+  /* ====================================================================
    *                   Convenience methods
    * ==================================================================== */
 
@@ -144,7 +171,7 @@ public class InviteNotificationType extends BaseNotificationType {
   protected void toStringSegment(final ToString ts) {
     ts.append("uid", getUid());
     ts.append("href", getHref());
-    ts.append("status", getStatus());
+    ts.append("status", getInviteStatus().toString());
     ts.append(getAccess().toString());
     ts.append("hostUrl", getHostUrl());
     ts.append("organizer", getOrganizer().toString());

@@ -47,6 +47,11 @@ public class CalPrincipalInfo implements Serializable {
    */
   public String outboxPath;
 
+  /**
+   *
+   */
+  public String notificationsPath;
+
   private long quota;
 
   /**
@@ -55,17 +60,21 @@ public class CalPrincipalInfo implements Serializable {
    * @param defaultCalendarPath
    * @param inboxPath
    * @param outboxPath
+   * @param notificationsPath
+   * @param quota
    */
   public CalPrincipalInfo(final AccessPrincipal principal,
                           final String userHomePath,
                           final String defaultCalendarPath, final String inboxPath,
                           final String outboxPath,
+                          final String notificationsPath,
                           final long quota) {
     this.principal = principal;
     this.userHomePath = userHomePath;
     this.defaultCalendarPath = defaultCalendarPath;
     this.inboxPath = inboxPath;
     this.outboxPath = outboxPath;
+    this.notificationsPath = notificationsPath;
     this.quota = quota;
   }
 

@@ -21,6 +21,11 @@ package org.bedework.caldav.util.sharing;
 import org.bedework.caldav.util.notifications.BaseNotificationType;
 
 import edu.rpi.sss.util.ToString;
+import edu.rpi.sss.util.xml.XmlEmit;
+import edu.rpi.sss.util.xml.tagdefs.AppleServerTags;
+import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
+
+import javax.xml.namespace.QName;
 
 /** Class to represent reply to a sharing request.
  *
@@ -104,8 +109,48 @@ public class InviteReplyType extends BaseNotificationType {
   }
 
   /* ====================================================================
+   *                   BaseNotificationType methods
+   * ==================================================================== */
+
+  @Override
+  public QName getElementName() {
+    return AppleServerTags.inviteReply;
+  }
+
+  /**
+   * @param xml
+   * @throws Throwable
+   */
+  @Override
+  public void toXml(final XmlEmit xml) throws Throwable {
+    xml.openTag(AppleServerTags.inviteReply);
+    xml.property(WebdavTags.href, getHref());
+    if (testAccepted()) {
+      xml.emptyTag(AppleServerTags.inviteAccepted);
+    } else {
+      xml.emptyTag(AppleServerTags.inviteDeclined);
+    }
+    xml.property(AppleServerTags.hosturl, getHostUrl());
+    xml.property(AppleServerTags.inReplyTo, getInReplyTo());
+    xml.property(AppleServerTags.summary, getSummary());
+    xml.closeTag(AppleServerTags.inviteReply);
+  }
+
+  /* ====================================================================
    *                   Convenience methods
    * ==================================================================== */
+
+  /**
+   * @return true if accepted set and true, false otherwise
+   */
+  public boolean testAccepted() {
+    Boolean f = getAccepted();
+    if (f == null) {
+      return false;
+    }
+
+    return f;
+  }
 
   /** Add our stuff to the StringBuffer
    *

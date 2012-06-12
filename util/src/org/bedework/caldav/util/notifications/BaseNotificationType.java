@@ -18,10 +18,40 @@
 */
 package org.bedework.caldav.util.notifications;
 
+import edu.rpi.sss.util.xml.XmlEmit;
+
+import java.io.StringWriter;
+
+import javax.xml.namespace.QName;
+
 /** Class to represent notification types as defined by Apple. Subtypes of this
  * appear inside a notification message
  *
  * @author Mike Douglass douglm
  */
-public class BaseNotificationType {
+public abstract class BaseNotificationType {
+  /**
+   * @return a name to identify the type of notification
+   */
+  public abstract QName getElementName();
+
+  /**
+   * @param xml
+   * @throws Throwable
+   */
+  public abstract void toXml(final XmlEmit xml) throws Throwable;
+
+  /**
+   * @return XML version of notification
+   * @throws Throwable
+   */
+  public String toXml() throws Throwable {
+    StringWriter str = new StringWriter();
+    XmlEmit xml = new XmlEmit();
+
+    xml.startEmit(str);
+    toXml(xml);
+
+    return str.toString();
+  }
 }

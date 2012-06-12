@@ -23,13 +23,15 @@ import edu.rpi.sss.util.xml.XmlEmit;
 import edu.rpi.sss.util.xml.tagdefs.AppleServerTags;
 import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 
-/** Class to represent an organizer (sharing owner) in a sharing request.
+import java.io.StringWriter;
+
+/** Class to represent a response to a sharing invite. The href is the href
+ * of the new alias in the sharee home
  *
  * @author Mike Douglass douglm
  */
-public class OrganizerType {
+public class SharedAsType {
   private String href;
-  private String commonName;
 
   /**
    * @param val the href
@@ -45,33 +47,32 @@ public class OrganizerType {
     return href;
   }
 
-  /**
-   * @param val the common name
-   */
-  public void setCommonName(final String val) {
-    commonName = val;
-  }
-
-  /**
-   * @return the common name
-   */
-  public String getCommonName() {
-    return commonName;
-  }
-
   /* ====================================================================
    *                   Convenience methods
    * ==================================================================== */
+
+  /**
+   * @return XML version of notification
+   * @throws Throwable
+   */
+  public String toXml() throws Throwable {
+    StringWriter str = new StringWriter();
+    XmlEmit xml = new XmlEmit();
+
+    xml.startEmit(str);
+    toXml(xml);
+
+    return str.toString();
+  }
 
   /**
    * @param xml
    * @throws Throwable
    */
   public void toXml(final XmlEmit xml) throws Throwable {
-    xml.openTag(AppleServerTags.organizer);
+    xml.openTag(AppleServerTags.sharedAs);
     xml.property(WebdavTags.href, getHref());
-    xml.property(AppleServerTags.commonName, getCommonName());
-    xml.closeTag(AppleServerTags.organizer);
+    xml.closeTag(AppleServerTags.sharedAs);
   }
 
   /** Add our stuff to the StringBuffer
@@ -80,7 +81,6 @@ public class OrganizerType {
    */
   protected void toStringSegment(final ToString ts) {
     ts.append("href", getHref());
-    ts.append("commonName", getCommonName());
   }
 
   @Override
