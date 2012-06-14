@@ -111,6 +111,7 @@ public class CaldavCalNode extends CaldavBwNode {
     addPropEntry(propertyNames, CaldavTags.supportedCalendarComponentSet);
     addPropEntry(propertyNames, CaldavTags.supportedCalendarData);
     addPropEntry(propertyNames, AppleServerTags.getctag);
+    addPropEntry(propertyNames, AppleServerTags.sharedUrl);
     addPropEntry(propertyNames, AppleIcalTags.calendarColor);
 
     /* Default alarms */
@@ -725,6 +726,8 @@ public class CaldavCalNode extends CaldavBwNode {
     try {
       int calType;
       CalDAVCollection c = (CalDAVCollection)getCollection(true); // deref this
+      CalDAVCollection cundereffed =
+          (CalDAVCollection)getCollection(false); // don't deref this
       if (c == null) {
         // Probably no access -- fake it up as a collection
         calType = CalDAVCollection.calTypeCollection;
@@ -796,6 +799,18 @@ public class CaldavCalNode extends CaldavBwNode {
         } else {
           xml.property(tag, col.getEtag());
         }
+
+        return true;
+      }
+
+      if (tag.equals(AppleServerTags.sharedUrl)) {
+        if (!cundereffed.isAlias()) {
+          return false;
+        }
+
+        xml.openTag(tag);
+        xml.property(WebdavTags.href, cundereffed.getAliasUri());
+        xml.closeTag(tag);
 
         return true;
       }
@@ -992,11 +1007,12 @@ public class CaldavCalNode extends CaldavBwNode {
           tag.equals(CaldavTags.defaultAlarmVeventDatetime) ||
           tag.equals(CaldavTags.defaultAlarmVtodoDate) ||
           tag.equals(CaldavTags.defaultAlarmVtodoDatetime)) {
-        if (c == null) {
+        /* Private to user - look at alias only */
+        if (cundereffed == null) {
           return false;
         }
 
-        String val =  c.getProperty(tag);
+        String val =  cundereffed.getProperty(tag);
 
         if (val == null) {
           return false;

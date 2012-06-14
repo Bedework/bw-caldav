@@ -29,8 +29,9 @@ import java.io.InputStream;
  *
  * @author douglm
  *
+ * @param <T>
  */
-public abstract class CalDAVResource extends WdEntity {
+public abstract class CalDAVResource <T> extends WdEntity<T> {
   /** Constructor
    *
    * @throws WebdavException

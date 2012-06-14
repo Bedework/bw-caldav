@@ -304,7 +304,9 @@ public class SharingHandler implements PrivilegeDefs {
     }
   }
 
+  private final static Privilege bindPriv = Privileges.makePriv(Privileges.privBind);
   private final static Privilege readPriv = Privileges.makePriv(Privileges.privRead);
+  private final static Privilege unbindPriv = Privileges.makePriv(Privileges.privUnbind);
   private final static Privilege writeContentPriv = Privileges.makePriv(Privileges.privWriteContent);
 
   private final static Collection<Privilege> readPrivs = new ArrayList<Privilege>();
@@ -314,7 +316,9 @@ public class SharingHandler implements PrivilegeDefs {
   static {
     readPrivs.add(readPriv);
 
+    readWritePrivs.add(bindPriv);
     readWritePrivs.add(readPriv);
+    readWritePrivs.add(unbindPriv);
     readWritePrivs.add(writeContentPriv);
 
   }
@@ -349,6 +353,7 @@ public class SharingHandler implements PrivilegeDefs {
         desiredPriv = readWritePrivs;
       }
 
+      /*
       boolean removeCurrentPrivs = false;
 
       for (Ace a: ainfo.acl.getAces()) {
@@ -364,6 +369,12 @@ public class SharingHandler implements PrivilegeDefs {
 
       if (removeCurrentPrivs) {
         ainfo.acl = ainfo.acl.removeWho(who);
+      }
+      */
+      Acl removed = ainfo.acl.removeWho(who);
+
+      if (removed != null) {
+        ainfo.acl = removed;
       }
 
       Collection<Ace> aces = new ArrayList<Ace>();

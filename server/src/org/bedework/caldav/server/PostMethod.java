@@ -129,6 +129,7 @@ public class PostMethod extends MethodBase {
     /** true if this is a calws soap web service request */
     public boolean calwsSoap;
 
+    /** Set if the content type is xml */
     public Document xmlDoc;
 
     private boolean getTheReader = true;
@@ -272,6 +273,9 @@ public class PostMethod extends MethodBase {
       }
     }
 
+    /**
+     * @return true if we have an xml content
+     */
     public boolean isAppXml() {
       if (contentTypePars == null) {
         return false;

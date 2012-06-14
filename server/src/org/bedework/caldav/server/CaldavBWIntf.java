@@ -154,7 +154,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
    *
    * @param servlet
    * @param req
-   * @param debug
    * @param methods    HashMap   table of method info
    * @param dumpContent
    * @throws WebdavException
@@ -843,7 +842,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
     //BwEvent ev = evinfo.getEvent();
     String entityName = bwnode.getEntityName();
 
-    CalDAVCollection col = (CalDAVCollection)bwnode.getCollection(true); // deref
+    CalDAVCollection col = (CalDAVCollection)bwnode.getCollection(false); // don't deref
     boolean created = false;
 
     SysiIcalendar cal = sysi.fromIcal(col, contentRdr, contentType,
@@ -922,6 +921,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
   }
 
   /**
+   * @param resp
    * @param bwnode
    * @param ical
    * @param create
@@ -1155,6 +1155,11 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
   }
 
+  /**
+   * @param node
+   * @param props
+   * @throws WebdavException
+   */
   public void getCalWSProperties(final CaldavBwNode node,
                                  final List<GetPropertiesBasePropertyType> props) throws WebdavException {
     for (PropertyTagEntry pte: node.getCalWSSoapNames()) {

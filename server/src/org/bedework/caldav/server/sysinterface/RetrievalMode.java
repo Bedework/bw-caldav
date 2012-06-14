@@ -46,7 +46,7 @@ public class RetrievalMode implements Serializable {
    *
    * @param val
    *     allowed object is
-   *     {@link Expand }
+   *     {@link ExpandType }
    *
    */
   public void setExpand(final ExpandType val) {
@@ -58,7 +58,7 @@ public class RetrievalMode implements Serializable {
    *
    * @return
    *     possible object is
-   *     {@link Expand }
+   *     {@link ExpandType }
    *
    */
   public ExpandType getExpand() {

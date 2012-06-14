@@ -25,8 +25,9 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavException;
  *
  * @author douglm
  *
+ * @param <T>
  */
-public abstract class CalDAVCollection extends WdCollection {
+public abstract class CalDAVCollection <T extends CalDAVCollection> extends WdCollection<T> {
   /** Indicate unknown type */
   public final static int calTypeUnknown = -1;
 
@@ -53,6 +54,9 @@ public abstract class CalDAVCollection extends WdCollection {
   /* ====================================================================
    *                      Abstract methods
    * ==================================================================== */
+
+  @Override
+  public abstract T resolveAlias(final boolean resolveSubAlias) throws WebdavException;
 
   /**
    *  @param val

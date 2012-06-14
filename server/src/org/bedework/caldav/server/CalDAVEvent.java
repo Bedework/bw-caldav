@@ -30,8 +30,9 @@ import javax.xml.namespace.QName;
  *
  * @author douglm
  *
+ * @param <T>
  */
-public abstract class CalDAVEvent extends WdEntity {
+public abstract class CalDAVEvent <T> extends WdEntity<T> {
   /** Constructor
    *
    * @throws WebdavException

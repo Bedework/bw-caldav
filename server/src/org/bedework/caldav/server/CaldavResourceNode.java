@@ -29,8 +29,6 @@ import edu.rpi.cmt.access.PrivilegeDefs;
 import edu.rpi.sss.util.DateTimeUtil;
 import edu.rpi.sss.util.xml.XmlEmit;
 import edu.rpi.sss.util.xml.tagdefs.AppleServerTags;
-import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
-import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 
 import org.w3c.dom.Element;
 

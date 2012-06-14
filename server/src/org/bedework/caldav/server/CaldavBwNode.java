@@ -262,7 +262,7 @@ public abstract class CaldavBwNode extends WebdavNsNode {
 
   /**
    * @param props
-   * @param name
+   * @param tag
    * @param intf
    * @param allProp
    * @return true if property emitted

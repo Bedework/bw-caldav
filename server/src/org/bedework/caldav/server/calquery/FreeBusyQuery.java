@@ -44,7 +44,6 @@ public class FreeBusyQuery {
 
   /** Constructor
    *
-   * @param debug
    */
   public FreeBusyQuery() {
     debug = getLogger().isDebugEnabled();

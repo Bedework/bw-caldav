@@ -112,7 +112,9 @@ public abstract class SoapHandler extends MethodBase {
   /** Unpack the headers and body
    */
   public static class UnmarshalResult {
+    /** */
     public Object[] hdrs;
+    /** */
     public Object body;
   }
 

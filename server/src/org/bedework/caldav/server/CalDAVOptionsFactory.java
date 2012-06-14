@@ -44,7 +44,6 @@ public class CalDAVOptionsFactory extends OptionsFactory {
 
   /** Obtain and initialise an options object.
    *
-   * @param debug
    * @return OptionsI
    * @throws OptionsException
    */
