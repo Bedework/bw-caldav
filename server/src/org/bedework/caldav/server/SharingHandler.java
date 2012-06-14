@@ -41,8 +41,9 @@ import edu.rpi.cmt.access.AccessPrincipal;
 import edu.rpi.cmt.access.Ace;
 import edu.rpi.cmt.access.AceWho;
 import edu.rpi.cmt.access.Acl;
+import edu.rpi.cmt.access.Privilege;
 import edu.rpi.cmt.access.PrivilegeDefs;
-import edu.rpi.cmt.access.PrivilegeSet;
+import edu.rpi.cmt.access.Privileges;
 import edu.rpi.sss.util.Uid;
 import edu.rpi.sss.util.Util;
 import edu.rpi.sss.util.xml.tagdefs.AppleServerTags;
@@ -136,8 +137,6 @@ public class SharingHandler implements PrivilegeDefs {
       return;
     }
 
-    intf.updateAccess(ainfo, calnode);
-
     /* Send the invitations and update the sharing status.
      * If it's a removal and the current status is not
      * accepted then just delete the current invitation
@@ -204,23 +203,33 @@ public class SharingHandler implements PrivilegeDefs {
     }
 
     sysi.updateCollection((CalDAVCollection)calnode.getCollection(false));
+    intf.updateAccess(ainfo, calnode);
   }
 
   /**
+   * @param node MUST be current sharees home
    * @param pars for the POST method
    * @param root MUST be the share element
    * @return null for any failure - or a SharedAsType.
    * @throws WebdavException
    */
-  public SharedAsType reply(final RequestPars pars,
+  public SharedAsType reply(final WebdavNsNode node,
+                            final RequestPars pars,
                             final Element root) throws WebdavException {
     SysIntf sysi = intf.getSysi();
+
+    if (!node.isCollection()) {
+      throw new WebdavForbidden("Not targeted at user home");
+    }
+
+    CaldavCalNode calnode = (CaldavCalNode)node;
+    CalDAVCollection col = (CalDAVCollection)calnode.getCollection(false);
 
     Parser parse = new Parser();
 
     InviteReplyType reply = parse.parseInviteReply(root);
 
-    String newUri = sysi.sharingReply(pars.resourceUri, reply);
+    String newUri = sysi.sharingReply(col, intf.getUri(reply.getHostUrl()), reply);
 
     if (newUri == null) {
       return null;
@@ -295,39 +304,20 @@ public class SharingHandler implements PrivilegeDefs {
     }
   }
 
+  private final static Privilege readPriv = Privileges.makePriv(Privileges.privRead);
+  private final static Privilege writeContentPriv = Privileges.makePriv(Privileges.privWriteContent);
 
-  /** Read-write privileges
-   */
-  private static PrivilegeSet readWritePrivileges =
-    new PrivilegeSet(denied,   // privAll
-                     allowed,   // privRead
-                     denied,   // privReadAcl
-                     allowed,   // privReadCurrentUserPrivilegeSet
-                     allowed,   // privReadFreeBusy
-                     denied,   // privWrite
-                     denied,   // privWriteAcl
-                     denied,   // privWriteProperties
-                     allowed,   // privWriteContent
-                     denied,   // privBind
-                     denied,   // privSchedule
-                     denied,   // privScheduleRequest
-                     denied,   // privScheduleReply
-                     denied,   // privScheduleFreeBusy
-                     denied,   // privUnbind
-                     allowed,   // privUnlock
+  private final static Collection<Privilege> readPrivs = new ArrayList<Privilege>();
 
-                     denied,   // privScheduleDeliver
-                     denied,   // privScheduleDeliverInvite
-                     denied,   // privScheduleDeliverReply
-                     denied,  // privScheduleQueryFreebusy
+  private final static Collection<Privilege> readWritePrivs = new ArrayList<Privilege>();
 
-                     denied,   // privScheduleSend
-                     denied,   // privScheduleSendInvite
-                     denied,   // privScheduleSendReply
-                     denied,   // privScheduleSendFreebusy
-                     allowed);   // privNone
+  static {
+    readPrivs.add(readPriv);
 
-  private static PrivilegeSet readOnlyPrivileges = PrivilegeSet.readOnlyPrivileges;
+    readWritePrivs.add(readPriv);
+    readWritePrivs.add(writeContentPriv);
+
+  }
 
   private InviteNotificationType doSet(final SetType s,
                                        final WebdavNsIntf.AclInfo ainfo,
@@ -351,12 +341,12 @@ public class SharingHandler implements PrivilegeDefs {
 
       AceWho who = AceWho.getAceWho(ap.getAccount(), ap.getKind(), false);
 
-      PrivilegeSet desiredPriv;
+      Collection<Privilege> desiredPriv;
 
       if (s.getAccess().testRead()) {
-        desiredPriv = readOnlyPrivileges;
+        desiredPriv = readPrivs;
       } else {
-        desiredPriv = readWritePrivileges;
+        desiredPriv = readWritePrivs;
       }
 
       boolean removeCurrentPrivs = false;
@@ -376,9 +366,10 @@ public class SharingHandler implements PrivilegeDefs {
         ainfo.acl = ainfo.acl.removeWho(who);
       }
 
-      Collection<Ace> aces = ainfo.acl.getAces();
+      Collection<Ace> aces = new ArrayList<Ace>();
+      aces.addAll(ainfo.acl.getAces());
 
-      aces.add(Ace.makeAce(who, desiredPriv.getPrivs(), null));
+      aces.add(Ace.makeAce(who, desiredPriv, null));
 
       ainfo.acl = new Acl(aces);
 

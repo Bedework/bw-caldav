@@ -18,6 +18,8 @@
 */
 package org.bedework.caldav.server;
 
+import org.bedework.caldav.util.notifications.NotificationType.NotificationInfo;
+
 import edu.rpi.cct.webdav.servlet.shared.WdEntity;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 
@@ -82,4 +84,10 @@ public abstract class CalDAVResource extends WdEntity {
    * @throws WebdavException
    */
   public abstract String getContentType() throws WebdavException;
+
+  /**
+   * @return null if this is not a notification
+   * @throws WebdavException
+   */
+  public abstract NotificationInfo getNotificationType() throws WebdavException;
 }

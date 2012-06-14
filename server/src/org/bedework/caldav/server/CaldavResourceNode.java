@@ -19,18 +19,24 @@
 package org.bedework.caldav.server;
 
 import org.bedework.caldav.server.sysinterface.SysIntf;
+import org.bedework.caldav.util.notifications.NotificationType.NotificationInfo;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
+import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cmt.access.AccessPrincipal;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
 import edu.rpi.cmt.access.PrivilegeDefs;
 import edu.rpi.sss.util.DateTimeUtil;
 import edu.rpi.sss.util.xml.XmlEmit;
+import edu.rpi.sss.util.xml.tagdefs.AppleServerTags;
+import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
+import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 
 import org.w3c.dom.Element;
 
 import java.io.InputStream;
 import java.io.Writer;
+import java.util.HashMap;
 
 import javax.xml.namespace.QName;
 
@@ -46,6 +52,13 @@ public class CaldavResourceNode extends CaldavBwNode {
   private String entityName;
 
   private CurrentAccess currentAccess;
+
+  private final static HashMap<QName, PropertyTagEntry> propertyNames =
+      new HashMap<QName, PropertyTagEntry>();
+
+  static {
+    addPropEntry(propertyNames, AppleServerTags.notificationtype);
+  }
 
   /** Place holder for status
    *
@@ -177,8 +190,48 @@ public class CaldavResourceNode extends CaldavBwNode {
    */
   @Override
   public boolean knownProperty(final QName tag) {
+    if (propertyNames.get(tag) != null) {
+      return true;
+    }
+
     // Not ours
     return super.knownProperty(tag);
+  }
+
+  @Override
+  public boolean generatePropertyValue(final QName tag,
+                                       final WebdavNsIntf intf,
+                                       final boolean allProp) throws WebdavException {
+    XmlEmit xml = intf.getXmlEmit();
+
+    try {
+
+      if (tag.equals(AppleServerTags.notificationtype)) {
+        if (resource == null) {
+          return false;
+        }
+
+        NotificationInfo ni = resource.getNotificationType();
+        if (resource == null) {
+          return false;
+        }
+
+        xml.openTag(tag);
+        xml.emptyTag(ni.type);
+
+        // XXX attrs
+        xml.closeTag(tag);
+
+        return true;
+      }
+
+      // Not known - try higher
+      return super.generatePropertyValue(tag, intf, allProp);
+    } catch (WebdavException wde) {
+      throw wde;
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
   }
 
   /**

@@ -409,15 +409,19 @@ public class PostMethod extends MethodBase {
       doSchedule(intf, pars, resp);
     }
 
-    /* Look to see if this is a sharing reply. This is trageted at the home of
-     * the sharer. The current user probably does not have access to the user home
-     * so we need to run as the recipient of the reply.
-     */
+    WebdavNsNode node = intf.getNode(pars.resourceUri,
+                                     WebdavNsIntf.existanceMust,
+                                     WebdavNsIntf.nodeTypeCollection);
+
+    if (node == null) {
+      resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+      return;
+    }
 
     Element root = pars.xmlDoc.getDocumentElement();
 
     if (XmlUtil.nodeMatches(root, AppleServerTags.inviteReply)) {
-      SharedAsType sa = new SharingHandler(intf).reply(pars, root);
+      SharedAsType sa = new SharingHandler(intf).reply(node, pars, root);
 
       if (sa == null) {
         // XXX Wrong response
@@ -437,15 +441,6 @@ public class PostMethod extends MethodBase {
         throw new WebdavException(t);
       }
 
-      return;
-    }
-
-    WebdavNsNode node = intf.getNode(pars.resourceUri,
-                                     WebdavNsIntf.existanceMust,
-                                     WebdavNsIntf.nodeTypeCollection);
-
-    if (node == null) {
-      resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
       return;
     }
 

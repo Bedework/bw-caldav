@@ -25,6 +25,8 @@ import edu.rpi.sss.util.xml.XmlEmit;
 import edu.rpi.sss.util.xml.tagdefs.AppleServerTags;
 import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 
+import java.util.List;
+
 import javax.xml.namespace.QName;
 
 /** Class to represent reply to a sharing request.
@@ -115,6 +117,11 @@ public class InviteReplyType extends BaseNotificationType {
   @Override
   public QName getElementName() {
     return AppleServerTags.inviteReply;
+  }
+
+  @Override
+  public List<AttributeType> getElementAttributes() {
+    return null;
   }
 
   /**

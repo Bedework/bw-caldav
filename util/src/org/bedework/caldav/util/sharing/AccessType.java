@@ -92,9 +92,9 @@ public class AccessType {
    */
   public void toXml(final XmlEmit xml) throws Throwable {
     xml.openTag(AppleServerTags.access);
-    if (read) {
+    if (testRead()) {
       xml.emptyTag(AppleServerTags.read);
-    } else if (readWrite) {
+    } else if (testReadWrite()) {
       xml.emptyTag(AppleServerTags.readWrite);
     }
     xml.closeTag(AppleServerTags.access);

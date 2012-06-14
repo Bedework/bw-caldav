@@ -20,7 +20,10 @@ package org.bedework.caldav.util.sharing;
 
 import edu.rpi.sss.util.ToString;
 import edu.rpi.sss.util.xml.XmlEmit;
+import edu.rpi.sss.util.xml.XmlEmit.NameSpace;
 import edu.rpi.sss.util.xml.tagdefs.AppleServerTags;
+import edu.rpi.sss.util.xml.tagdefs.CaldavDefs;
+import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -55,6 +58,10 @@ public class InviteType {
   public String toXml() throws Throwable {
     StringWriter str = new StringWriter();
     XmlEmit xml = new XmlEmit();
+
+    xml.addNs(new NameSpace(WebdavTags.namespace, "DAV"), false);
+    xml.addNs(new NameSpace(CaldavDefs.caldavNamespace, "C"), false);
+    xml.addNs(new NameSpace(AppleServerTags.appleCaldavNamespace, "CSS"), false);
 
     xml.startEmit(str);
     toXml(xml);

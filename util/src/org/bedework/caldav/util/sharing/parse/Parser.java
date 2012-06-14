@@ -299,7 +299,7 @@ public class Parser {
             throw badInviteReply();
           }
 
-          ir.setHostUrl(XmlUtil.getElementContent(curnode));
+          ir.setHostUrl(parseHostUrl(curnode));
           continue;
         }
 
@@ -353,9 +353,9 @@ public class Parser {
       }
 
       InviteNotificationType in = new InviteNotificationType();
-      Element[] shareEls = XmlUtil.getElementsArray(nd);
+      Element[] els = XmlUtil.getElementsArray(nd);
 
-      for (Element curnode: shareEls) {
+      for (Element curnode: els) {
         if (XmlUtil.nodeMatches(curnode, uidTag)) {
           if (in.getUid() != null) {
             throw badInviteNotification();
@@ -402,7 +402,7 @@ public class Parser {
             throw badInviteNotification();
           }
 
-          in.setHostUrl(XmlUtil.getElementContent(curnode));
+          in.setHostUrl(parseHostUrl(curnode));
           continue;
         }
 
@@ -560,7 +560,6 @@ public class Parser {
     return a;
   }
 
-
   private SetType parseSet(final Node nd) throws Throwable {
     SetType s = new SetType();
 
@@ -679,6 +678,47 @@ public class Parser {
     }
 
     return o;
+  }
+
+  private String parseHostUrl(final Node nd) throws WebdavException {
+    try {
+      if (!XmlUtil.nodeMatches(nd, hosturlTag)) {
+        throw new WebdavBadRequest("Expected " + hosturlTag);
+      }
+
+      String href = null;
+      Element[] els = XmlUtil.getElementsArray(nd);
+
+      for (Element curnode: els) {
+        if (XmlUtil.nodeMatches(curnode, hrefTag)) {
+          if (href != null) {
+            throw badHostUrl();
+          }
+
+          href = XmlUtil.getElementContent(curnode);
+          continue;
+        }
+
+        throw badHostUrl();
+      }
+
+      if (href == null) {
+        throw badHostUrl();
+      }
+
+      return href;
+    } catch (SAXException e) {
+      throw new WebdavBadRequest();
+    } catch (WebdavException wde) {
+      throw wde;
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
+  }
+
+  private WebdavBadRequest badHostUrl() {
+    return new WebdavBadRequest("Expected " +
+        hrefTag);
   }
 
   private WebdavBadRequest badAccess() {

@@ -19,8 +19,13 @@
 package org.bedework.caldav.util.notifications;
 
 import edu.rpi.sss.util.xml.XmlEmit;
+import edu.rpi.sss.util.xml.XmlEmit.NameSpace;
+import edu.rpi.sss.util.xml.tagdefs.AppleServerTags;
+import edu.rpi.sss.util.xml.tagdefs.CaldavDefs;
+import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 
 import java.io.StringWriter;
+import java.util.List;
 
 import javax.xml.namespace.QName;
 
@@ -36,6 +41,28 @@ public abstract class BaseNotificationType {
   public abstract QName getElementName();
 
   /**
+   */
+  public interface AttributeType {
+    /**
+     * @return the name
+     */
+    String getName();
+    /**
+     * @return the value
+     */
+    String getValue();
+  }
+
+  /**
+   * @return null or a list of attributes attached to the base notification.
+   */
+  public abstract List<AttributeType> getElementAttributes();
+
+  /**
+   * @param xml
+   * @throws Throwable
+   */
+  /**
    * @param xml
    * @throws Throwable
    */
@@ -48,6 +75,10 @@ public abstract class BaseNotificationType {
   public String toXml() throws Throwable {
     StringWriter str = new StringWriter();
     XmlEmit xml = new XmlEmit();
+
+    xml.addNs(new NameSpace(WebdavTags.namespace, "DAV"), false);
+    xml.addNs(new NameSpace(CaldavDefs.caldavNamespace, "C"), false);
+    xml.addNs(new NameSpace(AppleServerTags.appleCaldavNamespace, "CSS"), false);
 
     xml.startEmit(str);
     toXml(xml);

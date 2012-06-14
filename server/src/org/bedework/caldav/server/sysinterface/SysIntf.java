@@ -282,13 +282,15 @@ public interface SysIntf {
 
   /** Handle a reply to a sharing notification.
    *
-   * @param uri - unchecked uri of sharers calendar home
+   * @param col - unchecked sharees calendar home
+   * @param hostUrl - fixed path to shared calendar
    * @param reply - the reply to the invitation.
    * @return null for unknown sharer or no invitation otherwise the path to the
    *                   new alias in the sharees calendar home.
    * @throws WebdavException
    */
-  public String sharingReply(String uri,
+  public String sharingReply(CalDAVCollection col,
+                             String hostUrl,
                              InviteReplyType reply) throws WebdavException;
 
   /* ====================================================================

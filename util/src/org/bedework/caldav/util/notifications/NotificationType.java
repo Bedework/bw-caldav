@@ -18,11 +18,21 @@
 */
 package org.bedework.caldav.util.notifications;
 
+import org.bedework.caldav.util.notifications.BaseNotificationType.AttributeType;
+
 import edu.rpi.sss.util.ToString;
+import edu.rpi.sss.util.Util;
 import edu.rpi.sss.util.xml.XmlEmit;
+import edu.rpi.sss.util.xml.XmlEmit.NameSpace;
 import edu.rpi.sss.util.xml.tagdefs.AppleServerTags;
+import edu.rpi.sss.util.xml.tagdefs.CaldavDefs;
+import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.xml.namespace.QName;
 
 /** Class to represent notifications as defined by Apple.
  *
@@ -66,12 +76,114 @@ public class NotificationType {
    * ==================================================================== */
 
   /**
+   * @return an encoded content type - used internally
+   */
+  public String getContentType() {
+    StringBuilder sb = new StringBuilder("notification;type=");
+
+    QName qn = getNotification().getElementName();
+
+    sb.append(qn);
+
+    List<AttributeType> attrs = getNotification().getElementAttributes();
+
+    if (!Util.isEmpty(attrs)) {
+      for (AttributeType attr: attrs) {
+        sb.append(";noteattr_");
+        sb.append(attr.getName());
+        sb.append("=");
+        sb.append(attr.getValue());
+      }
+    }
+
+    return sb.toString();
+  }
+
+  /**
+   * @param val
+   * @return true if this is one of ours
+   */
+  public static boolean isNotificationContentType(final String val) {
+    return (val != null) && (val.startsWith("notification;type="));
+  }
+
+  /** Info from the encode content type.
+   */
+  public static class NotificationInfo {
+    /** The QName for the enclosed notification */
+    public QName type;
+
+    /** The attributes for the enclosed notification */
+    public List<AttributeType> attrs;
+  }
+
+  private static class Attr implements AttributeType {
+    String name;
+    String value;
+
+    Attr(final String name, final String value) {
+      this.name = name;
+      this.value = value;
+    }
+
+    @Override
+    public String getName() {
+      return name;
+    }
+
+    @Override
+    public String getValue() {
+      return value;
+    }
+  }
+
+  /**
+   * @param val
+   * @return decoded content type
+   */
+  public static NotificationInfo fromContentType(final String val) {
+    if (!isNotificationContentType(val)) {
+      return null;
+    }
+
+    String[] parts = val.split(";");
+
+    if ((parts.length < 2) || !parts[1].startsWith("type=")) {
+      return null;
+    }
+
+    NotificationInfo ni = new NotificationInfo();
+
+    ni.type = QName.valueOf(parts[1].substring(5));
+
+    for (int i = 2; i < parts.length; i++) {
+      if (!parts[i].startsWith("noteattr_")) {
+        continue;
+      }
+
+      if (ni.attrs == null) {
+        ni.attrs = new ArrayList<AttributeType>();
+      }
+
+      int pos = parts[i].indexOf("=");
+      ni.attrs.add(new Attr(parts[i].substring(0, pos),
+                            parts[i].substring(pos + 1)));
+    }
+
+    return ni;
+  }
+
+  /**
    * @return XML version of notification
    * @throws Throwable
    */
   public String toXml() throws Throwable {
     StringWriter str = new StringWriter();
     XmlEmit xml = new XmlEmit();
+
+    xml.addNs(new NameSpace(WebdavTags.namespace, "DAV"), false);
+    xml.addNs(new NameSpace(CaldavDefs.caldavNamespace, "C"), false);
+    xml.addNs(new NameSpace(AppleServerTags.appleCaldavNamespace, "CSS"), false);
 
     xml.startEmit(str);
     toXml(xml);
