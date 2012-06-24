@@ -145,12 +145,14 @@ public class CalwsHandler extends SoapHandler {
     try {
       initResponse(resp);
 
-      Object o = unmarshal(req);
-      if (o instanceof JAXBElement) {
-        o = ((JAXBElement)o).getValue();
+      UnmarshalResult ur = unmarshal(req);
+
+      Object body = ur.body;
+      if (body instanceof JAXBElement) {
+        body = ((JAXBElement)body).getValue();
       }
 
-      processRequest(req, resp, (BaseRequestType)o, pars, false);
+      processRequest(req, resp, (BaseRequestType)body, pars, false);
     } catch (WebdavException we) {
       throw we;
     } catch(Throwable t) {
