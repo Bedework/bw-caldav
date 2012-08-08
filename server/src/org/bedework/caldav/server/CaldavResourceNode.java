@@ -210,7 +210,7 @@ public class CaldavResourceNode extends CaldavBwNode {
         }
 
         NotificationInfo ni = resource.getNotificationType();
-        if (resource == null) {
+        if (ni == null) {
           return false;
         }
 

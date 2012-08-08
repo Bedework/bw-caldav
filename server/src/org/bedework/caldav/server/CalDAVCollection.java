@@ -43,6 +43,9 @@ public abstract class CalDAVCollection <T extends CalDAVCollection> extends WdCo
   /** Outbox  */
   public final static int calTypeOutbox = 3;
 
+  /** Outbox  */
+  public final static int calTypeNotifications = 4;
+
   /** Constructor
    *
    * @throws WebdavException

@@ -25,7 +25,7 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cct.webdav.servlet.shared.WebdavPrincipalNode;
 import edu.rpi.sss.util.xml.XmlEmit;
-import edu.rpi.sss.util.xml.tagdefs.CaldavDefs;
+import edu.rpi.sss.util.xml.tagdefs.AppleServerTags;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 
@@ -101,14 +101,7 @@ public class CaldavPrincipalNode extends WebdavPrincipalNode {
   public boolean generatePropertyValue(final QName tag,
                                        final WebdavNsIntf intf,
                                        final boolean allProp) throws WebdavException {
-    String ns = tag.getNamespaceURI();
     XmlEmit xml = intf.getXmlEmit();
-
-    /* Deal with webdav properties */
-    if (!ns.equals(CaldavDefs.caldavNamespace)) {
-      // Not ours
-      return super.generatePropertyValue(tag, intf, allProp);
-    }
 
     try {
       if (tag.equals(CaldavTags.calendarHomeSet)) {
@@ -150,6 +143,18 @@ public class CaldavPrincipalNode extends WebdavPrincipalNode {
 
         xml.openTag(tag);
         generateHref(xml, ui.outboxPath);
+        xml.closeTag(tag);
+
+        return true;
+      }
+
+      if (tag.equals(AppleServerTags.notificationURL)) {
+        if (ui == null) {
+          return false;
+        }
+
+        xml.openTag(tag);
+        generateHref(xml, ui.notificationsPath);
         xml.closeTag(tag);
 
         return true;

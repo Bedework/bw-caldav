@@ -751,6 +751,8 @@ public class CaldavCalNode extends CaldavBwNode {
           xml.emptyTag(CaldavTags.scheduleOutbox);
         } else if (calType == CalDAVCollection.calTypeCalendarCollection) {
           xml.emptyTag(CaldavTags.calendar);
+        } else if (calType == CalDAVCollection.calTypeNotifications) {
+          xml.emptyTag(AppleServerTags.notifications);
         }
 
         if (Boolean.valueOf(c.getProperty(AppleServerTags.shared))) {
