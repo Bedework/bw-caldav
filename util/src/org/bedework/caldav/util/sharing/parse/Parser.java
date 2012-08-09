@@ -60,6 +60,12 @@ public class Parser {
   public static final QName commonNameTag = AppleServerTags.commonName;
 
   /** */
+  public static final QName firstNameTag = AppleServerTags.firstName;
+
+  /** */
+  public static final QName lastNameTag = AppleServerTags.lastName;
+
+  /** */
   public static final QName hosturlTag = AppleServerTags.hosturl;
 
   /** */
@@ -267,6 +273,18 @@ public class Parser {
       Element[] shareEls = XmlUtil.getElementsArray(nd);
 
       for (Element curnode: shareEls) {
+        if (XmlUtil.nodeMatches(curnode, commonNameTag)) {
+          continue;
+        }
+
+        if (XmlUtil.nodeMatches(curnode, firstNameTag)) {
+          continue;
+        }
+
+        if (XmlUtil.nodeMatches(curnode, lastNameTag)) {
+          continue;
+        }
+
         if (XmlUtil.nodeMatches(curnode, hrefTag)) {
           if (ir.getHref() != null) {
             throw badInviteReply();
