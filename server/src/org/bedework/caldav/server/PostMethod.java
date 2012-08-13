@@ -25,7 +25,10 @@ import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.caldav.server.sysinterface.SysIntf.IcalResultType;
 import org.bedework.caldav.server.sysinterface.SysIntf.SchedRecipientResult;
 import org.bedework.caldav.util.CalDAVConfig;
+import org.bedework.caldav.util.sharing.InviteReplyType;
+import org.bedework.caldav.util.sharing.ShareType;
 import org.bedework.caldav.util.sharing.SharedAsType;
+import org.bedework.caldav.util.sharing.parse.Parser;
 
 import edu.rpi.cct.webdav.servlet.common.Headers.IfHeaders;
 import edu.rpi.cct.webdav.servlet.common.MethodBase;
@@ -422,16 +425,33 @@ public class PostMethod extends MethodBase {
       return;
     }
 
+    if (!node.isCollection()) {
+      throw new WebdavForbidden("Not a collection");
+    }
+
+    CaldavCalNode calnode = (CaldavCalNode)node;
+    CalDAVCollection col = (CalDAVCollection)calnode.getCollection(false);
+
     Element root = pars.xmlDoc.getDocumentElement();
 
-    if (XmlUtil.nodeMatches(root, AppleServerTags.inviteReply)) {
-      SharedAsType sa = new SharingHandler(intf).reply(node, pars, root);
+    SysIntf sysi = intf.getSysi();
+    Parser parse = new Parser();
 
-      if (sa == null) {
+    if (XmlUtil.nodeMatches(root, AppleServerTags.inviteReply)) {
+      InviteReplyType reply = parse.parseInviteReply(root);
+      reply.setHostUrl(intf.getUri(reply.getHostUrl()));
+
+      String newUri = sysi.sharingReply(col, reply);
+
+      if (newUri == null) {
         // XXX Wrong response
         resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
         return;
       }
+
+      SharedAsType sa = new SharedAsType();
+
+      sa.setHref(newUri);
 
       resp.setStatus(HttpServletResponse.SC_OK);
       resp.setContentType("text/xml; charset=UTF-8");
@@ -449,7 +469,10 @@ public class PostMethod extends MethodBase {
     }
 
     if (XmlUtil.nodeMatches(root, AppleServerTags.share)) {
-      new SharingHandler(intf).share(node, root);
+      ShareType share = parse.parseShare(root);
+
+      sysi.share(col, share);
+
       return;
     }
   }

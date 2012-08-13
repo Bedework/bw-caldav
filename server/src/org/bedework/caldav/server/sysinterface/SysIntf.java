@@ -29,6 +29,7 @@ import org.bedework.caldav.util.TimeRange;
 import org.bedework.caldav.util.filter.FilterBase;
 import org.bedework.caldav.util.notifications.NotificationType;
 import org.bedework.caldav.util.sharing.InviteReplyType;
+import org.bedework.caldav.util.sharing.ShareType;
 
 import edu.rpi.cct.webdav.servlet.shared.PrincipalPropertySearch;
 import edu.rpi.cct.webdav.servlet.shared.UrlHandler;
@@ -280,17 +281,24 @@ public interface SysIntf {
   public List<NotificationType> getNotifications(String href,
                                                  QName type) throws WebdavException;
 
+  /**
+   * @param col MUST be a sharable collection
+   * @param share is the request
+   * @throws WebdavException
+   */
+  public void share(final CalDAVCollection col,
+                    final ShareType share) throws WebdavException;
+
   /** Handle a reply to a sharing notification.
    *
    * @param col - unchecked sharees calendar home
-   * @param hostUrl - fixed path to shared calendar
-   * @param reply - the reply to the invitation.
+   * @param reply - the reply to the invitation with the path reset to be the
+   *                relative path.
    * @return null for unknown sharer or no invitation otherwise the path to the
    *                   new alias in the sharees calendar home.
    * @throws WebdavException
    */
   public String sharingReply(CalDAVCollection col,
-                             String hostUrl,
                              InviteReplyType reply) throws WebdavException;
 
   /* ====================================================================
