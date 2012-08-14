@@ -4,9 +4,6 @@
 	<classpathentry kind="src" path="util/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/ical4j-head-20100601.jar"/>
-	<classpathentry kind="lib" path="/bwxml/dist/bw-caldavschema-3.8.jar"/>
-	<classpathentry kind="lib" path="/bwxml/dist/bw-calws-soapschema-3.8.jar"/>
-	<classpathentry kind="lib" path="/bwxml/dist/bw-synchwsschema-3.8.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/davutil"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/webdav"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/access"/>
@@ -14,5 +11,8 @@
 	<classpathentry kind="lib" path="lib/servlet-api-2.4.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.15.jar"/>
 	<classpathentry kind="lib" path="lib/geronimo-kernel-2.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/bw-caldavschema-3.9.jar"/>
+	<classpathentry kind="lib" path="lib/bw-calws-soapschema-3.9.jar"/>
+	<classpathentry kind="lib" path="lib/bw-synchwsschema-3.9.jar"/>
 	<classpathentry kind="output" path="bin/eclipse-build"/>
 </classpath>
