@@ -438,6 +438,12 @@ public class PostMethod extends MethodBase {
     Parser parse = new Parser();
 
     if (XmlUtil.nodeMatches(root, AppleServerTags.inviteReply)) {
+      /* It's a reply to a sharing invitation. Parse it then doctor the url to
+       * leave just the resource path.
+       *
+       * A successful response is a shared-as xml response giving the url of
+       * the new collection in the sharees home.
+       */
       InviteReplyType reply = parse.parseInviteReply(root);
       reply.setHostUrl(intf.getUri(reply.getHostUrl()));
 
@@ -449,9 +455,7 @@ public class PostMethod extends MethodBase {
         return;
       }
 
-      SharedAsType sa = new SharedAsType();
-
-      sa.setHref(newUri);
+      SharedAsType sa = new SharedAsType(newUri);
 
       resp.setStatus(HttpServletResponse.SC_OK);
       resp.setContentType("text/xml; charset=UTF-8");

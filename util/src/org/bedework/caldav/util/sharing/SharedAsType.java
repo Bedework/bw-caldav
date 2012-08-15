@@ -34,10 +34,10 @@ public class SharedAsType {
   private String href;
 
   /**
-   * @param val the href
+   * @param href
    */
-  public void setHref(final String val) {
-    href = val;
+  public SharedAsType(final String href) {
+    this.href = href;
   }
 
   /**

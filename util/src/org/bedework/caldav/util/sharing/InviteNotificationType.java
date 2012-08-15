@@ -29,7 +29,7 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
-/** Class to represent reply to a sharing request.
+/** Class to represent a sharing request.
  *
  * @author Mike Douglass douglm
  */

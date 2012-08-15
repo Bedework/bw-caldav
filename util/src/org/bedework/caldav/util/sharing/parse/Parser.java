@@ -40,6 +40,7 @@ import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -168,7 +169,7 @@ public class Parser {
 
       DocumentBuilder builder = factory.newDocumentBuilder();
 
-      return builder.parse(new InputSource(val));
+      return builder.parse(new InputSource(new StringReader(val)));
     } catch (SAXException e) {
       throw new WebdavBadRequest();
     } catch (Throwable t) {

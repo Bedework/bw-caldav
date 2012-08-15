@@ -52,6 +52,20 @@ public class InviteType {
    * ==================================================================== */
 
   /**
+   * @param href
+   * @return null or corresponding entry
+   */
+  public UserType finduser(final String href) {
+    for (UserType u: getUsers()) {
+      if (u.getHref().equals(href)) {
+        return u;
+      }
+    }
+
+    return null;
+  }
+
+  /**
    * @return XML version of notification
    * @throws Throwable
    */
