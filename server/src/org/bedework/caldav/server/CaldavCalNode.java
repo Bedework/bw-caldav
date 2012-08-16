@@ -770,7 +770,7 @@ public class CaldavCalNode extends CaldavBwNode {
       if (tag.equals(CaldavTags.scheduleCalendarTransp)) {
         xml.openTag(tag);
 
-        if ((c == null) || c.getAffectsFreeBusy()) {
+        if (col.getAffectsFreeBusy()) {
           xml.emptyTag(CaldavTags.opaque);
         } else {
           xml.emptyTag(CaldavTags.transparent);
