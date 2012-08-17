@@ -249,7 +249,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
         ", calendar-access" +
         ", calendar-schedule" +
         ", calendar-auto-schedule" +
-        ", calendar-default-alarms";
+        ", calendar-default-alarms" +
+        ", calendarserver-sharing";
   }
 
   @Override
