@@ -54,6 +54,7 @@ public class CaldavPrincipalNode extends WebdavPrincipalNode {
     addPropEntry(propertyNames, CaldavTags.calendarUserAddressSet);
     addPropEntry(propertyNames, CaldavTags.scheduleInboxURL);
     addPropEntry(propertyNames, CaldavTags.scheduleOutboxURL);
+    addPropEntry(propertyNames, AppleServerTags.notificationURL);
   }
 
   /**
@@ -149,7 +150,7 @@ public class CaldavPrincipalNode extends WebdavPrincipalNode {
       }
 
       if (tag.equals(AppleServerTags.notificationURL)) {
-        if (ui == null) {
+        if ((ui == null) || (ui.notificationsPath == null)) {
           return false;
         }
 

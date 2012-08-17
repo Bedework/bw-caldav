@@ -110,6 +110,7 @@ public class CaldavCalNode extends CaldavBwNode {
     addPropEntry(propertyNames, CaldavTags.scheduleDefaultCalendarURL);
     addPropEntry(propertyNames, CaldavTags.supportedCalendarComponentSet);
     addPropEntry(propertyNames, CaldavTags.supportedCalendarData);
+    addPropEntry(propertyNames, AppleServerTags.allowedSharingModes);
     addPropEntry(propertyNames, AppleServerTags.getctag);
     addPropEntry(propertyNames, AppleServerTags.sharedUrl);
     addPropEntry(propertyNames, AppleIcalTags.calendarColor);
@@ -812,6 +813,22 @@ public class CaldavCalNode extends CaldavBwNode {
 
         xml.openTag(tag);
         xml.property(WebdavTags.href, cundereffed.getAliasUri());
+        xml.closeTag(tag);
+
+        return true;
+      }
+
+      if (tag.equals(AppleServerTags.allowedSharingModes)) {
+        // XXX what does publish imply?
+        if (/*!col.getCanPublish() && */!col.getCanShare()) {
+          return false;
+        }
+
+        xml.openTag(tag);
+        //addPropEntry(propertyNames, AppleServerTags.canBePublished);
+        if (col.getCanShare()) {
+          xml.emptyTag(AppleServerTags.canBeShared);
+        }
         xml.closeTag(tag);
 
         return true;
