@@ -41,6 +41,11 @@ public abstract class BaseNotificationType {
   public abstract QName getElementName();
 
   /**
+   * @return a String to use as a resource name
+   */
+  public abstract String getName();
+
+  /**
    */
   public interface AttributeType {
     /**

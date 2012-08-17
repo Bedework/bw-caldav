@@ -120,6 +120,11 @@ public class InviteReplyType extends BaseNotificationType {
   }
 
   @Override
+  public String getName() {
+    return getInReplyTo() + "-reply";
+  }
+
+  @Override
   public List<AttributeType> getElementAttributes() {
     return null;
   }

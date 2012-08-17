@@ -150,6 +150,11 @@ public class InviteNotificationType extends BaseNotificationType {
   }
 
   @Override
+  public String getName() {
+    return getUid();
+  }
+
+  @Override
   public List<AttributeType> getElementAttributes() {
     return null;
   }
