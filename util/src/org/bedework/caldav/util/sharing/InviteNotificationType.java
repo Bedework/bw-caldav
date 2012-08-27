@@ -166,7 +166,9 @@ public class InviteNotificationType extends BaseNotificationType {
     xml.property(WebdavTags.href, getHref());
     xml.emptyTag(getInviteStatus());
     getAccess().toXml(xml);
-    xml.property(AppleServerTags.hosturl, getHostUrl());
+    xml.openTag(AppleServerTags.hosturl);
+    xml.property(WebdavTags.href, getHostUrl());
+    xml.closeTag(AppleServerTags.hosturl);
     getOrganizer().toXml(xml);
     xml.property(AppleServerTags.summary, getSummary());
     xml.closeTag(AppleServerTags.inviteNotification);

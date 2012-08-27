@@ -142,6 +142,10 @@ public class NotificationType {
    * @return decoded content type
    */
   public static NotificationInfo fromContentType(final String val) {
+    if (val == null) {
+      return null;
+    }
+
     if (!isNotificationContentType(val)) {
       return null;
     }
