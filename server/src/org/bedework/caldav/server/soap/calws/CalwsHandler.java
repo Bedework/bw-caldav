@@ -24,7 +24,7 @@ import org.bedework.caldav.server.CaldavBwNode;
 import org.bedework.caldav.server.CaldavCalNode;
 import org.bedework.caldav.server.CaldavComponentNode;
 import org.bedework.caldav.server.CaldavPrincipalNode;
-import org.bedework.caldav.server.PostMethod.RequestPars;
+import org.bedework.caldav.server.RequestPars;
 import org.bedework.caldav.server.SysiIcalendar;
 import org.bedework.caldav.server.soap.SoapHandler;
 import org.bedework.caldav.server.sysinterface.SysIntf.IcalResultType;
@@ -405,7 +405,7 @@ public class CalwsHandler extends SoapHandler {
 
         SysiIcalendar sical = getSysi().fromIcal(null, ical,
                                                  IcalResultType.OneComponent);
-        CalDAVEvent ev = sical.getEvent();
+        CalDAVEvent<?> ev = sical.getEvent();
 
         ev.setScheduleMethod(ScheduleMethods.methodTypeRequest);
         Set<String> recipients = new TreeSet<String>();

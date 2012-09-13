@@ -19,7 +19,6 @@
 package org.bedework.caldav.server;
 
 import org.bedework.caldav.server.CaldavBwNode.PropertyTagXrdEntry;
-import org.bedework.caldav.server.PostMethod.RequestPars;
 import org.bedework.caldav.server.calquery.CalData;
 import org.bedework.caldav.server.calquery.FreeBusyQuery;
 import org.bedework.caldav.server.filter.FilterHandler;

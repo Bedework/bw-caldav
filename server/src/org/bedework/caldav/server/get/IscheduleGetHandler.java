@@ -6,9 +6,9 @@
     Version 2.0 (the "License"); you may not use this file
     except in compliance with the License. You may obtain a
     copy of the License at:
-        
+
     http://www.apache.org/licenses/LICENSE-2.0
-        
+
     Unless required by applicable law or agreed to in writing,
     software distributed under the License is distributed on
     an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -19,12 +19,16 @@
 package org.bedework.caldav.server.get;
 
 import org.bedework.caldav.server.CaldavBWIntf;
-import org.bedework.caldav.server.PostMethod.RequestPars;
+import org.bedework.caldav.server.RequestPars;
 import org.bedework.caldav.server.sysinterface.SystemProperties;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.sss.util.Util;
 import edu.rpi.sss.util.xml.tagdefs.IscheduleTags;
+
+import org.apache.commons.codec.binary.Base64;
+
+import java.io.Writer;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -50,17 +54,56 @@ public class IscheduleGetHandler extends GetHandler {
                       final HttpServletResponse resp,
                       final RequestPars pars) throws WebdavException {
     try {
-      String query = req.getParameter("query");
+      if (pars.noPrefixResourceUri.length() == 0) {
+        String query = req.getParameter("query");
 
-      if (Util.equalsString(query, "capabilities")) {
-        doCapabilities(req, resp, pars);
+        if (Util.equalsString(query, "capabilities")) {
+          doCapabilities(req, resp, pars);
+          return;
+        }
+
+        resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Bad request parameters");
+      }
+
+      if (pars.noPrefixResourceUri.startsWith("/domainkey")) {
+        String[] pe = pars.noPrefixResourceUri.split("/");
+
+        if (pe.length < 3) {
+          resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Bad request parameters");
+          return;
+        }
+
+        makeDomainKey(resp, pe[1], pe[2]);
         return;
       }
 
-      resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Bad request parameters");
+      resp.sendError(HttpServletResponse.SC_FORBIDDEN);
 
     //} catch (WebdavException wde) {
     //  throw wde;
+    } catch (Throwable t) {
+      throw new WebdavException(t);
+    }
+  }
+
+  private void makeDomainKey(final HttpServletResponse resp,
+                             final String domain,
+                             final String service) throws WebdavException {
+    try {
+      byte[] key = intf.getSysi().getPublicKey(domain, service);
+
+      if ((key == null) || (key.length == 0)) {
+        resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+        return;
+      }
+
+      resp.setContentType("text/plain");
+
+      Writer wtr = resp.getWriter();
+
+      wtr.write("v=DKIM1;p=");
+      wtr.write(new String(new Base64().encode(key)));
+      wtr.close();
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
@@ -82,41 +125,38 @@ public class IscheduleGetHandler extends GetHandler {
       startEmit(resp);
 
       openTag(IscheduleTags.queryResult);
-      openTag(IscheduleTags.capabilitySet);
+      openTag(IscheduleTags.capabilities);
 
-      openTag(IscheduleTags.supportedVersionSet);
+      openTag(IscheduleTags.versions);
       property(IscheduleTags.version, "1");
-      closeTag(IscheduleTags.supportedVersionSet);
+      closeTag(IscheduleTags.versions);
 
-      /* supported-scheduling-message-set */
+      /* scheduling-messages */
 
-      openTag(IscheduleTags.supportedSchedulingMessageSet);
+      openTag(IscheduleTags.schedulingMessages);
 
-      openTag(IscheduleTags.comp, "name", "VEVENT");
+      openTag(IscheduleTags.component, "name", "VEVENT");
       supportedMethod("REQUEST");
       supportedMethod("ADD");
       supportedMethod("REPLY");
       supportedMethod("CANCEL");
-      closeTag(IscheduleTags.comp);
+      closeTag(IscheduleTags.component);
 
-      openTag(IscheduleTags.comp, "name", "VEVENT");
+      openTag(IscheduleTags.component, "name", "VTODO");
       supportedMethod("REQUEST");
       supportedMethod("ADD");
       supportedMethod("REPLY");
       supportedMethod("CANCEL");
-      closeTag(IscheduleTags.comp);
+      closeTag(IscheduleTags.component);
 
-      openTag(IscheduleTags.comp, "name", "VTODO");
-      closeTag(IscheduleTags.comp);
+      openTag(IscheduleTags.component, "name", "VFREEBUSY");
+      closeTag(IscheduleTags.component);
 
-      openTag(IscheduleTags.comp, "name", "VFREEBUSY");
-      closeTag(IscheduleTags.comp);
+      closeTag(IscheduleTags.schedulingMessages);
 
-      closeTag(IscheduleTags.supportedSchedulingMessageSet);
+      /* calendar-data-types */
 
-      /* supported-scheduling-message-set */
-
-      openTag(IscheduleTags.supportedCalendarDataType);
+      openTag(IscheduleTags.calendarDataTypes);
 
       String[] calDataNames = {"content-type",
                                "version"
@@ -127,20 +167,21 @@ public class IscheduleGetHandler extends GetHandler {
       };
 
       attrTag(IscheduleTags.calendarData, calDataNames, calDataVals);
-      closeTag(IscheduleTags.supportedCalendarDataType);
+      closeTag(IscheduleTags.calendarDataTypes);
 
-      /* supported-attachment-values */
+      /* attachments */
 
-      openTag(IscheduleTags.supportedAttachmentValues);
-      emptyTag(IscheduleTags.inlineAttachment);
-      emptyTag(IscheduleTags.externalAttachment);
-      closeTag(IscheduleTags.supportedAttachmentValues);
+      openTag(IscheduleTags.attachments);
+      emptyTag(IscheduleTags.inline);
+      emptyTag(IscheduleTags.external);
+      closeTag(IscheduleTags.attachments);
 
-      /* supported-recipient-uri-scheme-set */
+      /* supported-recipient-uri-scheme-set * /
 
       openTag(IscheduleTags.supportedRecipientUriSchemeSet);
       property(IscheduleTags.scheme, "mailto");
       closeTag(IscheduleTags.supportedRecipientUriSchemeSet);
+      */
 
       prop(IscheduleTags.maxContentLength, sysp.getMaxUserEntitySize());
       prop(IscheduleTags.minDateTime, sysp.getMinDateTime());
@@ -149,7 +190,7 @@ public class IscheduleGetHandler extends GetHandler {
       prop(IscheduleTags.maxRecipients, sysp.getMaxAttendeesPerInstance());
       prop(IscheduleTags.administrator, sysp.getAdminContact());
 
-      closeTag(IscheduleTags.capabilitySet);
+      closeTag(IscheduleTags.capabilities);
       closeTag(IscheduleTags.queryResult);
     } catch (WebdavException wde) {
       throw wde;

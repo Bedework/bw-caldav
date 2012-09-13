@@ -19,13 +19,16 @@
 package org.bedework.caldav.server.get;
 
 import org.bedework.caldav.server.CaldavBWIntf;
-import org.bedework.caldav.server.PostMethod.RequestPars;
+import org.bedework.caldav.server.RequestPars;
 import org.bedework.caldav.server.sysinterface.SystemProperties;
 import org.bedework.caldav.util.ParseUtil;
 import org.bedework.caldav.util.TimeRange;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavForbidden;
+
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -50,8 +53,10 @@ public class FreeBusyGetHandler extends GetHandler {
                       final HttpServletResponse resp,
                       final RequestPars pars) throws WebdavException {
     try {
+      String originator = null;
+
       if (getAccount() != null) {
-        pars.originator = getSysi().principalToCaladdr(getSysi().getPrincipal());
+        originator = getSysi().principalToCaladdr(getSysi().getPrincipal());
       }
 
       String cua = req.getParameter("cua");
@@ -87,13 +92,14 @@ public class FreeBusyGetHandler extends GetHandler {
         return;
       }
 
+      Set<String> recipients = new TreeSet<String>();
       resp.setHeader("Content-Disposition",
                      "Attachment; Filename=\"freebusy.ics\"");
       resp.setContentType("text/calendar; charset=UTF-8");
-      pars.recipients.add(cua);
+      recipients.add(cua);
 
-      getSysi().getSpecialFreeBusy(cua, pars.recipients,
-                                   pars.originator,
+      getSysi().getSpecialFreeBusy(cua, recipients,
+                                   originator,
                                    tr, resp.getWriter());
     } catch (WebdavForbidden wdf) {
       resp.setStatus(HttpServletResponse.SC_FORBIDDEN);

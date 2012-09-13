@@ -19,7 +19,7 @@
 package org.bedework.caldav.server.soap.synch;
 
 import org.bedework.caldav.server.CaldavBWIntf;
-import org.bedework.caldav.server.PostMethod.RequestPars;
+import org.bedework.caldav.server.RequestPars;
 import org.bedework.caldav.server.soap.calws.CalwsHandler;
 import org.bedework.synch.wsmessages.KeepAliveNotificationType;
 import org.bedework.synch.wsmessages.KeepAliveResponseType;

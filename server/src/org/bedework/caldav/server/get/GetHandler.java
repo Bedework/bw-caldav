@@ -19,7 +19,7 @@
 package org.bedework.caldav.server.get;
 
 import org.bedework.caldav.server.CaldavBWIntf;
-import org.bedework.caldav.server.PostMethod.RequestPars;
+import org.bedework.caldav.server.RequestPars;
 import org.bedework.caldav.server.sysinterface.SysIntf;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;

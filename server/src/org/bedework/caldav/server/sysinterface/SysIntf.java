@@ -150,6 +150,29 @@ public interface SysIntf {
    */
   public AccessPrincipal getPrincipal(String href) throws WebdavException;
 
+  /** Returns a public key for the given domain and service - either or both of
+   * which may be null.
+   *
+   * <p>This allows us to have different keys for communication with different
+   * domains and for different services. At its simplest, both are ignored and a
+   * single key (pair) is used to secure all communications.
+   *
+   * <p>This is used, for example, by iSchedule for DKIM verification.
+   *
+   * <p>In keeping with the DKIM approach, <ul>
+   * <li>if there are no keys an empty object is returned.</li>
+   * <li>To refuse keys for a domain/service return null.</li>
+   *
+   *
+   * <p>
+   * @param domain
+   * @param service
+   * @return key, empty key object or null.
+   * @throws WebdavException
+   */
+  public byte[] getPublicKey(String domain,
+                             String service) throws WebdavException;
+
   /**
    * @param id
    * @param whoType - from WhoDefs
