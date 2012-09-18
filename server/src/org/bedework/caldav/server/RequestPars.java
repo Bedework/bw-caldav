@@ -48,7 +48,7 @@ public class RequestPars {
   public String resourceUri;
 
   /** If this request is for a special URI this is the resource URI without
-   * the prefix. It may be an empty string but will not be null.
+   * the prefix and any parameters. It may be an empty string but will not be null.
    * <p>for example /ischedule/domainkey/... will become /domainkey/...
    */
   public String noPrefixResourceUri;
@@ -254,22 +254,35 @@ public class RequestPars {
     int pos = resourceUri.indexOf("/", 1);
 
     if (pos < 0) {
-      prefix = resourceUri;
+      prefix = noParameters(resourceUri);
     } else {
       prefix = resourceUri.substring(0, pos);
     }
 
     if (!toMatch.equals(Util.buildPath(prefix, "/"))) {
-      noPrefixResourceUri = resourceUri;
+      noPrefixResourceUri = noParameters(resourceUri);
       return false;
     }
 
     if (pos < 0) {
       noPrefixResourceUri = "";
     } else {
-      noPrefixResourceUri = resourceUri.substring(pos);
+      noPrefixResourceUri = noParameters(resourceUri.substring(pos));
     }
 
     return true;
+  }
+
+  private String noParameters(String uri) {
+    int pos = uri.indexOf("?");
+    if (pos > 0) {
+      uri = uri.substring(0, pos);
+    }
+
+    if (uri.equals("/")) {
+      uri = "";
+    }
+
+    return uri;
   }
 }
