@@ -55,7 +55,7 @@ public class IscheduleGetHandler extends GetHandler {
                       final RequestPars pars) throws WebdavException {
     try {
       if (pars.noPrefixResourceUri.length() == 0) {
-        String query = req.getParameter("query");
+        String query = req.getParameter("action");
 
         if (Util.equalsString(query, "capabilities")) {
           doCapabilities(req, resp, pars);
