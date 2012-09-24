@@ -108,7 +108,7 @@ public class IscheduleIn extends IscheduleMessage {
             throw new WebdavBadRequest("Multiple dkim-signature headers");
           }
 
-          dkimSignature = new SignatureRecordImpl(hval);
+          dkimSignature = SignatureRecordImpl.forIschedule(hval);
           dkimSignature.validate();
 
           String[] httpVals = dkimSignature.getHttpVals();
