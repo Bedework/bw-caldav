@@ -190,7 +190,7 @@ public class Parser {
 
   /**
    * @param nd MUST be the invite xml element
-   * @return populated ShareType object
+   * @return populated InviteType object
    * @throws WebdavException
    */
   public InviteType parseInvite(final Node nd) throws WebdavException {
