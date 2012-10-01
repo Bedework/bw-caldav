@@ -66,14 +66,19 @@ public class IscheduleMessage implements Headers, Serializable {
 
   /** Update the headers
    *
-   * @param nameLc
+   * @param name
    * @param val
    */
-  public void addHeader(final String nameLc, final String val) {
+  public void addHeader(final String name, final String val) {
+    String nameLc = name.toLowerCase();
     List<String> vals = headers.get(nameLc);
     if (vals == null) {
       vals = new ArrayList<String>();
         headers.put(nameLc, vals);
+    }
+
+    if (!fields.contains(nameLc)) {
+      addField(nameLc);
     }
 
     vals.add(val);
@@ -126,6 +131,28 @@ public class IscheduleMessage implements Headers, Serializable {
 
   @Override
   public List<String> getFields(final String val) {
+    /* The rest of the package assumes each 'field' is a header record with name
+     * and CR LF terminator.
+     */
+    List<String> l = headers.get(val.toLowerCase());
+    if ((l == null) || (l.size() == 0)) {
+      return l;
+    }
+
+    List<String> namedL = new ArrayList<String>();
+
+    for (String v: l) {
+      namedL.add(val + ":" + v);
+    }
+
+    return namedL;
+  }
+
+  /**
+   * @param val
+   * @return header values without th ename: part
+   */
+  public List<String> getFieldVals(final String val) {
     return headers.get(val.toLowerCase());
   }
 

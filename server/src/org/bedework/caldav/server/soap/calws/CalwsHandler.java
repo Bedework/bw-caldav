@@ -412,7 +412,7 @@ public class CalwsHandler extends SoapHandler {
         recipients.add(cua);
         ev.setRecipients(recipients);
 
-        Collection<SchedRecipientResult> srrs = getSysi().requestFreeBusy(ev);
+        Collection<SchedRecipientResult> srrs = getSysi().requestFreeBusy(ev, false);
 
         if (srrs.size() != 1) {
           frr.setStatus(StatusType.ERROR);

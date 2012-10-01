@@ -48,6 +48,7 @@ import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 import edu.rpi.sss.util.xml.tagdefs.XcalTags;
 
 import org.apache.james.jdkim.DKIMVerifier;
+import org.apache.james.jdkim.IscheduleDKIMVerifier;
 import org.apache.james.jdkim.api.BodyHasher;
 import org.apache.james.jdkim.api.SignatureRecord;
 import org.apache.james.jdkim.exceptions.FailException;
@@ -547,7 +548,7 @@ public class PostMethod extends MethodBase {
 
     try {
       /* Do DKIM validation */
-      DKIMVerifier verifier = new DKIMVerifier();
+      DKIMVerifier verifier = new IscheduleDKIMVerifier();
       BodyHasher bh = verifier.newBodyHasher(pars.ischedRequest);
 
       if (bh != null) {
@@ -559,6 +560,9 @@ public class PostMethod extends MethodBase {
     } catch (IOException e) {
       throw new WebdavException(e);
     } catch (FailException e) {
+      if (debug) {
+        error(e);
+      }
       throw new WebdavForbidden(IscheduleTags.verificationFailed);
     }
   }
@@ -616,7 +620,7 @@ public class PostMethod extends MethodBase {
     ev.setOriginator(pars.ischedRequest.getOriginator());
     ev.setScheduleMethod(pars.ic.getMethodType());
 
-    Collection<SchedRecipientResult> srrs = intf.requestFreeBusy(ev);
+    Collection<SchedRecipientResult> srrs = intf.requestFreeBusy(ev, true);
 
     resp.setStatus(HttpServletResponse.SC_OK);
     resp.setContentType("text/xml; charset=UTF-8");
@@ -644,9 +648,14 @@ public class PostMethod extends MethodBase {
 
     for (SchedRecipientResult srr: srrs) {
       openTag(responseTag);
-      openTag(recipientTag);
-      property(WebdavTags.href, srr.recipient);
-      closeTag(recipientTag);
+
+      if (pars.iSchedule) {
+        property(recipientTag, srr.recipient);
+      } else {
+        openTag(recipientTag);
+        property(WebdavTags.href, srr.recipient);
+        closeTag(recipientTag);
+      }
 
       setReqstat(srr.status, pars.iSchedule);
 
@@ -684,6 +693,10 @@ public class PostMethod extends MethodBase {
         propertyTagVal(WebdavTags.error, CaldavTags.recipientPermissions);
       }
       reqstat = IcalDefs.requestStatusNoAccess;
+    } else if (status == SchedRecipientResult.scheduleUnprocessed) {
+      reqstat = IcalDefs.requestStatusInvalidUser;
+    } else if (status == SchedRecipientResult.scheduleError) {
+      reqstat = IcalDefs.requestStatusUnavailable;
     } else {
       reqstat = IcalDefs.requestStatusOK;
     }

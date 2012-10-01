@@ -514,10 +514,12 @@ public interface SysIntf {
    *
    * @param val    A representation of a scheduling freebusy request to be
    *               acted upon.
+   * @param iSchedule true if this is from an ischedule request
    * @return ScheduleResult
    * @throws WebdavException
    */
-  public Collection<SchedRecipientResult> requestFreeBusy(CalDAVEvent val)
+  public Collection<SchedRecipientResult> requestFreeBusy(CalDAVEvent val,
+                                                          boolean iSchedule)
           throws WebdavException;
 
   /** Handle the special freebusy resquests, i.e. non-CalDAV

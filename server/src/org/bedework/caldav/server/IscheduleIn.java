@@ -109,7 +109,7 @@ public class IscheduleIn extends IscheduleMessage {
           }
 
           dkimSignature = SignatureRecordImpl.forIschedule(hval);
-          dkimSignature.validate();
+          //dkimSignature.validate();
 
           String[] httpVals = dkimSignature.getHttpVals();
 
