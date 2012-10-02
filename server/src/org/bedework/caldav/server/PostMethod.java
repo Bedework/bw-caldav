@@ -31,6 +31,7 @@ import org.bedework.caldav.util.sharing.parse.Parser;
 
 import edu.rpi.cct.webdav.servlet.common.Headers.IfHeaders;
 import edu.rpi.cct.webdav.servlet.common.MethodBase;
+import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavForbidden;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
@@ -585,7 +586,7 @@ public class PostMethod extends MethodBase {
       }
     }
 
-    ev.setOriginator(pars.ischedRequest.getOriginator());
+    validateOriginator(pars, ev);
     ev.setScheduleMethod(pars.ic.getMethodType());
 
     Collection<SchedRecipientResult> srrs = intf.schedule(ev);
@@ -617,7 +618,7 @@ public class PostMethod extends MethodBase {
     CalDAVEvent<?> ev = pars.ic.getEvent();
 
     ev.setRecipients(pars.ischedRequest.getRecipients());
-    ev.setOriginator(pars.ischedRequest.getOriginator());
+    validateOriginator(pars, ev);
     ev.setScheduleMethod(pars.ic.getMethodType());
 
     Collection<SchedRecipientResult> srrs = intf.requestFreeBusy(ev, true);
@@ -678,6 +679,25 @@ public class PostMethod extends MethodBase {
     }
 
     closeTag(sresponseTag);
+  }
+
+  private void validateOriginator(final RequestPars pars,
+                                  final CalDAVEvent ev) throws WebdavException {
+    String origUrl = pars.ischedRequest.getOriginator();
+    Organizer org = ev.getOrganizer();
+
+    if (org == null) {
+      throw new WebdavBadRequest(IscheduleTags.invalidCalendarData,
+                                 "Missing organizer");
+    }
+
+    if (!origUrl.equals(org.getOrganizerUri())) {
+      throw new WebdavBadRequest(IscheduleTags.invalidCalendarData,
+          "Organizer/originator mismatch");
+    }
+
+    ev.setOriginator(origUrl);
+
   }
 
   private void setReqstat(final int status,

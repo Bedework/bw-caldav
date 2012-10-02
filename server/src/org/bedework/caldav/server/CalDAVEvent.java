@@ -99,6 +99,12 @@ public abstract class CalDAVEvent <T> extends WdEntity<T> {
    */
   public abstract void setOrganizer(Organizer val) throws WebdavException;
 
+  /**
+   * @return an  organizer if one is present.
+   * @throws WebdavException
+   */
+  public abstract Organizer getOrganizer() throws WebdavException;
+
   /** Set the event's originator
    *
    * @param val    String event's originator
