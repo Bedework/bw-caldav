@@ -29,6 +29,7 @@ import org.bedework.caldav.util.TimeRange;
 import org.bedework.caldav.util.filter.FilterBase;
 import org.bedework.caldav.util.notifications.NotificationType;
 import org.bedework.caldav.util.sharing.InviteReplyType;
+import org.bedework.caldav.util.sharing.InviteType;
 import org.bedework.caldav.util.sharing.ShareType;
 
 import edu.rpi.cct.webdav.servlet.shared.PrincipalPropertySearch;
@@ -323,6 +324,13 @@ public interface SysIntf {
    */
   public String sharingReply(CalDAVCollection col,
                              InviteReplyType reply) throws WebdavException;
+
+  /**
+   * @param col
+   * @return current invitations
+   * @throws WebdavException
+   */
+  InviteType getInviteStatus(final CalDAVCollection col) throws WebdavException;
 
   /* ====================================================================
    *                   Scheduling

@@ -21,6 +21,8 @@ package org.bedework.caldav.server;
 import org.bedework.caldav.server.sysinterface.CalPrincipalInfo;
 import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.caldav.server.sysinterface.SysIntf.MethodEmitted;
+import org.bedework.caldav.util.sharing.InviteType;
+import org.bedework.caldav.util.sharing.UserType;
 
 import edu.rpi.cct.webdav.servlet.shared.WdEntity;
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
@@ -112,6 +114,7 @@ public class CaldavCalNode extends CaldavBwNode {
     addPropEntry(propertyNames, CaldavTags.supportedCalendarData);
     addPropEntry(propertyNames, AppleServerTags.allowedSharingModes);
     addPropEntry(propertyNames, AppleServerTags.getctag);
+    addPropEntry(propertyNames, AppleServerTags.invite);
     addPropEntry(propertyNames, AppleServerTags.sharedUrl);
     addPropEntry(propertyNames, AppleIcalTags.calendarColor);
 
@@ -767,6 +770,27 @@ public class CaldavCalNode extends CaldavBwNode {
         xml.closeTag(tag);
 
         return true;
+      }
+
+      if (tag.equals(AppleServerTags.invite)) {
+        InviteType inv = getSysi().getInviteStatus(cundereffed);
+
+        if (inv == null) {
+          return false;
+        }
+
+        xml.openTag(tag);
+
+        /*
+         *    <!ELEMENT user (DAV:href, common-name?, (invite-noresponse |
+                   invite-accepted | invite-declined | invite-invalid),
+                   access, summary?)>
+         */
+        for (UserType u: inv.getUsers()) {
+          u.toXml(xml);
+        }
+
+        xml.closeTag(tag);
       }
 
       if (tag.equals(CaldavTags.scheduleCalendarTransp)) {
