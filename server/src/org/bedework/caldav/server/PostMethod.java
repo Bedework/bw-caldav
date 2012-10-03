@@ -211,8 +211,8 @@ public class PostMethod extends MethodBase {
       String newUri = sysi.sharingReply(col, reply);
 
       if (newUri == null) {
-        // XXX Wrong response
-        resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+        // Appropriate for declined
+        resp.setStatus(HttpServletResponse.SC_OK);
         return;
       }
 
