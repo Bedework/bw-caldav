@@ -756,7 +756,7 @@ public class CaldavCalNode extends CaldavBwNode {
         } else if (calType == CalDAVCollection.calTypeCalendarCollection) {
           xml.emptyTag(CaldavTags.calendar);
         } else if (calType == CalDAVCollection.calTypeNotifications) {
-          xml.emptyTag(AppleServerTags.notifications);
+          xml.emptyTag(AppleServerTags.notification);
         }
 
         String s = cundereffed.getProperty(AppleServerTags.shared);
