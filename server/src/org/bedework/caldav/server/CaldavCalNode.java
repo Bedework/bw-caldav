@@ -798,6 +798,8 @@ public class CaldavCalNode extends CaldavBwNode {
         }
 
         xml.closeTag(tag);
+
+        return true;
       }
 
       if (tag.equals(CaldavTags.scheduleCalendarTransp)) {
