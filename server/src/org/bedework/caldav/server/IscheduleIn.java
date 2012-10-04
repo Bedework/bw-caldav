@@ -36,8 +36,6 @@ import javax.servlet.http.HttpServletRequest;
 public class IscheduleIn extends IscheduleMessage {
   private HttpServletRequest req;
 
-  private String httpUri;
-
   /** Constructor
    *
    * @param req
@@ -110,15 +108,6 @@ public class IscheduleIn extends IscheduleMessage {
 
           dkimSignature = SignatureRecordImpl.forIschedule(hval);
           //dkimSignature.validate();
-
-          String[] httpVals = dkimSignature.getHttpVals();
-
-          if (!"post".equals(httpVals[0].toLowerCase())) {
-            throw new WebdavBadRequest("DKIM: Only allow for POST in http tag value");
-          }
-
-          httpUri = httpVals[1];
-
           continue;
         }
       }
@@ -131,14 +120,6 @@ public class IscheduleIn extends IscheduleMessage {
    */
   public HttpServletRequest getReq() {
     return req;
-  }
-
-  /** Get the http Uri from the request line
-   *
-   *  @return String     httpUri
-   */
-  public String getHttpUri() {
-    return httpUri;
   }
 
   /* We seem to be getting both absolute and relative principals as well as mailto

@@ -601,9 +601,7 @@ public class PostMethod extends MethodBase {
     for (SchedRecipientResult srr: srrs) {
       openTag(IscheduleTags.response);
 
-      openTag(IscheduleTags.recipient);
-      property(WebdavTags.href, srr.recipient);
-      closeTag(IscheduleTags.recipient);
+      property(IscheduleTags.recipient, srr.recipient);
 
       setReqstat(srr.status, true);
       closeTag(IscheduleTags.response);
