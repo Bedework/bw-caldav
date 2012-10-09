@@ -770,30 +770,72 @@ public interface SysIntf {
     public static class SynchReportDataItem implements Comparable<SynchReportDataItem> {
       /**
        */
-      public String lastmod;
+      private String token;
 
-      /** Non-null if this is for an entity */
-      public CalDAVEvent entity;
+      /** Non-null if this is for a calendar entity */
+      private CalDAVEvent entity;
 
       /** Non-null if this is for a collection */
-      public CalDAVCollection col;
+      private CalDAVCollection col;
+
+      /** true if we can provide sync info for this - usually false for aliases */
+      private boolean canSync;
 
       /**
        * @param entity
+       * @param token
        * @throws WebdavException
        */
-      public SynchReportDataItem(final CalDAVEvent entity) throws WebdavException {
+      public SynchReportDataItem(final CalDAVEvent entity,
+                                 final String token) throws WebdavException {
         this.entity = entity;
-        lastmod = entity.getLastmod();
+        this.token = token;
       }
 
       /**
        * @param col
+       * @param token
+       * @param canSync
        * @throws WebdavException
        */
-      public SynchReportDataItem(final CalDAVCollection col) throws WebdavException {
+      public SynchReportDataItem(final CalDAVCollection col,
+                                 final String token,
+                                 final boolean canSync) throws WebdavException {
         this.col = col;
-        lastmod = col.getLastmod();
+        this.canSync = canSync;
+        this.token = token;
+      }
+
+      /**
+       *
+       * @return The token
+       */
+      public String getToken() {
+        return token;
+      }
+
+      /** Non-null if this is for calendar entity
+       *
+       * @return event or null
+       */
+      public CalDAVEvent getEntity() {
+        return entity;
+      }
+
+      /** Non-null if this is for a collection
+       *
+       * @return collection or null
+       */
+      public CalDAVCollection getCol() {
+        return col;
+      }
+
+      /** False if we can't do a direct sync report.
+       *
+       * @return boolean
+       */
+      public boolean getCanSync() {
+        return canSync;
       }
 
       /* (non-Javadoc)
@@ -801,12 +843,12 @@ public interface SysIntf {
        */
       @Override
       public int compareTo(final SynchReportDataItem that) {
-        return lastmod.compareTo(that.lastmod);
+        return token.compareTo(that.token);
       }
 
       @Override
       public int hashCode() {
-        return lastmod.hashCode();
+        return token.hashCode();
       }
 
       @Override

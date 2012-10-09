@@ -1362,15 +1362,23 @@ public class CaldavBWIntf extends WebdavNsIntf {
     wsr.items = new ArrayList<WdSynchReportItem>();
 
     for (SynchReportDataItem srdi: srd.items) {
-      WebdavNsNode node;
+      WdSynchReportItem wri = null;
 
-      if (srdi.col != null) {
-        node = new CaldavCalNode(srdi.col, getSysi());
-      } else {
-        node = new CaldavComponentNode(srdi.entity, getSysi());
+      if (srdi.getCol() != null) {
+        wri = new WdSynchReportItem(new CaldavCalNode(srdi.getCol(),
+                                                      getSysi()),
+                                                      srdi.getToken(),
+                                                      srdi.getCanSync());
+      } else if (srdi.getEntity() != null) {
+        wri = new WdSynchReportItem(new CaldavComponentNode(srdi.getEntity(),
+                                                            getSysi()),
+                                                            srdi.getToken(),
+                                                            true);
       }
 
-      wsr.items.add(new WdSynchReportItem(node));
+      if (wri != null) {
+        wsr.items.add(wri);
+      }
     }
 
     return wsr;
