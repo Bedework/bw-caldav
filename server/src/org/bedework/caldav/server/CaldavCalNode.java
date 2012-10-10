@@ -768,7 +768,7 @@ public class CaldavCalNode extends CaldavBwNode {
 
         String s = cundereffed.getProperty(AppleServerTags.shared);
         if ((s != null) && Boolean.valueOf(s)) {
-          if (cundereffed.getOwner().equals(getSysi().getPrincipal())) {
+          if (c.getOwner().equals(getSysi().getPrincipal())) {
             xml.emptyTag(AppleServerTags.sharedOwner);
           } else {
             xml.emptyTag(AppleServerTags.shared);
