@@ -1374,6 +1374,11 @@ public class CaldavBWIntf extends WebdavNsIntf {
                                                             getSysi()),
                                                             srdi.getToken(),
                                                             true);
+      } else if (srdi.getResource() != null) {
+        wri = new WdSynchReportItem(new CaldavResourceNode(srdi.getResource(),
+                                                           getSysi()),
+                                                           srdi.getToken(),
+                                                           true);
       }
 
       if (wri != null) {

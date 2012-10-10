@@ -96,6 +96,21 @@ public class CaldavResourceNode extends CaldavBwNode {
     }
   }
 
+  /**
+   * @param resource
+   * @param sysi
+   * @throws WebdavException
+   */
+  public CaldavResourceNode(final CalDAVResource resource,
+                            final SysIntf sysi) throws WebdavException {
+    super(sysi, resource.getParentPath(), true, resource.getPath());
+
+    allowsGet = false;
+
+    this.resource = resource;
+    exists = true;
+  }
+
   @Override
   public void init(final boolean content) throws WebdavException {
     if (!content) {

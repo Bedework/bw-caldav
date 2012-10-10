@@ -775,6 +775,9 @@ public interface SysIntf {
       /** Non-null if this is for a calendar entity */
       private CalDAVEvent entity;
 
+      /** Non-null if this is for a resource - will not have its content */
+      private CalDAVResource resource;
+
       /** Non-null if this is for a collection */
       private CalDAVCollection col;
 
@@ -789,6 +792,17 @@ public interface SysIntf {
       public SynchReportDataItem(final CalDAVEvent entity,
                                  final String token) throws WebdavException {
         this.entity = entity;
+        this.token = token;
+      }
+
+      /**
+       * @param resource
+       * @param token
+       * @throws WebdavException
+       */
+      public SynchReportDataItem(final CalDAVResource resource,
+                                 final String token) throws WebdavException {
+        this.resource = resource;
         this.token = token;
       }
 
@@ -820,6 +834,14 @@ public interface SysIntf {
        */
       public CalDAVEvent getEntity() {
         return entity;
+      }
+
+      /** Non-null if this is for a resource
+       *
+       * @return resource or null
+       */
+      public CalDAVResource getResource() {
+        return resource;
       }
 
       /** Non-null if this is for a collection
