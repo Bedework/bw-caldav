@@ -1373,6 +1373,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       WdSynchReportItem wri = null;
       WebdavNsNode parent = null; // Need for non-collection
       String name;
+      boolean canSync;
 
       if (srdi.getCol() == null) {
         parent = parents.get(srdi.getVpath());
@@ -1385,6 +1386,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
         }
 
         col = (CalDAVCollection)parent.getCollection(false);
+        canSync = true;
 
         if (srdi.getEntity() != null) {
           nodeType = WebdavNsIntf.nodeTypeEntity;
@@ -1401,13 +1403,14 @@ public class CaldavBWIntf extends WebdavNsIntf {
         nodeType = WebdavNsIntf.nodeTypeCollection;
         col = srdi.getCol();
         name = col.getName();
+        canSync = srdi.getCanSync();
       }
 
       wri = new WdSynchReportItem(getNodeInt(Util.buildPath(srdi.getVpath(), "/", name),
                                              WebdavNsIntf.existanceDoesExist,
                                              nodeType, col, ev, r),
                                              srdi.getToken(),
-                                             srdi.getCanSync());
+                                             canSync);
 
       wsr.items.add(wri);
     }
