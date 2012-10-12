@@ -844,7 +844,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
     //BwEvent ev = evinfo.getEvent();
     String entityName = bwnode.getEntityName();
 
-    CalDAVCollection col = (CalDAVCollection)bwnode.getCollection(false); // don't deref
+    CalDAVCollection col = (CalDAVCollection)bwnode.getCollection(true);
     boolean created = false;
 
     SysiIcalendar cal = sysi.fromIcal(col, contentRdr, contentType,
