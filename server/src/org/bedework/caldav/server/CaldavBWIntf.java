@@ -65,6 +65,7 @@ import edu.rpi.cmt.access.Acl;
 import edu.rpi.cmt.access.PrivilegeDefs;
 import edu.rpi.cmt.access.WhoDefs;
 import edu.rpi.sss.util.OptionsI;
+import edu.rpi.sss.util.Util;
 import edu.rpi.sss.util.xml.XmlEmit;
 import edu.rpi.sss.util.xml.XmlEmit.NameSpace;
 import edu.rpi.sss.util.xml.XmlUtil;
@@ -95,6 +96,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeSet;
 
 import javax.servlet.ServletContext;
@@ -567,7 +569,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
           throw new WebdavException("Unexpected return type");
         }
 
-        al.add(getNodeInt(uri + "/" + name,
+        al.add(getNodeInt(Util.buildPath(uri, "/", name),
                           WebdavNsIntf.existanceDoesExist,
                           nodeType, col, ev, r));
       }
@@ -1361,29 +1363,53 @@ public class CaldavBWIntf extends WebdavNsIntf {
     wsr.truncated = srd.truncated;
     wsr.items = new ArrayList<WdSynchReportItem>();
 
+    Map<String, WebdavNsNode> parents = new HashMap<String, WebdavNsNode>();
+
     for (SynchReportDataItem srdi: srd.items) {
+      int nodeType;
+      CalDAVCollection col = null;
+      CalDAVResource r = null;
+      CalDAVEvent ev = null;
       WdSynchReportItem wri = null;
+      WebdavNsNode parent = null; // Need for non-collection
+      String name;
 
-      if (srdi.getCol() != null) {
-        wri = new WdSynchReportItem(new CaldavCalNode(srdi.getCol(),
-                                                      getSysi()),
-                                                      srdi.getToken(),
-                                                      srdi.getCanSync());
-      } else if (srdi.getEntity() != null) {
-        wri = new WdSynchReportItem(new CaldavComponentNode(srdi.getEntity(),
-                                                            getSysi()),
-                                                            srdi.getToken(),
-                                                            true);
-      } else if (srdi.getResource() != null) {
-        wri = new WdSynchReportItem(new CaldavResourceNode(srdi.getResource(),
-                                                           getSysi()),
-                                                           srdi.getToken(),
-                                                           true);
+      if (srdi.getCol() == null) {
+        parent = parents.get(srdi.getVpath());
+        if (parent == null) {
+          parent = getNode(srdi.getVpath(),
+                           WebdavNsIntf.existanceMust,
+                           WebdavNsIntf.nodeTypeCollection);
+
+          parents.put(srdi.getVpath(), parent);
+        }
+
+        col = (CalDAVCollection)parent.getCollection(false);
+
+        if (srdi.getEntity() != null) {
+          nodeType = WebdavNsIntf.nodeTypeEntity;
+          ev = srdi.getEntity();
+          name = ev.getName();
+        } else if (srdi.getResource() != null) {
+          nodeType = WebdavNsIntf.nodeTypeEntity;
+          r = srdi.getResource();
+          name = r.getName();
+        } else {
+          throw new WebdavException("Unexpected return type");
+        }
+      } else {
+        nodeType = WebdavNsIntf.nodeTypeCollection;
+        col = srdi.getCol();
+        name = col.getName();
       }
 
-      if (wri != null) {
-        wsr.items.add(wri);
-      }
+      wri = new WdSynchReportItem(getNodeInt(Util.buildPath(srdi.getVpath(), "/", name),
+                                             WebdavNsIntf.existanceDoesExist,
+                                             nodeType, col, ev, r),
+                                             srdi.getToken(),
+                                             srdi.getCanSync());
+
+      wsr.items.add(wri);
     }
 
     return wsr;
@@ -1742,7 +1768,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
           evName = ev.getUid() + ".ics";
         }
 
-        String evuri = uri + "/" + evName;
+        String evuri = Util.buildPath(uri, "/", evName);
 
         CaldavComponentNode evnode = (CaldavComponentNode)getNodeInt(evuri,
                                                    WebdavNsIntf.existanceDoesExist,
@@ -2020,7 +2046,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
         CalDAVCollection newCol = getSysi().newCollectionObject(false,
                                                                 col.getPath());
         newCol.setName(entityName);
-        newCol.setPath(col.getPath() + "/" + newCol.getName());
+        newCol.setPath(Util.buildPath(col.getPath(), "/", newCol.getName()));
 
         curi = new CaldavURI(newCol, false);
 

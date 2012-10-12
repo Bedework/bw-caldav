@@ -6,9 +6,9 @@
     Version 2.0 (the "License"); you may not use this file
     except in compliance with the License. You may obtain a
     copy of the License at:
-        
+
     http://www.apache.org/licenses/LICENSE-2.0
-        
+
     Unless required by applicable law or agreed to in writing,
     software distributed under the License is distributed on
     an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -20,6 +20,7 @@ package org.bedework.caldav.server;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cmt.access.AccessPrincipal;
+import edu.rpi.sss.util.Util;
 
 /** We map uris onto an object which may be a calendar or an
  * entity contained within that calendar.
@@ -81,7 +82,8 @@ public class CaldavURI {
    * @param exists        true if the referenced object exists
    * @throws WebdavException
    */
-  CaldavURI(final CalDAVCollection col, final CalDAVResource res,
+  CaldavURI(final CalDAVCollection col,
+            final CalDAVResource res,
             final boolean exists) throws WebdavException {
     init(col, res, null, res.getName(), exists, false);
     resourceUri = true;
@@ -139,14 +141,6 @@ public class CaldavURI {
 
   /**
    * @return String
-   * @throws WebdavException
-   */
-  public String getCalName() throws WebdavException {
-    return col.getName();
-  }
-
-  /**
-   * @return String
    */
   public String getEntityName() {
     return entityName;
@@ -154,14 +148,17 @@ public class CaldavURI {
 
   /**
    * @return String
-   * @throws WebdavException
    */
-  public String getPath() throws WebdavException {
+  public String getPath() {
     if (principal != null) {
       return path;
     }
 
-    return col.getPath();
+    try {
+      return col.getPath();
+    } catch (WebdavException wde) {
+      throw new RuntimeException(wde);
+    }
   }
 
   /**
@@ -173,7 +170,7 @@ public class CaldavURI {
         (principal != null)) {
       return getPath();
     }
-    return getPath() + "/" + entityName;
+    return Util.buildPath(getPath(), "/", entityName);
   }
 
   /**
@@ -243,7 +240,7 @@ public class CaldavURI {
 
       int hc = entityName.hashCode();
 
-      return hc * 3 + col.getPath().hashCode();
+      return (hc * 3) + getPath().hashCode();
     } catch (Throwable t) {
       throw new RuntimeException(t);
     }
@@ -265,19 +262,7 @@ public class CaldavURI {
       return  principal.equals(that.principal);
     }
 
-    if (col == null) {
-      if (that.col != null) {
-        return false;
-      }
-
-      return true;
-    }
-
-    if (that.col == null) {
-      return false;
-    }
-
-    if (!col.equals(that.col)) {
+    if (!getPath().equals(that.getPath())) {
       return false;
     }
 

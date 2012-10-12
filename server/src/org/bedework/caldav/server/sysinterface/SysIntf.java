@@ -762,8 +762,11 @@ public interface SysIntf {
    *   @author Mike Douglass   douglm@rpi.edu
    */
   public static class SynchReportData {
-    /** The changed entity may be an event or a collection. If it is deleted then
-     * it will be marked as tombstoned.
+    /** The changed entity may be an event, a resource or a collection. If it is
+     * deleted then it will be marked as tombstoned.
+     *
+     * <p>The parent indicates what collection is visible in the hierarchy. It may
+     * be an alias to the actual parent.
      *
      * @author douglm
      */
@@ -778,43 +781,53 @@ public interface SysIntf {
       /** Non-null if this is for a resource - will not have its content */
       private CalDAVResource resource;
 
-      /** Non-null if this is for a collection */
       private CalDAVCollection col;
+
+      private String vpath;
 
       /** true if we can provide sync info for this - usually false for aliases */
       private boolean canSync;
 
       /**
+       * @param vpath
        * @param entity
        * @param token
        * @throws WebdavException
        */
-      public SynchReportDataItem(final CalDAVEvent entity,
+      public SynchReportDataItem(final String vpath,
+                                 final CalDAVEvent entity,
                                  final String token) throws WebdavException {
+        this.vpath = vpath;
         this.entity = entity;
         this.token = token;
       }
 
       /**
+       * @param vpath
        * @param resource
        * @param token
        * @throws WebdavException
        */
-      public SynchReportDataItem(final CalDAVResource resource,
+      public SynchReportDataItem(final String vpath,
+                                 final CalDAVResource resource,
                                  final String token) throws WebdavException {
+        this.vpath = vpath;
         this.resource = resource;
         this.token = token;
       }
 
       /**
+       * @param vpath
        * @param col
        * @param token
        * @param canSync
        * @throws WebdavException
        */
-      public SynchReportDataItem(final CalDAVCollection col,
+      public SynchReportDataItem(final String vpath,
+                                 final CalDAVCollection col,
                                  final String token,
                                  final boolean canSync) throws WebdavException {
+        this.vpath = vpath;
         this.col = col;
         this.canSync = canSync;
         this.token = token;
@@ -850,6 +863,25 @@ public interface SysIntf {
        */
       public CalDAVCollection getCol() {
         return col;
+      }
+
+      /** Always non-null - virtual path to the element this object represents (not
+       * including this elements name).
+       *
+       * <p>For example, if (x) represents a collection x and [x] represents an alias
+       * x then for element c we have:<pre>
+       * (a)->(b)->(c) has the vpath and path a/b/c
+       * while
+       * (a)->[b]
+       *       |
+       *       v
+       * (x)->(y)->(c) has the vpath a/b/c and path) x/y/c
+       * </pre>
+       *
+       * @return parent collection
+       */
+      public String getVpath() {
+        return vpath;
       }
 
       /** False if we can't do a direct sync report.
