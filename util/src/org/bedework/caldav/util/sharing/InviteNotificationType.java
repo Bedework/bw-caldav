@@ -20,11 +20,15 @@ package org.bedework.caldav.util.sharing;
 
 import org.bedework.caldav.util.notifications.BaseNotificationType;
 
+import edu.rpi.cct.webdav.servlet.shared.UrlPrefixer;
+import edu.rpi.cct.webdav.servlet.shared.UrlUnprefixer;
 import edu.rpi.sss.util.ToString;
 import edu.rpi.sss.util.xml.XmlEmit;
 import edu.rpi.sss.util.xml.tagdefs.AppleServerTags;
+import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.namespace.QName;
@@ -34,6 +38,11 @@ import javax.xml.namespace.QName;
  * @author Mike Douglass douglm
  */
 public class InviteNotificationType extends BaseNotificationType {
+  /**
+   */
+  public static final String sharedTypeCalendar = "calendar";
+
+  private String sharedType;
   private String uid;
   private String href;
   private QName inviteStatus;
@@ -41,6 +50,21 @@ public class InviteNotificationType extends BaseNotificationType {
   private String hostUrl;
   private OrganizerType organizer;
   private String summary;
+  private List<String> supportedComponents;
+
+  /**
+   * @param val the sharedType
+   */
+  public void setSharedType(final String val) {
+    sharedType = val;
+  }
+
+  /**
+   * @return the sharedType
+   */
+  public String getSharedType() {
+    return sharedType;
+  }
 
   /**
    * @param val the uid
@@ -140,6 +164,17 @@ public class InviteNotificationType extends BaseNotificationType {
     return summary;
   }
 
+  /**
+   * @return the supported components
+   */
+  public List<String> getSupportedComponents() {
+    if (supportedComponents == null) {
+      supportedComponents = new ArrayList<String>();
+    }
+
+    return supportedComponents;
+  }
+
   /* ====================================================================
    *                   BaseNotificationType methods
    * ==================================================================== */
@@ -160,8 +195,23 @@ public class InviteNotificationType extends BaseNotificationType {
   }
 
   @Override
+  public void prefixHrefs(final UrlPrefixer prefixer) throws Throwable {
+    setHostUrl(prefixer.prefix(getHostUrl()));
+  }
+
+  @Override
+  public void unprefixHrefs(final UrlUnprefixer unprefixer) throws Throwable {
+    setHostUrl(unprefixer.unprefix(getHostUrl()));
+  }
+
+  @Override
   public void toXml(final XmlEmit xml) throws Throwable {
-    xml.openTag(AppleServerTags.inviteNotification);
+    xml.startTag(AppleServerTags.inviteNotification);
+    if (getSharedType() != null) {
+      xml.attribute("shared-type", getSharedType());
+    }
+    xml.endOpeningTag();
+
     xml.property(AppleServerTags.uid, getUid());
     xml.property(WebdavTags.href, getHref());
     xml.emptyTag(getInviteStatus());
@@ -171,6 +221,15 @@ public class InviteNotificationType extends BaseNotificationType {
     xml.closeTag(AppleServerTags.hosturl);
     getOrganizer().toXml(xml);
     xml.property(AppleServerTags.summary, getSummary());
+
+    xml.openTag(CaldavTags.supportedCalendarComponentSet);
+    for (String s: getSupportedComponents()) {
+      xml.startTag(CaldavTags.comp);
+      xml.attribute("name", s);
+      xml.endEmptyTag();
+    }
+    xml.closeTag(CaldavTags.supportedCalendarComponentSet);
+
     xml.closeTag(AppleServerTags.inviteNotification);
   }
 
@@ -190,6 +249,7 @@ public class InviteNotificationType extends BaseNotificationType {
     ts.append("hostUrl", getHostUrl());
     ts.append("organizer", getOrganizer().toString());
     ts.append("summary", getSummary());
+    ts.append("supportedComponents", getSupportedComponents());
   }
 
   @Override

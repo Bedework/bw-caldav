@@ -20,6 +20,8 @@ package org.bedework.caldav.util.sharing;
 
 import org.bedework.caldav.util.notifications.BaseNotificationType;
 
+import edu.rpi.cct.webdav.servlet.shared.UrlPrefixer;
+import edu.rpi.cct.webdav.servlet.shared.UrlUnprefixer;
 import edu.rpi.sss.util.ToString;
 import edu.rpi.sss.util.xml.XmlEmit;
 import edu.rpi.sss.util.xml.tagdefs.AppleServerTags;
@@ -127,6 +129,16 @@ public class InviteReplyType extends BaseNotificationType {
   @Override
   public List<AttributeType> getElementAttributes() {
     return null;
+  }
+
+  @Override
+  public void prefixHrefs(final UrlPrefixer prefixer) throws Throwable {
+
+  }
+
+  @Override
+  public void unprefixHrefs(final UrlUnprefixer unprefixer) throws Throwable {
+
   }
 
   /**

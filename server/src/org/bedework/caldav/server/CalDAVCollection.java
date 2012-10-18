@@ -21,6 +21,8 @@ package org.bedework.caldav.server;
 import edu.rpi.cct.webdav.servlet.shared.WdCollection;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 
+import java.util.List;
+
 /** Class to represent a collection in CalDAV
  *
  * @author douglm
@@ -132,4 +134,10 @@ public abstract class CalDAVCollection <T extends CalDAVCollection> extends WdCo
    * @throws WebdavException
    */
   public abstract String getColor() throws WebdavException;
+
+  /**
+   * @return the supported component names e.g. "VEVENT", "VTODO" etc.
+   * @throws WebdavException
+   */
+  public abstract List<String> getSupportedComponents() throws WebdavException;
 }

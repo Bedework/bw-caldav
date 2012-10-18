@@ -35,6 +35,7 @@ import edu.rpi.cmt.access.Acl.CurrentAccess;
 import edu.rpi.cmt.access.PrivilegeDefs;
 import edu.rpi.cmt.calendar.XcalUtil;
 import edu.rpi.sss.util.DateTimeUtil;
+import edu.rpi.sss.util.Util;
 import edu.rpi.sss.util.xml.XmlEmit;
 import edu.rpi.sss.util.xml.XmlUtil;
 import edu.rpi.sss.util.xml.tagdefs.AppleIcalTags;
@@ -63,6 +64,7 @@ import org.oasis_open.docs.ws_calendar.ns.soap.StringPropertyType;
 import org.oasis_open.docs.ws_calendar.ns.soap.SupportedCalendarComponentSetType;
 import org.w3c.dom.Element;
 
+import ietf.params.xml.ns.icalendar_2.BaseComponentType;
 import ietf.params.xml.ns.icalendar_2.ObjectFactory;
 import ietf.params.xml.ns.icalendar_2.VavailabilityType;
 import ietf.params.xml.ns.icalendar_2.VeventType;
@@ -180,11 +182,11 @@ public class CaldavCalNode extends CaldavBwNode {
     exists = cdURI.getExists();
   }
 
-  /**
+  /* *
    * @param col
    * @param sysi
    * @throws WebdavException
-   */
+   * /
   public CaldavCalNode(final CalDAVCollection col,
                        final SysIntf sysi) throws WebdavException {
     super(sysi, col.getParentPath(), true, col.getPath());
@@ -193,7 +195,7 @@ public class CaldavCalNode extends CaldavBwNode {
 
     this.col = col;
     exists = true;
-  }
+  }*/
 
   /* (non-Javadoc)
    * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getOwner()
@@ -617,9 +619,9 @@ public class CaldavCalNode extends CaldavBwNode {
 
           if (XmlUtil.nodeMatches(pval, CaldavTags.calendar)) {
             // This is only valid for an (extended) mkcol
-            if (!WebdavTags.mkcol.equals(spr.rootElement)) {
-              throw new WebdavForbidden();
-            }
+            //if (!WebdavTags.mkcol.equals(spr.rootElement)) {
+            //  throw new WebdavForbidden();
+            //}
 
             CalDAVCollection c = (CalDAVCollection)getCollection(false); // Don't deref
 
@@ -744,6 +746,22 @@ public class CaldavCalNode extends CaldavBwNode {
         calType = CalDAVCollection.calTypeCollection;
       } else {
         calType = c.getCalType();
+      }
+
+      if (tag.equals(WebdavTags.owner)) {
+        // access 5.1
+        /* For shared collections this reflects the owner of the sahred collection
+         * NOT the alias.
+         */
+        xml.openTag(tag);
+        String href = intf.makeUserHref(c.getOwner().getPrincipalRef());
+        if (!href.endsWith("/")) {
+          href += "/";
+        }
+        xml.property(WebdavTags.href, href);
+        xml.closeTag(tag);
+
+        return true;
       }
 
       if (tag.equals(WebdavTags.resourcetype)) {
@@ -1005,26 +1023,22 @@ public class CaldavCalNode extends CaldavBwNode {
          *            <C:comp name="VTODO"/>
          *         </C:supported-calendar-component-set>
          */
-        if ((calType != CalDAVCollection.calTypeCalendarCollection) &&
-            (calType != CalDAVCollection.calTypeInbox) &&
-            (calType != CalDAVCollection.calTypeOutbox)) {
+        @SuppressWarnings("unchecked")
+        List<String> comps = c.getSupportedComponents();
+
+        if (Util.isEmpty(comps)) {
           return false;
         }
 
         xml.openTag(tag);
-        xml.startTag(CaldavTags.comp);
-        xml.attribute("name", "VEVENT");
-        xml.endEmptyTag();
-        xml.newline();
-        xml.startTag(CaldavTags.comp);
-        xml.attribute("name", "VTODO");
-        xml.endEmptyTag();
-        xml.newline();
-        xml.startTag(CaldavTags.comp);
-        xml.attribute("name", "VAVAILABILITY");
-        xml.endEmptyTag();
+        for (String s: comps) {
+          xml.startTag(CaldavTags.comp);
+          xml.attribute("name", s);
+          xml.endEmptyTag();
+        }
         xml.newline();
         xml.closeTag(tag);
+
         return true;
       }
 
@@ -1295,16 +1309,30 @@ public class CaldavCalNode extends CaldavBwNode {
       if (tag.equals(CalWSSoapTags.supportedCalendarComponentSet)) {
         SupportedCalendarComponentSetType sccs = new SupportedCalendarComponentSetType();
 
+        CalDAVCollection c = (CalDAVCollection)getCollection(true); // deref this
+        @SuppressWarnings("unchecked")
+        List<String> comps = c.getSupportedComponents();
+
+        if (Util.isEmpty(comps)) {
+          return false;
+        }
+
         ObjectFactory of = new ObjectFactory();
 
-        VeventType ev = new VeventType();
-        sccs.getBaseComponent().add(of.createVevent(ev));
+        for (String s: comps) {
+          JAXBElement<? extends BaseComponentType> el = null;
+          if (s.equals("VEVENT")) {
+            el = of.createVevent(new VeventType());
+          } else if (s.equals("VTODO")) {
+            el = of.createVtodo(new VtodoType());
+          } else if (s.equals("VAVAILABILITY")) {
+            el = of.createVavailability(new VavailabilityType());
+          };
 
-        VtodoType td = new VtodoType();
-        sccs.getBaseComponent().add(of.createVtodo(td));
-
-        VavailabilityType av = new VavailabilityType();
-        sccs.getBaseComponent().add(of.createVavailability(av));
+          if (el != null) {
+            sccs.getBaseComponent().add(el);
+          }
+        }
 
         props.add(sccs);
 
@@ -1491,16 +1519,29 @@ public class CaldavCalNode extends CaldavBwNode {
       if (name.equals(CalWSXrdDefs.supportedCalendarComponentSet)) {
         SupportedCalendarComponentSetType sccs = new SupportedCalendarComponentSetType();
 
+        @SuppressWarnings("unchecked")
+        List<String> comps = c.getSupportedComponents();
+
+        if (Util.isEmpty(comps)) {
+          return false;
+        }
+
         ObjectFactory of = new ObjectFactory();
 
-        VeventType ev = new VeventType();
-        sccs.getBaseComponent().add(of.createVevent(ev));
+        for (String s: comps) {
+          JAXBElement<? extends BaseComponentType> el = null;
+          if (s.equals("VEVENT")) {
+            el = of.createVevent(new VeventType());
+          } else if (s.equals("VTODO")) {
+            el = of.createVtodo(new VtodoType());
+          } else if (s.equals("VAVAILABILITY")) {
+            el = of.createVavailability(new VavailabilityType());
+          };
 
-        VtodoType td = new VtodoType();
-        sccs.getBaseComponent().add(of.createVtodo(td));
-
-        VavailabilityType av = new VavailabilityType();
-        sccs.getBaseComponent().add(of.createVavailability(av));
+          if (el != null) {
+            sccs.getBaseComponent().add(el);
+          }
+        }
 
         JAXBElement<SupportedCalendarComponentSetType> el =
               new JAXBElement<SupportedCalendarComponentSetType>(CalWSSoapTags.supportedCalendarComponentSet,

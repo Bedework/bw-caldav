@@ -32,6 +32,7 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.sss.util.xml.XmlUtil;
 import edu.rpi.sss.util.xml.tagdefs.AppleServerTags;
+import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 
 import org.w3c.dom.Document;
@@ -40,8 +41,10 @@ import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import java.io.Reader;
 import java.io.StringReader;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
@@ -59,6 +62,9 @@ public class Parser {
 
   /** */
   public static final QName commonNameTag = AppleServerTags.commonName;
+
+  /** */
+  public static final QName compTag = CaldavTags.comp;
 
   /** */
   public static final QName firstNameTag = AppleServerTags.firstName;
@@ -121,6 +127,10 @@ public class Parser {
   public static final QName summaryTag = AppleServerTags.summary;
 
   /** */
+  public static final QName supportedComponentsTag =
+      CaldavTags.supportedCalendarComponentSet;
+
+  /** */
   public static final QName uidTag = AppleServerTags.uid;
 
   /** */
@@ -163,13 +173,22 @@ public class Parser {
       return null;
     }
 
+    return parseXml(new StringReader(val));
+  }
+
+  /**
+   * @param val
+   * @return parsed Document
+   * @throws WebdavException
+   */
+  public static Document parseXml(final Reader val) throws WebdavException{
     try {
       DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
       factory.setNamespaceAware(true);
 
       DocumentBuilder builder = factory.newDocumentBuilder();
 
-      return builder.parse(new InputSource(new StringReader(val)));
+      return builder.parse(new InputSource(val));
     } catch (SAXException e) {
       throw new WebdavBadRequest();
     } catch (Throwable t) {
@@ -365,13 +384,15 @@ public class Parser {
    * @return populated InviteNotificationType object
    * @throws WebdavException
    */
-  public InviteNotificationType parseInviteNotification(final Node nd) throws WebdavException {
+  public InviteNotificationType parseInviteNotification(final Element nd) throws WebdavException {
     try {
       if (!XmlUtil.nodeMatches(nd, inviteNotificationTag)) {
         throw new WebdavBadRequest("Expected " + inviteNotificationTag);
       }
 
       InviteNotificationType in = new InviteNotificationType();
+      in.setSharedType(XmlUtil.getAttrVal(nd, "shared-type"));
+
       Element[] els = XmlUtil.getElementsArray(nd);
 
       for (Element curnode: els) {
@@ -440,6 +461,15 @@ public class Parser {
           }
 
           in.setSummary(XmlUtil.getElementContent(curnode));
+          continue;
+        }
+
+        if (XmlUtil.nodeMatches(curnode, supportedComponentsTag)) {
+          if (!in.getSupportedComponents().isEmpty()) {
+            throw badInviteNotification();
+          }
+
+          parseSupportedComponents(curnode, in.getSupportedComponents());
           continue;
         }
 
@@ -545,6 +575,17 @@ public class Parser {
       throw wde;
     } catch (Throwable t) {
       throw new WebdavException(t);
+    }
+  }
+
+  private void parseSupportedComponents(final Node nd,
+                                        final List<String> comps) throws Throwable {
+    for (Element curnode: XmlUtil.getElementsArray(nd)) {
+      if (!XmlUtil.nodeMatches(curnode, compTag)) {
+        throw badComps();
+      }
+
+      comps.add(XmlUtil.getAttrVal(curnode, "name"));
     }
   }
 
@@ -762,6 +803,11 @@ public class Parser {
     return new WebdavBadRequest("Expected " +
         hrefTag +
         ", " + commonNameTag);
+  }
+
+  private WebdavBadRequest badComps() {
+    return new WebdavBadRequest("Expected " +
+        compTag);
   }
 
   private WebdavBadRequest badInviteNotification() {

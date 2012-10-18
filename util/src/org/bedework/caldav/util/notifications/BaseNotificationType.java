@@ -18,6 +18,8 @@
 */
 package org.bedework.caldav.util.notifications;
 
+import edu.rpi.cct.webdav.servlet.shared.UrlPrefixer;
+import edu.rpi.cct.webdav.servlet.shared.UrlUnprefixer;
 import edu.rpi.sss.util.xml.XmlEmit;
 import edu.rpi.sss.util.xml.XmlEmit.NameSpace;
 import edu.rpi.sss.util.xml.tagdefs.AppleServerTags;
@@ -72,6 +74,20 @@ public abstract class BaseNotificationType {
    * @throws Throwable
    */
   public abstract void toXml(final XmlEmit xml) throws Throwable;
+
+  /** Called before we send it out via caldav
+   *
+   * @param prefixer
+   * @throws Throwable
+   */
+  public abstract void prefixHrefs(UrlPrefixer prefixer) throws Throwable;
+
+  /** Called after we obtain it via caldav
+   *
+   * @param unprefixer
+   * @throws Throwable
+   */
+  public abstract void unprefixHrefs(UrlUnprefixer unprefixer) throws Throwable;
 
   /**
    * @return XML version of notification
