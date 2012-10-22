@@ -189,9 +189,19 @@ public class InviteNotificationType extends BaseNotificationType {
     return getUid();
   }
 
+  private List<AttributeType> attrs;
+
   @Override
   public List<AttributeType> getElementAttributes() {
-    return null;
+    if ((attrs != null) || (getSharedType() == null)) {
+      return attrs;
+    }
+
+    attrs = new ArrayList<AttributeType>();
+
+    attrs.add(new AttributeType("shared-type", getSharedType()));
+
+    return attrs;
   }
 
   @Override
@@ -206,11 +216,12 @@ public class InviteNotificationType extends BaseNotificationType {
 
   @Override
   public void toXml(final XmlEmit xml) throws Throwable {
-    xml.startTag(AppleServerTags.inviteNotification);
     if (getSharedType() != null) {
-      xml.attribute("shared-type", getSharedType());
+      xml.openTag(AppleServerTags.inviteNotification,
+                  "shared-type", getSharedType());
+    } else {
+      xml.openTag(AppleServerTags.inviteNotification);
     }
-    xml.endOpeningTag();
 
     xml.property(AppleServerTags.uid, getUid());
     xml.property(WebdavTags.href, getHref());
@@ -224,9 +235,7 @@ public class InviteNotificationType extends BaseNotificationType {
 
     xml.openTag(CaldavTags.supportedCalendarComponentSet);
     for (String s: getSupportedComponents()) {
-      xml.startTag(CaldavTags.comp);
-      xml.attribute("name", s);
-      xml.endEmptyTag();
+      xml.emptyTag(CaldavTags.comp, "name", s);
     }
     xml.closeTag(CaldavTags.supportedCalendarComponentSet);
 

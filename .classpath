@@ -9,7 +9,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/access"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/rpiutil"/>
 	<classpathentry kind="lib" path="lib/servlet-api-2.4.jar"/>
-	<classpathentry kind="lib" path="lib/log4j-1.2.15.jar"/>
+	<classpathentry kind="lib" path="lib/log4j-1.2.15.jar" sourcepath="/home/douglm/.m2/repository/log4j/log4j/1.2.15/log4j-1.2.15-sources.jar"/>
 	<classpathentry kind="lib" path="lib/geronimo-kernel-2.2.1.jar"/>
 	<classpathentry kind="lib" path="lib/bw-caldavschema-3.9.jar"/>
 	<classpathentry kind="lib" path="lib/bw-calws-soapschema-3.9.jar"/>

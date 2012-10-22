@@ -117,26 +117,6 @@ public class NotificationType {
     public List<AttributeType> attrs;
   }
 
-  private static class Attr implements AttributeType {
-    String name;
-    String value;
-
-    Attr(final String name, final String value) {
-      this.name = name;
-      this.value = value;
-    }
-
-    @Override
-    public String getName() {
-      return name;
-    }
-
-    @Override
-    public String getValue() {
-      return value;
-    }
-  }
-
   /**
    * @param val
    * @return decoded content type
@@ -170,8 +150,8 @@ public class NotificationType {
       }
 
       int pos = parts[i].indexOf("=");
-      ni.attrs.add(new Attr(parts[i].substring(0, pos),
-                            parts[i].substring(pos + 1)));
+      ni.attrs.add(new AttributeType(parts[i].substring(9, pos),
+                                     parts[i].substring(pos + 1)));
     }
 
     return ni;

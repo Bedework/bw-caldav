@@ -69,6 +69,7 @@ import edu.rpi.sss.util.Util;
 import edu.rpi.sss.util.xml.XmlEmit;
 import edu.rpi.sss.util.xml.XmlEmit.NameSpace;
 import edu.rpi.sss.util.xml.XmlUtil;
+import edu.rpi.sss.util.xml.tagdefs.AppleIcalTags;
 import edu.rpi.sss.util.xml.tagdefs.AppleServerTags;
 import edu.rpi.sss.util.xml.tagdefs.CalWSXrdDefs;
 import edu.rpi.sss.util.xml.tagdefs.CaldavDefs;
@@ -453,6 +454,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       super.addNamespace(xml);
 
       xml.addNs(new NameSpace(CaldavDefs.caldavNamespace, "C"), true);
+      xml.addNs(new NameSpace(AppleIcalTags.appleIcalNamespace, "AI"), false);
       xml.addNs(new NameSpace(CaldavDefs.icalNamespace, "ical"), false);
       xml.addNs(new NameSpace(AppleServerTags.appleCaldavNamespace, "CS"), false);
     } catch (Throwable t) {

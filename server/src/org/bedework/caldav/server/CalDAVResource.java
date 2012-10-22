@@ -72,6 +72,13 @@ public abstract class CalDAVResource <T> extends WdEntity<T> {
    */
   public abstract long getContentLen() throws WebdavException;
 
+  /** This can be different from the content length
+   *
+   * @return long quota size
+   * @throws WebdavException
+   */
+  public abstract long getQuotaSize() throws WebdavException;
+
   /** Set the contentType - may be null for unknown
    *
    *  @param  val   String contentType

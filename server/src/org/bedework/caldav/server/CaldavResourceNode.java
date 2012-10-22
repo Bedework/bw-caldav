@@ -19,6 +19,7 @@
 package org.bedework.caldav.server;
 
 import org.bedework.caldav.server.sysinterface.SysIntf;
+import org.bedework.caldav.util.notifications.BaseNotificationType.AttributeType;
 import org.bedework.caldav.util.notifications.NotificationType.NotificationInfo;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
@@ -27,6 +28,7 @@ import edu.rpi.cmt.access.AccessPrincipal;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
 import edu.rpi.cmt.access.PrivilegeDefs;
 import edu.rpi.sss.util.DateTimeUtil;
+import edu.rpi.sss.util.Util;
 import edu.rpi.sss.util.xml.XmlEmit;
 import edu.rpi.sss.util.xml.tagdefs.AppleServerTags;
 
@@ -230,7 +232,15 @@ public class CaldavResourceNode extends CaldavBwNode {
         }
 
         xml.openTag(tag);
-        xml.emptyTag(ni.type);
+
+        xml.startTag(ni.type);
+
+        if (!Util.isEmpty(ni.attrs)) {
+          for (AttributeType at: ni.attrs) {
+            xml.attribute(at.getName(), at.getValue());
+          }
+        }
+        xml.endEmptyTag();
 
         // XXX attrs
         xml.closeTag(tag);

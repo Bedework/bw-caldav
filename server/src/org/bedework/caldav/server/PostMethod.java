@@ -25,6 +25,7 @@ import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.caldav.server.sysinterface.SysIntf.IcalResultType;
 import org.bedework.caldav.server.sysinterface.SysIntf.SchedRecipientResult;
 import org.bedework.caldav.util.sharing.InviteReplyType;
+import org.bedework.caldav.util.sharing.ShareResultType;
 import org.bedework.caldav.util.sharing.ShareType;
 import org.bedework.caldav.util.sharing.SharedAsType;
 import org.bedework.caldav.util.sharing.parse.Parser;
@@ -36,6 +37,7 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavForbidden;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
+import edu.rpi.cct.webdav.servlet.shared.WebdavStatusCode;
 import edu.rpi.cmt.calendar.IcalDefs;
 import edu.rpi.cmt.calendar.IcalDefs.IcalComponentType;
 import edu.rpi.cmt.calendar.ScheduleMethods;
@@ -236,7 +238,43 @@ public class PostMethod extends MethodBase {
     if (XmlUtil.nodeMatches(root, AppleServerTags.share)) {
       ShareType share = parse.parseShare(root);
 
-      sysi.share(col, share);
+      ShareResultType sr = sysi.share(col, share);
+
+      if (sr.getBadSharees().isEmpty()) {
+        /* No response needed when all OK */
+        resp.setStatus(HttpServletResponse.SC_OK);
+        return;
+      }
+
+      resp.setStatus(WebdavStatusCode.SC_MULTI_STATUS);
+      resp.setContentType("text/xml; charset=UTF-8");
+
+      startEmit(resp);
+      XmlEmit xml = intf.getXmlEmit();
+
+      try {
+        xml.openTag(WebdavTags.multistatus);
+
+        for (String s:sr.getGoodSharees()) {
+          xml.openTag(WebdavTags.response);
+          xml.property(WebdavTags.href, s);
+          addStatus(HttpServletResponse.SC_OK, null);
+
+          xml.closeTag(WebdavTags.response);
+        }
+
+        for (String s:sr.getBadSharees()) {
+          xml.openTag(WebdavTags.response);
+          xml.property(WebdavTags.href, s);
+          addStatus(HttpServletResponse.SC_FORBIDDEN, null);
+
+          xml.closeTag(WebdavTags.response);
+        }
+
+        xml.closeTag(WebdavTags.multistatus);
+      } catch (Throwable t) {
+        throw new WebdavException(t);
+      }
 
       return;
     }

@@ -109,6 +109,18 @@ public class AccessType {
     ts.append("readWrite", getReadWrite());
   }
 
+  /* ====================================================================
+   *                   Convenience methods
+   * ==================================================================== */
+
+  @Override
+  public boolean equals(final Object o) {
+    AccessType that  = (AccessType)o;
+
+    return (testRead() == that.testRead()) ||
+         (testReadWrite() == that.testReadWrite());
+  }
+
   @Override
   public String toString() {
     ToString ts = new ToString(this);

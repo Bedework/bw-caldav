@@ -133,12 +133,12 @@ public class InviteReplyType extends BaseNotificationType {
 
   @Override
   public void prefixHrefs(final UrlPrefixer prefixer) throws Throwable {
-
+    setHostUrl(prefixer.prefix(getHostUrl()));
   }
 
   @Override
   public void unprefixHrefs(final UrlUnprefixer unprefixer) throws Throwable {
-
+    setHostUrl(unprefixer.unprefix(getHostUrl()));
   }
 
   /**
@@ -154,7 +154,10 @@ public class InviteReplyType extends BaseNotificationType {
     } else {
       xml.emptyTag(AppleServerTags.inviteDeclined);
     }
-    xml.property(AppleServerTags.hosturl, getHostUrl());
+
+    xml.openTag(AppleServerTags.hosturl);
+    xml.property(WebdavTags.href, getHostUrl());
+    xml.closeTag(AppleServerTags.hosturl);
     xml.property(AppleServerTags.inReplyTo, getInReplyTo());
     xml.property(AppleServerTags.summary, getSummary());
     xml.closeTag(AppleServerTags.inviteReply);

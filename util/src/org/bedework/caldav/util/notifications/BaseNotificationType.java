@@ -49,15 +49,33 @@ public abstract class BaseNotificationType {
 
   /**
    */
-  public interface AttributeType {
+  public static class AttributeType {
+    private String name;
+    private String value;
+
+    /**
+     * @param name
+     * @param value
+     */
+    public AttributeType(final String name,
+                         final String value) {
+      this.name = name;
+      this.value = value;
+    }
+
     /**
      * @return the name
      */
-    String getName();
+    public String getName() {
+      return name;
+    }
+
     /**
      * @return the value
      */
-    String getValue();
+    public String getValue() {
+      return value;
+    }
   }
 
   /**

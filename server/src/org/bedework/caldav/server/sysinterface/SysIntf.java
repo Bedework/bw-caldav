@@ -30,6 +30,7 @@ import org.bedework.caldav.util.filter.FilterBase;
 import org.bedework.caldav.util.notifications.NotificationType;
 import org.bedework.caldav.util.sharing.InviteReplyType;
 import org.bedework.caldav.util.sharing.InviteType;
+import org.bedework.caldav.util.sharing.ShareResultType;
 import org.bedework.caldav.util.sharing.ShareType;
 
 import edu.rpi.cct.webdav.servlet.shared.PrincipalPropertySearch;
@@ -308,10 +309,11 @@ public interface SysIntf {
   /**
    * @param col MUST be a sharable collection
    * @param share is the request
+   * @return list of ok and !ok sharees
    * @throws WebdavException
    */
-  public void share(final CalDAVCollection col,
-                    final ShareType share) throws WebdavException;
+  public ShareResultType share(final CalDAVCollection col,
+                               final ShareType share) throws WebdavException;
 
   /** Handle a reply to a sharing notification.
    *

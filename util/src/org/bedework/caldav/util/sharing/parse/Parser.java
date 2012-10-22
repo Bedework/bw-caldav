@@ -35,6 +35,7 @@ import edu.rpi.sss.util.xml.tagdefs.AppleServerTags;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -190,7 +191,7 @@ public class Parser {
 
       return builder.parse(new InputSource(val));
     } catch (SAXException e) {
-      throw new WebdavBadRequest();
+      throw parseException(e);
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
@@ -232,7 +233,7 @@ public class Parser {
 
       return in;
     } catch (SAXException e) {
-      throw new WebdavBadRequest();
+      throw parseException(e);
     } catch (WebdavException wde) {
       throw wde;
     } catch (Throwable t) {
@@ -270,7 +271,7 @@ public class Parser {
 
       return sh;
     } catch (SAXException e) {
-      throw new WebdavBadRequest();
+      throw parseException(e);
     } catch (WebdavException wde) {
       throw wde;
     } catch (Throwable t) {
@@ -371,7 +372,7 @@ public class Parser {
 
       return ir;
     } catch (SAXException e) {
-      throw new WebdavBadRequest();
+      throw parseException(e);
     } catch (WebdavException wde) {
       throw wde;
     } catch (Throwable t) {
@@ -486,7 +487,7 @@ public class Parser {
 
       return in;
     } catch (SAXException e) {
-      throw new WebdavBadRequest();
+      throw parseException(e);
     } catch (WebdavException wde) {
       throw wde;
     } catch (Throwable t) {
@@ -570,7 +571,7 @@ public class Parser {
 
       return u;
     } catch (SAXException e) {
-      throw new WebdavBadRequest();
+      throw parseException(e);
     } catch (WebdavException wde) {
       throw wde;
     } catch (Throwable t) {
@@ -768,7 +769,7 @@ public class Parser {
 
       return href;
     } catch (SAXException e) {
-      throw new WebdavBadRequest();
+      throw parseException(e);
     } catch (WebdavException wde) {
       throw wde;
     } catch (Throwable t) {
@@ -837,5 +838,19 @@ public class Parser {
         "(optional), (" + inviteNoresponseTag + " or " + inviteDeclinedTag +
              " or " + inviteDeletedTag + " or " + inviteAcceptedTag + "), " +
         ", " + summaryTag + "(optional)");
+  }
+
+  private static WebdavException parseException(final SAXException e) throws WebdavException {
+    Logger log = getLog();
+
+    if (log.isDebugEnabled()) {
+      log.error("Parse error:", e);
+    }
+
+    return new WebdavBadRequest();
+  }
+
+  private static Logger getLog() {
+    return Logger.getLogger(Parser.class);
   }
 }
