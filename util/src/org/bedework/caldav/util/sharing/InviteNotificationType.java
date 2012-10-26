@@ -226,11 +226,15 @@ public class InviteNotificationType extends BaseNotificationType {
     xml.property(AppleServerTags.uid, getUid());
     xml.property(WebdavTags.href, getHref());
     xml.emptyTag(getInviteStatus());
-    getAccess().toXml(xml);
+    if (getAccess() != null) {
+      getAccess().toXml(xml);
+    }
     xml.openTag(AppleServerTags.hosturl);
     xml.property(WebdavTags.href, getHostUrl());
     xml.closeTag(AppleServerTags.hosturl);
-    getOrganizer().toXml(xml);
+    if (getOrganizer() != null) {
+      getOrganizer().toXml(xml);
+    }
     xml.property(AppleServerTags.summary, getSummary());
 
     xml.openTag(CaldavTags.supportedCalendarComponentSet);
