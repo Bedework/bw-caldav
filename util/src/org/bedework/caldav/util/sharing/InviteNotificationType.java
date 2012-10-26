@@ -80,7 +80,8 @@ public class InviteNotificationType extends BaseNotificationType {
     return uid;
   }
 
-  /**
+  /** calendar user address of the sharee to whom the message was sent
+   *
    * @param val the href
    */
   public void setHref(final String val) {
