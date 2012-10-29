@@ -190,10 +190,12 @@ public class FilterBase implements Serializable {
    * requirements.
    *
    * @param o
+   * @param userHref - for whom we are matching
    * @return true for a match
    * @throws WebdavException - on matching errors
    */
-  public boolean match(final Object o) throws WebdavException {
+  public boolean match(final Object o,
+                       final String userHref) throws WebdavException {
     return false;
   }
 
