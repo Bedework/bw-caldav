@@ -177,6 +177,7 @@ public class PostMethod extends MethodBase {
       // Assume scheduling
 
       doSchedule(intf, pars, resp);
+      return;
     }
 
     WebdavNsNode node = intf.getNode(pars.resourceUri,
@@ -653,7 +654,13 @@ public class PostMethod extends MethodBase {
                               final HttpServletResponse resp) throws WebdavException {
     CalDAVEvent<?> ev = pars.ic.getEvent();
 
-    ev.setRecipients(pars.ischedRequest.getRecipients());
+    if (pars.iSchedule) {
+      ev.setRecipients(pars.ischedRequest.getRecipients());
+    } else {
+      /* Set recipients from attendees */
+      ev.setRecipients(ev.getAttendeeUris());
+    }
+
     validateOriginator(pars, ev);
     ev.setScheduleMethod(pars.ic.getMethodType());
 
@@ -719,7 +726,6 @@ public class PostMethod extends MethodBase {
 
   private void validateOriginator(final RequestPars pars,
                                   final CalDAVEvent ev) throws WebdavException {
-    String origUrl = pars.ischedRequest.getOriginator();
     Organizer org = ev.getOrganizer();
 
     if (org == null) {
@@ -727,13 +733,18 @@ public class PostMethod extends MethodBase {
                                  "Missing organizer");
     }
 
-    if (!origUrl.equals(org.getOrganizerUri())) {
-      throw new WebdavBadRequest(IscheduleTags.invalidCalendarData,
-          "Organizer/originator mismatch");
+    if (pars.iSchedule) {
+      String origUrl = pars.ischedRequest.getOriginator();
+
+      if (!origUrl.equals(org.getOrganizerUri())) {
+        throw new WebdavBadRequest(IscheduleTags.invalidCalendarData,
+            "Organizer/originator mismatch");
+      }
+
+      ev.setOriginator(origUrl);
+    } else{
+      ev.setOriginator(org.getOrganizerUri());
     }
-
-    ev.setOriginator(origUrl);
-
   }
 
   private void setReqstat(final int status,
