@@ -176,6 +176,8 @@ public class Parser {
       serializer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 
       serializer.transform(new DOMSource(nd), new StreamResult(out));
+
+      log.debug(out.toString());
     } catch (Throwable t) {
       log.error("Unable to dump XML");
     }

@@ -479,9 +479,13 @@ public class Parser {
 
       if ((in.getUid() == null) ||
           (in.getHref() == null) ||
-          (in.getAccess() == null) ||
           (in.getHostUrl() == null) ||
           (in.getOrganizer() == null)) {
+        throw badInviteNotification();
+      }
+
+      if (!in.getInviteStatus().equals(AppleServerTags.inviteDeleted) &&
+          (in.getAccess() == null)) {
         throw badInviteNotification();
       }
 
