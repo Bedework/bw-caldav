@@ -25,17 +25,24 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.sss.util.xml.XmlUtil;
 import edu.rpi.sss.util.xml.tagdefs.AppleServerTags;
 
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 /** Class to parse properties and requests related to CalDAV sharing
  * (as defined by Apple).
@@ -139,11 +146,38 @@ public class Parser {
 
       return n;
     } catch (SAXException e) {
+      dumpXml(nd);
       throw new WebdavBadRequest();
     } catch (WebdavException wde) {
       throw wde;
     } catch (Throwable t) {
       throw new WebdavException(t);
+    }
+  }
+
+  private static void dumpXml(final Node nd) {
+    Logger log = getLog();
+
+    if (!log.isDebugEnabled()) {
+      return;
+    }
+
+    try {
+      ByteArrayOutputStream out = new ByteArrayOutputStream();
+//      XMLWriter writer = new XMLWriter(out, format);
+
+  //    writer.write(nd);
+      TransformerFactory tfactory = TransformerFactory.newInstance();
+      Transformer serializer;
+
+      serializer = tfactory.newTransformer();
+      //Setup indenting to "pretty print"
+      serializer.setOutputProperty(OutputKeys.INDENT, "yes");
+      serializer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+
+      serializer.transform(new DOMSource(nd), new StreamResult(out));
+    } catch (Throwable t) {
+      log.error("Unable to dump XML");
     }
   }
 
@@ -157,5 +191,9 @@ public class Parser {
 
   private WebdavBadRequest badNotification(final Element curnode) {
     return new WebdavBadRequest("Unexpected element " + curnode);
+  }
+
+  private static Logger getLog() {
+    return Logger.getLogger(Parser.class);
   }
 }

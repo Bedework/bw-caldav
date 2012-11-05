@@ -60,7 +60,7 @@
         <artifactId>apache-jdkim-library</artifactId>
         <version>0.2.BEDEWORK</version>
       </dependency>
-
+      
       <dependency>
         <groupId>org.bedework</groupId>
         <artifactId>bw-webdavserver</artifactId>

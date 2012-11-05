@@ -16,5 +16,6 @@
 	<classpathentry kind="lib" path="lib/bw-synchwsschema-3.9.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/apache-jdkim-library"/>
 	<classpathentry kind="lib" path="lib/commons-codec-1.5.jar"/>
+	<classpathentry kind="lib" path="lib/dom4j-1.6.1.jar"/>
 	<classpathentry kind="output" path="bin/eclipse-build"/>
 </classpath>
