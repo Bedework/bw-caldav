@@ -744,6 +744,7 @@ public class CaldavCalNode extends CaldavBwNode {
       if (c == null) {
         // Probably no access -- fake it up as a collection
         calType = CalDAVCollection.calTypeCollection;
+        c = cundereffed; // Try to keep going.
       } else {
         calType = c.getCalType();
       }
