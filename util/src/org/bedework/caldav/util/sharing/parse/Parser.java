@@ -18,6 +18,8 @@
 */
 package org.bedework.caldav.util.sharing.parse;
 
+import org.bedework.caldav.util.notifications.BaseNotificationType;
+import org.bedework.caldav.util.notifications.parse.BaseNotificationParser;
 import org.bedework.caldav.util.sharing.AccessType;
 import org.bedework.caldav.util.sharing.InviteNotificationType;
 import org.bedework.caldav.util.sharing.InviteReplyType;
@@ -44,6 +46,8 @@ import org.xml.sax.SAXException;
 
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -151,9 +155,23 @@ public class Parser {
     setStatusMaps(inviteInvalidTag);
   }
 
+  private static List<BaseNotificationParser> parsers =
+      new ArrayList<BaseNotificationParser>();
+  static {
+    parsers.add(new InviteParser());
+    parsers.add(new InviteReplyParser());
+  }
+
   private static void setStatusMaps(final QName val) {
     statusToInviteStatus.put(val.getLocalPart(), val);
     inviteStatusToStatus.put(val, val.getLocalPart());
+  }
+
+  /**
+   * @return an unmodifiableList of parsers
+   */
+  public static List<BaseNotificationParser> getParsers() {
+    return Collections.unmodifiableList(parsers);
   }
 
   /**
@@ -194,6 +212,82 @@ public class Parser {
       throw parseException(e);
     } catch (Throwable t) {
       throw new WebdavException(t);
+    }
+  }
+
+  private static abstract class SharingNotificationParser implements BaseNotificationParser {
+    private static final int maxPoolSize = 10;
+    private List<Parser> parsers = new ArrayList<Parser>();
+
+    protected Parser parser;
+
+    protected QName element;
+
+    protected SharingNotificationParser(final QName element) {
+      this.element = element;
+    }
+
+    protected Parser getParser() {
+      if (parser != null) {
+        return parser;
+      }
+
+      synchronized (parsers) {
+        if (parsers.size() > 0) {
+          parser = parsers.remove(0);
+          return parser;
+        }
+
+        parser = new Parser();
+        parsers.add(parser);
+
+        return parser;
+      }
+    }
+
+    protected void putParser() {
+      synchronized (parsers) {
+        if (parsers.size() >= maxPoolSize) {
+          return;
+        }
+
+        parsers.add(parser);
+      }
+    }
+
+    @Override
+    public QName getElement() {
+      return element;
+    }
+  }
+
+  static class InviteParser extends SharingNotificationParser {
+    InviteParser() {
+      super(AppleServerTags.inviteNotification);
+    }
+
+    @Override
+    public BaseNotificationType parse(final Element nd) throws WebdavException {
+      try {
+        return getParser().parseInviteNotification(nd);
+      } finally {
+        putParser();
+      }
+    }
+  }
+
+  static class InviteReplyParser extends SharingNotificationParser {
+    InviteReplyParser() {
+      super(AppleServerTags.inviteReply);
+    }
+
+    @Override
+    public BaseNotificationType parse(final Element nd) throws WebdavException {
+      try {
+        return getParser().parseInviteReply(nd);
+      } finally {
+        putParser();
+      }
     }
   }
 

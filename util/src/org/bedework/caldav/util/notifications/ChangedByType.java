@@ -133,7 +133,9 @@ public class ChangedByType {
       xml.property(AppleServerTags.firstName, getFirstName());
       xml.property(AppleServerTags.lastName, getLastName());
     }
-    xml.property(AppleServerTags.dtstamp, getDtstamp());
+    if (getDtstamp() != null) {
+      xml.property(AppleServerTags.dtstamp, getDtstamp());
+    }
     xml.property(WebdavTags.href, getHref());
     xml.closeTag(AppleServerTags.changedBy);
   }

@@ -188,7 +188,9 @@ public class DeletedDetailsType {
         xml.closeTag(AppleServerTags.deletedNextInstance);
       }
     }
-    xml.emptyTag(AppleServerTags.deletedHadMoreInstances);
+    if (getDeletedHadMoreInstances()) {
+      xml.emptyTag(AppleServerTags.deletedHadMoreInstances);
+    }
 
     xml.closeTag(AppleServerTags.deletedDetails);
   }
@@ -213,7 +215,9 @@ public class DeletedDetailsType {
       ts.append("deletedNextInstance", getDeletedNextInstance());
       ts.append("deletedNextInstanceTzid", getDeletedNextInstanceTzid());
     }
-    ts.append("deletedHadMoreInstances", getDeletedHadMoreInstances());
+    if (getDeletedHadMoreInstances()) {
+      ts.append("deletedHadMoreInstances", getDeletedHadMoreInstances());
+    }
   }
 
   @Override
