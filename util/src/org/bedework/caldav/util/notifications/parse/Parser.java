@@ -41,6 +41,7 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.sss.util.xml.XmlUtil;
 import edu.rpi.sss.util.xml.tagdefs.AppleServerTags;
+import edu.rpi.sss.util.xml.tagdefs.BedeworkServerTags;
 import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 
 import org.apache.log4j.Logger;
@@ -596,10 +597,32 @@ public class Parser {
 
     cp.setName(XmlUtil.getAttrVal(nd, "name"));
 
-    for (Element curnode: XmlUtil.getElementsArray(nd)) {
-      expect(curnode, AppleServerTags.changedParameter);
+    Element[] els = XmlUtil.getElementsArray(nd);
 
-      cp.getChangedParameter().add(parseChangedParameter(curnode));
+    if (els.length < 1) {
+      throw badNotification("No elements for changed-property");
+    }
+
+    int pos = 0;
+
+    expect(els[pos], AppleServerTags.changedParameter);
+
+    cp.getChangedParameter().add(parseChangedParameter(els[pos]));
+
+    if ((els.length > pos) &&
+      XmlUtil.nodeMatches(els[pos], BedeworkServerTags.dataFrom)) {
+      cp.setDataFrom(XmlUtil.getElementContent(els[pos]));
+      pos++;
+    }
+
+    if ((els.length > pos) &&
+      XmlUtil.nodeMatches(els[pos], BedeworkServerTags.dataTo)) {
+      cp.setDataTo(XmlUtil.getElementContent(els[pos]));
+      pos++;
+    }
+
+    if (els.length > pos) {
+      throw badNotification(els[pos]);
     }
 
     return cp;
@@ -609,6 +632,26 @@ public class Parser {
     ChangedParameterType cp = new ChangedParameterType();
 
     cp.setName(XmlUtil.getAttrVal(nd, "name"));
+
+    Element[] els = XmlUtil.getElementsArray(nd);
+
+    int pos = 0;
+
+    if ((els.length > pos) &&
+      XmlUtil.nodeMatches(els[pos], BedeworkServerTags.dataFrom)) {
+      cp.setDataFrom(XmlUtil.getElementContent(els[pos]));
+      pos++;
+    }
+
+    if ((els.length > pos) &&
+      XmlUtil.nodeMatches(els[pos], BedeworkServerTags.dataTo)) {
+      cp.setDataTo(XmlUtil.getElementContent(els[pos]));
+      pos++;
+    }
+
+    if (els.length > pos) {
+      throw badNotification(els[pos]);
+    }
 
     return cp;
   }

@@ -25,6 +25,7 @@ import edu.rpi.sss.util.Util;
 import edu.rpi.sss.util.xml.XmlEmit;
 import edu.rpi.sss.util.xml.XmlEmit.NameSpace;
 import edu.rpi.sss.util.xml.tagdefs.AppleServerTags;
+import edu.rpi.sss.util.xml.tagdefs.BedeworkServerTags;
 import edu.rpi.sss.util.xml.tagdefs.CaldavDefs;
 import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 
@@ -158,16 +159,30 @@ public class NotificationType {
   }
 
   /**
-   * @return XML version of notification
+   * @return XML version of notification without bedework elements
    * @throws Throwable
    */
   public String toXml() throws Throwable {
+    return toXml(false);
+  }
+
+  /**
+   * @param withBedeworkElements true if we should emit any extra elements.
+   * @return XML version of notification
+   * @throws Throwable
+   */
+  public String toXml(final boolean withBedeworkElements) throws Throwable {
     StringWriter str = new StringWriter();
     XmlEmit xml = new XmlEmit();
+
+    if (withBedeworkElements) {
+      xml.setProperty("withBedeworkElements", "true");
+    }
 
     xml.addNs(new NameSpace(WebdavTags.namespace, "DAV"), false);
     xml.addNs(new NameSpace(CaldavDefs.caldavNamespace, "C"), false);
     xml.addNs(new NameSpace(AppleServerTags.appleCaldavNamespace, "CSS"), false);
+    xml.addNs(new NameSpace(BedeworkServerTags.bedeworkCaldavNamespace, "BW"), false);
 
     xml.startEmit(str);
     toXml(xml);

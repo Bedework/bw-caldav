@@ -21,6 +21,7 @@ package org.bedework.caldav.util.notifications;
 import edu.rpi.sss.util.ToString;
 import edu.rpi.sss.util.xml.XmlEmit;
 import edu.rpi.sss.util.xml.tagdefs.AppleServerTags;
+import edu.rpi.sss.util.xml.tagdefs.BedeworkServerTags;
 
 /**
            <!ELEMENT changed-parameter EMPTY>
@@ -31,6 +32,9 @@ import edu.rpi.sss.util.xml.tagdefs.AppleServerTags;
  */
 public class ChangedParameterType {
   private String name;
+
+  private String dataFrom;
+  private String dataTo;
 
   /**
    * @param val the name
@@ -46,6 +50,34 @@ public class ChangedParameterType {
     return name;
   }
 
+  /**
+   * @param val the dataFrom
+   */
+  public void setDataFrom(final String val) {
+    dataFrom = val;
+  }
+
+  /**
+   * @return the dataFrom
+   */
+  public String getDataFrom() {
+    return dataFrom;
+  }
+
+  /**
+   * @param val the dataTo
+   */
+  public void setDataTo(final String val) {
+    dataTo = val;
+  }
+
+  /**
+   * @return the dataTo
+   */
+  public String getDataTo() {
+    return dataTo;
+  }
+
   /* ====================================================================
    *                   Convenience methods
    * ==================================================================== */
@@ -55,7 +87,20 @@ public class ChangedParameterType {
    * @throws Throwable
    */
   public void toXml(final XmlEmit xml) throws Throwable {
-    xml.emptyTag(AppleServerTags.changedParameter, "name", getName());
+    if (Boolean.parseBoolean(xml.getProperty("withBedeworkElements"))) {
+      xml.openTag(AppleServerTags.changedParameter, "name", getName());
+
+      if (dataFrom != null) {
+        xml.property(BedeworkServerTags.dataFrom, getDataFrom());
+      }
+      if (dataTo != null) {
+        xml.property(BedeworkServerTags.dataTo, getDataTo());
+      }
+
+      xml.closeTag(AppleServerTags.changedParameter);
+    } else {
+      xml.emptyTag(AppleServerTags.changedParameter, "name", getName());
+    }
   }
 
   /** Add our stuff to the StringBuffer
@@ -64,6 +109,12 @@ public class ChangedParameterType {
    */
   protected void toStringSegment(final ToString ts) {
     ts.append("ChangedParameter:name", getName());
+    if (dataFrom != null) {
+      ts.append("dataFrom", getDataFrom());
+    }
+    if (dataTo != null) {
+      ts.append("dataTo", getDataTo());
+    }
   }
 
   @Override

@@ -21,6 +21,7 @@ package org.bedework.caldav.util.notifications;
 import edu.rpi.sss.util.ToString;
 import edu.rpi.sss.util.xml.XmlEmit;
 import edu.rpi.sss.util.xml.tagdefs.AppleServerTags;
+import edu.rpi.sss.util.xml.tagdefs.BedeworkServerTags;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +35,9 @@ import java.util.List;
  */
 public class ChangedPropertyType {
   private String name;
+
+  private String dataFrom;
+  private String dataTo;
 
   private List<ChangedParameterType> changedParameter;
 
@@ -49,6 +53,34 @@ public class ChangedPropertyType {
    */
   public String getName() {
     return name;
+  }
+
+  /**
+   * @param val the dataFrom
+   */
+  public void setDataFrom(final String val) {
+    dataFrom = val;
+  }
+
+  /**
+   * @return the dataFrom
+   */
+  public String getDataFrom() {
+    return dataFrom;
+  }
+
+  /**
+   * @param val the dataTo
+   */
+  public void setDataTo(final String val) {
+    dataTo = val;
+  }
+
+  /**
+   * @return the dataTo
+   */
+  public String getDataTo() {
+    return dataTo;
   }
 
   /**
@@ -75,6 +107,16 @@ public class ChangedPropertyType {
     for (ChangedParameterType cp: getChangedParameter()) {
       cp.toXml(xml);
     }
+
+    if (Boolean.parseBoolean(xml.getProperty("withBedeworkElements"))) {
+      if (getDataFrom() != null) {
+        xml.property(BedeworkServerTags.dataFrom, getDataFrom());
+      }
+      if (getDataTo() != null) {
+        xml.property(BedeworkServerTags.dataTo, getDataTo());
+      }
+    }
+
     xml.closeTag(AppleServerTags.changedProperty);
   }
 
@@ -86,6 +128,12 @@ public class ChangedPropertyType {
     ts.append("ChangedProperty:name", getName());
     for (ChangedParameterType cp: getChangedParameter()) {
       cp.toStringSegment(ts);
+    }
+    if (getDataFrom() != null) {
+      ts.append("dataFrom", getDataFrom());
+    }
+    if (getDataTo() != null) {
+      ts.append("dataTo", getDataTo());
     }
   }
 
