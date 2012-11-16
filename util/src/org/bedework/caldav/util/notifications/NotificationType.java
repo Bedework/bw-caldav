@@ -72,6 +72,15 @@ public class NotificationType {
     return notification;
   }
 
+  /**
+   * @return an appropriate name for this object
+   */
+  public String getName() {
+    BaseNotificationType bn = getNotification();
+
+    return bn.getElementName().getLocalPart() + bn.getName();
+  }
+
   /* ====================================================================
    *                   Convenience methods
    * ==================================================================== */

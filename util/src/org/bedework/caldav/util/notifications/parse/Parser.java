@@ -51,6 +51,7 @@ import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -152,6 +153,17 @@ public class Parser {
         putParser();
       }
     }
+  }
+
+  /**
+   * @param val
+   * @return parsed notification or null
+   * @throws WebdavException
+   */
+  public static NotificationType fromXml(final String val) throws WebdavException{
+    ByteArrayInputStream bais = new ByteArrayInputStream(val.getBytes());
+
+    return fromXml(bais);
   }
 
   /**
