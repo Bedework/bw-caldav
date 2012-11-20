@@ -617,9 +617,12 @@ public class Parser {
 
     int pos = 0;
 
-    expect(els[pos], AppleServerTags.changedParameter);
 
-    cp.getChangedParameter().add(parseChangedParameter(els[pos]));
+    if ((els.length > pos) &&
+      XmlUtil.nodeMatches(els[pos], AppleServerTags.changedParameter)) {
+      cp.getChangedParameter().add(parseChangedParameter(els[pos]));
+      pos++;
+    }
 
     if ((els.length > pos) &&
       XmlUtil.nodeMatches(els[pos], BedeworkServerTags.dataFrom)) {

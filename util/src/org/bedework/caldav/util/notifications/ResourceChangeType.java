@@ -144,6 +144,10 @@ import javax.xml.namespace.QName;
  * @author Mike Douglass douglm
  */
 public class ResourceChangeType extends BaseNotificationType {
+  // This we use as the resource name
+  private String uid;
+
+  // This we store as the encoding
   private String name;
 
   private CreatedType created;
@@ -225,6 +229,16 @@ public class ResourceChangeType extends BaseNotificationType {
     checkName(val.getHref());
   }
 
+  /**
+   */
+  public void clearUpdated() {
+    if (updated == null) {
+      return;
+    }
+
+    updated.clear();
+  }
+
   /* ====================================================================
    *                   BaseNotificationType methods
    * ==================================================================== */
@@ -234,8 +248,28 @@ public class ResourceChangeType extends BaseNotificationType {
     return AppleServerTags.resourceChange;
   }
 
+  /** SCHEMA - some squirrelly stuff until we get a name long enough to really be
+   * the name
+   *
+   * @param val
+   */
+  @Override
+  public void setName(final String val) {
+    uid = val;
+  }
+
   @Override
   public String getName() {
+    return uid;
+  }
+
+  @Override
+  public void setEncoding(final String val) {
+    name = val;
+  }
+
+  @Override
+  public String getEncoding() {
     return name;
   }
 
@@ -300,18 +334,21 @@ public class ResourceChangeType extends BaseNotificationType {
   public void toXml(final XmlEmit xml) throws Throwable {
     xml.openTag(AppleServerTags.resourceChange);
 
-    if (getCreated() != null) {
-      getCreated().toXml(xml);
-    } else if (getDeleted() != null) {
-      getDeleted().toXml(xml);
-      return;
-    } else  if (getCollectionChanges() != null) {
+    if (getCollectionChanges() != null) {
       getCollectionChanges().toXml(xml);
       return;
-    } else {
-      for (UpdatedType u: getUpdated()) {
-        u.toXml(xml);
-      }
+    }
+
+    if (getCreated() != null) {
+      getCreated().toXml(xml);
+    }
+
+    for (UpdatedType u: getUpdated()) {
+      u.toXml(xml);
+    }
+
+    if (getDeleted() != null) {
+      getDeleted().toXml(xml);
     }
 
     xml.closeTag(AppleServerTags.resourceChange);
@@ -326,23 +363,21 @@ public class ResourceChangeType extends BaseNotificationType {
    * @param ts
    */
   protected void toStringSegment(final ToString ts) {
-    if (getCreated() != null) {
-      getCreated().toStringSegment(ts);
-      return;
-    }
-
-    if (getDeleted() != null) {
-      getDeleted().toStringSegment(ts);
-      return;
-    }
-
     if (getCollectionChanges() != null) {
       getCollectionChanges().toStringSegment(ts);
       return;
     }
 
+    if (getCreated() != null) {
+      getCreated().toStringSegment(ts);
+    }
+
     for (UpdatedType u: getUpdated()) {
       u.toStringSegment(ts);
+    }
+
+    if (getDeleted() != null) {
+      getDeleted().toStringSegment(ts);
     }
   }
 
@@ -360,17 +395,13 @@ public class ResourceChangeType extends BaseNotificationType {
    * ==================================================================== */
 
   private void checkName(final String val) {
+    String bval = Base64.encodeBase64String(val.getBytes());
+
     if (name == null) {
-      name = val;
-    } else {
-      String bval = Base64.encodeBase64String(val.getBytes());
-
-      if (!name.equals(bval)) {
-        throw new RuntimeException("Attempt to store different href in change " +
-        		"notification. Old: " + name + " new: " + val);
-      }
-
       name = bval;
+    } else if (!name.equals(bval)) {
+      throw new RuntimeException("Attempt to store different href in change " +
+          "notification. Old: " + name + " new: " + val);
     }
   }
 }

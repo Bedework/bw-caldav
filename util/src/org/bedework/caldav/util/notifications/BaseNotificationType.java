@@ -43,9 +43,30 @@ public abstract class BaseNotificationType {
   public abstract QName getElementName();
 
   /**
-   * @return a String to use as a resource name
+   * @param val String used as (part of) a resource name
+   */
+  public abstract void setName(String val);
+
+  /**
+   * @return a String to use as (part of) a resource name
    */
   public abstract String getName();
+
+  /** NOTE: this may not be a valid encoding value. Until we update the schema
+   * this will have the encoded path of the resource for which we are getting a
+   * notification. The resource name is too short to handle it at the moment.
+   *
+   * @param val
+   */
+  public abstract void setEncoding(String val);
+
+  /** NOTE: this may not be a valid encoding value. Until we update the schema
+   * this will have the encoded path of the resource for which we are getting a
+   * notification. The resource name is too short to handle it at the moment.
+   *
+   * @return value for the resource encoding or null.
+   */
+  public abstract String getEncoding();
 
   /**
    */

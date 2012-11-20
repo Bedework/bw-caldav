@@ -122,8 +122,21 @@ public class InviteReplyType extends BaseNotificationType {
   }
 
   @Override
+  public void setName(final String val) {
+  }
+
+  @Override
   public String getName() {
     return getInReplyTo() + "-reply";
+  }
+
+  @Override
+  public void setEncoding(final String val) {
+  }
+
+  @Override
+  public String getEncoding() {
+    return null;
   }
 
   @Override

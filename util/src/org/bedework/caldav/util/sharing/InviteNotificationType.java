@@ -186,8 +186,21 @@ public class InviteNotificationType extends BaseNotificationType {
   }
 
   @Override
+  public void setName(final String val) {
+  }
+
+  @Override
   public String getName() {
     return getUid();
+  }
+
+  @Override
+  public void setEncoding(final String val) {
+  }
+
+  @Override
+  public String getEncoding() {
+    return null;
   }
 
   private List<AttributeType> attrs;

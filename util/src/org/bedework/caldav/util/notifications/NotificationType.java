@@ -73,6 +73,25 @@ public class NotificationType {
   }
 
   /**
+   * @param val the name of the containing resource
+   */
+  public void setName(final String val) {
+    if (val == null) {
+      return;
+    }
+
+    BaseNotificationType bn = getNotification();
+
+    String prefix = bn.getElementName().getLocalPart();
+
+    if (val.length() < prefix.length()) {
+      return;
+    }
+
+    bn.setName(val.substring(prefix.length()));
+  }
+
+  /**
    * @return an appropriate name for this object
    */
   public String getName() {
