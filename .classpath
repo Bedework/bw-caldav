@@ -3,7 +3,6 @@
 	<classpathentry kind="src" path="server/src"/>
 	<classpathentry kind="src" path="util/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="lib/ical4j-head-20100601.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/davutil"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/webdav"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/access"/>
@@ -17,5 +16,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/apache-jdkim-library"/>
 	<classpathentry kind="lib" path="lib/commons-codec-1.5.jar"/>
 	<classpathentry kind="lib" path="lib/dom4j-1.6.1.jar"/>
+	<classpathentry kind="lib" path="lib/ical4j-1.0-BW-SNAPSHOT.jar"/>
 	<classpathentry kind="output" path="bin/eclipse-build"/>
 </classpath>

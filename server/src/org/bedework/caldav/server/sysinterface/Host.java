@@ -18,6 +18,8 @@
 */
 package org.bedework.caldav.server.sysinterface;
 
+import java.util.List;
+
 
 /** This class provides information about a host. This should eventually come
  * from some form of dns-like lookup based on the CUA.
@@ -51,23 +53,6 @@ package org.bedework.caldav.server.sysinterface;
  * @author Mike Douglass       douglm - rpi.edu
  */
 public interface Host {
-  /* Hosts come in different flavors */
-
-  /** A bedework server */
-  static final String bedeworkHost = "Bedework";
-
-  /** Supports CalDAV - check options for full details */
-  static final String caldavHost = "CalDAV";
-
-  /** Supports iSchedule - no access otherwise */
-  static final String iSCheduleHost = "iSchedule";
-
-  /** Supports standard freebusy  */
-  static final String freebusyHost = "FreeBusy";
-
-  /** Create list of above delimited by this */
-  static final String servicesDelim = ",";
-
   /**
    *
    * @return String hostname
@@ -92,73 +77,75 @@ public interface Host {
 
   /**
    *
-   * @return String supportedServices
+   * @return String
    */
-  public String getSupportedServices();
+  String getCaldavUrl();
 
   /**
    *
    * @return String
    */
-  public String getCaldavUrl();
+  String getCaldavPrincipal();
 
   /**
    *
    * @return String
    */
-  public String getCaldavPrincipal();
+  String getCaldavCredentials();
 
   /**
    *
    * @return String
    */
-  public String getCaldavCredentials();
+  String getIScheduleUrl();
 
   /**
    *
    * @return String
    */
-  public String getIScheduleUrl();
+  String getISchedulePrincipal();
 
   /**
    *
    * @return String
    */
-  public String getISchedulePrincipal();
+  String getIScheduleCredentials();
+
+  /** List of dkim public keys in form selector=key
+   *
+   * @return String
+   */
+  List<String> getDkimPublicKeys();
+
+  /** True if we delivered our public key for use for dkim
+   *
+   * @return String
+   */
+  boolean getIScheduleUsePublicKey();
 
   /**
    *
    * @return String
    */
-  public String getIScheduleCredentials();
-
-  /**
-   *
-   * @return String
-   */
-  public String getFbUrl();
-
-  /* ====================================================================
-   *                   Derived values methods
-   * ==================================================================== */
+  String getFbUrl();
 
   /**
    *  @return boolean    true if caldav supported
    */
-  public boolean getSupportsBedework();
+  boolean getSupportsBedework();
 
   /**
    *  @return boolean    true if caldav supported
    */
-  public boolean getSupportsCaldav();
+  boolean getSupportsCaldav();
 
   /**
    *  @return boolean    true if iSchedule supported
    */
-  public boolean getSupportsISchedule();
+  boolean getSupportsISchedule();
 
   /**
    *  @return boolean    true if Freebusy supported
    */
-  public boolean getSupportsFreebusy();
+  boolean getSupportsFreebusy();
 }

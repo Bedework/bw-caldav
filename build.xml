@@ -42,41 +42,6 @@
     <property name="util.jar"
               location="${dist.home}/bw-cdvutil-${project.version}.jar" />
   </target>
-    
-  <target name="build-init" depends="init">
-    <!--
-    <getJar name="ical4j" version="head-20100601" />
-    <getJar name="log4j" version="1.2.8" />
-    <getJar name="servlet-api" version="2.4" />
-
-    <getJar name="bw-davio" 
-            version="${org.bedework.davutil.version}" project="davutil" 
-            projecthome="${bedework.home}/../davutil" />
-    <getJar name="rpiaccess" 
-            version="${org.bedework.access.version}" project="access"
-            projecthome="${bedework.home}/../access" />
-    <getJar name="rpiutil" 
-            version="${org.bedework.rpiutil.version}" project="rpiutil"
-            projecthome="${bedework.home}/../rpiutil" />
-    
-    <getJar name="bw-webdavserver" 
-            version="${org.bedework.webdav.version}" project="webdav"
-            projecthome="${bedework.home}/../webdav" />
-
-    <getJar name="bw-synchwsschema" 
-            version="${org.bedework.bwxml.version}" project="bwxml" 
-            projecthome="${bedework.home}/../bwxml" />
-
-    <getJar name="bw-calws-soapschema" 
-            version="${org.bedework.bwxml.version}" project="bwxml" 
-            projecthome="${bedework.home}/../bwxml" />
-
-    <getJar name="bw-caldavschema" 
-            version="${org.bedework.bwxml.version}" project="bwxml" 
-            projecthome="${bedework.home}/../bwxml" />
-    -->
-    <resolveDependencies pomFile="pom.xml" />
-  </target>
 
   <!-- ===================== bld-source Target ===============================
      This target builds jar files ready for the deploy target.

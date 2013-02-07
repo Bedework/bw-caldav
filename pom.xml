@@ -45,7 +45,7 @@
       <dependency>
         <groupId>net.fortuna.ical4j</groupId>
         <artifactId>ical4j</artifactId>
-        <version>head-20100601</version>
+        <version>1.0-BW-SNAPSHOT</version>
         <scope>provided</scope>
       </dependency>
       

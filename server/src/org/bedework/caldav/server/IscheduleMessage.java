@@ -133,24 +133,33 @@ public class IscheduleMessage implements Headers, Serializable {
   public List<String> getFields(final String val) {
     /* The rest of the package assumes each 'field' is a header record with name
      * and CR LF terminator.
+     *
+     * For Ischedule - we concatenate all the headers to produce a single value.
      */
     List<String> l = headers.get(val.toLowerCase());
     if ((l == null) || (l.size() == 0)) {
       return l;
     }
 
+    StringBuilder sb = new StringBuilder();
+    String delim = "";
+
+    for (String s: l) {
+      sb.append(delim);
+      delim = ",";
+      sb.append(s);
+    }
+
     List<String> namedL = new ArrayList<String>();
 
-    for (String v: l) {
-      namedL.add(val + ":" + v);
-    }
+    namedL.add(val + ":" + sb.toString());
 
     return namedL;
   }
 
   /**
    * @param val
-   * @return header values without th ename: part
+   * @return header values without the name: part
    */
   public List<String> getFieldVals(final String val) {
     return headers.get(val.toLowerCase());
