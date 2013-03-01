@@ -3,7 +3,6 @@
 	<classpathentry kind="src" path="server/src"/>
 	<classpathentry kind="src" path="util/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/davutil"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/webdav"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/access"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/rpiutil"/>
