@@ -170,7 +170,7 @@ public class CaldavURI {
         (principal != null)) {
       return getPath();
     }
-    return Util.buildPath(getPath(), "/", entityName);
+    return Util.buildPath(false, getPath(), "/", entityName);
   }
 
   /**

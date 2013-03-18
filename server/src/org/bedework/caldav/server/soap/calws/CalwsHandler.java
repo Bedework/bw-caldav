@@ -585,7 +585,7 @@ public class CalwsHandler extends SoapHandler {
         break addEntity;
       }
 
-      String entityPath = Util.buildPath(ai.getHref(), "/",
+      String entityPath = Util.buildPath(false, ai.getHref(), "/",
                                          getIntf().makeName(uidp.getText()) + ".ics");
 
       WebdavNsNode elNode = getNsIntf().getNode(entityPath,

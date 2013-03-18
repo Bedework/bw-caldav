@@ -248,7 +248,7 @@ public class RequestPars {
       return false;
     }
 
-    String toMatch = Util.buildPath(specialUri, "/");
+    String toMatch = Util.buildPath(true, specialUri);
     String prefix;
 
     int pos = resourceUri.indexOf("/", 1);
@@ -259,7 +259,7 @@ public class RequestPars {
       prefix = resourceUri.substring(0, pos);
     }
 
-    if (!toMatch.equals(Util.buildPath(prefix, "/"))) {
+    if (!toMatch.equals(Util.buildPath(true, prefix))) {
       noPrefixResourceUri = noParameters(resourceUri);
       return false;
     }

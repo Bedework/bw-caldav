@@ -573,7 +573,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
           throw new WebdavException("Unexpected return type");
         }
 
-        al.add(getNodeInt(Util.buildPath(uri, "/", name),
+        al.add(getNodeInt(Util.buildPath(true, uri, "/", name),
                           WebdavNsIntf.existanceDoesExist,
                           nodeType, col, ev, r));
       }
@@ -1378,6 +1378,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       WebdavNsNode parent = null; // Need for non-collection
       String name;
       boolean canSync;
+      boolean collection = false;
 
       if (srdi.getCol() == null) {
         parent = parents.get(srdi.getVpath());
@@ -1408,9 +1409,12 @@ public class CaldavBWIntf extends WebdavNsIntf {
         col = srdi.getCol();
         name = col.getName();
         canSync = srdi.getCanSync();
+        collection = true;
       }
 
-      wri = new WdSynchReportItem(getNodeInt(Util.buildPath(srdi.getVpath(), "/", name),
+      wri = new WdSynchReportItem(getNodeInt(Util.buildPath(collection,
+                                                            srdi.getVpath(),
+                                                            "/", name),
                                              WebdavNsIntf.existanceDoesExist,
                                              nodeType, col, ev, r),
                                              srdi.getToken(),
@@ -1775,7 +1779,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
           evName = ev.getUid() + ".ics";
         }
 
-        String evuri = Util.buildPath(uri, "/", evName);
+        String evuri = Util.buildPath(false, uri, "/", evName);
 
         CaldavComponentNode evnode = (CaldavComponentNode)getNodeInt(evuri,
                                                    WebdavNsIntf.existanceDoesExist,
@@ -2053,7 +2057,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
         CalDAVCollection newCol = getSysi().newCollectionObject(false,
                                                                 col.getPath());
         newCol.setName(entityName);
-        newCol.setPath(Util.buildPath(col.getPath(), "/", newCol.getName()));
+        newCol.setPath(Util.buildPath(true, col.getPath(), "/", newCol.getName()));
 
         curi = new CaldavURI(newCol, false);
 
