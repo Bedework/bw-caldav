@@ -1,106 +1,212 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.bedework</groupId>
+	<artifactId>bw-caldav</artifactId>
+	<version>4.0.0-SNAPSHOT</version>
+	<name>bw-caldav</name>
+	<packaging>pom</packaging>
 
-<!--
-    Licensed to Jasig under one or more contributor license
-    agreements. See the NOTICE file distributed with this work
-    for additional information regarding copyright ownership.
-    Jasig licenses this file to you under the Apache License,
-    Version 2.0 (the "License"); you may not use this file
-    except in compliance with the License. You may obtain a
-    copy of the License at:
-        
-    http://www.apache.org/licenses/LICENSE-2.0
-        
-    Unless required by applicable law or agreed to in writing,
-    software distributed under the License is distributed on
-    an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-    KIND, either express or implied. See the License for the
-    specific language governing permissions and limitations
-    under the License.
--->
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<!-- Maven Plugin Versions -->
+		<maven.compiler.plugin.version>2.3.2</maven.compiler.plugin.version>
+		<maven.source.plugin.version>2.1.2</maven.source.plugin.version>
+		<!-- Bedework Versions -->
+		<bw-access.version>4.0.0-SNAPSHOT</bw-access.version>
+		<bw-util.version>4.0.0-SNAPSHOT</bw-util.version>
+		<bw-webdav.version>4.0.0-SNAPSHOT</bw-webdav.version>
+		<bw-ws.version>4.0.0-SNAPSHOT</bw-ws.version>
+		<!-- Third Party Library Versions -->
+		<servlet-api.version>2.5</servlet-api.version>
+		<ical4j.version>1.0.4</ical4j.version>
+		<log4j.version>1.2.15</log4j.version>
+	</properties>
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" 
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
-         http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+	<organization>
+		<name>Bedework</name>
+		<url>https://github.com/Bedework</url>
+	</organization>
 
-  <parent>
-    <groupId>org.bedework</groupId>
-    <artifactId>bedework</artifactId>
-    <version>3.9</version>
-    <relativePath>../bedework</relativePath>
-  </parent>
+	<licenses>
+		<license>
+			<name>Apache License Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+		</license>
+	</licenses>
 
-  <groupId>org.bedework</groupId>
-  <artifactId>caldav</artifactId>
-  <version>3.9</version>
-  <packaging>pom</packaging>
+	<scm>
+		<connection>scm:git:git://github.com/Bedework/bw-caldav.git</connection>
+		<developerConnection>scm:git:git://github.com/Bedework/bw-caldav.git</developerConnection>
+		<url>https://github.com/Bedework/bw-caldav</url>
+	</scm>
 
-  <name>Bedework abstract CalDAV server</name>
-  <description>Bedework abstract CalDAV server</description>
-  <url>http://bedework.org/</url>
+	<issueManagement>
+		<system>github</system>
+		<url>https://github.com/Bedework/bw-caldav/issues</url>
+	</issueManagement>
 
-    <dependencies>
-      <dependency>
-        <groupId>net.fortuna.ical4j</groupId>
-        <artifactId>ical4j</artifactId>
-        <version>1.0-BW-SNAPSHOT</version>
-        <scope>provided</scope>
-      </dependency>
-      
-      <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-kernel</artifactId>
-        <version>2.2.1</version>
-      </dependency>
-      
-      <dependency>
-        <groupId>org.apache.james.jdkim</groupId>
-        <artifactId>apache-jdkim-library</artifactId>
-        <version>0.2.BEDEWORK</version>
-      </dependency>
-      
-      <dependency>
-        <groupId>org.bedework</groupId>
-        <artifactId>bw-webdavserver</artifactId>
-        <version>${bedeworkWebdavVersion}</version>
-        <scope>provided</scope>
-      </dependency>
-      
-      <dependency>
-        <groupId>org.bedework</groupId>
-        <artifactId>rpiaccess</artifactId>
-        <version>${bedeworkAccessVersion}</version>
-        <scope>provided</scope>
-      </dependency>
-      
-      <dependency>
-        <groupId>org.bedework</groupId>
-        <artifactId>rpiutil</artifactId>
-        <version>${bedeworkRpiutilVersion}</version>
-        <scope>provided</scope>
-      </dependency>
-          
-      <dependency>
-        <groupId>org.bedework.bwxml</groupId>
-        <artifactId>bw-synchwsschema</artifactId>
-        <version>${bedeworkBwxmlVersion}</version>
-        <scope>provided</scope>
-      </dependency>
-          
-      <dependency>
-        <groupId>org.bedework.bwxml</groupId>
-        <artifactId>bw-calws-soapschema</artifactId>
-        <version>${bedeworkBwxmlVersion}</version>
-        <scope>provided</scope>
-      </dependency>
-          
-      <dependency>
-        <groupId>org.bedework.bwxml</groupId>
-        <artifactId>bw-caldavschema</artifactId>
-        <version>${bedeworkBwxmlVersion}</version>
-        <scope>provided</scope>
-      </dependency>
-    </dependencies>
+	<modules>
+		<module>bw-caldav-util</module>
+		<module>bw-caldav-server</module>
+	</modules>
+
+	<dependencyManagement>
+		<dependencies>
+			<!-- Bedework: Util -->
+			<dependency>
+				<groupId>org.bedework</groupId>
+				<artifactId>bw-util</artifactId>
+				<version>${bw-util.version}</version>
+			</dependency>
+			<!-- Bedework: Access -->
+			<dependency>
+				<groupId>org.bedework</groupId>
+				<artifactId>bw-access</artifactId>
+				<version>${bw-access.version}</version>
+			</dependency>
+			<!-- Bedework: WebDAV -->
+			<dependency>
+				<groupId>org.bedework</groupId>
+				<artifactId>bw-webdav</artifactId>
+				<version>${bw-webdav.version}</version>
+			</dependency>
+			<!-- Bedework: Web Services -->
+			<dependency>
+				<groupId>org.bedework</groupId>
+				<artifactId>bw-ws-caldav</artifactId>
+				<version>${bw-ws.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.bedework</groupId>
+				<artifactId>bw-ws-calws-soap</artifactId>
+				<version>${bw-ws.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.bedework</groupId>
+				<artifactId>bw-ws-synchws</artifactId>
+				<version>${bw-ws.version}</version>
+			</dependency>
+			<!-- Third Party Dependencies -->
+			<dependency>
+				<groupId>org.mnode.ical4j</groupId>
+				<artifactId>ical4j</artifactId>
+				<version>${ical4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.geronimo.framework</groupId>
+				<artifactId>geronimo-kernel</artifactId>
+				<version>2.2.1</version>
+			</dependency>
+			<dependency>
+				<groupId>net.fortuna.ical4j</groupId>
+				<artifactId>ical4j</artifactId>
+				<version>head-20100601</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.james.jdkim</groupId>
+				<artifactId>apache-jdkim-library</artifactId>
+				<version>0.2.BEDEWORK-SNAPSHOT</version>
+			</dependency>
+			<dependency>
+				<groupId>log4j</groupId>
+				<artifactId>log4j</artifactId>
+				<version>${log4j.version}</version>
+				<exclusions>
+					<exclusion>
+						<artifactId>jmxtools</artifactId>
+						<groupId>com.sun.jdmk</groupId>
+					</exclusion>
+					<exclusion>
+						<artifactId>jms</artifactId>
+						<groupId>javax.jms</groupId>
+					</exclusion>
+					<exclusion>
+						<artifactId>jmxri</artifactId>
+						<groupId>com.sun.jmx</groupId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>javax.servlet</groupId>
+				<artifactId>servlet-api</artifactId>
+				<version>${servlet-api.version}</version>
+				<scope>provided</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<repositories>
+		<repository>
+			<id>jboss.repository</id>
+			<name>JBoss Public Repository Group</name>
+			<url>http://repository.jboss.org/nexus/content/groups/developer/</url>
+			<layout>default</layout>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+		<!-- Only needed for JBoss 5 dependencies. We should remove this when we 
+			move Bedework off of JBoss 5. -->
+		<repository>
+			<id>jboss-deprecated</id>
+			<name>JBoss Deprecated Repository</name>
+			<url>http://repository.jboss.org/nexus/content/repositories/deprecated</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>bedework.repository</id>
+			<name>Bedework Maven Repository</name>
+			<url>http://dev.bedework.org/downloads/lib/repository/</url>
+			<layout>default</layout>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+
+	<build>
+		<plugins>
+			<!-- Specify the compiler options and settings -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${maven.compiler.plugin.version}</version>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+					<showDeprecation>false</showDeprecation>
+					<showWarnings>false</showWarnings>
+				</configuration>
+			</plugin>
+			<!-- Produce source jars during the 'verify' phase -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>${maven.source.plugin.version}</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>jar</goal>
+							<goal>test-jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
 </project>

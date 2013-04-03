@@ -1,0 +1,67 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.bedework</groupId>
+		<artifactId>bw-caldav</artifactId>
+		<version>4.0.0-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+	<artifactId>bw-caldav-server</artifactId>
+
+	<dependencies>
+		<!-- Project Dependencies -->
+		<dependency>
+			<groupId>org.bedework</groupId>
+			<artifactId>bw-caldav-util</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		
+		<!-- Bedework: XML Dependencies -->
+		<dependency>
+			<groupId>org.bedework</groupId>
+			<artifactId>bw-ws-synchws</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.bedework</groupId>
+			<artifactId>bw-ws-caldav</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.bedework</groupId>
+			<artifactId>bw-ws-calws-soap</artifactId>
+		</dependency>
+		
+		<!-- Bedework Project Dependencies -->
+		<dependency>
+			<groupId>org.bedework</groupId>
+			<artifactId>bw-access</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.bedework</groupId>
+			<artifactId>bw-util</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.bedework</groupId>
+			<artifactId>bw-webdav</artifactId>
+		</dependency>
+
+		<!-- Third Party Dependencies -->
+		<dependency>
+			<groupId>org.apache.geronimo.framework</groupId>
+			<artifactId>geronimo-kernel</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>net.fortuna.ical4j</groupId>
+			<artifactId>ical4j</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.james.jdkim</groupId>
+			<artifactId>apache-jdkim-library</artifactId>
+		</dependency>
+	</dependencies>
+
+</project>
