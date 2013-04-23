@@ -1503,7 +1503,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
    */
   @Override
   public String makeUserHref(final String id) throws WebdavException {
-    return getSysi().makeHref(id, Ace.whoTypeUser);
+    return getSysi().makeHref(id, WhoDefs.whoTypeUser);
   }
 
   /* (non-Javadoc)
@@ -1878,9 +1878,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
       AccessPrincipal ap = wi.getPrincipal();
 
       if (ap != null) {
-        if (ap.getKind() == Ace.whoTypeUser) {
+        if (ap.getKind() == WhoDefs.whoTypeUser) {
           nd = new CaldavUserNode(wi, sysi, sysi.getCalPrincipalInfo(ap));
-        } else if (ap.getKind() == Ace.whoTypeGroup) {
+        } else if (ap.getKind() == WhoDefs.whoTypeGroup) {
           nd = new CaldavGroupNode(wi, sysi, sysi.getCalPrincipalInfo(ap));
         }
       } else if (wi.isCollection()) {
@@ -1989,10 +1989,11 @@ public class CaldavBWIntf extends WebdavNsIntf {
       if ((nodeType == WebdavNsIntf.nodeTypeCollection) ||
           (nodeType == WebdavNsIntf.nodeTypeUnknown)) {
         // For unknown we try the full path first as a calendar.
+        String coluri = Util.buildPath(true, uri);
         if (debug) {
-          debugMsg("search for collection uri \"" + uri + "\"");
+          debugMsg("search for collection uri \"" + coluri + "\"");
         }
-        CalDAVCollection col = sysi.getCollection(uri);
+        CalDAVCollection col = sysi.getCollection(coluri);
 
         if (col == null) {
           if ((nodeType == WebdavNsIntf.nodeTypeCollection) &&
@@ -2132,20 +2133,28 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
   /* Split the uri so that result.path is the path up to the name part result.name
    *
-   * NormalizeUri was called previously so we have no trailing "/"
    */
   private SplitResult splitUri(final String uri) throws WebdavException {
-    int pos = uri.lastIndexOf("/");
+    // Remove any trailing slash = it makes things easier.
+    String noslUri = Util.buildPath(false, uri);
+
+    int pos = noslUri.lastIndexOf("/");
     if (pos < 0) {
       // bad uri
       throw new WebdavBadRequest("Invalid uri: " + uri);
     }
 
+    String path;
+    String name = null;
+
     if (pos == 0) {
-      return new SplitResult(uri, null);
+      path = Util.buildPath(true, uri);
+    } else {
+      path = noslUri.substring(0, pos);
+      name = noslUri.substring(pos + 1);
     }
 
-    return new SplitResult(uri.substring(0, pos), uri.substring(pos + 1));
+    return new SplitResult(Util.buildPath(true, path), name);
   }
 
   private String normalizeUri(String uri) throws WebdavException {
@@ -2157,9 +2166,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       uri = URLDecoder.decode(uri, "UTF-8");
 
-      if ((uri.length() > 1) && uri.endsWith("/")) {
-        uri = uri.substring(0, uri.length() - 1);
-      }
+      //if ((uri.length() > 1) && uri.endsWith("/")) {
+      //  uri = uri.substring(0, uri.length() - 1);
+      //}
 
       if (debug) {
         debugMsg("Normalized uri=" + uri);
