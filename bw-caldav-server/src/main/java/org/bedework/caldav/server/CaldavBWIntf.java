@@ -625,12 +625,21 @@ public class CaldavBWIntf extends WebdavNsIntf {
   @Override
   public Content getContent(final HttpServletRequest req,
                             final HttpServletResponse resp,
+                            final String contentType,
                             final WebdavNsNode node) throws WebdavException {
     try {
-      String accept = req.getHeader("ACCEPT");
+      String ctype = contentType;
+
+      if (ctype == null) {
+        String accept = req.getHeader("ACCEPT");
+
+        if (accept != null) {
+          ctype = accept.trim();
+        }
+      }
 
       if (node.isCollection()) {
-        if ((accept == null) || (accept.indexOf("text/html") >= 0)) {
+        if ((ctype == null) || (ctype.indexOf("text/html") >= 0)) {
           if (getDirectoryBrowsingDisallowed()) {
             throw new WebdavException(HttpServletResponse.SC_FORBIDDEN);
           }
@@ -648,15 +657,15 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       /* ===================  Try for XRD fetch ======================= */
 
-      if (calWs && (accept != null) &&
-          "application/xrd+xml".equals(accept.trim())) {
+      if (calWs && (ctype != null) &&
+          "application/xrd+xml".equals(ctype)) {
         return doXrd(req, resp, (CaldavBwNode)node);
       }
 
       /* ===================  Try for calendar fetch ======================= */
 
-      if (node.isCollection() && (accept != null) &&
-          "text/calendar".equals(accept.trim())) {
+      if (node.isCollection() && (ctype != null) &&
+          "text/calendar".equals(ctype)) {
         GetHandler handler = new WebcalGetHandler(this);
         RequestPars pars = new RequestPars(req, this, getResourceUri(req));
 
@@ -682,7 +691,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       Content c = new Content();
       c.written = true;
 
-      c.contentType = node.writeContent(null, resp.getWriter(), accept);
+      c.contentType = node.writeContent(null, resp.getWriter(), ctype);
 
       if (c.contentType.indexOf(';') < 0) {
         // No charset
@@ -916,6 +925,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
         debugMsg("putContent: update event " + ev);
       }
       sysi.updateEvent(ev);
+
+      bwnode.setEvent(ev);
     }
 
     if (ev.getOrganizerSchedulingObject() ||
