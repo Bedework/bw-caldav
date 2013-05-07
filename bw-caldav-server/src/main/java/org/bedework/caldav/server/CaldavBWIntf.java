@@ -75,6 +75,7 @@ import edu.rpi.sss.util.xml.tagdefs.CalWSXrdDefs;
 import edu.rpi.sss.util.xml.tagdefs.CaldavDefs;
 import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
 import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
+import edu.rpi.sss.util.xml.tagdefs.XcalTags;
 import edu.rpi.sss.util.xml.tagdefs.XrdTags;
 import edu.rpi.sss.util.xml.tagdefs.XsiTags;
 
@@ -687,6 +688,14 @@ public class CaldavBWIntf extends WebdavNsIntf {
       if (!node.getAllowsGet()) {
         return null;
       }
+
+      if ((ctype == null) ||
+          (!ctype.equals("text/calendar") &&
+           !ctype.equals(XcalTags.mimetype))) {
+        ctype = sysi.getDefaultContentType();
+      }
+
+      resp.setContentType(ctype + "; charset=UTF-8");
 
       Content c = new Content();
       c.written = true;
