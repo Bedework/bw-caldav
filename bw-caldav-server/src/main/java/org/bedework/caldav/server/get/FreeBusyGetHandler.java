@@ -20,7 +20,7 @@ package org.bedework.caldav.server.get;
 
 import org.bedework.caldav.server.CaldavBWIntf;
 import org.bedework.caldav.server.RequestPars;
-import org.bedework.caldav.server.sysinterface.SystemProperties;
+import org.bedework.caldav.server.sysinterface.CalDAVSystemProperties;
 import org.bedework.caldav.util.ParseUtil;
 import org.bedework.caldav.util.TimeRange;
 
@@ -78,7 +78,7 @@ public class FreeBusyGetHandler extends GetHandler {
 
       pars.setContentType("text/calendar; charset=UTF-8");
 
-      SystemProperties sysp = getSysi().getSystemProperties();
+      CalDAVSystemProperties sysp = getSysi().getSystemProperties();
 
       TimeRange tr = ParseUtil.getPeriod(req.getParameter("start"),
                                          req.getParameter("end"),

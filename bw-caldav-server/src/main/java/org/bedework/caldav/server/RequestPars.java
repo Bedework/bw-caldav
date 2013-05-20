@@ -18,8 +18,8 @@
 */
 package org.bedework.caldav.server;
 
+import org.bedework.caldav.server.sysinterface.CalDAVSystemProperties;
 import org.bedework.caldav.server.sysinterface.SysIntf;
-import org.bedework.caldav.util.CalDAVConfig;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
@@ -107,16 +107,17 @@ public class RequestPars {
    * @param resourceUri
    * @throws WebdavException
    */
-  public RequestPars(final HttpServletRequest req, final CaldavBWIntf intf,
+  public RequestPars(final HttpServletRequest req,
+                     final CaldavBWIntf intf,
                      final String resourceUri) throws WebdavException {
     SysIntf sysi = intf.getSysi();
+
+    CalDAVSystemProperties sp = sysi.getSystemProperties();
 
     this.req = req;
     this.resourceUri = resourceUri;
 
     method = req.getMethod();
-
-    CalDAVConfig conf = intf.getConfig();
 
     acceptType = req.getHeader("ACCEPT");
 
@@ -127,7 +128,7 @@ public class RequestPars {
     }
 
     testRequest: {
-      iSchedule = checkUri(conf.getIscheduleURI());
+      iSchedule = checkUri(sp.getIscheduleURI());
 
       if (iSchedule) {
         ischedRequest = new IscheduleIn(req, sysi.getUrlHandler());
@@ -136,14 +137,14 @@ public class RequestPars {
         break testRequest;
       }
 
-      freeBusy = checkUri(conf.getFburlServiceURI());
+      freeBusy = checkUri(sp.getFburlServiceURI());
 
       if (freeBusy) {
         getTheReader = false;
         break testRequest;
       }
 
-      webcal = checkUri(conf.getWebcalServiceURI());
+      webcal = checkUri(sp.getWebcalServiceURI());
 
       if (webcal) {
         getTheReader = false;
@@ -152,7 +153,7 @@ public class RequestPars {
 
       // not ischedule or freeBusy or webcal
 
-      if (intf.getConfig().getCalWS()) {
+      if (intf.getCalWS()) {
         // POST of entity for create?
         if ("create".equals(req.getParameter("action"))) {
           entityCreate = true;
@@ -160,16 +161,16 @@ public class RequestPars {
         break testRequest;
       }
 
-      if (conf.getSynchWsURI() != null) {
-        synchws = conf.getSynchWsURI().equals(resourceUri);
+      if (intf.getSynchWsURI() != null) {
+        synchws = intf.getSynchWsURI().equals(resourceUri);
         if (synchws) {
           getTheReader = false;
           break testRequest;
         }
       }
 
-      if (conf.getCalSoapWsURI() != null) {
-        calwsSoap = conf.getCalSoapWsURI().equals(resourceUri);
+      if (sp.getCalSoapWsURI() != null) {
+        calwsSoap = sp.getCalSoapWsURI().equals(resourceUri);
         if (calwsSoap) {
           getTheReader = false;
           break testRequest;

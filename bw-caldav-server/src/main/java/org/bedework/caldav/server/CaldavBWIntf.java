@@ -32,7 +32,6 @@ import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.caldav.server.sysinterface.SysIntf.IcalResultType;
 import org.bedework.caldav.server.sysinterface.SysIntf.SynchReportData;
 import org.bedework.caldav.server.sysinterface.SysIntf.SynchReportData.SynchReportDataItem;
-import org.bedework.caldav.util.CalDAVConfig;
 
 import edu.rpi.cct.webdav.servlet.common.AccessUtil;
 import edu.rpi.cct.webdav.servlet.common.Headers;
@@ -64,7 +63,6 @@ import edu.rpi.cmt.access.AceWho;
 import edu.rpi.cmt.access.Acl;
 import edu.rpi.cmt.access.PrivilegeDefs;
 import edu.rpi.cmt.access.WhoDefs;
-import edu.rpi.sss.util.OptionsI;
 import edu.rpi.sss.util.Util;
 import edu.rpi.sss.util.xml.XmlEmit;
 import edu.rpi.sss.util.xml.XmlEmit.NameSpace;
@@ -102,10 +100,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
@@ -139,15 +135,18 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
   SysIntf sysi;
 
-  private CalDAVConfig config;
-
   /* true if this is a CalWS server */
   private boolean calWs;
 
-  /** We store CaldavURI objects here
-   * /
-  private HashMap<String, CaldavURI> uriMap = new HashMap<String, CaldavURI>();
-  */
+  /* The bedework end of the synch service. This is a web
+    service called by the synch engine to get information out of
+    bedework and to update events and status.
+
+    This path should probably be restricted to a given host only.
+
+    Coming up on a separate port might help to lock it down.
+   */
+  private String synchWsURI;
 
   /* ====================================================================
    *                     Interface methods
@@ -170,32 +169,15 @@ public class CaldavBWIntf extends WebdavNsIntf {
     try {
       // Needed before any other initialization
       calWs = Boolean.parseBoolean(servlet.getInitParameter("calws"));
+      synchWsURI = servlet.getInitParameter("synchWsURI");
+      sysi = getSysi(servlet.getInitParameter("sysintfImpl"));
 
       super.init(servlet, req, methods, dumpContent);
-
-      HttpSession session = req.getSession();
-      ServletContext sc = session.getServletContext();
-
-      String appName = sc.getInitParameter("bwappname");
-
-      if ((appName == null) || (appName.length() == 0)) {
-        appName = "unknown-app-name";
-      }
 
       namespacePrefix = WebdavUtils.getUrlPrefix(req);
       namespace = namespacePrefix + "/schema";
 
-      OptionsI opts = CalDAVOptionsFactory.getOptions();
-      config = (CalDAVConfig)opts.getAppProperty(appName);
-      if (config == null) {
-        config = new CalDAVConfig();
-      }
-
-      sysi = getSysi(config.getSysintfImpl());
-
-      config.setCalWS(calWs);
-
-      sysi.init(req, account, false, config);
+      sysi.init(req, account, false, calWs);
 
       accessUtil = new AccessUtil(namespacePrefix, xml,
                                   new CalDavAccessXmlCb(sysi));
@@ -225,19 +207,34 @@ public class CaldavBWIntf extends WebdavNsIntf {
         } catch (Throwable t) {
           throw new WebdavException(t);
         }
+      } else {
+        sysi = getSysi(servlet.getInitParameter("sysintfImpl"));
       }
 
       this.account = account;
 
-      sysi = getSysi(config.getSysintfImpl());
-
-      sysi.init(req, account, service, config);
+      sysi.init(req, account, service, calWs);
 
       accessUtil = new AccessUtil(namespacePrefix, xml,
                                   new CalDavAccessXmlCb(sysi));
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
+  }
+
+  /**
+   * @return boolean
+   */
+  public boolean getCalWS() {
+    return calWs;
+  }
+
+  /** Get the synch web service uri - null for no service
+   *
+   * @return String
+   */
+  public String getSynchWsURI() {
+    return synchWsURI;
   }
 
   /* (non-Javadoc)
@@ -269,10 +266,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
     } else {
       super.emitError(errorTag, extra, xml);
     }
-  }
-
-  protected CalDAVConfig getConfig() {
-    return config;
   }
 
   /**
@@ -387,7 +380,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
    */
   @Override
   public boolean getDirectoryBrowsingDisallowed() throws WebdavException {
-    return sysi.getDirectoryBrowsingDisallowed();
+    return sysi.getSystemProperties().getDirectoryBrowsingDisallowed();
   }
 
   /* (non-Javadoc)
@@ -1733,7 +1726,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
          * <C:max-resource-size
          *    xmlns:C="urn:ietf:params:xml:ns:caldav">102400</C:max-resource-size>
          */
-        xml.property(tag, String.valueOf(sysi.getMaxUserEntitySize()));
+        xml.property(tag, String.valueOf(sysi.getSystemProperties().getMaxUserEntitySize()));
         return true;
       }
 

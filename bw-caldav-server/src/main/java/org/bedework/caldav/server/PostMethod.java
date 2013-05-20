@@ -109,7 +109,7 @@ public class PostMethod extends MethodBase {
     }
 
     if (!pars.iSchedule) {
-      if (intf.getConfig().getCalWS()) {
+      if (intf.getCalWS()) {
         doWsQuery(intf, pars, resp);
 
         return;

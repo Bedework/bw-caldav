@@ -27,10 +27,10 @@ import org.bedework.caldav.server.CaldavPrincipalNode;
 import org.bedework.caldav.server.RequestPars;
 import org.bedework.caldav.server.SysiIcalendar;
 import org.bedework.caldav.server.soap.SoapHandler;
+import org.bedework.caldav.server.sysinterface.CalDAVSystemProperties;
 import org.bedework.caldav.server.sysinterface.SysIntf.IcalResultType;
 import org.bedework.caldav.server.sysinterface.SysIntf.SchedRecipientResult;
 import org.bedework.caldav.server.sysinterface.SysIntf.UpdateResult;
-import org.bedework.caldav.server.sysinterface.SystemProperties;
 import org.bedework.caldav.util.ParseUtil;
 import org.bedework.caldav.util.TimeRange;
 
@@ -338,7 +338,7 @@ public class CalwsHandler extends SoapHandler {
 
         /* Use timerange to limit the requested time */
 
-        SystemProperties sysp = getSysi().getSystemProperties();
+        CalDAVSystemProperties sysp = getSysi().getSystemProperties();
 
         UTCTimeRangeType utr = fr.getTimeRange();
 

@@ -6,9 +6,9 @@
     Version 2.0 (the "License"); you may not use this file
     except in compliance with the License. You may obtain a
     copy of the License at:
-        
+
     http://www.apache.org/licenses/LICENSE-2.0
-        
+
     Unless required by applicable law or agreed to in writing,
     software distributed under the License is distributed on
     an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -22,7 +22,7 @@ import org.bedework.caldav.server.CalDAVEvent;
 import org.bedework.caldav.server.CaldavBWIntf;
 import org.bedework.caldav.server.CaldavComponentNode;
 import org.bedework.caldav.server.RequestPars;
-import org.bedework.caldav.server.sysinterface.SystemProperties;
+import org.bedework.caldav.server.sysinterface.CalDAVSystemProperties;
 import org.bedework.caldav.server.sysinterface.SysIntf.MethodEmitted;
 import org.bedework.caldav.util.ParseUtil;
 import org.bedework.caldav.util.TimeRange;
@@ -58,7 +58,7 @@ public class WebcalGetHandler extends GetHandler {
                       final HttpServletResponse resp,
                       final RequestPars pars) throws WebdavException {
     try {
-      SystemProperties sysp = getSysi().getSystemProperties();
+      CalDAVSystemProperties sysp = getSysi().getSystemProperties();
 
       TimeRange tr = ParseUtil.getPeriod(req.getParameter("start"),
                                          req.getParameter("end"),

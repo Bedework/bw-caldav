@@ -20,7 +20,7 @@ package org.bedework.caldav.server.get;
 
 import org.bedework.caldav.server.CaldavBWIntf;
 import org.bedework.caldav.server.RequestPars;
-import org.bedework.caldav.server.sysinterface.SystemProperties;
+import org.bedework.caldav.server.sysinterface.CalDAVSystemProperties;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.sss.util.Util;
@@ -120,7 +120,7 @@ public class IscheduleGetHandler extends GetHandler {
                               final HttpServletResponse resp,
                               final RequestPars pars) throws WebdavException {
     try {
-      SystemProperties sysp = intf.getSysi().getSystemProperties();
+      CalDAVSystemProperties sysp = intf.getSysi().getSystemProperties();
 
       startEmit(resp);
 

@@ -24,7 +24,6 @@ import org.bedework.caldav.server.CalDAVResource;
 import org.bedework.caldav.server.PropertyHandler;
 import org.bedework.caldav.server.PropertyHandler.PropertyType;
 import org.bedework.caldav.server.SysiIcalendar;
-import org.bedework.caldav.util.CalDAVConfig;
 import org.bedework.caldav.util.TimeRange;
 import org.bedework.caldav.util.filter.FilterBase;
 import org.bedework.caldav.util.notifications.NotificationType;
@@ -75,20 +74,20 @@ public interface SysIntf {
    * @param account
    * @param service - true if this is a service call - e.g. iSchedule -
    *                rather than a real user.
-   * @param conf  per application type configuration
+   * @param calWs  true if this is a CalWs-SOAP service
    * @throws WebdavException
    */
   public void init(HttpServletRequest req,
                    String account,
                    boolean service,
-                   CalDAVConfig conf) throws WebdavException;
+                   boolean calWs) throws WebdavException;
 
   /** Return CalDAV relevant properties about the system.
    *
    * @return SystemProperties object - never null.
    * @throws WebdavException
    */
-  public SystemProperties getSystemProperties() throws WebdavException;
+  public CalDAVSystemProperties getSystemProperties() throws WebdavException;
 
   /**
    * @param col
@@ -197,13 +196,6 @@ public interface SysIntf {
    */
   public Collection<String>getGroups(String rootUrl,
                                      String principalUrl) throws WebdavException;
-
-  /** Do we allow browsing of directories?
-   *
-   * @return boolean true if browsing disallowed
-   * @throws WebdavException  for errors
-   */
-  public boolean getDirectoryBrowsingDisallowed() throws WebdavException;
 
   /** Given a calendar address return the associated calendar account.
    * For example, we might have a calendar address<br/>
@@ -1069,13 +1061,6 @@ public interface SysIntf {
    * @throws WebdavException
    */
   public boolean validateAlarm(String val) throws WebdavException;
-
-  /** Max size for an entity
-   *
-   * @return int
-   * @throws WebdavException
-   */
-  public int getMaxUserEntitySize() throws WebdavException;
 
   /** Called on the way out before close if there was an error.
    *
