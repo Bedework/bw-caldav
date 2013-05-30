@@ -140,4 +140,10 @@ public abstract class CalDAVCollection <T extends CalDAVCollection> extends WdCo
    * @throws WebdavException
    */
   public abstract List<String> getSupportedComponents() throws WebdavException;
+
+  /**
+   * @return the vpoll supported component names e.g. "VEVENT", "VTODO" etc.
+   * @throws WebdavException
+   */
+  public abstract List<String> getVpollSupportedComponents() throws WebdavException;
 }

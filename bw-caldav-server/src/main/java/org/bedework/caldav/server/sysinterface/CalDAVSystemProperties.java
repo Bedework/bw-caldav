@@ -221,4 +221,43 @@ public interface CalDAVSystemProperties extends Serializable {
    */
   @MBeanInfo("true if directory browsing is NOT allowed")
   boolean getDirectoryBrowsingDisallowed();
+
+  /** Set the max number of items per vpoll. null for no limit
+   *
+   * @param val    Integer max
+   */
+  void setVpollMaxItems(final Integer val);
+
+  /**
+   *
+   * @return Integer
+   */
+  @MBeanInfo("Max number of items per vpoll. null for no limit")
+  Integer getVpollMaxItems();
+
+  /** Set the max number of active vpolls. null for no limit
+   *
+   * @param val    Integer max
+   */
+  void setVpollMaxActive(final Integer val);
+
+  /**
+   *
+   * @return Integer
+   */
+  @MBeanInfo("Max number of voters per vpolls. null for no limit")
+  Integer getVpollMaxActive();
+
+  /** Set the max number of active vpolls. null for no limit
+   *
+   * @param val    Integer max
+   */
+  void setVpollMaxVoters(final Integer val);
+
+  /**
+   *
+   * @return Integer
+   */
+  @MBeanInfo("Max number of voters per vpolls. null for no limit")
+  Integer getVpollMaxVoters();
 }

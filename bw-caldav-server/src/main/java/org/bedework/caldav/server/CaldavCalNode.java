@@ -114,6 +114,10 @@ public class CaldavCalNode extends CaldavBwNode {
     addPropEntry(propertyNames, CaldavTags.scheduleDefaultCalendarURL);
     addPropEntry(propertyNames, CaldavTags.supportedCalendarComponentSet);
     addPropEntry(propertyNames, CaldavTags.supportedCalendarData);
+    addPropEntry(propertyNames, CaldavTags.vpollMaxActive);
+    addPropEntry(propertyNames, CaldavTags.vpollMaxItems);
+    addPropEntry(propertyNames, CaldavTags.vpollMaxVoters);
+    addPropEntry(propertyNames, CaldavTags.vpollSupportedComponentSet);
     addPropEntry(propertyNames, AppleServerTags.allowedSharingModes);
     addPropEntry(propertyNames, AppleServerTags.getctag);
     addPropEntry(propertyNames, AppleServerTags.invite);
@@ -1101,6 +1105,80 @@ public class CaldavCalNode extends CaldavBwNode {
         }
 
         xml.cdataProperty(tag, val);
+
+        return true;
+      }
+
+      if (tag.equals(CaldavTags.vpollMaxActive)) {
+        if ((calType != CalDAVCollection.calTypeCalendarCollection) &&
+            (calType != CalDAVCollection.calTypeInbox) &&
+            (calType != CalDAVCollection.calTypeOutbox)) {
+          return false;
+        }
+
+        Integer val = getSysi().getSystemProperties().getVpollMaxActive();
+
+        if (val == null) {
+          return false;
+        }
+
+        xml.property(tag, String.valueOf(val));
+
+        return true;
+      }
+
+      if (tag.equals(CaldavTags.vpollMaxItems)) {
+        if ((calType != CalDAVCollection.calTypeCalendarCollection) &&
+            (calType != CalDAVCollection.calTypeInbox) &&
+            (calType != CalDAVCollection.calTypeOutbox)) {
+          return false;
+        }
+
+        Integer val = getSysi().getSystemProperties().getVpollMaxItems();
+
+        if (val == null) {
+          return false;
+        }
+
+        xml.property(tag, String.valueOf(val));
+
+        return true;
+      }
+
+      if (tag.equals(CaldavTags.vpollMaxVoters)) {
+        if ((calType != CalDAVCollection.calTypeCalendarCollection) &&
+            (calType != CalDAVCollection.calTypeInbox) &&
+            (calType != CalDAVCollection.calTypeOutbox)) {
+          return false;
+        }
+
+        Integer val = getSysi().getSystemProperties().getVpollMaxVoters();
+
+        if (val == null) {
+          return false;
+        }
+
+        xml.property(tag, String.valueOf(val));
+
+        return true;
+      }
+
+      if (tag.equals(CaldavTags.vpollSupportedComponentSet)) {
+        @SuppressWarnings("unchecked")
+        List<String> comps = c.getVpollSupportedComponents();
+
+        if (Util.isEmpty(comps)) {
+          return false;
+        }
+
+        xml.openTag(tag);
+        for (String s: comps) {
+          xml.startTag(CaldavTags.comp);
+          xml.attribute("name", s);
+          xml.endEmptyTag();
+        }
+        xml.newline();
+        xml.closeTag(tag);
 
         return true;
       }
