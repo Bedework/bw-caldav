@@ -2018,7 +2018,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
           // We'll try as an entity for unknown
         } else {
-          if (existance == WebdavNsIntf.existanceNot) {
+          if ((nodeType == WebdavNsIntf.nodeTypeUnknown) &&
+              (existance == WebdavNsIntf.existanceNot)) {
             throw new WebdavForbidden(WebdavTags.resourceMustBeNull);
           }
 
