@@ -54,7 +54,7 @@
     <orderEntry type="library" name="Maven: xpp3:xpp3_min:1.1.4c" level="project" />
     <orderEntry type="library" name="Maven: org.apache.geronimo.framework:geronimo-crypto:2.2.1" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.5.5" level="project" />
-    <orderEntry type="module" module-name="apache-jdkim-library" />
+    <orderEntry type="library" name="Maven: org.apache.james.jdkim:apache-jdkim-library:0.2.BEDEWORK-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: org.apache.geronimo.specs:geronimo-activation_1.1_spec:1.0.2" level="project" />
     <orderEntry type="library" name="Maven: org.apache.geronimo.javamail:geronimo-javamail_1.4_mail:1.6" level="project" />
     <orderEntry type="library" name="Maven: org.apache.james:apache-mailet-base:1.1" level="project" />
