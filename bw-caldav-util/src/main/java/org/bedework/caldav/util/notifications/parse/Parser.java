@@ -611,14 +611,9 @@ public class Parser {
 
     Element[] els = XmlUtil.getElementsArray(nd);
 
-    if (els.length < 1) {
-      throw badNotification("No elements for changed-property");
-    }
-
     int pos = 0;
 
-
-    if ((els.length > pos) &&
+    while ((els.length > pos) &&
       XmlUtil.nodeMatches(els[pos], AppleServerTags.changedParameter)) {
       cp.getChangedParameter().add(parseChangedParameter(els[pos]));
       pos++;

@@ -397,11 +397,11 @@ public class ResourceChangeType extends BaseNotificationType {
   private void checkName(final String val) {
     String bval = Base64.encodeBase64String(val.getBytes());
 
-    if (name == null) {
-      name = bval;
-    } else if (!name.equals(bval)) {
+    if (getEncoding() == null) {
+      setEncoding(bval);
+    } else if (!getEncoding().equals(bval)) {
       throw new RuntimeException("Attempt to store different href in change " +
-          "notification. Old: " + name + " new: " + val);
+          "notification. Old: " + getEncoding() + " new: " + val);
     }
   }
 }
