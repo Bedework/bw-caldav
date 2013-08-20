@@ -20,7 +20,7 @@ package org.bedework.caldav.server.get;
 
 import org.bedework.caldav.server.CaldavBWIntf;
 import org.bedework.caldav.server.RequestPars;
-import org.bedework.caldav.server.sysinterface.CalDAVSystemProperties;
+import org.bedework.caldav.server.sysinterface.CalDAVAuthProperties;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.sss.util.Util;
@@ -120,8 +120,6 @@ public class IscheduleGetHandler extends GetHandler {
                               final HttpServletResponse resp,
                               final RequestPars pars) throws WebdavException {
     try {
-      CalDAVSystemProperties sysp = intf.getSysi().getSystemProperties();
-
       startEmit(resp);
 
       openTag(IscheduleTags.queryResult);
@@ -183,12 +181,15 @@ public class IscheduleGetHandler extends GetHandler {
       closeTag(IscheduleTags.supportedRecipientUriSchemeSet);
       */
 
-      prop(IscheduleTags.maxContentLength, sysp.getMaxUserEntitySize());
-      prop(IscheduleTags.minDateTime, sysp.getMinDateTime());
-      prop(IscheduleTags.maxDateTime, sysp.getMaxDateTime());
-      prop(IscheduleTags.maxInstances, sysp.getMaxInstances());
-      prop(IscheduleTags.maxRecipients, sysp.getMaxAttendeesPerInstance());
-      prop(IscheduleTags.administrator, sysp.getAdminContact());
+      CalDAVAuthProperties authp = intf.getSysi().getAuthProperties();
+
+      prop(IscheduleTags.maxContentLength, authp.getMaxUserEntitySize());
+      prop(IscheduleTags.minDateTime, authp.getMinDateTime());
+      prop(IscheduleTags.maxDateTime, authp.getMaxDateTime());
+      prop(IscheduleTags.maxInstances, authp.getMaxInstances());
+      prop(IscheduleTags.maxRecipients, authp.getMaxAttendeesPerInstance());
+      prop(IscheduleTags.administrator,
+           intf.getSysi().getSystemProperties().getAdminContact());
 
       closeTag(IscheduleTags.capabilities);
       closeTag(IscheduleTags.queryResult);

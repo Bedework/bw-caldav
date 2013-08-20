@@ -944,7 +944,7 @@ public class CaldavCalNode extends CaldavBwNode {
           return false;
         }
 
-        Integer val = getSysi().getSystemProperties().getMaxAttendeesPerInstance();
+        Integer val = getSysi().getAuthProperties().getMaxAttendeesPerInstance();
 
         if (val == null) {
           return false;
@@ -962,7 +962,7 @@ public class CaldavCalNode extends CaldavBwNode {
           return false;
         }
 
-        Integer val = getSysi().getSystemProperties().getMaxAttendeesPerInstance();
+        Integer val = getSysi().getAuthProperties().getMaxAttendeesPerInstance();
 
         if (val == null) {
           return false;
@@ -980,7 +980,7 @@ public class CaldavCalNode extends CaldavBwNode {
           return false;
         }
 
-        Integer val = getSysi().getSystemProperties().getMaxInstances();
+        Integer val = getSysi().getAuthProperties().getMaxInstances();
 
         if (val == null) {
           return false;
@@ -998,7 +998,7 @@ public class CaldavCalNode extends CaldavBwNode {
           return false;
         }
 
-        Integer val = getSysi().getSystemProperties().getMaxUserEntitySize();
+        Integer val = getSysi().getAuthProperties().getMaxUserEntitySize();
 
         if (val == null) {
           return false;
@@ -1016,7 +1016,7 @@ public class CaldavCalNode extends CaldavBwNode {
           return false;
         }
 
-        String val = getSysi().getSystemProperties().getMinDateTime();
+        String val = getSysi().getAuthProperties().getMinDateTime();
 
         if (val == null) {
           return false;
@@ -1246,7 +1246,7 @@ public class CaldavCalNode extends CaldavBwNode {
           return true;
         }
 
-        Integer val = getSysi().getSystemProperties().getMaxAttendeesPerInstance();
+        Integer val = getSysi().getAuthProperties().getMaxAttendeesPerInstance();
 
         if (val != null) {
           props.add(intProp(new MaxAttendeesPerInstanceType(),
@@ -1282,7 +1282,7 @@ public class CaldavCalNode extends CaldavBwNode {
           return true;
         }
 
-        Integer val = getSysi().getSystemProperties().getMaxInstances();
+        Integer val = getSysi().getAuthProperties().getMaxInstances();
 
         if (val != null) {
           props.add(intProp(new MaxInstancesType(),
@@ -1297,7 +1297,7 @@ public class CaldavCalNode extends CaldavBwNode {
           return true;
         }
 
-        Integer val = getSysi().getSystemProperties().getMaxUserEntitySize();
+        Integer val = getSysi().getAuthProperties().getMaxUserEntitySize();
 
         if (val != null) {
           props.add(intProp(new MaxResourceSizeType(),
@@ -1511,7 +1511,7 @@ public class CaldavCalNode extends CaldavBwNode {
           return true;
         }
 
-        Integer val = getSysi().getSystemProperties().getMaxAttendeesPerInstance();
+        Integer val = getSysi().getAuthProperties().getMaxAttendeesPerInstance();
 
         if (val == null) {
           return true;
@@ -1528,7 +1528,7 @@ public class CaldavCalNode extends CaldavBwNode {
           return true;
         }
 
-        Integer val = getSysi().getSystemProperties().getMaxAttendeesPerInstance();
+        Integer val = getSysi().getAuthProperties().getMaxAttendeesPerInstance();
 
         if (val == null) {
           return false;
@@ -1545,7 +1545,7 @@ public class CaldavCalNode extends CaldavBwNode {
           return true;
         }
 
-        Integer val = getSysi().getSystemProperties().getMaxInstances();
+        Integer val = getSysi().getAuthProperties().getMaxInstances();
 
         if (val == null) {
           return false;
@@ -1562,7 +1562,7 @@ public class CaldavCalNode extends CaldavBwNode {
           return true;
         }
 
-        Integer val = getSysi().getSystemProperties().getMaxUserEntitySize();
+        Integer val = getSysi().getAuthProperties().getMaxUserEntitySize();
 
         if (val == null) {
           return false;
@@ -1579,7 +1579,7 @@ public class CaldavCalNode extends CaldavBwNode {
           return true;
         }
 
-        String val = getSysi().getSystemProperties().getMinDateTime();
+        String val = getSysi().getAuthProperties().getMinDateTime();
 
         if (val == null) {
           return false;

@@ -82,9 +82,16 @@ public interface SysIntf {
                    boolean service,
                    boolean calWs) throws WebdavException;
 
+  /** Return CalDAV properties rleevent to authentication state.
+   *
+   * @return CalDAVAuthProperties object - never null.
+   * @throws WebdavException
+   */
+  public CalDAVAuthProperties getAuthProperties() throws WebdavException;
+
   /** Return CalDAV relevant properties about the system.
    *
-   * @return SystemProperties object - never null.
+   * @return CalDAVSystemProperties object - never null.
    * @throws WebdavException
    */
   public CalDAVSystemProperties getSystemProperties() throws WebdavException;

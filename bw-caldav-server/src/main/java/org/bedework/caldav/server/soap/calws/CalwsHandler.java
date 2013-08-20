@@ -27,7 +27,7 @@ import org.bedework.caldav.server.CaldavPrincipalNode;
 import org.bedework.caldav.server.RequestPars;
 import org.bedework.caldav.server.SysiIcalendar;
 import org.bedework.caldav.server.soap.SoapHandler;
-import org.bedework.caldav.server.sysinterface.CalDAVSystemProperties;
+import org.bedework.caldav.server.sysinterface.CalDAVAuthProperties;
 import org.bedework.caldav.server.sysinterface.SysIntf.IcalResultType;
 import org.bedework.caldav.server.sysinterface.SysIntf.SchedRecipientResult;
 import org.bedework.caldav.server.sysinterface.SysIntf.UpdateResult;
@@ -338,16 +338,16 @@ public class CalwsHandler extends SoapHandler {
 
         /* Use timerange to limit the requested time */
 
-        CalDAVSystemProperties sysp = getSysi().getSystemProperties();
+        CalDAVAuthProperties authp = getSysi().getAuthProperties();
 
         UTCTimeRangeType utr = fr.getTimeRange();
 
         TimeRange tr = ParseUtil.getPeriod(XcalUtil.getIcalFormatDateTime(utr.getStart().toString()),
                                            XcalUtil.getIcalFormatDateTime(utr.getEnd().toString()),
                                            java.util.Calendar.DATE,
-                                           sysp.getDefaultFBPeriod(),
+                                           authp.getDefaultFBPeriod(),
                                            java.util.Calendar.DATE,
-                                           sysp.getMaxFBPeriod());
+                                           authp.getMaxFBPeriod());
 
         ArrayOfProperties aop = new ArrayOfProperties();
         vfb.setProperties(aop);

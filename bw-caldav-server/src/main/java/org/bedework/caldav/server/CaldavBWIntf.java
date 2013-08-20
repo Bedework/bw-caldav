@@ -380,7 +380,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
    */
   @Override
   public boolean getDirectoryBrowsingDisallowed() throws WebdavException {
-    return sysi.getSystemProperties().getDirectoryBrowsingDisallowed();
+    return sysi.getAuthProperties().getDirectoryBrowsingDisallowed();
   }
 
   /* (non-Javadoc)
@@ -1726,7 +1726,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
          * <C:max-resource-size
          *    xmlns:C="urn:ietf:params:xml:ns:caldav">102400</C:max-resource-size>
          */
-        xml.property(tag, String.valueOf(sysi.getSystemProperties().getMaxUserEntitySize()));
+        xml.property(tag, String.valueOf(sysi.getAuthProperties().getMaxUserEntitySize()));
         return true;
       }
 

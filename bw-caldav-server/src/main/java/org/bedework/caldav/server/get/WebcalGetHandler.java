@@ -22,7 +22,7 @@ import org.bedework.caldav.server.CalDAVEvent;
 import org.bedework.caldav.server.CaldavBWIntf;
 import org.bedework.caldav.server.CaldavComponentNode;
 import org.bedework.caldav.server.RequestPars;
-import org.bedework.caldav.server.sysinterface.CalDAVSystemProperties;
+import org.bedework.caldav.server.sysinterface.CalDAVAuthProperties;
 import org.bedework.caldav.server.sysinterface.SysIntf.MethodEmitted;
 import org.bedework.caldav.util.ParseUtil;
 import org.bedework.caldav.util.TimeRange;
@@ -58,14 +58,14 @@ public class WebcalGetHandler extends GetHandler {
                       final HttpServletResponse resp,
                       final RequestPars pars) throws WebdavException {
     try {
-      CalDAVSystemProperties sysp = getSysi().getSystemProperties();
+      CalDAVAuthProperties authp = getSysi().getAuthProperties();
 
       TimeRange tr = ParseUtil.getPeriod(req.getParameter("start"),
                                          req.getParameter("end"),
                                          java.util.Calendar.DATE,
-                                         sysp.getDefaultWebCalPeriod(),
+                                         authp.getDefaultWebCalPeriod(),
                                          java.util.Calendar.DATE,
-                                         sysp.getMaxWebCalPeriod());
+                                         authp.getMaxWebCalPeriod());
 
       if (tr == null) {
         resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Date/times");
