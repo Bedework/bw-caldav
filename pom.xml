@@ -13,6 +13,8 @@
 		<maven.compiler.plugin.version>2.3.2</maven.compiler.plugin.version>
 		<maven.source.plugin.version>2.1.2</maven.source.plugin.version>
 		<!-- Bedework Versions -->
+		<bedework.releases.repo.url>scp://dev.bedework.org/data/repository/maven/maven2</bedework.releases.repo.url>
+		<bedework.snapshots.repo.url>scp://dev.bedework.org/data/repository/maven/maven2</bedework.snapshots.repo.url>
 		<bw-access.version>4.0.0-SNAPSHOT</bw-access.version>
 		<bw-util.version>4.0.0-SNAPSHOT</bw-util.version>
 		<bw-webdav.version>4.0.0-SNAPSHOT</bw-webdav.version>
@@ -165,7 +167,7 @@
 		<repository>
 			<id>bedework.repository</id>
 			<name>Bedework Maven Repository</name>
-			<url>http://dev.bedework.org/downloads/lib/repository/</url>
+			<url>http://repository.bedework.org/maven2/</url>
 			<layout>default</layout>
 			<releases>
 				<enabled>true</enabled>
@@ -176,7 +178,27 @@
 		</repository>
 	</repositories>
 
+	<distributionManagement>
+		<repository>
+			<id>bedework-releases-repository</id>
+			<name>Bedework Releases Repository</name>
+			<url>${bedework.releases.repo.url}</url>
+		</repository>
+		<snapshotRepository>
+			<id>bedework-snapshots-repository</id>
+			<name>Bedework Snapshots Repository</name>
+			<url>${bedework.snapshots.repo.url}</url>
+		</snapshotRepository>
+	</distributionManagement>
+
 	<build>
+		<extensions>
+			<extension>
+				<groupId>org.apache.maven.wagon</groupId>
+				<artifactId>wagon-ssh</artifactId>
+				<version>2.4</version>
+			</extension>
+		</extensions>
 		<plugins>
 			<!-- Specify the compiler options and settings -->
 			<plugin>
