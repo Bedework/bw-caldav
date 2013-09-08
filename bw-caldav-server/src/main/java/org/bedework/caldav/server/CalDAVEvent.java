@@ -20,7 +20,7 @@ package org.bedework.caldav.server;
 
 import edu.rpi.cct.webdav.servlet.shared.WdEntity;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
-import edu.rpi.sss.util.xml.XmlEmit;
+import org.bedework.util.xml.XmlEmit;
 
 import java.util.Set;
 
@@ -88,7 +88,7 @@ public abstract class CalDAVEvent <T> extends WdEntity<T> {
   public abstract boolean getDeleted() throws WebdavException;
 
   /**
-   * @return entity type defined in edu.rpi.cmt.calendar.IcalDefs
+   * @return entity type defined in org.bedework.util.calendar.IcalDefs
    * @throws WebdavException
    */
   public abstract int getEntityType() throws WebdavException;

@@ -19,13 +19,14 @@
 package org.bedework.caldav.server.soap;
 
 import org.bedework.caldav.server.CaldavReportMethod;
+import org.bedework.util.calendar.XcalUtil;
 
 import edu.rpi.cct.webdav.servlet.common.PropFindMethod;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
-import edu.rpi.cmt.calendar.XcalUtil;
 
+import ietf.params.xml.ns.icalendar_2.IcalendarType;
 import org.oasis_open.docs.ws_calendar.ns.soap.CalendarQueryType;
 import org.oasis_open.docs.ws_calendar.ns.soap.CompFilterType;
 import org.oasis_open.docs.ws_calendar.ns.soap.ExpandType;
@@ -36,8 +37,6 @@ import org.oasis_open.docs.ws_calendar.ns.soap.PropFilterType;
 import org.oasis_open.docs.ws_calendar.ns.soap.TextMatchType;
 import org.oasis_open.docs.ws_calendar.ns.soap.UTCTimeRangeType;
 import org.w3c.dom.Document;
-
-import ietf.params.xml.ns.icalendar_2.IcalendarType;
 
 import java.io.StringReader;
 import java.io.StringWriter;

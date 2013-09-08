@@ -7,6 +7,7 @@
 		<version>4.0.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
+
 	<artifactId>bw-caldav-util</artifactId>
 
 	<dependencies>
@@ -23,16 +24,24 @@
 			<groupId>org.bedework</groupId>
 			<artifactId>bw-ws-calws-soap</artifactId>
 		</dependency>
-		
+
 		<!-- Bedework Project Dependencies -->
 		<dependency>
 			<groupId>org.bedework</groupId>
 			<artifactId>bw-access</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.bedework</groupId>
-			<artifactId>bw-util</artifactId>
-		</dependency>
+    <dependency>
+      <groupId>org.bedework</groupId>
+      <artifactId>bw-util-calendar</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.bedework</groupId>
+      <artifactId>bw-util-misc</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.bedework</groupId>
+      <artifactId>bw-util-timezones</artifactId>
+    </dependency>
 		<dependency>
 			<groupId>org.bedework</groupId>
 			<artifactId>bw-webdav</artifactId>

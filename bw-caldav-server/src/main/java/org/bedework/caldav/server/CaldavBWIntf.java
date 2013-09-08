@@ -32,6 +32,19 @@ import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.caldav.server.sysinterface.SysIntf.IcalResultType;
 import org.bedework.caldav.server.sysinterface.SysIntf.SynchReportData;
 import org.bedework.caldav.server.sysinterface.SysIntf.SynchReportData.SynchReportDataItem;
+import org.bedework.util.misc.Util;
+import org.bedework.util.xml.XmlEmit;
+import org.bedework.util.xml.XmlEmit.NameSpace;
+import org.bedework.util.xml.XmlUtil;
+import org.bedework.util.xml.tagdefs.AppleIcalTags;
+import org.bedework.util.xml.tagdefs.AppleServerTags;
+import org.bedework.util.xml.tagdefs.CalWSXrdDefs;
+import org.bedework.util.xml.tagdefs.CaldavDefs;
+import org.bedework.util.xml.tagdefs.CaldavTags;
+import org.bedework.util.xml.tagdefs.WebdavTags;
+import org.bedework.util.xml.tagdefs.XcalTags;
+import org.bedework.util.xml.tagdefs.XrdTags;
+import org.bedework.util.xml.tagdefs.XsiTags;
 
 import edu.rpi.cct.webdav.servlet.common.AccessUtil;
 import edu.rpi.cct.webdav.servlet.common.Headers;
@@ -63,28 +76,14 @@ import edu.rpi.cmt.access.AceWho;
 import edu.rpi.cmt.access.Acl;
 import edu.rpi.cmt.access.PrivilegeDefs;
 import edu.rpi.cmt.access.WhoDefs;
-import edu.rpi.sss.util.Util;
-import edu.rpi.sss.util.xml.XmlEmit;
-import edu.rpi.sss.util.xml.XmlEmit.NameSpace;
-import edu.rpi.sss.util.xml.XmlUtil;
-import edu.rpi.sss.util.xml.tagdefs.AppleIcalTags;
-import edu.rpi.sss.util.xml.tagdefs.AppleServerTags;
-import edu.rpi.sss.util.xml.tagdefs.CalWSXrdDefs;
-import edu.rpi.sss.util.xml.tagdefs.CaldavDefs;
-import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
-import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
-import edu.rpi.sss.util.xml.tagdefs.XcalTags;
-import edu.rpi.sss.util.xml.tagdefs.XrdTags;
-import edu.rpi.sss.util.xml.tagdefs.XsiTags;
 
+import ietf.params.xml.ns.caldav.FilterType;
+import ietf.params.xml.ns.icalendar_2.IcalendarType;
 import org.oasis_open.docs.ns.xri.xrd_1.AnyURI;
 import org.oasis_open.docs.ns.xri.xrd_1.LinkType;
 import org.oasis_open.docs.ns.xri.xrd_1.XRDType;
 import org.oasis_open.docs.ws_calendar.ns.soap.GetPropertiesBasePropertyType;
 import org.w3c.dom.Element;
-
-import ietf.params.xml.ns.caldav.FilterType;
-import ietf.params.xml.ns.icalendar_2.IcalendarType;
 
 import java.io.CharArrayReader;
 import java.io.InputStream;
@@ -428,7 +427,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
   }
 
   /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#addNamespace(edu.rpi.sss.util.xml.XmlEmit)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#addNamespace(org.bedework.util.xml.XmlEmit)
    */
   @Override
   public void addNamespace(final XmlEmit xml) throws WebdavException {

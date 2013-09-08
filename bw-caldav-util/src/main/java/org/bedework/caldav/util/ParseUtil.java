@@ -18,17 +18,16 @@
 */
 package org.bedework.caldav.util;
 
+import org.bedework.util.timezones.DateTimeUtil;
+import org.bedework.util.xml.tagdefs.CaldavTags;
+
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
-import edu.rpi.sss.util.DateTimeUtil;
-import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
-
-import net.fortuna.ical4j.model.DateTime;
-
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
 
 import ietf.params.xml.ns.caldav.UTCTimeRangeType;
+import net.fortuna.ical4j.model.DateTime;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 
 import java.util.Calendar;
 

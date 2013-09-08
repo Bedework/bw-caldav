@@ -21,16 +21,16 @@ package org.bedework.caldav.server;
 import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.caldav.util.notifications.BaseNotificationType.AttributeType;
 import org.bedework.caldav.util.notifications.NotificationType.NotificationInfo;
+import org.bedework.util.misc.Util;
+import org.bedework.util.timezones.DateTimeUtil;
+import org.bedework.util.xml.XmlEmit;
+import org.bedework.util.xml.tagdefs.AppleServerTags;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cmt.access.AccessPrincipal;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
 import edu.rpi.cmt.access.PrivilegeDefs;
-import edu.rpi.sss.util.DateTimeUtil;
-import edu.rpi.sss.util.Util;
-import edu.rpi.sss.util.xml.XmlEmit;
-import edu.rpi.sss.util.xml.tagdefs.AppleServerTags;
 
 import org.w3c.dom.Element;
 
@@ -453,7 +453,8 @@ public class CaldavResourceNode extends CaldavBwNode {
     }
 
     try {
-      return DateTimeUtil.fromISODateTimeUTCtoRfc822(resource.getLastmod());
+      return DateTimeUtil.fromISODateTimeUTCtoRfc822(
+              resource.getLastmod());
     } catch (Throwable t) {
       throw new WebdavException(t);
     }

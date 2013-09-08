@@ -18,7 +18,7 @@
 */
 package org.bedework.caldav.server.soap.synch;
 
-import edu.rpi.sss.util.Util;
+import org.bedework.util.misc.Util;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;

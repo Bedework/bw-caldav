@@ -23,7 +23,7 @@ import edu.rpi.cct.webdav.servlet.common.Headers.IfHeaders;
 import edu.rpi.cct.webdav.servlet.common.PropPatchMethod;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
-import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
+import org.bedework.util.xml.tagdefs.CaldavTags;
 
 import org.w3c.dom.Document;
 

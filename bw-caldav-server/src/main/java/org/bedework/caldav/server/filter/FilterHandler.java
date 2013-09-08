@@ -26,20 +26,18 @@ import org.bedework.caldav.server.sysinterface.RetrievalMode;
 import org.bedework.caldav.util.filter.FilterUtil;
 import org.bedework.caldav.util.filter.parse.EventQuery;
 import org.bedework.caldav.util.filter.parse.Filters;
+import org.bedework.util.calendar.IcalDefs;
 
 import edu.rpi.cct.webdav.servlet.common.WebdavUtils;
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
-import edu.rpi.cmt.calendar.IcalDefs;
-
-import net.fortuna.ical4j.model.Component;
-
-import org.apache.log4j.Logger;
 
 import ietf.params.xml.ns.caldav.CompFilterType;
 import ietf.params.xml.ns.caldav.FilterType;
 import ietf.params.xml.ns.caldav.PropFilterType;
+import net.fortuna.ical4j.model.Component;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Collection;

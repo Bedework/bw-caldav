@@ -24,6 +24,10 @@ import org.bedework.caldav.server.sysinterface.RetrievalMode;
 import org.bedework.caldav.server.sysinterface.SysIntf.IcalResultType;
 import org.bedework.caldav.util.DumpUtil;
 import org.bedework.caldav.util.filter.parse.Filters;
+import org.bedework.util.misc.Util;
+import org.bedework.util.xml.XmlUtil;
+import org.bedework.util.xml.tagdefs.CaldavTags;
+import org.bedework.util.xml.tagdefs.WebdavTags;
 
 import edu.rpi.cct.webdav.servlet.common.PropFindMethod.PropRequest;
 import edu.rpi.cct.webdav.servlet.common.ReportMethod;
@@ -33,15 +37,6 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
 import edu.rpi.cct.webdav.servlet.shared.WebdavProperty;
 import edu.rpi.cct.webdav.servlet.shared.WebdavStatusCode;
-import edu.rpi.sss.util.Util;
-import edu.rpi.sss.util.xml.XmlUtil;
-import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
-import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
-
-import net.fortuna.ical4j.model.TimeZone;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 import ietf.params.xml.ns.caldav.CalendarDataType;
 import ietf.params.xml.ns.caldav.CompType;
@@ -49,6 +44,9 @@ import ietf.params.xml.ns.caldav.ExpandType;
 import ietf.params.xml.ns.caldav.FilterType;
 import ietf.params.xml.ns.caldav.LimitRecurrenceSetType;
 import ietf.params.xml.ns.caldav.PropType;
+import net.fortuna.ical4j.model.TimeZone;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import java.io.StringReader;
 import java.net.URLDecoder;

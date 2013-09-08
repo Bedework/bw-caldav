@@ -18,9 +18,10 @@
 */
 package org.bedework.caldav.util.filter;
 
-import edu.rpi.cmt.calendar.PropertyIndex.ParameterInfoIndex;
-import edu.rpi.cmt.calendar.PropertyIndex.PropertyInfoIndex;
-import edu.rpi.sss.util.Uid;
+import org.bedework.util.calendar.PropertyIndex;
+import org.bedework.util.calendar.PropertyIndex.ParameterInfoIndex;
+import org.bedework.util.calendar.PropertyIndex.PropertyInfoIndex;
+import org.bedework.util.misc.Uid;
 
 /** Base filter class for parameters.
  *
@@ -30,7 +31,7 @@ import edu.rpi.sss.util.Uid;
  * @author Mike Douglass douglm
  */
 public class ParameterFilter extends FilterBase {
-  private PropertyInfoIndex parentPropertyIndex;
+  private PropertyIndex.PropertyInfoIndex parentPropertyIndex;
   private ParameterInfoIndex parameterIndex;
 
   /**

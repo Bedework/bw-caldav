@@ -20,10 +20,10 @@ package org.bedework.caldav.server;
 
 import org.bedework.caldav.server.sysinterface.CalDAVSystemProperties;
 import org.bedework.caldav.server.sysinterface.SysIntf;
+import org.bedework.util.misc.Util;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
-import edu.rpi.sss.util.Util;
 
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;

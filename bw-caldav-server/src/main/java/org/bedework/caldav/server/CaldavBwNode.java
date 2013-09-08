@@ -19,17 +19,17 @@
 package org.bedework.caldav.server;
 
 import org.bedework.caldav.server.sysinterface.SysIntf;
+import org.bedework.util.calendar.XcalUtil;
+import org.bedework.util.xml.tagdefs.CalWSSoapTags;
+import org.bedework.util.xml.tagdefs.CalWSXrdDefs;
+import org.bedework.util.xml.tagdefs.CaldavTags;
+import org.bedework.util.xml.tagdefs.XrdTags;
 
 import edu.rpi.cct.webdav.servlet.shared.WdCollection;
 import edu.rpi.cct.webdav.servlet.shared.WdEntity;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
-import edu.rpi.cmt.calendar.XcalUtil;
-import edu.rpi.sss.util.xml.tagdefs.CalWSSoapTags;
-import edu.rpi.sss.util.xml.tagdefs.CalWSXrdDefs;
-import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
-import edu.rpi.sss.util.xml.tagdefs.XrdTags;
 
 import org.oasis_open.docs.ns.xri.xrd_1.LinkType;
 import org.oasis_open.docs.ns.xri.xrd_1.PropertyType;

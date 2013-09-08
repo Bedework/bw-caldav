@@ -25,21 +25,15 @@ import org.bedework.caldav.util.filter.FilterBase;
 import org.bedework.caldav.util.filter.ObjectFilter;
 import org.bedework.caldav.util.filter.PresenceFilter;
 import org.bedework.caldav.util.filter.PropertyFilter;
+import org.bedework.util.calendar.IcalDefs;
+import org.bedework.util.calendar.PropertyIndex.PropertyInfoIndex;
+import org.bedework.util.calendar.XcalUtil;
+import org.bedework.util.misc.Util;
+import org.bedework.util.xml.tagdefs.CaldavTags;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavForbidden;
-import edu.rpi.cmt.calendar.IcalDefs;
-import edu.rpi.cmt.calendar.PropertyIndex.PropertyInfoIndex;
-import edu.rpi.cmt.calendar.XcalUtil;
-import edu.rpi.sss.util.Util;
-import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
-
-import net.fortuna.ical4j.model.DateTime;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.xml.sax.InputSource;
 
 import ietf.params.xml.ns.caldav.CompFilterType;
 import ietf.params.xml.ns.caldav.FilterType;
@@ -47,6 +41,10 @@ import ietf.params.xml.ns.caldav.ParamFilterType;
 import ietf.params.xml.ns.caldav.PropFilterType;
 import ietf.params.xml.ns.caldav.TextMatchType;
 import ietf.params.xml.ns.caldav.UTCTimeRangeType;
+import net.fortuna.ical4j.model.DateTime;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.xml.sax.InputSource;
 
 import java.io.StringReader;
 import java.util.ArrayList;

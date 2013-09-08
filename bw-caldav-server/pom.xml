@@ -16,7 +16,7 @@
 			<artifactId>bw-caldav-util</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		
+
 		<!-- Bedework: XML Dependencies -->
 		<dependency>
 			<groupId>org.bedework</groupId>
@@ -30,16 +30,24 @@
 			<groupId>org.bedework</groupId>
 			<artifactId>bw-ws-calws-soap</artifactId>
 		</dependency>
-		
+
 		<!-- Bedework Project Dependencies -->
 		<dependency>
 			<groupId>org.bedework</groupId>
 			<artifactId>bw-access</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.bedework</groupId>
-			<artifactId>bw-util</artifactId>
-		</dependency>
+    <dependency>
+      <groupId>org.bedework</groupId>
+      <artifactId>bw-util-calendar</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.bedework</groupId>
+      <artifactId>bw-util-jmx</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.bedework</groupId>
+      <artifactId>bw-util-misc </artifactId>
+    </dependency>
 		<dependency>
 			<groupId>org.bedework</groupId>
 			<artifactId>bw-webdav</artifactId>

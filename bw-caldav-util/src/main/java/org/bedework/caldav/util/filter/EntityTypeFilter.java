@@ -18,8 +18,8 @@
 */
 package org.bedework.caldav.util.filter;
 
-import edu.rpi.cmt.calendar.IcalDefs;
-import edu.rpi.cmt.calendar.PropertyIndex.PropertyInfoIndex;
+import org.bedework.util.calendar.IcalDefs;
+import org.bedework.util.calendar.PropertyIndex.PropertyInfoIndex;
 
 /** A filter that selects entities of a given type.
  *

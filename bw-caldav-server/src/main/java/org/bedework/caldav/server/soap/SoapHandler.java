@@ -20,20 +20,19 @@ package org.bedework.caldav.server.soap;
 
 import org.bedework.caldav.server.CaldavBWIntf;
 import org.bedework.caldav.server.sysinterface.SysIntf;
+import org.bedework.util.calendar.XcalUtil;
+import org.bedework.util.xml.tagdefs.XcalTags;
 
 import edu.rpi.cct.webdav.servlet.common.MethodBase;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
-import edu.rpi.cmt.calendar.XcalUtil;
-import edu.rpi.sss.util.xml.tagdefs.XcalTags;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 
 import ietf.params.xml.ns.icalendar_2.ArrayOfParameters;
 import ietf.params.xml.ns.icalendar_2.BaseParameterType;
 import ietf.params.xml.ns.icalendar_2.BasePropertyType;
 import ietf.params.xml.ns.icalendar_2.DateDatetimePropertyType;
 import ietf.params.xml.ns.icalendar_2.TzidParamType;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 import java.io.OutputStream;
 
@@ -251,7 +250,8 @@ public abstract class SoapHandler extends MethodBase {
       return null;
     }
 
-    String dt = XcalUtil.getIcalFormatDateTime(d.getDateTime().toString());
+    String dt = XcalUtil.getIcalFormatDateTime(
+            d.getDateTime().toString());
 
     if ((dt.length() == 18) && (dt.charAt(17) == 'Z')) {
       return dt;

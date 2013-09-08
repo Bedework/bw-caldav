@@ -20,22 +20,21 @@ package org.bedework.caldav.server;
 
 import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.caldav.server.sysinterface.SysIntf.MethodEmitted;
+import org.bedework.util.timezones.DateTimeUtil;
+import org.bedework.util.xml.XmlEmit;
+import org.bedework.util.xml.tagdefs.AppleServerTags;
+import org.bedework.util.xml.tagdefs.CaldavTags;
+import org.bedework.util.xml.tagdefs.ICalTags;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import edu.rpi.cmt.access.AccessPrincipal;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
 import edu.rpi.cmt.access.PrivilegeDefs;
-import edu.rpi.sss.util.DateTimeUtil;
-import edu.rpi.sss.util.xml.XmlEmit;
-import edu.rpi.sss.util.xml.tagdefs.AppleServerTags;
-import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
-import edu.rpi.sss.util.xml.tagdefs.ICalTags;
 
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
 import net.fortuna.ical4j.model.ComponentList;
-
 import org.w3c.dom.Element;
 
 import java.io.Writer;

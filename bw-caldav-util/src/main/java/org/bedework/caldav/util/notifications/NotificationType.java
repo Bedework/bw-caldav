@@ -19,15 +19,14 @@
 package org.bedework.caldav.util.notifications;
 
 import org.bedework.caldav.util.notifications.BaseNotificationType.AttributeType;
-
-import edu.rpi.sss.util.ToString;
-import edu.rpi.sss.util.Util;
-import edu.rpi.sss.util.xml.XmlEmit;
-import edu.rpi.sss.util.xml.XmlEmit.NameSpace;
-import edu.rpi.sss.util.xml.tagdefs.AppleServerTags;
-import edu.rpi.sss.util.xml.tagdefs.BedeworkServerTags;
-import edu.rpi.sss.util.xml.tagdefs.CaldavDefs;
-import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
+import org.bedework.util.misc.ToString;
+import org.bedework.util.misc.Util;
+import org.bedework.util.xml.XmlEmit;
+import org.bedework.util.xml.XmlEmit.NameSpace;
+import org.bedework.util.xml.tagdefs.AppleServerTags;
+import org.bedework.util.xml.tagdefs.BedeworkServerTags;
+import org.bedework.util.xml.tagdefs.CaldavDefs;
+import org.bedework.util.xml.tagdefs.WebdavTags;
 
 import java.io.StringWriter;
 import java.util.ArrayList;

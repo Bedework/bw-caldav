@@ -31,6 +31,8 @@ import org.bedework.caldav.util.sharing.InviteReplyType;
 import org.bedework.caldav.util.sharing.InviteType;
 import org.bedework.caldav.util.sharing.ShareResultType;
 import org.bedework.caldav.util.sharing.ShareType;
+import org.bedework.util.calendar.ScheduleStates;
+import org.bedework.util.xml.XmlEmit;
 
 import edu.rpi.cct.webdav.servlet.shared.PrincipalPropertySearch;
 import edu.rpi.cct.webdav.servlet.shared.UrlHandler;
@@ -39,14 +41,10 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cmt.access.AccessPrincipal;
 import edu.rpi.cmt.access.Acl;
 import edu.rpi.cmt.access.Acl.CurrentAccess;
-import edu.rpi.cmt.calendar.ScheduleStates;
-import edu.rpi.sss.util.xml.XmlEmit;
-
-import net.fortuna.ical4j.model.Calendar;
-
-import org.oasis_open.docs.ws_calendar.ns.soap.ComponentSelectionType;
 
 import ietf.params.xml.ns.icalendar_2.IcalendarType;
+import net.fortuna.ical4j.model.Calendar;
+import org.oasis_open.docs.ws_calendar.ns.soap.ComponentSelectionType;
 
 import java.io.Reader;
 import java.io.Writer;

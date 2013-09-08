@@ -19,14 +19,14 @@
 package org.bedework.caldav.util.sharing;
 
 import org.bedework.caldav.util.notifications.BaseNotificationType;
+import org.bedework.util.misc.ToString;
+import org.bedework.util.xml.XmlEmit;
+import org.bedework.util.xml.tagdefs.AppleServerTags;
+import org.bedework.util.xml.tagdefs.CaldavTags;
+import org.bedework.util.xml.tagdefs.WebdavTags;
 
 import edu.rpi.cct.webdav.servlet.shared.UrlPrefixer;
 import edu.rpi.cct.webdav.servlet.shared.UrlUnprefixer;
-import edu.rpi.sss.util.ToString;
-import edu.rpi.sss.util.xml.XmlEmit;
-import edu.rpi.sss.util.xml.tagdefs.AppleServerTags;
-import edu.rpi.sss.util.xml.tagdefs.CaldavTags;
-import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
 
 import java.util.ArrayList;
 import java.util.List;

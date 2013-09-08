@@ -21,10 +21,10 @@ package org.bedework.caldav.server.get;
 import org.bedework.caldav.server.CaldavBWIntf;
 import org.bedework.caldav.server.RequestPars;
 import org.bedework.caldav.server.sysinterface.CalDAVAuthProperties;
+import org.bedework.util.misc.Util;
+import org.bedework.util.xml.tagdefs.IscheduleTags;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
-import edu.rpi.sss.util.Util;
-import edu.rpi.sss.util.xml.tagdefs.IscheduleTags;
 
 import org.apache.commons.codec.binary.Base64;
 

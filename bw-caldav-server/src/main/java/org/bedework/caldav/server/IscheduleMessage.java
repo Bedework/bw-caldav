@@ -18,7 +18,7 @@
 */
 package org.bedework.caldav.server;
 
-import edu.rpi.sss.util.ToString;
+import org.bedework.util.misc.ToString;
 
 import org.apache.james.jdkim.api.Headers;
 import org.apache.james.jdkim.api.SignatureRecord;

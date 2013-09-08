@@ -20,11 +20,11 @@ package org.bedework.caldav.util.notifications;
 
 import edu.rpi.cct.webdav.servlet.shared.UrlPrefixer;
 import edu.rpi.cct.webdav.servlet.shared.UrlUnprefixer;
-import edu.rpi.sss.util.xml.XmlEmit;
-import edu.rpi.sss.util.xml.XmlEmit.NameSpace;
-import edu.rpi.sss.util.xml.tagdefs.AppleServerTags;
-import edu.rpi.sss.util.xml.tagdefs.CaldavDefs;
-import edu.rpi.sss.util.xml.tagdefs.WebdavTags;
+import org.bedework.util.xml.XmlEmit;
+import org.bedework.util.xml.XmlEmit.NameSpace;
+import org.bedework.util.xml.tagdefs.AppleServerTags;
+import org.bedework.util.xml.tagdefs.CaldavDefs;
+import org.bedework.util.xml.tagdefs.WebdavTags;
 
 import java.io.StringWriter;
 import java.util.List;

@@ -6,9 +6,9 @@
     Version 2.0 (the "License"); you may not use this file
     except in compliance with the License. You may obtain a
     copy of the License at:
-        
+
     http://www.apache.org/licenses/LICENSE-2.0
-        
+
     Unless required by applicable law or agreed to in writing,
     software distributed under the License is distributed on
     an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -18,8 +18,9 @@
 */
 package org.bedework.caldav.util.filter;
 
-import edu.rpi.cmt.calendar.PropertyIndex.PropertyInfoIndex;
-import edu.rpi.sss.util.Uid;
+import org.bedework.util.misc.Uid;
+
+import org.bedework.util.calendar.PropertyIndex.PropertyInfoIndex;
 
 /** Base filter class for properties.
  *

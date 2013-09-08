@@ -14,8 +14,7 @@
     <orderEntry type="module" module-name="bw-ws-caldav" />
     <orderEntry type="module" module-name="bw-ws-calws-soap" />
     <orderEntry type="module" module-name="bw-access" />
-    <orderEntry type="module" module-name="bw-util" />
-    <orderEntry type="module" module-name="bw-ws-icalendar" />
+    <orderEntry type="module" module-name="bw-util-caching" />
     <orderEntry type="module" module-name="bw-ws-tzsvr" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.1.1" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.1.1" level="project" />
@@ -43,8 +42,14 @@
     <orderEntry type="library" name="Maven: log4j:log4j:1.2.15" level="project" />
     <orderEntry type="library" name="Maven: javax.mail:mail:1.4" level="project" />
     <orderEntry type="library" name="Maven: javax.activation:activation:1.1" level="project" />
+    <orderEntry type="module" module-name="bw-util-misc" />
+    <orderEntry type="module" module-name="bw-util-xml" />
     <orderEntry type="library" name="Maven: junit:junit:4.8.2" level="project" />
+    <orderEntry type="module" module-name="bw-util-calendar" />
+    <orderEntry type="module" module-name="bw-ws-icalendar" />
+    <orderEntry type="module" module-name="bw-util-timezones" />
     <orderEntry type="module" module-name="bw-webdav" />
+    <orderEntry type="module" module-name="bw-util-servlet" />
     <orderEntry type="library" name="Maven: org.apache.geronimo.framework:geronimo-kernel:2.2.1" level="project" />
     <orderEntry type="library" name="Maven: asm:asm:3.1" level="project" />
     <orderEntry type="library" name="Maven: asm:asm-commons:3.1" level="project" />
@@ -62,6 +67,8 @@
     <orderEntry type="library" name="Maven: org.apache.james:apache-mime4j-core:0.7" level="project" />
     <orderEntry type="library" name="Maven: org.apache.james:apache-mime4j-dom:0.7" level="project" />
     <orderEntry type="library" name="Maven: dnsjava:dnsjava:2.1.1" level="project" />
+    <orderEntry type="module" module-name="bw-util-jmx" />
+    <orderEntry type="module" module-name="bw-util-config" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: javax.servlet:servlet-api:2.5" level="project" />
   </component>
 </module>

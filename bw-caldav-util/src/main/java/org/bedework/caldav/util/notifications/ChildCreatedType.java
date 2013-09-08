@@ -18,9 +18,9 @@
 */
 package org.bedework.caldav.util.notifications;
 
-import edu.rpi.sss.util.ToString;
-import edu.rpi.sss.util.xml.XmlEmit;
-import edu.rpi.sss.util.xml.tagdefs.AppleServerTags;
+import org.bedework.util.misc.ToString;
+import org.bedework.util.xml.XmlEmit;
+import org.bedework.util.xml.tagdefs.AppleServerTags;
 
 /**
        <!ELEMENT child-created CDATA>

@@ -18,9 +18,10 @@
 */
 package org.bedework.caldav.server;
 
+import org.bedework.util.misc.Util;
+
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cmt.access.AccessPrincipal;
-import edu.rpi.sss.util.Util;
 
 /** We map uris onto an object which may be a calendar or an
  * entity contained within that calendar.
