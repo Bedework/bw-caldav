@@ -19,9 +19,8 @@
 package org.bedework.caldav.server;
 
 import org.bedework.caldav.util.notifications.NotificationType.NotificationInfo;
-
-import edu.rpi.cct.webdav.servlet.shared.WdEntity;
-import edu.rpi.cct.webdav.servlet.shared.WebdavException;
+import org.bedework.webdav.servlet.shared.WdEntity;
+import org.bedework.webdav.servlet.shared.WebdavException;
 
 import java.io.InputStream;
 

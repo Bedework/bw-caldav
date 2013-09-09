@@ -18,6 +18,14 @@
 */
 package org.bedework.caldav.server;
 
+import org.bedework.access.AccessException;
+import org.bedework.access.AccessPrincipal;
+import org.bedework.access.AccessXmlUtil.AccessXmlCb;
+import org.bedework.access.Ace;
+import org.bedework.access.AceWho;
+import org.bedework.access.Acl;
+import org.bedework.access.PrivilegeDefs;
+import org.bedework.access.WhoDefs;
 import org.bedework.caldav.server.CaldavBwNode.PropertyTagXrdEntry;
 import org.bedework.caldav.server.calquery.CalData;
 import org.bedework.caldav.server.calquery.FreeBusyQuery;
@@ -45,37 +53,28 @@ import org.bedework.util.xml.tagdefs.WebdavTags;
 import org.bedework.util.xml.tagdefs.XcalTags;
 import org.bedework.util.xml.tagdefs.XrdTags;
 import org.bedework.util.xml.tagdefs.XsiTags;
-
-import edu.rpi.cct.webdav.servlet.common.AccessUtil;
-import edu.rpi.cct.webdav.servlet.common.Headers;
-import edu.rpi.cct.webdav.servlet.common.Headers.IfHeaders;
-import edu.rpi.cct.webdav.servlet.common.MethodBase.MethodInfo;
-import edu.rpi.cct.webdav.servlet.common.WebdavServlet;
-import edu.rpi.cct.webdav.servlet.common.WebdavUtils;
-import edu.rpi.cct.webdav.servlet.shared.PrincipalPropertySearch;
-import edu.rpi.cct.webdav.servlet.shared.WdEntity;
-import edu.rpi.cct.webdav.servlet.shared.WdSynchReport;
-import edu.rpi.cct.webdav.servlet.shared.WdSynchReport.WdSynchReportItem;
-import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
-import edu.rpi.cct.webdav.servlet.shared.WebdavException;
-import edu.rpi.cct.webdav.servlet.shared.WebdavForbidden;
-import edu.rpi.cct.webdav.servlet.shared.WebdavNotFound;
-import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
-import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
-import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode.PropertyTagEntry;
-import edu.rpi.cct.webdav.servlet.shared.WebdavPrincipalNode;
-import edu.rpi.cct.webdav.servlet.shared.WebdavProperty;
-import edu.rpi.cct.webdav.servlet.shared.WebdavServerError;
-import edu.rpi.cct.webdav.servlet.shared.WebdavUnauthorized;
-import edu.rpi.cct.webdav.servlet.shared.WebdavUnsupportedMediaType;
-import org.bedework.access.AccessException;
-import org.bedework.access.AccessPrincipal;
-import org.bedework.access.AccessXmlUtil.AccessXmlCb;
-import org.bedework.access.Ace;
-import org.bedework.access.AceWho;
-import org.bedework.access.Acl;
-import org.bedework.access.PrivilegeDefs;
-import org.bedework.access.WhoDefs;
+import org.bedework.webdav.servlet.common.AccessUtil;
+import org.bedework.webdav.servlet.common.Headers;
+import org.bedework.webdav.servlet.common.Headers.IfHeaders;
+import org.bedework.webdav.servlet.common.MethodBase.MethodInfo;
+import org.bedework.webdav.servlet.common.WebdavServlet;
+import org.bedework.webdav.servlet.common.WebdavUtils;
+import org.bedework.webdav.servlet.shared.PrincipalPropertySearch;
+import org.bedework.webdav.servlet.shared.WdEntity;
+import org.bedework.webdav.servlet.shared.WdSynchReport;
+import org.bedework.webdav.servlet.shared.WdSynchReport.WdSynchReportItem;
+import org.bedework.webdav.servlet.shared.WebdavBadRequest;
+import org.bedework.webdav.servlet.shared.WebdavException;
+import org.bedework.webdav.servlet.shared.WebdavForbidden;
+import org.bedework.webdav.servlet.shared.WebdavNotFound;
+import org.bedework.webdav.servlet.shared.WebdavNsIntf;
+import org.bedework.webdav.servlet.shared.WebdavNsNode;
+import org.bedework.webdav.servlet.shared.WebdavNsNode.PropertyTagEntry;
+import org.bedework.webdav.servlet.shared.WebdavPrincipalNode;
+import org.bedework.webdav.servlet.shared.WebdavProperty;
+import org.bedework.webdav.servlet.shared.WebdavServerError;
+import org.bedework.webdav.servlet.shared.WebdavUnauthorized;
+import org.bedework.webdav.servlet.shared.WebdavUnsupportedMediaType;
 
 import ietf.params.xml.ns.caldav.FilterType;
 import ietf.params.xml.ns.icalendar_2.IcalendarType;
@@ -118,7 +117,7 @@ import javax.xml.namespace.QName;
  * delivered. We may want the entire calendar (or what we show by default) or
  * a single event from the calendar
  *
- *   @author Mike Douglass   douglm @ rpi.edu
+ *   @author Mike Douglass   douglm @ bedework.edu
  */
 public class CaldavBWIntf extends WebdavNsIntf {
   /** Namespace prefix based on the request url.
@@ -237,7 +236,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
   }
 
   /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#getDavHeader(edu.rpi.cct.webdav.servlet.shared.WebdavNsNode)
+   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#getDavHeader(edu.bedework.cct.webdav.servlet.shared.WebdavNsNode)
    */
   @Override
   public String getDavHeader(final WebdavNsNode node) throws WebdavException {
@@ -310,7 +309,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
 
     /* (non-Javadoc)
-     * @see AccessXmlUtil.AccessXmlCb#setErrorTag(edu.rpi.sss.util.xml.QName)
+     * @see AccessXmlUtil.AccessXmlCb#setErrorTag(edu.bedework.sss.util.xml.QName)
      */
     @Override
     public void setErrorTag(final QName tag) throws AccessException {
@@ -343,7 +342,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
   }
 
   /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#getAccessUtil()
+   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#getAccessUtil()
    */
   @Override
   public AccessUtil getAccessUtil() throws WebdavException {
@@ -351,7 +350,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
   }
 
   /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#canPut(edu.rpi.cct.webdav.servlet.shared.WebdavNsNode)
+   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#canPut(edu.bedework.cct.webdav.servlet.shared.WebdavNsNode)
    */
   @Override
   public boolean canPut(final WebdavNsNode node) throws WebdavException {
@@ -375,7 +374,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
   }
 
   /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#getDirectoryBrowsingDisallowed()
+   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#getDirectoryBrowsingDisallowed()
    */
   @Override
   public boolean getDirectoryBrowsingDisallowed() throws WebdavException {
@@ -383,7 +382,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
   }
 
   /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#rollback()
+   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#rollback()
    */
   @Override
   public void rollback() {
@@ -391,7 +390,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
   }
 
   /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#close()
+   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#close()
    */
   @Override
   public void close() throws WebdavException {
@@ -406,7 +405,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
   }
 
   /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#getSupportedLocks()
+   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#getSupportedLocks()
    */
   @Override
   public String getSupportedLocks() {
@@ -427,7 +426,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
   }
 
   /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#addNamespace(org.bedework.util.xml.XmlEmit)
+   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#addNamespace(org.bedework.util.xml.XmlEmit)
    */
   @Override
   public void addNamespace(final XmlEmit xml) throws WebdavException {
@@ -456,7 +455,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
   }
 
   /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#getNode(java.lang.String, int, int)
+   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#getNode(java.lang.String, int, int)
    */
   @Override
   public WebdavNsNode getNode(final String uri,
@@ -511,7 +510,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
   }
 
   /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#getChildren(edu.rpi.cct.webdav.servlet.shared.WebdavNsNode)
+   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#getChildren(edu.bedework.cct.webdav.servlet.shared.WebdavNsNode)
    */
   @Override
   public Collection<WebdavNsNode> getChildren(final WebdavNsNode node) throws WebdavException {
@@ -708,7 +707,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
   }
 
   /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#getBinaryContent(edu.rpi.cct.webdav.servlet.shared.WebdavNsNode)
+   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#getBinaryContent(edu.bedework.cct.webdav.servlet.shared.WebdavNsNode)
    */
   @Override
   public Content getBinaryContent(final WebdavNsNode node) throws WebdavException {
@@ -738,7 +737,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
   }
 
   /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#putContent(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, edu.rpi.cct.webdav.servlet.shared.WebdavNsNode, java.lang.String[], java.io.Reader, edu.rpi.cct.webdav.servlet.common.Headers.IfHeaders)
+   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#putContent(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, edu.bedework.cct.webdav.servlet.shared.WebdavNsNode, java.lang.String[], java.io.Reader, edu.bedework.cct.webdav.servlet.common.Headers.IfHeaders)
    */
   @Override
   public PutContentResult putContent(final HttpServletRequest req,
@@ -1036,21 +1035,21 @@ public class CaldavBWIntf extends WebdavNsIntf {
   }
 
   /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#create(edu.rpi.cct.webdav.servlet.shared.WebdavNsNode)
+   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#create(edu.bedework.cct.webdav.servlet.shared.WebdavNsNode)
    */
   @Override
   public void create(final WebdavNsNode node) throws WebdavException {
   }
 
   /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#createAlias(edu.rpi.cct.webdav.servlet.shared.WebdavNsNode)
+   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#createAlias(edu.bedework.cct.webdav.servlet.shared.WebdavNsNode)
    */
   @Override
   public void createAlias(final WebdavNsNode alias) throws WebdavException {
   }
 
   /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#acceptMkcolContent(javax.servlet.http.HttpServletRequest)
+   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#acceptMkcolContent(javax.servlet.http.HttpServletRequest)
    */
   @Override
   public void acceptMkcolContent(final HttpServletRequest req) throws WebdavException {
@@ -1336,7 +1335,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
   }
   /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#specialUri(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, java.lang.String)
+   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#specialUri(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, java.lang.String)
    */
   @Override
   public boolean specialUri(final HttpServletRequest req,
@@ -1457,7 +1456,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
    * ==================================================================== */
 
   /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#getGroups(java.lang.String, java.lang.String)
+   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#getGroups(java.lang.String, java.lang.String)
    */
   @Override
   public Collection<WebdavNsNode> getGroups(final String resourceUri,
@@ -1479,7 +1478,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
   }
 
   /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#getPrincipalCollectionSet(java.lang.String)
+   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#getPrincipalCollectionSet(java.lang.String)
    */
   @Override
   public Collection<String> getPrincipalCollectionSet(final String resourceUri)
@@ -1494,7 +1493,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
   }
 
   /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#getPrincipals(java.lang.String, edu.rpi.cct.webdav.servlet.shared.PrincipalPropertySearch)
+   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#getPrincipals(java.lang.String, edu.bedework.cct.webdav.servlet.shared.PrincipalPropertySearch)
    */
   @Override
   public Collection<WebdavPrincipalNode> getPrincipals(final String resourceUri,
@@ -1511,7 +1510,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
   }
 
   /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#makeUserHref(java.lang.String)
+   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#makeUserHref(java.lang.String)
    */
   @Override
   public String makeUserHref(final String id) throws WebdavException {
@@ -1519,7 +1518,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
   }
 
   /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#updateAccess(edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf.AclInfo)
+   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#updateAccess(edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf.AclInfo)
    */
   @Override
   public void updateAccess(final AclInfo info) throws WebdavException {
@@ -1574,7 +1573,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
   }
 
   /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#getAclPrincipalInfo(edu.rpi.cct.webdav.servlet.shared.WebdavNsNode)
+   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#getAclPrincipalInfo(edu.bedework.cct.webdav.servlet.shared.WebdavNsNode)
    */
   @Override
   public Collection<String> getAclPrincipalInfo(final WebdavNsNode node) throws WebdavException {
@@ -1637,7 +1636,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
   };
 
   /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#knownProperty(edu.rpi.cct.webdav.servlet.shared.WebdavNsNode, edu.rpi.cct.webdav.servlet.shared.WebdavProperty)
+   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#knownProperty(edu.bedework.cct.webdav.servlet.shared.WebdavNsNode, edu.bedework.cct.webdav.servlet.shared.WebdavProperty)
    */
   @Override
   public boolean knownProperty(final WebdavNsNode node,
@@ -1660,7 +1659,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
   }
 
   /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf#generatePropValue(edu.rpi.cct.webdav.servlet.shared.WebdavNsNode, edu.rpi.cct.webdav.servlet.shared.WebdavProperty, boolean)
+   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#generatePropValue(edu.bedework.cct.webdav.servlet.shared.WebdavNsNode, edu.bedework.cct.webdav.servlet.shared.WebdavProperty, boolean)
    */
   @Override
   public boolean generatePropValue(final WebdavNsNode node,

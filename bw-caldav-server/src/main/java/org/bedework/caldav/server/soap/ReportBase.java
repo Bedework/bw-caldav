@@ -20,11 +20,10 @@ package org.bedework.caldav.server.soap;
 
 import org.bedework.caldav.server.CaldavReportMethod;
 import org.bedework.util.calendar.XcalUtil;
-
-import edu.rpi.cct.webdav.servlet.common.PropFindMethod;
-import edu.rpi.cct.webdav.servlet.shared.WebdavException;
-import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
-import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
+import org.bedework.webdav.servlet.common.PropFindMethod;
+import org.bedework.webdav.servlet.shared.WebdavException;
+import org.bedework.webdav.servlet.shared.WebdavNsIntf;
+import org.bedework.webdav.servlet.shared.WebdavNsNode;
 
 import ietf.params.xml.ns.icalendar_2.IcalendarType;
 import org.oasis_open.docs.ws_calendar.ns.soap.CalendarQueryType;

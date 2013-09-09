@@ -22,8 +22,8 @@ import org.bedework.util.misc.ToString;
 import org.bedework.util.xml.XmlEmit;
 import org.bedework.util.xml.tagdefs.AppleServerTags;
 
-import edu.rpi.cct.webdav.servlet.shared.UrlPrefixer;
-import edu.rpi.cct.webdav.servlet.shared.UrlUnprefixer;
+import org.bedework.webdav.servlet.shared.UrlPrefixer;
+import org.bedework.webdav.servlet.shared.UrlUnprefixer;
 
 import org.apache.commons.codec.binary.Base64;
 

@@ -20,8 +20,7 @@ package org.bedework.caldav.server;
 
 import org.bedework.access.AccessPrincipal;
 import org.bedework.util.misc.Util;
-
-import edu.rpi.cct.webdav.servlet.shared.WebdavException;
+import org.bedework.webdav.servlet.shared.WebdavException;
 
 /** We map uris onto an object which may be a calendar or an
  * entity contained within that calendar.
@@ -33,7 +32,7 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavException;
  * available calendar or a user and the access to a calendar will, of course,
  * depend upon the authentication state of the user.
  *
- *   @author Mike Douglass   douglm@rpi.edu
+ *   @author Mike Douglass   douglm@bedework.edu
  */
 public class CaldavURI {
   boolean exists;

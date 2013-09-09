@@ -40,15 +40,14 @@ import org.bedework.util.xml.tagdefs.CaldavTags;
 import org.bedework.util.xml.tagdefs.IscheduleTags;
 import org.bedework.util.xml.tagdefs.WebdavTags;
 import org.bedework.util.xml.tagdefs.XcalTags;
-
-import edu.rpi.cct.webdav.servlet.common.Headers.IfHeaders;
-import edu.rpi.cct.webdav.servlet.common.MethodBase;
-import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
-import edu.rpi.cct.webdav.servlet.shared.WebdavException;
-import edu.rpi.cct.webdav.servlet.shared.WebdavForbidden;
-import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
-import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
-import edu.rpi.cct.webdav.servlet.shared.WebdavStatusCode;
+import org.bedework.webdav.servlet.common.Headers.IfHeaders;
+import org.bedework.webdav.servlet.common.MethodBase;
+import org.bedework.webdav.servlet.shared.WebdavBadRequest;
+import org.bedework.webdav.servlet.shared.WebdavException;
+import org.bedework.webdav.servlet.shared.WebdavForbidden;
+import org.bedework.webdav.servlet.shared.WebdavNsIntf;
+import org.bedework.webdav.servlet.shared.WebdavNsNode;
+import org.bedework.webdav.servlet.shared.WebdavStatusCode;
 
 import org.apache.james.jdkim.DKIMVerifier;
 import org.apache.james.jdkim.IscheduleDKIMVerifier;
@@ -71,11 +70,11 @@ import javax.xml.namespace.QName;
 
 /** Class called to handle POST for CalDAV scheduling.
  *
- *   @author Mike Douglass   douglm - rpi.edu
+ *   @author Mike Douglass   douglm - bedework.edu
  */
 public class PostMethod extends MethodBase {
   /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.common.MethodBase#init()
+   * @see edu.bedework.cct.webdav.servlet.common.MethodBase#init()
    */
   @Override
   public void init() {

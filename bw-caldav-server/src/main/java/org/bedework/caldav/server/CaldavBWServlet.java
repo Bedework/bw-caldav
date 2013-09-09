@@ -18,15 +18,15 @@
 */
 package org.bedework.caldav.server;
 
-import edu.rpi.cct.webdav.servlet.common.DeleteMethod;
-import edu.rpi.cct.webdav.servlet.common.GetMethod;
-import edu.rpi.cct.webdav.servlet.common.HeadMethod;
-import edu.rpi.cct.webdav.servlet.common.MethodBase.MethodInfo;
-import edu.rpi.cct.webdav.servlet.common.OptionsMethod;
-import edu.rpi.cct.webdav.servlet.common.PutMethod;
-import edu.rpi.cct.webdav.servlet.common.WebdavServlet;
-import edu.rpi.cct.webdav.servlet.shared.WebdavException;
-import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
+import org.bedework.webdav.servlet.common.DeleteMethod;
+import org.bedework.webdav.servlet.common.GetMethod;
+import org.bedework.webdav.servlet.common.HeadMethod;
+import org.bedework.webdav.servlet.common.MethodBase.MethodInfo;
+import org.bedework.webdav.servlet.common.OptionsMethod;
+import org.bedework.webdav.servlet.common.PutMethod;
+import org.bedework.webdav.servlet.common.WebdavServlet;
+import org.bedework.webdav.servlet.shared.WebdavException;
+import org.bedework.webdav.servlet.shared.WebdavNsIntf;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -35,7 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 /** This class extends the webdav servlet class, implementing the abstract
  * methods and overriding others to extend/modify the behaviour.
  *
- * @author Mike Douglass   douglm  rpi.edu
+ * @author Mike Douglass   douglm  bedework.edu
  */
 public class CaldavBWServlet extends WebdavServlet {
   /* Is this a CalWS servlet? */
@@ -53,7 +53,7 @@ public class CaldavBWServlet extends WebdavServlet {
   }
 
   /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.common.WebdavServlet#addMethods()
+   * @see edu.bedework.cct.webdav.servlet.common.WebdavServlet#addMethods()
    */
   @Override
   protected void addMethods() {

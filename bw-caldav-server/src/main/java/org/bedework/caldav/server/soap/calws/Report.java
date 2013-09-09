@@ -20,7 +20,7 @@ package org.bedework.caldav.server.soap.calws;
 
 import org.bedework.caldav.server.soap.ReportBase;
 
-import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
+import org.bedework.webdav.servlet.shared.WebdavNsIntf;
 
 /**
  * @author douglm

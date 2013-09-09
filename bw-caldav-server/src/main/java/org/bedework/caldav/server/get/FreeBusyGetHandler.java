@@ -23,9 +23,8 @@ import org.bedework.caldav.server.RequestPars;
 import org.bedework.caldav.server.sysinterface.CalDAVAuthProperties;
 import org.bedework.caldav.util.ParseUtil;
 import org.bedework.caldav.util.TimeRange;
-
-import edu.rpi.cct.webdav.servlet.shared.WebdavException;
-import edu.rpi.cct.webdav.servlet.shared.WebdavForbidden;
+import org.bedework.webdav.servlet.shared.WebdavException;
+import org.bedework.webdav.servlet.shared.WebdavForbidden;
 
 import java.util.Set;
 import java.util.TreeSet;

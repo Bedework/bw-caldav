@@ -27,11 +27,10 @@ import org.bedework.caldav.util.filter.FilterUtil;
 import org.bedework.caldav.util.filter.parse.EventQuery;
 import org.bedework.caldav.util.filter.parse.Filters;
 import org.bedework.util.calendar.IcalDefs;
-
-import edu.rpi.cct.webdav.servlet.common.WebdavUtils;
-import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
-import edu.rpi.cct.webdav.servlet.shared.WebdavException;
-import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
+import org.bedework.webdav.servlet.common.WebdavUtils;
+import org.bedework.webdav.servlet.shared.WebdavBadRequest;
+import org.bedework.webdav.servlet.shared.WebdavException;
+import org.bedework.webdav.servlet.shared.WebdavNsNode;
 
 import ietf.params.xml.ns.caldav.CompFilterType;
 import ietf.params.xml.ns.caldav.FilterType;
@@ -124,7 +123,7 @@ import javax.servlet.http.HttpServletResponse;
  *
  * </pre>
  *
- *   @author Mike Douglass   douglm @ rpi.edu
+ *   @author Mike Douglass   douglm @ bedework.edu
  */
 public class FilterHandler {
   /* Query we executed */

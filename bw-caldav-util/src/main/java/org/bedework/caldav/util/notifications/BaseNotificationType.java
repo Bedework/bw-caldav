@@ -18,8 +18,8 @@
 */
 package org.bedework.caldav.util.notifications;
 
-import edu.rpi.cct.webdav.servlet.shared.UrlPrefixer;
-import edu.rpi.cct.webdav.servlet.shared.UrlUnprefixer;
+import org.bedework.webdav.servlet.shared.UrlPrefixer;
+import org.bedework.webdav.servlet.shared.UrlUnprefixer;
 import org.bedework.util.xml.XmlEmit;
 import org.bedework.util.xml.XmlEmit.NameSpace;
 import org.bedework.util.xml.tagdefs.AppleServerTags;

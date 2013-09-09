@@ -19,8 +19,7 @@
 package org.bedework.caldav.util.notifications.parse;
 
 import org.bedework.caldav.util.notifications.BaseNotificationType;
-
-import edu.rpi.cct.webdav.servlet.shared.WebdavException;
+import org.bedework.webdav.servlet.shared.WebdavException;
 
 import org.w3c.dom.Element;
 

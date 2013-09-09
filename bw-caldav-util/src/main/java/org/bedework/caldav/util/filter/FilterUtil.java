@@ -18,16 +18,15 @@
 */
 package org.bedework.caldav.util.filter;
 
-import edu.rpi.cct.webdav.servlet.shared.WebdavException;
-
-import net.fortuna.ical4j.model.Component;
-import net.fortuna.ical4j.model.Property;
-import net.fortuna.ical4j.model.PropertyList;
-import net.fortuna.ical4j.model.property.DateProperty;
+import org.bedework.webdav.servlet.shared.WebdavException;
 
 import ietf.params.xml.ns.caldav.PropFilterType;
 import ietf.params.xml.ns.caldav.TextMatchType;
 import ietf.params.xml.ns.caldav.UTCTimeRangeType;
+import net.fortuna.ical4j.model.Component;
+import net.fortuna.ical4j.model.Property;
+import net.fortuna.ical4j.model.PropertyList;
+import net.fortuna.ical4j.model.property.DateProperty;
 
 /**
  * Help for filtering

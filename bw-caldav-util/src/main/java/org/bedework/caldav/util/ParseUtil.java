@@ -20,9 +20,8 @@ package org.bedework.caldav.util;
 
 import org.bedework.util.timezones.DateTimeUtil;
 import org.bedework.util.xml.tagdefs.CaldavTags;
-
-import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
-import edu.rpi.cct.webdav.servlet.shared.WebdavException;
+import org.bedework.webdav.servlet.shared.WebdavBadRequest;
+import org.bedework.webdav.servlet.shared.WebdavException;
 
 import ietf.params.xml.ns.caldav.UTCTimeRangeType;
 import net.fortuna.ical4j.model.DateTime;
@@ -33,7 +32,7 @@ import java.util.Calendar;
 
 /** Some utilities for parsing caldav
  *
- * @author Mike Douglass douglm @ rpi.edu
+ * @author Mike Douglass douglm @ bedework.edu
  */
 public class ParseUtil {
   /** The given node must be a time-range style element

@@ -27,9 +27,8 @@ import org.bedework.synch.wsmessages.ObjectFactory;
 import org.bedework.synch.wsmessages.StartServiceNotificationType;
 import org.bedework.synch.wsmessages.StartServiceResponseType;
 import org.bedework.synch.wsmessages.SynchIdTokenType;
-
-import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import org.bedework.util.jmx.MBeanUtil;
+import org.bedework.webdav.servlet.shared.WebdavException;
 
 import org.oasis_open.docs.ws_calendar.ns.soap.BaseRequestType;
 import org.oasis_open.docs.ws_calendar.ns.soap.StatusType;

@@ -21,27 +21,14 @@ package org.bedework.caldav.server.calquery;
 import org.bedework.caldav.server.CaldavComponentNode;
 import org.bedework.caldav.util.DumpUtil;
 import org.bedework.caldav.util.ParseUtil;
-
-import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
-import edu.rpi.cct.webdav.servlet.shared.WebdavException;
-import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
-import edu.rpi.cct.webdav.servlet.shared.WebdavProperty;
 import org.bedework.util.xml.XmlEmit;
 import org.bedework.util.xml.XmlUtil;
 import org.bedework.util.xml.tagdefs.CaldavTags;
 import org.bedework.util.xml.tagdefs.XcalTags;
-
-import net.fortuna.ical4j.model.Calendar;
-import net.fortuna.ical4j.model.Component;
-import net.fortuna.ical4j.model.ComponentList;
-import net.fortuna.ical4j.model.Property;
-import net.fortuna.ical4j.model.PropertyList;
-import net.fortuna.ical4j.model.component.VEvent;
-
-import org.apache.log4j.Logger;
-import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
+import org.bedework.webdav.servlet.shared.WebdavBadRequest;
+import org.bedework.webdav.servlet.shared.WebdavException;
+import org.bedework.webdav.servlet.shared.WebdavNsNode;
+import org.bedework.webdav.servlet.shared.WebdavProperty;
 
 import ietf.params.xml.ns.caldav.AllcompType;
 import ietf.params.xml.ns.caldav.AllpropType;
@@ -51,6 +38,16 @@ import ietf.params.xml.ns.caldav.ExpandType;
 import ietf.params.xml.ns.caldav.LimitFreebusySetType;
 import ietf.params.xml.ns.caldav.LimitRecurrenceSetType;
 import ietf.params.xml.ns.caldav.PropType;
+import net.fortuna.ical4j.model.Calendar;
+import net.fortuna.ical4j.model.Component;
+import net.fortuna.ical4j.model.ComponentList;
+import net.fortuna.ical4j.model.Property;
+import net.fortuna.ical4j.model.PropertyList;
+import net.fortuna.ical4j.model.component.VEvent;
+import org.apache.log4j.Logger;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -61,7 +58,7 @@ import javax.xml.namespace.QName;
 
 /** Class to represent a calendar-query calendar-data element
  *
- *   @author Mike Douglass   douglm@rpi.edu
+ *   @author Mike Douglass   douglm@bedework.edu
  */
 public class CalData extends WebdavProperty {
   /*

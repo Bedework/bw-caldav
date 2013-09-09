@@ -18,9 +18,9 @@
 */
 package org.bedework.caldav.server;
 
-import edu.rpi.cct.webdav.servlet.shared.WdEntity;
-import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import org.bedework.util.xml.XmlEmit;
+import org.bedework.webdav.servlet.shared.WdEntity;
+import org.bedework.webdav.servlet.shared.WebdavException;
 
 import java.util.Set;
 

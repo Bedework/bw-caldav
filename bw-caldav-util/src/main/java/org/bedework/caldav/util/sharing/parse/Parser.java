@@ -29,13 +29,12 @@ import org.bedework.caldav.util.sharing.RemoveType;
 import org.bedework.caldav.util.sharing.SetType;
 import org.bedework.caldav.util.sharing.ShareType;
 import org.bedework.caldav.util.sharing.UserType;
-
-import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
-import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import org.bedework.util.xml.XmlUtil;
 import org.bedework.util.xml.tagdefs.AppleServerTags;
 import org.bedework.util.xml.tagdefs.CaldavTags;
 import org.bedework.util.xml.tagdefs.WebdavTags;
+import org.bedework.webdav.servlet.shared.WebdavBadRequest;
+import org.bedework.webdav.servlet.shared.WebdavException;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
@@ -187,7 +186,7 @@ public class Parser {
    * @return parsed Document
    * @throws WebdavException
    */
-  public static Document parseXmlString(final String val) throws WebdavException{
+  public static Document parseXmlString(final String val) throws WebdavException {
     if ((val == null) || (val.length() == 0)) {
       return null;
     }

@@ -28,15 +28,14 @@ import org.bedework.util.misc.Util;
 import org.bedework.util.xml.XmlUtil;
 import org.bedework.util.xml.tagdefs.CaldavTags;
 import org.bedework.util.xml.tagdefs.WebdavTags;
-
-import edu.rpi.cct.webdav.servlet.common.PropFindMethod.PropRequest;
-import edu.rpi.cct.webdav.servlet.common.ReportMethod;
-import edu.rpi.cct.webdav.servlet.shared.WebdavBadRequest;
-import edu.rpi.cct.webdav.servlet.shared.WebdavException;
-import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
-import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
-import edu.rpi.cct.webdav.servlet.shared.WebdavProperty;
-import edu.rpi.cct.webdav.servlet.shared.WebdavStatusCode;
+import org.bedework.webdav.servlet.common.PropFindMethod.PropRequest;
+import org.bedework.webdav.servlet.common.ReportMethod;
+import org.bedework.webdav.servlet.shared.WebdavBadRequest;
+import org.bedework.webdav.servlet.shared.WebdavException;
+import org.bedework.webdav.servlet.shared.WebdavNsIntf;
+import org.bedework.webdav.servlet.shared.WebdavNsNode;
+import org.bedework.webdav.servlet.shared.WebdavProperty;
+import org.bedework.webdav.servlet.shared.WebdavStatusCode;
 
 import ietf.params.xml.ns.caldav.CalendarDataType;
 import ietf.params.xml.ns.caldav.CompType;
@@ -61,7 +60,7 @@ import javax.xml.namespace.QName;
 
 /** Class called to handle CalDAV REPORT.
  *
- *   @author Mike Douglass   douglm rpi.edu
+ *   @author Mike Douglass   douglm bedework.edu
  */
 public class CaldavReportMethod extends ReportMethod {
   /* The parsed results go here. We see:

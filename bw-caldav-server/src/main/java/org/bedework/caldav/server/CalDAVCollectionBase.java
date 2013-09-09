@@ -18,7 +18,7 @@
 */
 package org.bedework.caldav.server;
 
-import edu.rpi.cct.webdav.servlet.shared.WebdavException;
+import org.bedework.webdav.servlet.shared.WebdavException;
 
 /** Simple implementation of class to represent a collection in CalDAV, used
  * by the simpler interfaces.
@@ -62,7 +62,7 @@ public abstract class CalDAVCollectionBase <T extends CalDAVCollectionBase> exte
    * ==================================================================== */
 
   /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WdCollection#isAlias()
+   * @see edu.bedework.cct.webdav.servlet.shared.WdCollection#isAlias()
    */
   @Override
   public boolean isAlias() throws WebdavException {
@@ -70,7 +70,7 @@ public abstract class CalDAVCollectionBase <T extends CalDAVCollectionBase> exte
   }
 
   /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.shared.WdEntity#resolveAlias(boolean)
+   * @see edu.bedework.cct.webdav.servlet.shared.WdEntity#resolveAlias(boolean)
    */
   @Override
   public T resolveAlias(final boolean resolveSubAlias) throws WebdavException {

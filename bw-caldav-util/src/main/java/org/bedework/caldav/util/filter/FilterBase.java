@@ -18,7 +18,7 @@
 */
 package org.bedework.caldav.util.filter;
 
-import edu.rpi.cct.webdav.servlet.shared.WebdavException;
+import org.bedework.webdav.servlet.shared.WebdavException;
 
 import java.io.Serializable;
 import java.util.ArrayList;

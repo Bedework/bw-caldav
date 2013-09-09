@@ -18,8 +18,8 @@
 */
 package org.bedework.caldav.server;
 
-import edu.rpi.cct.webdav.servlet.shared.WdCollection;
-import edu.rpi.cct.webdav.servlet.shared.WebdavException;
+import org.bedework.webdav.servlet.shared.WdCollection;
+import org.bedework.webdav.servlet.shared.WebdavException;
 
 import java.util.List;
 

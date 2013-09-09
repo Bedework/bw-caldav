@@ -32,7 +32,7 @@ import ietf.params.xml.ns.caldav.UTCTimeRangeType;
 
 /** Various debug dump methods
  *
- *   @author Mike Douglass   douglm  rpi.edu
+ *   @author Mike Douglass   douglm  bedework.edu
  */
 public class DumpUtil {
   /**

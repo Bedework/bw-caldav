@@ -18,12 +18,12 @@
 */
 package org.bedework.caldav.server;
 
-import edu.rpi.cct.webdav.servlet.common.Headers;
-import edu.rpi.cct.webdav.servlet.common.Headers.IfHeaders;
-import edu.rpi.cct.webdav.servlet.common.PropPatchMethod;
-import edu.rpi.cct.webdav.servlet.shared.WebdavException;
-import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
 import org.bedework.util.xml.tagdefs.CaldavTags;
+import org.bedework.webdav.servlet.common.Headers;
+import org.bedework.webdav.servlet.common.Headers.IfHeaders;
+import org.bedework.webdav.servlet.common.PropPatchMethod;
+import org.bedework.webdav.servlet.shared.WebdavException;
+import org.bedework.webdav.servlet.shared.WebdavNsIntf;
 
 import org.w3c.dom.Document;
 
@@ -36,14 +36,14 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class MkcalendarMethod extends PropPatchMethod {
   /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.common.MethodBase#init()
+   * @see edu.bedework.cct.webdav.servlet.common.MethodBase#init()
    */
   @Override
   public void init() {
   }
 
   /* (non-Javadoc)
-   * @see edu.rpi.cct.webdav.servlet.common.PropPatchMethod#doMethod(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+   * @see edu.bedework.cct.webdav.servlet.common.PropPatchMethod#doMethod(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
    */
   @Override
   public void doMethod(final HttpServletRequest req,

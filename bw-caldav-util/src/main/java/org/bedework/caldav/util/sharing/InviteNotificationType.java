@@ -25,8 +25,8 @@ import org.bedework.util.xml.tagdefs.AppleServerTags;
 import org.bedework.util.xml.tagdefs.CaldavTags;
 import org.bedework.util.xml.tagdefs.WebdavTags;
 
-import edu.rpi.cct.webdav.servlet.shared.UrlPrefixer;
-import edu.rpi.cct.webdav.servlet.shared.UrlUnprefixer;
+import org.bedework.webdav.servlet.shared.UrlPrefixer;
+import org.bedework.webdav.servlet.shared.UrlUnprefixer;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -20,9 +20,8 @@ package org.bedework.caldav.server;
 
 import org.bedework.util.calendar.IcalDefs.IcalComponentType;
 import org.bedework.util.calendar.ScheduleMethods;
-
-import edu.rpi.cct.webdav.servlet.shared.WdEntity;
-import edu.rpi.cct.webdav.servlet.shared.WebdavException;
+import org.bedework.webdav.servlet.shared.WdEntity;
+import org.bedework.webdav.servlet.shared.WebdavException;
 
 import net.fortuna.ical4j.model.TimeZone;
 

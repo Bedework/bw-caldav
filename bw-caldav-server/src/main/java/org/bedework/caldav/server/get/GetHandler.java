@@ -21,10 +21,9 @@ package org.bedework.caldav.server.get;
 import org.bedework.caldav.server.CaldavBWIntf;
 import org.bedework.caldav.server.RequestPars;
 import org.bedework.caldav.server.sysinterface.SysIntf;
-
-import edu.rpi.cct.webdav.servlet.shared.WebdavException;
-import edu.rpi.cct.webdav.servlet.shared.WebdavNsNode;
 import org.bedework.util.xml.XmlEmit;
+import org.bedework.webdav.servlet.shared.WebdavException;
+import org.bedework.webdav.servlet.shared.WebdavNsNode;
 
 import java.util.Collection;
 

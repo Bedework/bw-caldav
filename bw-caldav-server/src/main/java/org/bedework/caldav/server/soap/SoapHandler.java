@@ -22,9 +22,8 @@ import org.bedework.caldav.server.CaldavBWIntf;
 import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.util.calendar.XcalUtil;
 import org.bedework.util.xml.tagdefs.XcalTags;
-
-import edu.rpi.cct.webdav.servlet.common.MethodBase;
-import edu.rpi.cct.webdav.servlet.shared.WebdavException;
+import org.bedework.webdav.servlet.common.MethodBase;
+import org.bedework.webdav.servlet.shared.WebdavException;
 
 import ietf.params.xml.ns.icalendar_2.ArrayOfParameters;
 import ietf.params.xml.ns.icalendar_2.BaseParameterType;
