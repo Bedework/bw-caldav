@@ -59,7 +59,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 /** Class to parse and process query filters.
  *
- *   @author Mike Douglass   douglm@rpi.edu
+ *   @author Mike Douglass   douglm@bedework.edu
  */
 public class Filters {
   /** Convenience method

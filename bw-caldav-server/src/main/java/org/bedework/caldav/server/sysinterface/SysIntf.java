@@ -18,6 +18,9 @@
 */
 package org.bedework.caldav.server.sysinterface;
 
+import org.bedework.access.AccessPrincipal;
+import org.bedework.access.Acl;
+import org.bedework.access.Acl.CurrentAccess;
 import org.bedework.caldav.server.CalDAVCollection;
 import org.bedework.caldav.server.CalDAVEvent;
 import org.bedework.caldav.server.CalDAVResource;
@@ -38,9 +41,6 @@ import edu.rpi.cct.webdav.servlet.shared.PrincipalPropertySearch;
 import edu.rpi.cct.webdav.servlet.shared.UrlHandler;
 import edu.rpi.cct.webdav.servlet.shared.WdEntity;
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
-import edu.rpi.cmt.access.AccessPrincipal;
-import edu.rpi.cmt.access.Acl;
-import edu.rpi.cmt.access.Acl.CurrentAccess;
 
 import ietf.params.xml.ns.icalendar_2.IcalendarType;
 import net.fortuna.ical4j.model.Calendar;
@@ -62,7 +62,7 @@ import javax.xml.namespace.QName;
  * we don't have distinct event, todo and journal classes. They are all currently
  * the BwEvent class with an entityType defining what the object represents.
  *
- * @author Mike Douglass douglm at rpi.edu
+ * @author Mike Douglass douglm at bedework.edu
  */
 public interface SysIntf {
   /** Called before any other method is called to allow initialization to
@@ -758,7 +758,7 @@ public interface SysIntf {
 
   /** Data for Synch Report
    *
-   *   @author Mike Douglass   douglm@rpi.edu
+   *   @author Mike Douglass   douglm@bedework.edu
    */
   public static class SynchReportData {
     /** The changed entity may be an event, a resource or a collection. If it is

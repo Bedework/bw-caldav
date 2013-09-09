@@ -68,14 +68,14 @@ import edu.rpi.cct.webdav.servlet.shared.WebdavProperty;
 import edu.rpi.cct.webdav.servlet.shared.WebdavServerError;
 import edu.rpi.cct.webdav.servlet.shared.WebdavUnauthorized;
 import edu.rpi.cct.webdav.servlet.shared.WebdavUnsupportedMediaType;
-import edu.rpi.cmt.access.AccessException;
-import edu.rpi.cmt.access.AccessPrincipal;
-import edu.rpi.cmt.access.AccessXmlUtil.AccessXmlCb;
-import edu.rpi.cmt.access.Ace;
-import edu.rpi.cmt.access.AceWho;
-import edu.rpi.cmt.access.Acl;
-import edu.rpi.cmt.access.PrivilegeDefs;
-import edu.rpi.cmt.access.WhoDefs;
+import org.bedework.access.AccessException;
+import org.bedework.access.AccessPrincipal;
+import org.bedework.access.AccessXmlUtil.AccessXmlCb;
+import org.bedework.access.Ace;
+import org.bedework.access.AceWho;
+import org.bedework.access.Acl;
+import org.bedework.access.PrivilegeDefs;
+import org.bedework.access.WhoDefs;
 
 import ietf.params.xml.ns.caldav.FilterType;
 import ietf.params.xml.ns.icalendar_2.IcalendarType;
@@ -280,7 +280,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
 
     /* (non-Javadoc)
-     * @see edu.rpi.cmt.access.AccessXmlUtil.AccessXmlCb#makeHref(java.lang.String, int)
+     * @see AccessXmlUtil.AccessXmlCb#makeHref(java.lang.String, int)
      */
     @Override
     public String makeHref(final String id, final int whoType) throws AccessException {
@@ -310,7 +310,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
 
     /* (non-Javadoc)
-     * @see edu.rpi.cmt.access.AccessXmlUtil.AccessXmlCb#setErrorTag(edu.rpi.sss.util.xml.QName)
+     * @see AccessXmlUtil.AccessXmlCb#setErrorTag(edu.rpi.sss.util.xml.QName)
      */
     @Override
     public void setErrorTag(final QName tag) throws AccessException {
@@ -318,7 +318,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
 
     /* (non-Javadoc)
-     * @see edu.rpi.cmt.access.AccessXmlUtil.AccessXmlCb#getErrorTag()
+     * @see AccessXmlUtil.AccessXmlCb#getErrorTag()
      */
     @Override
     public QName getErrorTag() throws AccessException {
@@ -326,7 +326,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
 
     /* (non-Javadoc)
-     * @see edu.rpi.cmt.access.AccessXmlUtil.AccessXmlCb#setErrorMsg(java.lang.String)
+     * @see AccessXmlUtil.AccessXmlCb#setErrorMsg(java.lang.String)
      */
     @Override
     public void setErrorMsg(final String val) throws AccessException {
@@ -334,7 +334,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
 
     /* (non-Javadoc)
-     * @see edu.rpi.cmt.access.AccessXmlUtil.AccessXmlCb#getErrorMsg()
+     * @see AccessXmlUtil.AccessXmlCb#getErrorMsg()
      */
     @Override
     public String getErrorMsg() throws AccessException {

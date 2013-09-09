@@ -18,7 +18,7 @@
 */
 package org.bedework.caldav.server.sysinterface;
 
-import edu.rpi.cmt.access.AccessPrincipal;
+import org.bedework.access.AccessPrincipal;
 
 import java.io.Serializable;
 

@@ -50,7 +50,7 @@ import java.util.List;
  * disallow all unidentified incoming requests. If present they must satisfy the
  * requirements specified, e.g. DKIM
  *
- * @author Mike Douglass       douglm - rpi.edu
+ * @author Mike Douglass       douglm - bedework.edu
  */
 public interface Host {
   /**

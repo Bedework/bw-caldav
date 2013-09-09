@@ -18,6 +18,9 @@
 */
 package org.bedework.caldav.server;
 
+import org.bedework.access.AccessPrincipal;
+import org.bedework.access.Acl.CurrentAccess;
+import org.bedework.access.PrivilegeDefs;
 import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.caldav.server.sysinterface.SysIntf.MethodEmitted;
 import org.bedework.util.timezones.DateTimeUtil;
@@ -28,9 +31,6 @@ import org.bedework.util.xml.tagdefs.ICalTags;
 
 import edu.rpi.cct.webdav.servlet.shared.WebdavException;
 import edu.rpi.cct.webdav.servlet.shared.WebdavNsIntf;
-import edu.rpi.cmt.access.AccessPrincipal;
-import edu.rpi.cmt.access.Acl.CurrentAccess;
-import edu.rpi.cmt.access.PrivilegeDefs;
 
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
