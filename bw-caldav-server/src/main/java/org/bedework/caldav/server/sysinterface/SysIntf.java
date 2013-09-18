@@ -965,8 +965,20 @@ public interface SysIntf {
    * @throws WebdavException
    */
   public IcalendarType toIcalendar(CalDAVEvent ev,
-                               boolean incSchedMethod,
-                               IcalendarType pattern) throws WebdavException;
+                                   boolean incSchedMethod,
+                                   IcalendarType pattern) throws WebdavException;
+
+  /** Make a JSON jcal object from an event.
+   *
+   * @param ev
+   * @param incSchedMethod - true if we should emit the scheduling method
+   * @param pattern - non-null to restrict returned properties
+   * @return String jcal representation
+   * @throws WebdavException
+   */
+  public String toJcal(CalDAVEvent ev,
+                       boolean incSchedMethod,
+                       IcalendarType pattern) throws WebdavException;
 
   /** Convert a Calendar to it's string form
    *

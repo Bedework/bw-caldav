@@ -682,6 +682,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       if ((ctype == null) ||
           (!ctype.equals("text/calendar") &&
+           !ctype.equals("application/calendar+json") &
            !ctype.equals(XcalTags.mimetype))) {
         ctype = sysi.getDefaultContentType();
       }
