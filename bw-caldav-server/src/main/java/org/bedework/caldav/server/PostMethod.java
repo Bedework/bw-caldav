@@ -352,15 +352,6 @@ public class PostMethod extends MethodBase {
         "Not targetted at Outbox");
       }
 
-      /* (CALDAV:supported-calendar-data) */
-      if (!pars.contentTypePars[0].equals("text/calendar")) {
-        if (debug) {
-          debugMsg("Bad content type: " + pars.contentType);
-        }
-        throw new WebdavForbidden(CaldavTags.supportedCalendarData,
-                                  "Bad content type: " + pars.contentType);
-      }
-
       /* (CALDAV:valid-calendar-data) -- later */
       /* (CALDAV:valid-scheduling-message) -- later */
 
