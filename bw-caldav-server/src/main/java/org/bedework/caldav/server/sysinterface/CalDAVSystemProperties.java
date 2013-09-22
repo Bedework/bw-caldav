@@ -42,6 +42,30 @@ public interface CalDAVSystemProperties extends Serializable {
   @MBeanInfo("Administrator contact property")
   String getAdminContact();
 
+  /** Set the timezones server uri
+   *
+   * @param val    String
+   */
+  void setTzServeruri(String val);
+
+  /** Get the timezones server uri
+   *
+   * @return String   tzid
+   */
+  @MBeanInfo("the timezones server uri")
+  String getTzServeruri();
+
+  /**
+   * @param val boolean true if we are not including the full tz specification..
+   */
+  void setTimezonesByReference(boolean val);
+
+  /**
+   * @return true if we are not including the full tz specification
+   */
+  @MBeanInfo("true if we are NOT including the full tz specification in iCalendar output")
+  boolean getTimezonesByReference();
+
   /** Set the ischedule service uri - null for no ischedule service
    *
    * @param val    String

@@ -112,6 +112,7 @@ public class CaldavCalNode extends CaldavBwNode {
     addPropEntry(propertyNames, CaldavTags.scheduleDefaultCalendarURL);
     addPropEntry(propertyNames, CaldavTags.supportedCalendarComponentSet);
     addPropEntry(propertyNames, CaldavTags.supportedCalendarData);
+    addPropEntry(propertyNames, CaldavTags.timezoneServiceSet);
     addPropEntry(propertyNames, CaldavTags.vpollMaxActive);
     addPropEntry(propertyNames, CaldavTags.vpollMaxItems);
     addPropEntry(propertyNames, CaldavTags.vpollMaxVoters);
@@ -1064,6 +1065,16 @@ public class CaldavCalNode extends CaldavBwNode {
         xml.attribute("content-type", "text/calendar");
         xml.attribute("version", "2.0");
         xml.endEmptyTag();
+        xml.newline();
+        xml.closeTag(tag);
+        return true;
+      }
+
+      if (tag.equals(CaldavTags.timezoneServiceSet)) {
+        xml.openTag(tag);
+
+        String href = getSysi().getSystemProperties().getTzServeruri();
+        xml.property(WebdavTags.href, href);
         xml.newline();
         xml.closeTag(tag);
         return true;

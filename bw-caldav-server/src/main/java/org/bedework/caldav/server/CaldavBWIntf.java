@@ -244,12 +244,18 @@ public class CaldavBWIntf extends WebdavNsIntf {
       return super.getDavHeader(node) + ", calendar-access";
     }
 
-    return super.getDavHeader(node) +
+    String hdr = super.getDavHeader(node) +
         ", calendar-access" +
         ", calendar-schedule" +
         ", calendar-auto-schedule" +
         ", calendar-default-alarms" +
         ", calendarserver-sharing";
+
+    if (getSysi().getSystemProperties().getTimezonesByReference()) {
+        hdr += ", calendar-no-timezone";
+    }
+
+    return hdr;
   }
 
   @Override
