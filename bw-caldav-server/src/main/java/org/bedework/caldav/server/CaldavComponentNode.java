@@ -67,6 +67,7 @@ public class CaldavComponentNode extends CaldavBwNode {
    */
   private Component comp;
 
+  private String compContentType;
   private String compString;
 
 
@@ -400,9 +401,6 @@ public boolean generatePropertyValue(final QName tag,
                                     (col.getCalType() == CalDAVCollection.calTypeInbox) ||
                                     (col.getCalType() == CalDAVCollection.calTypeOutbox));
       }
-      if ((compString == null)) {
-        compString = getSysi().toIcalString(ical);
-      }
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
@@ -480,10 +478,8 @@ public boolean generatePropertyValue(final QName tag,
   }
 
   @Override
-  public String getContentString() throws WebdavException {
-    getIcal(); // init content
-
-    return compString;
+  public String getContentString(String contentType) throws WebdavException {
+    return getCompString(contentType);
   }
 
   /* ====================================================================
@@ -613,16 +609,9 @@ public boolean generatePropertyValue(final QName tag,
     return "en";
   }
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsNode#getContentLen()
-   */
   @Override
-  public long getContentLen() throws WebdavException {
-    getIcal(); // init length
-    if (compString != null) {
-      return compString.getBytes().length;
-    }
-    return 0;
+  public long getContentLen(final String contentType) throws WebdavException {
+    return getCompString(contentType).length();
   }
 
   /* (non-Javadoc)
@@ -686,6 +675,24 @@ public boolean generatePropertyValue(final QName tag,
   /* ====================================================================
    *                   Private methods
    * ==================================================================== */
+
+  private String getCompString(final String contentType) throws WebdavException {
+    String ctype = contentType;
+    if (ctype == null) {
+      ctype = getSysi().getDefaultContentType();
+    }
+
+    if (ctype.equals(compContentType)) {
+      return compString;
+    }
+
+    getIcal();
+
+    compContentType = ctype;
+    compString = getSysi().toIcalString(ical, ctype);
+
+    return compString;
+  }
 
   private boolean generateTZPropertyValue(final QName tag,
                                           final WebdavNsIntf intf,

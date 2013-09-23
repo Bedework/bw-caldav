@@ -385,11 +385,8 @@ public class CaldavCalNode extends CaldavBwNode {
     }
   }
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsNode#getContentString()
-   */
   @Override
-  public String getContentString() throws WebdavException {
+  public String getContentString(final String contentType) throws WebdavException {
     init(true);
 
     if (ical == null) {
@@ -422,12 +419,9 @@ public class CaldavCalNode extends CaldavBwNode {
     return "en";
   }
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsNode#getContentLen()
-   */
   @Override
-  public long getContentLen() throws WebdavException {
-    String s = getContentString();
+  public long getContentLen(final String contentType) throws WebdavException {
+    String s = getContentString(contentType);
 
     if (s == null) {
       return 0;

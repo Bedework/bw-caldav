@@ -733,7 +733,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       c.stream = bwnode.getContentStream();
       c.contentType = node.getContentType();
-      c.contentLength = node.getContentLen();
+      c.contentLength = node.getContentLen(c.contentType);
 
       return c;
     } catch (WebdavException we) {
@@ -744,7 +744,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
   }
 
   @Override
-  public String getAcceptContentType(HttpServletRequest req) {
+  public String getAcceptContentType(HttpServletRequest req) throws WebdavException {
     String accept = req.getHeader("Accept");
 
     if (accept != null) {
@@ -765,7 +765,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       return ctype;
     }
 
-    return "text/calendar";
+    return sysi.getDefaultContentType();
   }
 
   /* (non-Javadoc)
