@@ -743,6 +743,31 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
   }
 
+  @Override
+  public String getAcceptContentType(HttpServletRequest req) {
+    String accept = req.getHeader("Accept");
+
+    if (accept != null) {
+      return accept;
+    }
+
+    String[] contentTypePars = null;
+    String contentType = req.getContentType();
+
+    String ctype = null;
+
+    if (contentType != null) {
+      contentTypePars = contentType.split(";");
+      ctype = contentTypePars[0];
+    }
+
+    if (ctype == null) {
+      return ctype;
+    }
+
+    return "text/calendar";
+  }
+
   /* (non-Javadoc)
    * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#putContent(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, edu.bedework.cct.webdav.servlet.shared.WebdavNsNode, java.lang.String[], java.io.Reader, edu.bedework.cct.webdav.servlet.common.Headers.IfHeaders)
    */
@@ -1695,13 +1720,31 @@ public class CaldavBWIntf extends WebdavNsIntf {
           trace("do CalendarData for " + node.getUri());
         }
 
+        String contentType = caldata.getCalendarData().getContentType();
+        String[] contentTypePars = null;
+
+        if (contentType != null) {
+          contentTypePars = contentType.split(";");
+        }
+
+        String ctype = null;
+        if (contentTypePars !=null) {
+          ctype = contentTypePars[0];
+        }
+
         int status = HttpServletResponse.SC_OK;
         try {
           /* Output the (transformed) node.
            */
 
-          xml.openTagNoNewline(CaldavTags.calendarData);
-          caldata.process(node, xml);
+          if (ctype != null) {
+            xml.openTagNoNewline(CaldavTags.calendarData,
+                                 "content-type", ctype);
+          } else {
+            xml.openTagNoNewline(CaldavTags.calendarData);
+          }
+
+          caldata.process(node, xml, ctype);
 
           return true;
         } catch (WebdavException wde) {

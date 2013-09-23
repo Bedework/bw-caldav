@@ -253,10 +253,12 @@ public class CalData extends WebdavProperty {
    *
    * @param wdnode
    * @param xml
+   * @param contentType - first element from content type or null
    * @throws WebdavException
    */
   public void process(final WebdavNsNode wdnode,
-                      final XmlEmit xml) throws WebdavException {
+                      final XmlEmit xml,
+                      final String contentType) throws WebdavException {
     if (!(wdnode instanceof CaldavComponentNode)) {
       return;
     }
@@ -264,7 +266,6 @@ public class CalData extends WebdavProperty {
     CaldavComponentNode node = (CaldavComponentNode)wdnode;
 
     CompType comp = getCalendarData().getComp();
-    String contentType = getCalendarData().getContentType();
 
     if (comp == null) {
       node.writeContent(xml, null, contentType);

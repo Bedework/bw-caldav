@@ -1060,12 +1060,28 @@ public class CaldavCalNode extends CaldavBwNode {
          *   <C:calendar-data content-type="text/calendar" version="2.0"/>
          * </C:supported-calendar-data>
          */
+
+        // TODO - need system property to define supported data
         xml.openTag(tag);
+
         xml.startTag(CaldavTags.calendarData);
         xml.attribute("content-type", "text/calendar");
         xml.attribute("version", "2.0");
         xml.endEmptyTag();
         xml.newline();
+
+        xml.startTag(CaldavTags.calendarData);
+        xml.attribute("content-type", "application/calendar+xml");
+        xml.attribute("version", "2.0");
+        xml.endEmptyTag();
+        xml.newline();
+
+        xml.startTag(CaldavTags.calendarData);
+        xml.attribute("content-type", "application/calendar+json");
+        xml.attribute("version", "2.0");
+        xml.endEmptyTag();
+        xml.newline();
+
         xml.closeTag(tag);
         return true;
       }
