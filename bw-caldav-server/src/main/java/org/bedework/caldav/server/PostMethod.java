@@ -657,7 +657,7 @@ public class PostMethod extends MethodBase {
     Collection<SchedRecipientResult> srrs = intf.requestFreeBusy(ev, true);
 
     resp.setStatus(HttpServletResponse.SC_OK);
-    resp.setContentType("text/xml; charset=UTF-8");
+    resp.setContentType(pars.contentTypePars[0] + "; charset=UTF-8");
 
     startEmit(resp);
 
@@ -699,7 +699,10 @@ public class PostMethod extends MethodBase {
 
         try {
           cdataProperty(calendarDataTag,
-                        rfb.toIcalString(ScheduleMethods.methodTypeReply));
+                        "content-type",
+                        pars.contentType,
+                        rfb.toIcalString(ScheduleMethods.methodTypeReply,
+                                         pars.contentTypePars[0]));
         } catch (Throwable t) {
           if (debug) {
             error(t);

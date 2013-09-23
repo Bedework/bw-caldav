@@ -983,10 +983,12 @@ public interface SysIntf {
   /** Convert a Calendar to it's string form
    *
    * @param cal Calendar to convert
+   * @param contentType
    * @return String representation
    * @throws WebdavException
    */
-  public String toIcalString(Calendar cal) throws WebdavException;
+  public String toIcalString(Calendar cal,
+                             String contentType) throws WebdavException;
 
   /** What method do we want emitted */
   public static enum MethodEmitted {

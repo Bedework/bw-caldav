@@ -165,5 +165,6 @@ public abstract class CalDAVEvent <T> extends WdEntity<T> {
    * @return String ical representation
    * @throws WebdavException
    */
-  public abstract String toIcalString(int methodType) throws WebdavException;
+  public abstract String toIcalString(int methodType,
+                                      String contentType) throws WebdavException;
 }
