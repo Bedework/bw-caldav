@@ -49,15 +49,6 @@
     <orderEntry type="module" module-name="bw-util-timezones" />
     <orderEntry type="module" module-name="bw-webdav" />
     <orderEntry type="module" module-name="bw-util-servlet" />
-    <orderEntry type="library" name="Maven: org.apache.geronimo.framework:geronimo-kernel:2.2.1" level="project" />
-    <orderEntry type="library" name="Maven: asm:asm:3.1" level="project" />
-    <orderEntry type="library" name="Maven: asm:asm-commons:3.1" level="project" />
-    <orderEntry type="library" name="Maven: cglib:cglib-nodep:2.1_3" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.xbean:xbean-reflect:3.7" level="project" />
-    <orderEntry type="library" name="Maven: com.thoughtworks.xstream:xstream:1.3" level="project" />
-    <orderEntry type="library" name="Maven: xpp3:xpp3_min:1.1.4c" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.geronimo.framework:geronimo-crypto:2.2.1" level="project" />
-    <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.5.5" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: javax.servlet:servlet-api:2.5" level="project" />
     <orderEntry type="library" name="Maven: org.apache.james.jdkim:apache-jdkim-library:0.2.BEDEWORK-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: org.apache.geronimo.specs:geronimo-activation_1.1_spec:1.0.2" level="project" />

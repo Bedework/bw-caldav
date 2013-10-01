@@ -18,11 +18,8 @@
 */
 package org.bedework.caldav.server.soap.synch;
 
+import org.bedework.util.jmx.ConfBase;
 import org.bedework.util.misc.Util;
-
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanLifecycle;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -40,43 +37,45 @@ import java.util.Map;
  *
  * @author douglm
  */
-public class SynchConnections implements SynchConnectionsMBean, GBeanLifecycle {
-  /** Geronimo gbean info
-   */
-  public static final GBeanInfo GBEAN_INFO;
-  static {
-    GBeanInfoBuilder infoB =
-        GBeanInfoBuilder.createStatic("CalDAVSynchConnections", SynchConnections.class);
-    infoB.addAttribute("account", String.class, true);
-    infoB.addAttribute("skipPaths", String.class, true);
-
-    GBEAN_INFO = infoB.getBeanInfo();
-  }
-
-  private boolean started;
+public class SynchConnections extends ConfBase
+        implements SynchConnectionsMBean {
+  /* Name of the property holding the location of the config data */
+  public static final String confuriPname = "org.bedework.caldav.confuri";
 
   /* A map indexed by the url which identifies 'open' connections */
   static Map<String, SynchConnection> activeConnections =
-      new HashMap<String, SynchConnection>();
+      new HashMap<>();
 
   /* A map indexed by the id which identifies 'open' connections */
   static Map<String, SynchConnection> activeConnectionsById =
-      new HashMap<String, SynchConnection>();
+      new HashMap<>();
+
+  private final static String nm = "SynchConnections";
+
+  public SynchConnections() {
+    super(getServiceName(nm));
+
+    setConfigName(nm);
+
+    setConfigPname(confuriPname);
+  }
+
+  /**
+   * @param name
+   * @return object name value for the mbean with this name
+   */
+  public static String getServiceName(final String name) {
+    return "org.bedework.caldav:service=" + name;
+  }
+
+  @Override
+  public String loadConfig() {
+    return "No config to load";
+  }
 
   /* ========================================================================
    * Attributes
    * ======================================================================== */
-
-  /* (non-Javadoc)
-   * @see org.bedework.dumprestore.BwDumpRestoreMBean#getName()
-   */
-  @Override
-  public String getName() {
-    /* This apparently must be the same as the name attribute in the
-     * jboss service definition
-     */
-    return "org.bedework:service=CalDAVSynchConnections";
-  }
 
   /* ========================================================================
    * Operations
@@ -115,74 +114,5 @@ public class SynchConnections implements SynchConnectionsMBean, GBeanLifecycle {
     }
 
     return res;
-  }
-
-  /* ========================================================================
-   * Lifecycle
-   * ======================================================================== */
-
-  /* (non-Javadoc)
-   * @see org.bedework.dumprestore.BwDumpRestoreMBean#create()
-   */
-  @Override
-  public void create() {
-    // An opportunity to initialise
-  }
-
-  /* (non-Javadoc)
-   * @see org.bedework.indexer.BwIndexerMBean#start()
-   */
-  @Override
-  public void start() {
-    started = true;
-  }
-
-  /* (non-Javadoc)
-   * @see org.bedework.indexer.BwIndexerMBean#stop()
-   */
-  @Override
-  public void stop() {
-    started = false;
-  }
-
-  /* (non-Javadoc)
-   * @see org.bedework.indexer.BwIndexerMBean#isStarted()
-   */
-  @Override
-  public boolean isStarted() {
-    return started;
-  }
-
-  /* (non-Javadoc)
-   * @see org.bedework.dumprestore.BwDumpRestoreMBean#destroy()
-   */
-  @Override
-  public void destroy() {
-  }
-
-  /* ========================================================================
-   * Geronimo lifecycle methods
-   * ======================================================================== */
-
-  /**
-   * @return gbean info
-   */
-  public static GBeanInfo getGBeanInfo() {
-    return GBEAN_INFO;
-  }
-
-  @Override
-  public void doFail() {
-    stop();
-  }
-
-  @Override
-  public void doStart() throws Exception {
-    start();
-  }
-
-  @Override
-  public void doStop() throws Exception {
-    stop();
   }
 }

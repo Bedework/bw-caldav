@@ -27,7 +27,6 @@ import org.bedework.synch.wsmessages.ObjectFactory;
 import org.bedework.synch.wsmessages.StartServiceNotificationType;
 import org.bedework.synch.wsmessages.StartServiceResponseType;
 import org.bedework.synch.wsmessages.SynchIdTokenType;
-import org.bedework.util.jmx.MBeanUtil;
 import org.bedework.webdav.servlet.shared.WebdavException;
 
 import org.oasis_open.docs.ws_calendar.ns.soap.BaseRequestType;
@@ -245,8 +244,11 @@ public class SynchwsHandler extends CalwsHandler {
 
   private SynchConnectionsMBean getActiveConnections() throws Throwable {
     if (conns == null) {
+      /*
       conns = (SynchConnectionsMBean)MBeanUtil.getMBean(SynchConnectionsMBean.class,
                                          "org.bedework:service=CalDAVSynchConnections");
+                                         */
+      conns = getIntf().getActiveConnections();
     }
 
     return conns;

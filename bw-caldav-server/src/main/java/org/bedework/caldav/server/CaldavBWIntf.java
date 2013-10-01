@@ -34,12 +34,16 @@ import org.bedework.caldav.server.get.FreeBusyGetHandler;
 import org.bedework.caldav.server.get.GetHandler;
 import org.bedework.caldav.server.get.IscheduleGetHandler;
 import org.bedework.caldav.server.get.WebcalGetHandler;
+import org.bedework.caldav.server.soap.synch.SynchConnections;
+import org.bedework.caldav.server.soap.synch.SynchConnectionsMBean;
 import org.bedework.caldav.server.sysinterface.CalPrincipalInfo;
 import org.bedework.caldav.server.sysinterface.RetrievalMode;
 import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.caldav.server.sysinterface.SysIntf.IcalResultType;
 import org.bedework.caldav.server.sysinterface.SysIntf.SynchReportData;
 import org.bedework.caldav.server.sysinterface.SysIntf.SynchReportData.SynchReportDataItem;
+import org.bedework.util.jmx.AnnotatedMBean;
+import org.bedework.util.jmx.ManagementContext;
 import org.bedework.util.misc.Util;
 import org.bedework.util.xml.XmlEmit;
 import org.bedework.util.xml.XmlEmit.NameSpace;
@@ -96,8 +100,11 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.CopyOnWriteArraySet;
 
+import javax.management.ObjectName;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBContext;
@@ -146,6 +153,69 @@ public class CaldavBWIntf extends WebdavNsIntf {
    */
   private String synchWsURI;
 
+  private static Set<ObjectName> registeredMBeans = new CopyOnWriteArraySet<>();
+  private static ManagementContext managementContext;
+  private static SynchConnections synchConn;
+
+  static {
+    try {
+      synchConn = new SynchConnections();
+      registerMbean(new ObjectName(synchConn.getServiceName()),
+                    synchConn);
+    } catch (Throwable e) {
+      e.printStackTrace();
+    }
+  }
+
+  public static void registerMbean(final ObjectName key,
+                                   final Object bean) {
+    try {
+      AnnotatedMBean.registerMBean(getManagementContext(), bean, key);
+      registeredMBeans.add(key);
+    } catch (Throwable e) {
+      e.printStackTrace();
+    }
+  }
+
+  /**
+   * @param key
+   */
+  public static void unregister(final ObjectName key) {
+    if (registeredMBeans.remove(key)) {
+      try {
+        getManagementContext().unregisterMBean(key);
+      } catch (Throwable e) {
+        e.printStackTrace();
+      }
+    }
+  }
+
+  /**
+   * @return the management context.
+   */
+  public static ManagementContext getManagementContext() {
+    if (managementContext == null) {
+      /* Try to find the jboss mbean server * /
+
+      MBeanServer mbsvr = null;
+
+      for (MBeanServer svr: MBeanServerFactory.findMBeanServer(null)) {
+        if (svr.getDefaultDomain().equals("jboss")) {
+          mbsvr = svr;
+          break;
+        }
+      }
+
+      if (mbsvr == null) {
+        Logger.getLogger(ConfBase.class).warn("Unable to locate jboss mbean server");
+      }
+      managementContext = new ManagementContext(mbsvr);
+      */
+      managementContext = new ManagementContext(ManagementContext.DEFAULT_DOMAIN);
+    }
+    return managementContext;
+  }
+
   /* ====================================================================
    *                     Interface methods
    * ==================================================================== */
@@ -184,6 +254,17 @@ public class CaldavBWIntf extends WebdavNsIntf {
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
+  }
+
+  public SynchConnectionsMBean getActiveConnections() throws Throwable {
+    /*
+    if (conns == null) {
+      conns = (SynchConnectionsMBean)MBeanUtil.getMBean(
+              SynchConnectionsMBean.class,
+              "org.bedework:service=CalDAVSynchConnections");
+    }
+*/
+    return synchConn;
   }
 
   /** See if we can reauthenticate. Use for real-time service which needs to
@@ -733,7 +814,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       c.stream = bwnode.getContentStream();
       c.contentType = node.getContentType();
-      c.contentLength = node.getContentLen(c.contentType);
+      c.contentLength = node.getContentLen();
 
       return c;
     } catch (WebdavException we) {

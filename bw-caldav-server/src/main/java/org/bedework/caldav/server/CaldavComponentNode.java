@@ -610,8 +610,8 @@ public boolean generatePropertyValue(final QName tag,
   }
 
   @Override
-  public long getContentLen(final String contentType) throws WebdavException {
-    return getCompString(contentType).length();
+  public long getContentLen() throws WebdavException {
+    return getCompString(getContentType()).length();
   }
 
   /* (non-Javadoc)

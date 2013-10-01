@@ -420,8 +420,8 @@ public class CaldavCalNode extends CaldavBwNode {
   }
 
   @Override
-  public long getContentLen(final String contentType) throws WebdavException {
-    String s = getContentString(contentType);
+  public long getContentLen() throws WebdavException {
+    String s = getContentString(getContentType());
 
     if (s == null) {
       return 0;

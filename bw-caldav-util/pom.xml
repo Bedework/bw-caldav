@@ -49,10 +49,6 @@
 
 		<!-- Third Party Dependencies -->
 		<dependency>
-			<groupId>org.apache.geronimo.framework</groupId>
-			<artifactId>geronimo-kernel</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>net.fortuna.ical4j</groupId>
 			<artifactId>ical4j</artifactId>
 		</dependency>

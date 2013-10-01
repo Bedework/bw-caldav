@@ -18,22 +18,17 @@
 */
 package org.bedework.caldav.server.soap.synch;
 
+import org.bedework.util.jmx.ConfBaseMBean;
+import org.bedework.util.jmx.MBeanInfo;
 
 /** Handle the dynamic connections made between bedework and synch engines.
  *
  * @author douglm
  */
-public interface SynchConnectionsMBean {
+public interface SynchConnectionsMBean extends ConfBaseMBean {
   /* ========================================================================
    * Attributes
    * ======================================================================== */
-
-  /** Name apparently must be the same as the name attribute in the
-   * jboss service definition
-   *
-   * @return Name
-   */
-  public String getName();
 
   /* ========================================================================
    * Operations
@@ -43,6 +38,7 @@ public interface SynchConnectionsMBean {
    *
    * @param val
    */
+  @MBeanInfo("Put/update a connection")
   public void setConnection(SynchConnection val);
 
   /** Find a connection
@@ -50,6 +46,7 @@ public interface SynchConnectionsMBean {
    * @param callbackUrl
    * @return a connection or null
    */
+  @MBeanInfo("Get a connection")
   public SynchConnection getConnection(String callbackUrl);
 
   /** Get a connection for outbound calls by id
@@ -57,40 +54,12 @@ public interface SynchConnectionsMBean {
    * @param id
    * @return a connection or null
    */
+  @MBeanInfo("get a connection by id")
   public SynchConnection getConnectionById(String id);
 
   /**
    * @return list of connections
    */
+  @MBeanInfo("List of connections")
   public String[] activeConnectionInfo();
-
-  /* ========================================================================
-   * Lifecycle
-   * ======================================================================== */
-
-  /** Lifecycle
-   *
-   */
-  public void create();
-
-  /** Lifecycle
-   *
-   */
-  public void start();
-
-  /** Lifecycle
-   *
-   */
-  public void stop();
-
-  /** Lifecycle
-   *
-   * @return true if started
-   */
-  public boolean isStarted();
-
-  /** Lifecycle
-   *
-   */
-  public void destroy();
 }
