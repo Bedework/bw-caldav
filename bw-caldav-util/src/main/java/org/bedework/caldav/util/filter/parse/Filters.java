@@ -58,7 +58,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 /** Class to parse and process query filters.
  *
- *   @author Mike Douglass   douglm@bedework.edu
+ *   @author Mike Douglass   douglm rpi.edu
  */
 public class Filters {
   /** Convenience method
@@ -170,35 +170,9 @@ public class Filters {
 //      }
     } else if (exprDepth == 1) {
       // Calendar components only
+      filter = EntityTypeFilter.makeIcalEntityTypeFilter(null, name, false);
 
-      if ("VEVENT".equals(name)) {
-        filter = EntityTypeFilter.eventFilter(null, isNotDefined);
-        entityType = IcalDefs.entityTypeEvent;
-      }
-
-      if ("VTODO".equals(name)) {
-        filter = EntityTypeFilter.todoFilter(null, isNotDefined);
-        entityType = IcalDefs.entityTypeTodo;
-      }
-
-      if ("VJOURNAL".equals(name)) {
-        filter = EntityTypeFilter.journalFilter(null, isNotDefined);
-        entityType = IcalDefs.entityTypeJournal;
-      }
-
-      if ("VFREEBUSY".equals(name)) {
-        filter = EntityTypeFilter.freebusyFilter(null, isNotDefined);
-        entityType = IcalDefs.entityTypeFreeAndBusy;
-      }
-
-      if ("VAVAILABILITY".equals(name)) {
-        filter = EntityTypeFilter.vavailabilityFilter(null, isNotDefined);
-        entityType = IcalDefs.entityTypeVavailability;
-      }
-
-      if (filter == null) {
-        throw new WebdavBadRequest();
-      }
+      entityType = ((EntityTypeFilter)filter).getEntity();
     } else if (exprDepth == 2) {
       // Sub-components only
 

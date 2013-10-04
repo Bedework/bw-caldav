@@ -20,6 +20,7 @@ package org.bedework.caldav.util.filter;
 
 import org.bedework.util.calendar.IcalDefs;
 import org.bedework.util.calendar.PropertyIndex.PropertyInfoIndex;
+import org.bedework.webdav.servlet.shared.WebdavException;
 
 /** A filter that selects entities of a given type.
  *
@@ -35,94 +36,60 @@ public class EntityTypeFilter extends ObjectFilter<Integer> {
     super(name, PropertyInfoIndex.ENTITY_TYPE);
   }
 
-  /**
+  /** Use ical names
+   *
    * @param name
+   * @param val - string val e.g. "VEVENT"
    * @param not true to test for inequality
    * @return a filter for events.
    */
-  public static EntityTypeFilter eventFilter(final String name, final boolean not) {
-    EntityTypeFilter f = new EntityTypeFilter(name);
-    f.setEntity(IcalDefs.entityTypeEvent);
-    f.setNot(not);
-
-    return f;
+  public static EntityTypeFilter makeIcalEntityTypeFilter(final String name,
+                                                          final String val,
+                                                          final boolean not)
+          throws WebdavException {
+    return makeEntityTypeFilter(name, val, not, IcalDefs.entityTypeIcalNames);
   }
 
-  /**
+  /** Use bedework names
+   *
    * @param name
-   * @param not true to test for inequality
-   * @return a filter for todos.
-   */
-  public static EntityTypeFilter todoFilter(final String name, final boolean not) {
-    EntityTypeFilter f = new EntityTypeFilter(name);
-    f.setEntity(IcalDefs.entityTypeTodo);
-    f.setNot(not);
-
-    return f;
-  }
-
-  /**
-   * @param name
-   * @param not true to test for inequality
-   * @return a filter for todos.
-   */
-  public static EntityTypeFilter freebusyFilter(final String name, final boolean not) {
-    EntityTypeFilter f = new EntityTypeFilter(name);
-    f.setEntity(IcalDefs.entityTypeFreeAndBusy);
-    f.setNot(not);
-
-    return f;
-  }
-
-  /**
-   * @param name
-   * @param not true to test for inequality
-   * @return a filter for journals.
-   */
-  public static EntityTypeFilter journalFilter(final String name, final boolean not) {
-    EntityTypeFilter f = new EntityTypeFilter(name);
-    f.setEntity(IcalDefs.entityTypeJournal);
-    f.setNot(not);
-
-    return f;
-  }
-
-  /**
-   * @param name
-   * @param not true to test for inequality
-   * @return a filter for vavailability.
-   */
-  public static EntityTypeFilter vavailabilityFilter(final String name,
-                                                     final boolean not) {
-    EntityTypeFilter f = new EntityTypeFilter(name);
-    f.setEntity(IcalDefs.entityTypeVavailability);
-    f.setNot(not);
-
-    return f;
-  }
-
-  /**
-   * @param name
-   * @param not true to test for inequality
-   * @return a filter for available.
-   */
-  public static EntityTypeFilter availableFilter(final String name,
-                                                     final boolean not) {
-    EntityTypeFilter f = new EntityTypeFilter(name);
-    f.setEntity(IcalDefs.entityTypeAvailable);
-    f.setNot(not);
-
-    return f;
-  }
-
-  /**
-   * @param name
+   * @param val - string val e.g. "event"
    * @param not true to test for inequality
    * @return a filter for events.
    */
-  public static EntityTypeFilter alarmFilter(final String name, final boolean not) {
+  public static EntityTypeFilter makeEntityTypeFilter(final String name,
+                                                      final String val,
+                                                      final boolean not)
+          throws WebdavException {
+    return makeEntityTypeFilter(name, val, not, IcalDefs.entityTypeNames);
+  }
+
+  /**
+   * @param name
+   * @param val - string val e.g. "event"
+   * @param not true to test for inequality
+   * @return a filter for events.
+   */
+  public static EntityTypeFilter makeEntityTypeFilter(final String name,
+                                                      final String val,
+                                                      final boolean not,
+                                                      final String[] names)
+          throws WebdavException {
+    int type = -1;
+
+    for (int i = 0; i < names.length; i++) {
+      if (names[i].equalsIgnoreCase(val)) {
+        type = i;
+        break;
+      }
+    }
+
+    if (type < 0) {
+      throw new WebdavException("Unknown entity type" + val);
+    }
+
     EntityTypeFilter f = new EntityTypeFilter(name);
-    f.setEntity(IcalDefs.entityTypeAlarm);
+    f.setEntity(type);
     f.setNot(not);
 
     return f;
