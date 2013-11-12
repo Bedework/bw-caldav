@@ -55,6 +55,10 @@ public class FilterBase implements Serializable {
    */
   protected boolean not;
 
+  /** Should this be cached?
+   */
+  protected boolean cache = true;
+
   protected FilterBase parent;
 
   /** The children of the filter */
@@ -116,6 +120,22 @@ public class FilterBase implements Serializable {
    */
   public boolean getNot() {
     return not;
+  }
+
+  /** Set the cache flag
+   *
+   * @param val    boolean not
+   */
+  public void setCache(final boolean val) {
+    cache = val;
+  }
+
+  /** Get the cache flag
+   *
+   * @return boolean   cache
+   */
+  public boolean getCache() {
+    return cache;
   }
 
   /** Set the parent for this calendar
