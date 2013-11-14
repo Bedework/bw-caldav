@@ -81,7 +81,7 @@ import javax.xml.namespace.QName;
 
 /** Class to represent a calendar in caldav.
  *
- *   @author Mike Douglass   douglm@bedework.edu
+ *   @author Mike Douglass   douglm  rpi.edu
  */
 public class CaldavCalNode extends CaldavBwNode {
   private CalDAVEvent ical;
@@ -200,9 +200,6 @@ public class CaldavCalNode extends CaldavBwNode {
     exists = true;
   }*/
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsNode#getOwner()
-   */
   @Override
   public AccessPrincipal getOwner() throws WebdavException {
     if (owner == null) {
@@ -223,9 +220,6 @@ public class CaldavCalNode extends CaldavBwNode {
     }
   }
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsNode#getEtagValue(boolean)
-   */
   @Override
   public String getEtagValue(final boolean strong) throws WebdavException {
     /* We need the etag of the target if this is an alias */
@@ -396,9 +390,6 @@ public class CaldavCalNode extends CaldavBwNode {
     return ical.toString();
   }
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsNode#update()
-   */
   @Override
   public void update() throws WebdavException {
     // ALIAS probably not unaliasing here
@@ -411,9 +402,6 @@ public class CaldavCalNode extends CaldavBwNode {
    *                   Required webdav properties
    * ==================================================================== */
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsNode#getContentLang()
-   */
   @Override
   public String getContentLang() throws WebdavException {
     return "en";
@@ -430,9 +418,6 @@ public class CaldavCalNode extends CaldavBwNode {
     return s.getBytes().length;
   }
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsNode#getContentType()
-   */
   @Override
   public String getContentType() throws WebdavException {
     if (ical != null) {
@@ -442,17 +427,11 @@ public class CaldavCalNode extends CaldavBwNode {
     return null;
   }
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsNode#getCreDate()
-   */
   @Override
   public String getCreDate() throws WebdavException {
     return null;
   }
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsNode#getDisplayname()
-   */
   @Override
   public String getDisplayname() throws WebdavException {
     if (col == null) {
@@ -462,9 +441,6 @@ public class CaldavCalNode extends CaldavBwNode {
     return col.getDisplayName();
   }
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsNode#getLastmodDate()
-   */
   @Override
   public String getLastmodDate() throws WebdavException {
     init(false);
@@ -519,9 +495,6 @@ public class CaldavCalNode extends CaldavBwNode {
     return currentAccess;
   }
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsNode#trailSlash()
-   */
   @Override
   public boolean trailSlash() {
     return true;
@@ -531,9 +504,6 @@ public class CaldavCalNode extends CaldavBwNode {
    *                   Property methods
    * ==================================================================== */
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsNode#removeProperty(org.w3c.dom.Element)
-   */
   @Override
   public boolean removeProperty(final Element val,
                                 final SetPropertyResult spr) throws WebdavException {
@@ -566,9 +536,6 @@ public class CaldavCalNode extends CaldavBwNode {
     }
   }
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsNode#setProperty(org.w3c.dom.Element)
-   */
   @Override
   public boolean setProperty(final Element val,
                              final SetPropertyResult spr) throws WebdavException {
@@ -711,9 +678,6 @@ public class CaldavCalNode extends CaldavBwNode {
     }
   }
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsNode#knownProperty(edu.bedework.sss.util.xml.QName)
-   */
   @Override
   public boolean knownProperty(final QName tag) {
     if (propertyNames.get(tag) != null) {
@@ -724,9 +688,6 @@ public class CaldavCalNode extends CaldavBwNode {
     return super.knownProperty(tag);
   }
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsNode#generatePropertyValue(edu.bedework.sss.util.xml.QName, edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf, boolean)
-   */
   @Override
   public boolean generatePropertyValue(final QName tag,
                                        final WebdavNsIntf intf,
@@ -1666,9 +1627,6 @@ public class CaldavCalNode extends CaldavBwNode {
     }
   }
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsNode#getPropertyNames()
-   */
   @Override
   public Collection<PropertyTagEntry> getPropertyNames()throws WebdavException {
     Collection<PropertyTagEntry> res = new ArrayList<PropertyTagEntry>();

@@ -32,7 +32,7 @@ import org.bedework.webdav.servlet.shared.WebdavException;
  * available calendar or a user and the access to a calendar will, of course,
  * depend upon the authentication state of the user.
  *
- *   @author Mike Douglass   douglm@bedework.edu
+ *   @author Mike Douglass   douglm   rpi.edu
  */
 public class CaldavURI {
   boolean exists;

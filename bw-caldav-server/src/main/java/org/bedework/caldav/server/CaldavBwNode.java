@@ -49,7 +49,7 @@ import javax.xml.namespace.QName;
 
 /** Class to represent a caldav node.
  *
- *   @author Mike Douglass   douglm - bedework.edu
+ *   @author Mike Douglass   douglm - rpi.edu
  */
 public abstract class CaldavBwNode extends WebdavNsNode {
 //  protected CaldavURI cdURI;
@@ -209,17 +209,11 @@ public abstract class CaldavBwNode extends WebdavNsNode {
    *                   Required webdav properties
    * ==================================================================== */
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsNode#getContentBinary()
-   */
   @Override
   public boolean getContentBinary() throws WebdavException {
     return false;
   }
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsNode#getChildren()
-   */
   @Override
   public Collection<? extends WdEntity> getChildren() throws WebdavException {
     return null;
@@ -229,9 +223,6 @@ public abstract class CaldavBwNode extends WebdavNsNode {
    *                   Property methods
    * ==================================================================== */
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsNode#knownProperty(edu.bedework.sss.util.xml.QName)
-   */
   @Override
   public boolean knownProperty(final QName tag) {
     if (propertyNames.get(tag) != null) {
@@ -242,9 +233,6 @@ public abstract class CaldavBwNode extends WebdavNsNode {
     return super.knownProperty(tag);
   }
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsNode#generatePropertyValue(edu.bedework.sss.util.xml.QName, edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf, boolean)
-   */
   @Override
   public boolean generatePropertyValue(final QName tag,
                                        final WebdavNsIntf intf,

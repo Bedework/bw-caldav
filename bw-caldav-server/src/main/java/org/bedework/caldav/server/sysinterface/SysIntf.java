@@ -43,6 +43,7 @@ import org.bedework.webdav.servlet.shared.WebdavException;
 
 import ietf.params.xml.ns.icalendar_2.IcalendarType;
 import net.fortuna.ical4j.model.Calendar;
+
 import org.oasis_open.docs.ws_calendar.ns.soap.ComponentSelectionType;
 
 import java.io.Reader;
@@ -61,7 +62,7 @@ import javax.xml.namespace.QName;
  * we don't have distinct event, todo and journal classes. They are all currently
  * the BwEvent class with an entityType defining what the object represents.
  *
- * @author Mike Douglass douglm at bedework.edu
+ * @author Mike Douglass douglm at rpi.edu
  */
 public interface SysIntf {
   /** Called before any other method is called to allow initialization to
@@ -757,7 +758,7 @@ public interface SysIntf {
 
   /** Data for Synch Report
    *
-   *   @author Mike Douglass   douglm@bedework.edu
+   *   @author Mike Douglass   douglm   rpi.edu
    */
   public static class SynchReportData {
     /** The changed entity may be an event, a resource or a collection. If it is

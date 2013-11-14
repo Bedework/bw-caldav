@@ -32,7 +32,7 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Node;
 
 /**
- * @author Mike Douglass douglm @ bedework.edu
+ * @author Mike Douglass douglm  rpi.edu
  */
 public class FreeBusyQuery {
   private boolean debug;

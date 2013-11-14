@@ -124,7 +124,7 @@ import javax.xml.namespace.QName;
  * delivered. We may want the entire calendar (or what we show by default) or
  * a single event from the calendar
  *
- *   @author Mike Douglass   douglm @ bedework.edu
+ *   @author Mike Douglass   douglm   rpi.edu
  */
 public class CaldavBWIntf extends WebdavNsIntf {
   /** Namespace prefix based on the request url.
@@ -316,9 +316,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
     return synchWsURI;
   }
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#getDavHeader(edu.bedework.cct.webdav.servlet.shared.WebdavNsNode)
-   */
   @Override
   public String getDavHeader(final WebdavNsNode node) throws WebdavException {
     if (account == null) {
@@ -365,9 +362,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
       this.sysi = sysi;
     }
 
-    /* (non-Javadoc)
-     * @see AccessXmlUtil.AccessXmlCb#makeHref(java.lang.String, int)
-     */
     @Override
     public String makeHref(final String id, final int whoType) throws AccessException {
       try {
@@ -395,50 +389,32 @@ public class CaldavBWIntf extends WebdavNsIntf {
       }
     }
 
-    /* (non-Javadoc)
-     * @see AccessXmlUtil.AccessXmlCb#setErrorTag(edu.bedework.sss.util.xml.QName)
-     */
     @Override
     public void setErrorTag(final QName tag) throws AccessException {
       errorTag = tag;
     }
 
-    /* (non-Javadoc)
-     * @see AccessXmlUtil.AccessXmlCb#getErrorTag()
-     */
     @Override
     public QName getErrorTag() throws AccessException {
       return errorTag;
     }
 
-    /* (non-Javadoc)
-     * @see AccessXmlUtil.AccessXmlCb#setErrorMsg(java.lang.String)
-     */
     @Override
     public void setErrorMsg(final String val) throws AccessException {
       errorMsg = val;
     }
 
-    /* (non-Javadoc)
-     * @see AccessXmlUtil.AccessXmlCb#getErrorMsg()
-     */
     @Override
     public String getErrorMsg() throws AccessException {
       return errorMsg;
     }
   }
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#getAccessUtil()
-   */
   @Override
   public AccessUtil getAccessUtil() throws WebdavException {
     return accessUtil;
   }
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#canPut(edu.bedework.cct.webdav.servlet.shared.WebdavNsNode)
-   */
   @Override
   public boolean canPut(final WebdavNsNode node) throws WebdavException {
     CalDAVEvent ev = null;
@@ -460,25 +436,16 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
   }
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#getDirectoryBrowsingDisallowed()
-   */
   @Override
   public boolean getDirectoryBrowsingDisallowed() throws WebdavException {
     return sysi.getAuthProperties().getDirectoryBrowsingDisallowed();
   }
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#rollback()
-   */
   @Override
   public void rollback() {
     sysi.rollback();
   }
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#close()
-   */
   @Override
   public void close() throws WebdavException {
     sysi.close();
@@ -491,9 +458,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
     return sysi;
   }
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#getSupportedLocks()
-   */
   @Override
   public String getSupportedLocks() {
     return null; // No locks
@@ -512,9 +476,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
     return true;
   }
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#addNamespace(org.bedework.util.xml.XmlEmit)
-   */
   @Override
   public void addNamespace(final XmlEmit xml) throws WebdavException {
     try {
@@ -541,9 +502,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
   }
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#getNode(java.lang.String, int, int)
-   */
   @Override
   public WebdavNsNode getNode(final String uri,
                               final int existance,
@@ -596,9 +554,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
   }
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#getChildren(edu.bedework.cct.webdav.servlet.shared.WebdavNsNode)
-   */
   @Override
   public Collection<WebdavNsNode> getChildren(final WebdavNsNode node) throws WebdavException {
     try {
@@ -794,9 +749,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
   }
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#getBinaryContent(edu.bedework.cct.webdav.servlet.shared.WebdavNsNode)
-   */
   @Override
   public Content getBinaryContent(final WebdavNsNode node) throws WebdavException {
     try {
@@ -849,9 +801,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
     return sysi.getDefaultContentType();
   }
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#putContent(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, edu.bedework.cct.webdav.servlet.shared.WebdavNsNode, java.lang.String[], java.io.Reader, edu.bedework.cct.webdav.servlet.common.Headers.IfHeaders)
-   */
   @Override
   public PutContentResult putContent(final HttpServletRequest req,
                                      final HttpServletResponse resp,
@@ -1148,23 +1097,14 @@ public class CaldavBWIntf extends WebdavNsIntf {
     return created;
   }
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#create(edu.bedework.cct.webdav.servlet.shared.WebdavNsNode)
-   */
   @Override
   public void create(final WebdavNsNode node) throws WebdavException {
   }
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#createAlias(edu.bedework.cct.webdav.servlet.shared.WebdavNsNode)
-   */
   @Override
   public void createAlias(final WebdavNsNode alias) throws WebdavException {
   }
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#acceptMkcolContent(javax.servlet.http.HttpServletRequest)
-   */
   @Override
   public void acceptMkcolContent(final HttpServletRequest req) throws WebdavException {
     throw new WebdavUnsupportedMediaType();
@@ -1448,9 +1388,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       Headers.makeLocation(resp, getLocation(to));
     }
   }
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#specialUri(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, java.lang.String)
-   */
+
   @Override
   public boolean specialUri(final HttpServletRequest req,
                             final HttpServletResponse resp,
@@ -1569,9 +1507,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
    *                  Access methods
    * ==================================================================== */
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#getGroups(java.lang.String, java.lang.String)
-   */
   @Override
   public Collection<WebdavNsNode> getGroups(final String resourceUri,
                                             final String principalUrl)
@@ -1591,9 +1526,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
     return res;
   }
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#getPrincipalCollectionSet(java.lang.String)
-   */
   @Override
   public Collection<String> getPrincipalCollectionSet(final String resourceUri)
          throws WebdavException {
@@ -1606,9 +1538,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
     return al;
   }
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#getPrincipals(java.lang.String, edu.bedework.cct.webdav.servlet.shared.PrincipalPropertySearch)
-   */
   @Override
   public Collection<WebdavPrincipalNode> getPrincipals(final String resourceUri,
                                                 final PrincipalPropertySearch pps)
@@ -1623,17 +1552,11 @@ public class CaldavBWIntf extends WebdavNsIntf {
     return pnodes;
   }
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#makeUserHref(java.lang.String)
-   */
   @Override
   public String makeUserHref(final String id) throws WebdavException {
     return getSysi().makeHref(id, WhoDefs.whoTypeUser);
   }
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#updateAccess(edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf.AclInfo)
-   */
   @Override
   public void updateAccess(final AclInfo info) throws WebdavException {
     CaldavBwNode node = (CaldavBwNode)getNode(info.what,
@@ -1686,9 +1609,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
   }
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#getAclPrincipalInfo(edu.bedework.cct.webdav.servlet.shared.WebdavNsNode)
-   */
   @Override
   public Collection<String> getAclPrincipalInfo(final WebdavNsNode node) throws WebdavException {
     try {
@@ -1749,9 +1669,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
     //  CaldavTags.minDateTime,
   };
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#knownProperty(edu.bedework.cct.webdav.servlet.shared.WebdavNsNode, edu.bedework.cct.webdav.servlet.shared.WebdavProperty)
-   */
   @Override
   public boolean knownProperty(final WebdavNsNode node,
                                final WebdavProperty pr) {
@@ -1772,9 +1689,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
     return super.knownProperty(node, pr);
   }
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsIntf#generatePropValue(edu.bedework.cct.webdav.servlet.shared.WebdavNsNode, edu.bedework.cct.webdav.servlet.shared.WebdavProperty, boolean)
-   */
   @Override
   public boolean generatePropValue(final WebdavNsNode node,
                                    WebdavProperty pr,

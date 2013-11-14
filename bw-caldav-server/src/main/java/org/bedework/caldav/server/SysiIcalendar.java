@@ -31,7 +31,7 @@ import java.util.Iterator;
 
 /** Class to represent an RFC icalendar object converted to an internal form.
  *
- * @author Mike Douglass douglm   bedework.edu
+ * @author Mike Douglass douglm   rpi.edu
  * @version 1.0
  */
 public abstract class SysiIcalendar implements ScheduleMethods,

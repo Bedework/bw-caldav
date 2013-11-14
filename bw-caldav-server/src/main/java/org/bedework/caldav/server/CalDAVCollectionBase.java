@@ -61,17 +61,11 @@ public abstract class CalDAVCollectionBase <T extends CalDAVCollectionBase> exte
    *                      Abstract method implementations
    * ==================================================================== */
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WdCollection#isAlias()
-   */
   @Override
   public boolean isAlias() throws WebdavException {
     return false;
   }
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WdEntity#resolveAlias(boolean)
-   */
   @Override
   public T resolveAlias(final boolean resolveSubAlias) throws WebdavException {
     return null;

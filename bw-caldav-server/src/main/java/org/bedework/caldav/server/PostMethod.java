@@ -70,12 +70,9 @@ import javax.xml.namespace.QName;
 
 /** Class called to handle POST for CalDAV scheduling.
  *
- *   @author Mike Douglass   douglm - bedework.edu
+ *   @author Mike Douglass   douglm - rpi.edu
  */
 public class PostMethod extends MethodBase {
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.common.MethodBase#init()
-   */
   @Override
   public void init() {
   }

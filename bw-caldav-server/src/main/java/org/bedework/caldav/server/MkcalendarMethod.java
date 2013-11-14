@@ -35,16 +35,10 @@ import javax.servlet.http.HttpServletResponse;
  *   @author Mike Douglass
  */
 public class MkcalendarMethod extends PropPatchMethod {
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.common.MethodBase#init()
-   */
   @Override
   public void init() {
   }
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.common.PropPatchMethod#doMethod(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
-   */
   @Override
   public void doMethod(final HttpServletRequest req,
                         final HttpServletResponse resp) throws WebdavException {

@@ -60,7 +60,7 @@ import javax.xml.namespace.QName;
 
 /** Class called to handle CalDAV REPORT.
  *
- *   @author Mike Douglass   douglm bedework.edu
+ *   @author Mike Douglass   douglm rpi.edu
  */
 public class CaldavReportMethod extends ReportMethod {
   /* The parsed results go here. We see:

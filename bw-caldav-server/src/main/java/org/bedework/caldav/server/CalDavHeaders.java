@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 
 /** Retrieve and process CalDAV header values
  *
- *   @author Mike Douglass   douglm  bedework.edu
+ *   @author Mike Douglass   douglm  rpi.edu
  */
 public class CalDavHeaders {
   /** Identifies the caller - probably only trust for super user */

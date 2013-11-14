@@ -35,7 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 /** This class extends the webdav servlet class, implementing the abstract
  * methods and overriding others to extend/modify the behaviour.
  *
- * @author Mike Douglass   douglm  bedework.edu
+ * @author Mike Douglass   douglm  rpi.edu
  */
 public class CaldavBWServlet extends WebdavServlet {
   /* Is this a CalWS servlet? */
@@ -52,9 +52,6 @@ public class CaldavBWServlet extends WebdavServlet {
     super.init(config);
   }
 
-  /* (non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.common.WebdavServlet#addMethods()
-   */
   @Override
   protected void addMethods() {
     if (calWs) {
