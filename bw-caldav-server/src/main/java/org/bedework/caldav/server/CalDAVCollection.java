@@ -136,6 +136,12 @@ public abstract class CalDAVCollection <T extends CalDAVCollection> extends WdCo
   public abstract String getColor() throws WebdavException;
 
   /**
+   * @param val the supported component names e.g. "VEVENT", "VTODO" etc.
+   * @throws WebdavException
+   */
+  public abstract void setSupportedComponents(List<String> val) throws WebdavException;
+
+  /**
    * @return the supported component names e.g. "VEVENT", "VTODO" etc.
    * @throws WebdavException
    */

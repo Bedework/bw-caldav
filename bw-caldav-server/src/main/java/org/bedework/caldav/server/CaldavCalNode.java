@@ -610,6 +610,24 @@ public class CaldavCalNode extends CaldavBwNode {
         return true;
       }
 
+      if (XmlUtil.nodeMatches(val, CaldavTags.supportedCalendarComponentSet)) {
+        Collection<Element> propVals = XmlUtil.getElements(val);
+
+        List<String> comps = new ArrayList<>();
+
+        for (Element pval: XmlUtil.getElements(val)) {
+          if (!XmlUtil.nodeMatches(pval, CaldavTags.comp)) {
+            throw new WebdavBadRequest("Only comp allowed");
+          }
+
+          comps.add(pval.getAttribute("name"));
+        }
+
+        col.setSupportedComponents(comps);
+
+        return true;
+      }
+
       if (XmlUtil.nodeMatches(val, CaldavTags.scheduleCalendarTransp)) {
         Element cval = XmlUtil.getOnlyElement(val);
 
