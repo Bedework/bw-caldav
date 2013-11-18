@@ -558,9 +558,10 @@ public class CaldavCalNode extends CaldavBwNode {
         return true;
       }
 
-      if (XmlUtil.nodeMatches(val, CaldavTags.calendarOrder)) {
+      if (XmlUtil.nodeMatches(val, AppleIcalTags.calendarOrder)) {
         if (checkCalForSetProp(spr)) {
-          col.setProperty(CaldavTags.calendarOrder, XmlUtil.getElementContent(val));
+          col.setProperty(AppleIcalTags.calendarOrder,
+                          XmlUtil.getElementContent(val));
         }
         return true;
       }
@@ -894,7 +895,7 @@ public class CaldavCalNode extends CaldavBwNode {
         return true;
       }
 
-      if (tag.equals(CaldavTags.calendarOrder)) {
+      if (tag.equals(AppleIcalTags.calendarOrder)) {
         // TODO validate this - what if it's null?
         xml.property(tag, col.getProperty(tag));
 
