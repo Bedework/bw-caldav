@@ -582,10 +582,11 @@ public class CaldavCalNode extends CaldavBwNode {
           }
 
           if (XmlUtil.nodeMatches(pval, CaldavTags.calendar)) {
-            // This is only valid for an (extended) mkcol
-            //if (!WebdavTags.mkcol.equals(spr.rootElement)) {
-            //  throw new WebdavForbidden();
-            //}
+            // This is only valid for mkcalendar or an (extended) mkcol
+            if (!WebdavTags.mkcol.equals(spr.rootElement) &&
+                    !CaldavTags.mkcalendar.equals(spr.rootElement)) {
+              throw new WebdavForbidden();
+            }
 
             CalDAVCollection c = (CalDAVCollection)getCollection(false); // Don't deref
 
@@ -611,6 +612,11 @@ public class CaldavCalNode extends CaldavBwNode {
       }
 
       if (XmlUtil.nodeMatches(val, CaldavTags.supportedCalendarComponentSet)) {
+        if (!WebdavTags.mkcol.equals(spr.rootElement) &&
+                !CaldavTags.mkcalendar.equals(spr.rootElement)) {
+          throw new WebdavForbidden();
+        }
+
         Collection<Element> propVals = XmlUtil.getElements(val);
 
         List<String> comps = new ArrayList<>();
