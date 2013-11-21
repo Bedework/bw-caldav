@@ -20,6 +20,8 @@ package org.bedework.caldav.util.filter;
 
 import org.bedework.util.calendar.PropertyIndex.PropertyInfoIndex;
 
+import java.util.List;
+
 /** A filter that filters for property presence.
  *
  * The name should be unique at least for a set of filters and unique for a
@@ -36,9 +38,23 @@ public class PresenceFilter extends PropertyFilter {
    * @param propertyIndex
    * @param testPresent   false for not present
    */
-  public PresenceFilter(String name, PropertyInfoIndex propertyIndex,
-                          boolean testPresent) {
+  public PresenceFilter(final String name,
+                        final PropertyInfoIndex propertyIndex,
+                        final boolean testPresent) {
     super(name, propertyIndex);
+    this.testPresent = testPresent;
+  }
+
+  /** Match on any of the entities.
+   *
+   * @param name - null one will be created
+   * @param propertyIndexes
+   * @param testPresent   false for not present
+   */
+  public PresenceFilter(final String name,
+                        final List<PropertyInfoIndex> propertyIndexes,
+                        final boolean testPresent) {
+    super(name, propertyIndexes);
     this.testPresent = testPresent;
   }
 

@@ -22,6 +22,8 @@ import org.bedework.util.misc.Uid;
 
 import org.bedework.util.calendar.PropertyIndex.PropertyInfoIndex;
 
+import java.util.List;
+
 /** Base filter class for properties.
  *
  * The name should be unique at least for a set of filters and unique for a
@@ -44,6 +46,30 @@ public class PropertyFilter extends FilterBase {
       setName(name);
     }
     setPropertyIndex(propertyIndex);
+  }
+
+  /**
+   * @param name - null one will be created
+   * @param propertyIndexes
+   */
+  public PropertyFilter(final String name,
+                        final List<PropertyInfoIndex> propertyIndexes) {
+    super(name);
+
+    if (name == null) {
+      setName(Uid.getUid());
+    }
+
+    if (propertyIndexes.size() == 1) {
+      setPropertyIndex(propertyIndexes.get(0));
+      return;
+    }
+
+    if (propertyIndexes.size() != 2) {
+      throw new RuntimeException("Not implemented - subfield depth > 2");
+    }
+    setPropertyIndex(propertyIndexes.get(1));
+    setParentPropertyIndex(propertyIndexes.get(0));
   }
 
   /**

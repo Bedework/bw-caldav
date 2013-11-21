@@ -22,6 +22,8 @@ import org.bedework.caldav.util.TimeRange;
 
 import org.bedework.util.calendar.PropertyIndex.PropertyInfoIndex;
 
+import java.util.List;
+
 /** A filter that selects properties that have a date within a given timerange.
  * This does not include calendar entities which have a start and end time.
  *
@@ -34,7 +36,18 @@ public class TimeRangeFilter extends ObjectFilter<TimeRange> {
    * @param name - null one will be created
    * @param propertyIndex
    */
-  public TimeRangeFilter(String name, PropertyInfoIndex propertyIndex) {
+  public TimeRangeFilter(final String name,
+                         final PropertyInfoIndex propertyIndex) {
     super(name, propertyIndex);
+  }
+
+  /** Match a created date.
+   *
+   * @param name - null one will be created
+   * @param propertyIndexes
+   */
+  public TimeRangeFilter(final String name,
+                         final List<PropertyInfoIndex> propertyIndexes) {
+    super(name, propertyIndexes);
   }
 }

@@ -22,6 +22,8 @@ import org.bedework.caldav.util.TimeRange;
 
 import org.bedework.util.calendar.PropertyIndex.PropertyInfoIndex;
 
+import java.util.List;
+
 /** A filter that selects events which match the single object value.
  *
  * <p>In CalDAV a property filter provides the following tests:<ul>
@@ -44,8 +46,19 @@ public class ObjectFilter<T> extends PropertyFilter {
    * @param name - null one will be created
    * @param propertyIndex
    */
-  public ObjectFilter(final String name, final PropertyInfoIndex propertyIndex) {
+  public ObjectFilter(final String name,
+                      final PropertyInfoIndex propertyIndex) {
     super(name, propertyIndex);
+  }
+
+  /** Match on any of the entities.
+   *
+   * @param name - null one will be created
+   * @param propertyIndexes
+   */
+  public ObjectFilter(final String name,
+                      final List<PropertyInfoIndex> propertyIndexes) {
+    super(name, propertyIndexes);
   }
 
   /** Set the entity we're filtering on
@@ -294,6 +307,32 @@ public class ObjectFilter<T> extends PropertyFilter {
                                           final TimeRange val) {
     TimeRangeFilter trf = new TimeRangeFilter(name, propertyIndex);
 
+    trf.setEntity(val);
+
+    return trf;
+  }
+
+  /** Create a timerange filter for the given indexes and value
+   *
+   * @param name
+   * @param propertyIndexes
+   * @param val     TimeRange
+   * @return BwObjectFilter
+   */
+  public static ObjectFilter makeFilter(final String name,
+                                        final List<PropertyInfoIndex> propertyIndexes,
+                                        final TimeRange val) {
+    if (propertyIndexes.size() == 1) {
+      return makeFilter(name, propertyIndexes.get(0), val);
+    }
+
+    if (propertyIndexes.size() != 2) {
+      throw new RuntimeException("Not implemented - subfield depth > 2");
+    }
+
+    TimeRangeFilter trf = new TimeRangeFilter(name, propertyIndexes);
+
+    trf.setParentPropertyIndex(propertyIndexes.get(0));
     trf.setEntity(val);
 
     return trf;
