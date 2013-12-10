@@ -53,6 +53,17 @@ public class ObjectFilter<T> extends PropertyFilter {
 
   /** Match on any of the entities.
    *
+   * @param propertyIndex
+   * @param val - a value to match
+   */
+  public ObjectFilter(final PropertyInfoIndex propertyIndex,
+                      final T val) {
+    super(null, propertyIndex);
+    setEntity(val);
+  }
+
+  /** Match on any of the entities.
+   *
    * @param name - null one will be created
    * @param propertyIndexes
    */
