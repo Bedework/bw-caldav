@@ -335,7 +335,7 @@ public class Filters {
                             final Collection<ParamFilterType> paramFilters) throws WebdavException {
     FilterBase filter = null;
 
-    PropertyInfoIndex pi = PropertyInfoIndex.lookupPname(pname);
+    PropertyInfoIndex pi = PropertyInfoIndex.valueOf(pname.toUpperCase());
 
     if (pi == null) {
       // Unknown property
