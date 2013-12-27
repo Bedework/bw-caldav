@@ -163,7 +163,9 @@ public class ResourceChangeType extends BaseNotificationType {
   public void setCreated(final CreatedType val) {
     created = val;
 
-    checkName(val.getHref());
+    if (val != null) {
+      checkName(val.getHref());
+    }
   }
 
   /**
@@ -179,7 +181,9 @@ public class ResourceChangeType extends BaseNotificationType {
   public void setDeleted(final DeletedType val) {
     deleted = val;
 
-    checkName(val.getHref());
+    if (val != null) {
+      checkName(val.getHref());
+    }
   }
 
   /**
@@ -196,7 +200,9 @@ public class ResourceChangeType extends BaseNotificationType {
   public void setCollectionChanges(final CollectionChangesType val) {
     collectionChanges = val;
 
-    checkName(val.getHref());
+    if (val != null) {
+      checkName(val.getHref());
+    }
   }
 
   /**
@@ -335,21 +341,16 @@ public class ResourceChangeType extends BaseNotificationType {
   public void toXml(final XmlEmit xml) throws Throwable {
     xml.openTag(AppleServerTags.resourceChange);
 
-    if (getCollectionChanges() != null) {
-      getCollectionChanges().toXml(xml);
-      return;
-    }
-
     if (getCreated() != null) {
       getCreated().toXml(xml);
-    }
-
-    for (UpdatedType u: getUpdated()) {
-      u.toXml(xml);
-    }
-
-    if (getDeleted() != null) {
+    } else if (!getUpdated().isEmpty()) {
+      for (UpdatedType u: getUpdated()) {
+        u.toXml(xml);
+      }
+    } else if (getDeleted() != null) {
       getDeleted().toXml(xml);
+    } else if (getCollectionChanges() != null) {
+      getCollectionChanges().toXml(xml);
     }
 
     xml.closeTag(AppleServerTags.resourceChange);

@@ -185,7 +185,7 @@ public class DeletedDetailsType {
         xml.openTagNoNewline(AppleServerTags.deletedNextInstance,
                              "tzid", getDeletedNextInstanceTzid());
         xml.value(getDeletedNextInstance());
-        xml.closeTag(AppleServerTags.deletedNextInstance);
+        xml.closeTagNoblanks(AppleServerTags.deletedNextInstance);
       }
     }
     if (getDeletedHadMoreInstances()) {
