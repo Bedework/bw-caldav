@@ -26,6 +26,11 @@ import org.bedework.util.jmx.MBeanInfo;
  * @author douglm
  */
 public interface SynchConnectionsMBean extends ConfBaseMBean {
+  static final String configName = "SynchConnections";
+
+  static final String serviceName =
+          "org.bedework.caldav:service=" + configName;
+
   /* ========================================================================
    * Attributes
    * ======================================================================== */
@@ -39,7 +44,7 @@ public interface SynchConnectionsMBean extends ConfBaseMBean {
    * @param val
    */
   @MBeanInfo("Put/update a connection")
-  public void setConnection(SynchConnection val);
+  void setConnection(SynchConnection val);
 
   /** Find a connection
    *
@@ -47,7 +52,7 @@ public interface SynchConnectionsMBean extends ConfBaseMBean {
    * @return a connection or null
    */
   @MBeanInfo("Get a connection")
-  public SynchConnection getConnection(String callbackUrl);
+  SynchConnection getConnection(String callbackUrl);
 
   /** Get a connection for outbound calls by id
    *
@@ -55,11 +60,11 @@ public interface SynchConnectionsMBean extends ConfBaseMBean {
    * @return a connection or null
    */
   @MBeanInfo("get a connection by id")
-  public SynchConnection getConnectionById(String id);
+  SynchConnection getConnectionById(String id);
 
   /**
    * @return list of connections
    */
   @MBeanInfo("List of connections")
-  public String[] activeConnectionInfo();
+  String[] activeConnectionInfo();
 }

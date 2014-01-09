@@ -50,22 +50,12 @@ public class SynchConnections extends ConfBase
   static Map<String, SynchConnection> activeConnectionsById =
       new HashMap<>();
 
-  private final static String nm = "SynchConnections";
-
   public SynchConnections() {
-    super(getServiceName(nm));
+    super(serviceName);
 
-    setConfigName(nm);
+    setConfigName(configName);
 
     setConfigPname(confuriPname);
-  }
-
-  /**
-   * @param name
-   * @return object name value for the mbean with this name
-   */
-  public static String getServiceName(final String name) {
-    return "org.bedework.caldav:service=" + name;
   }
 
   @Override
