@@ -335,11 +335,9 @@ public class Filters {
                             final Collection<ParamFilterType> paramFilters) throws WebdavException {
     FilterBase filter = null;
 
-    PropertyInfoIndex pi;
+    PropertyInfoIndex pi = PropertyInfoIndex.fromName(pname);
 
-    try {
-      pi = PropertyInfoIndex.valueOf(pname.toUpperCase());
-    } catch (Throwable t) {
+    if (pi == null) {
       // Unknown property
       throw new WebdavForbidden(CaldavTags.supportedFilter,
                                 "Unknown property " + pname);
