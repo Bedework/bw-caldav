@@ -753,7 +753,7 @@ public class CaldavCalNode extends CaldavBwNode {
         xml.openTag(tag);
         xml.emptyTag(WebdavTags.collection);
         if (debug) {
-          debugMsg("generatePropResourcetype for " + col);
+          debugMsg("generateProp resourcetype for " + col);
         }
 
         //boolean isCollection = cal.getCalendarCollection();
