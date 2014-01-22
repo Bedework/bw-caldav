@@ -530,7 +530,24 @@ public class CaldavBWIntf extends WebdavNsIntf {
           if (debug) {
             trace("About to delete event " + ev);
           }
-          sysi.deleteEvent(ev, CalDavHeaders.scheduleReply(getRequest()));
+
+          boolean sendSchedulingMessage = true;
+
+          if (sysi.testMode()) {
+            String userAgent = getRequest().getHeader("user-agent");
+
+            if ((userAgent != null) &&
+                    userAgent.contains("| END_REQUESTS") &&
+                    userAgent.contains("| DELETEALL")) {
+              sendSchedulingMessage = false;
+            }
+          }
+
+          if (!CalDavHeaders.scheduleReply(getRequest())) {
+            sendSchedulingMessage = false;
+          }
+
+          sysi.deleteEvent(ev, sendSchedulingMessage);
         } else {
           if (debug) {
             trace("No event object available");
@@ -545,7 +562,18 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
         CalDAVCollection col = (CalDAVCollection)cnode.getCollection(false); // Don't deref for delete
 
-        sysi.deleteCollection(col);
+        boolean sendSchedulingMessage = true;
+
+        if (sysi.testMode()) {
+          String userAgent = getRequest().getHeader("user-agent");
+
+          if ((userAgent != null) &&
+                  userAgent.contains("| END_REQUESTS") &&
+                  userAgent.contains("| DELETEALL")) {
+            sendSchedulingMessage = false;
+          }
+        }
+        sysi.deleteCollection(col, sendSchedulingMessage);
       }
     } catch (WebdavException we) {
       throw we;

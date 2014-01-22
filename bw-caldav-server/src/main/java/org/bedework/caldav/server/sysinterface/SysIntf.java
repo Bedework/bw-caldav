@@ -80,6 +80,13 @@ public interface SysIntf {
                    boolean service,
                    boolean calWs) throws WebdavException;
 
+  /** Allows some special handling of some requets - mostly to do with
+   * cleanup of accounts when testing.
+   *
+   * @return true for test mode.
+   */
+  public boolean testMode();
+
   /** Return CalDAV properties rleevent to authentication state.
    *
    * @return CalDAVAuthProperties object - never null.
@@ -656,10 +663,12 @@ public interface SysIntf {
   public void updateCollection(CalDAVCollection val) throws WebdavException;
 
   /**
-   * @param col
+   * @param col to delete
+   * @param sendSchedulingMessage  true if we should send cancels
    * @throws WebdavException
    */
-  public void deleteCollection(CalDAVCollection col) throws WebdavException;
+  public void deleteCollection(CalDAVCollection col,
+                               boolean sendSchedulingMessage) throws WebdavException;
 
   /** Returns children of the given collection to which the current user has
    * some access.
