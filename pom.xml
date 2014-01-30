@@ -21,7 +21,7 @@
 		<bw-ws.version>4.0.0-SNAPSHOT</bw-ws.version>
 		<!-- Third Party Library Versions -->
 		<servlet-api.version>2.5</servlet-api.version>
-		<ical4j.version>1.0.4</ical4j.version>
+    <ical4j.version>1.0-BW-SNAPSHOT</ical4j.version>
 		<log4j.version>1.2.15</log4j.version>
 	</properties>
 
@@ -123,7 +123,7 @@
 			<dependency>
 				<groupId>net.fortuna.ical4j</groupId>
 				<artifactId>ical4j</artifactId>
-				<version>head-20100601</version>
+				<version>${ical4j.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.james.jdkim</groupId>

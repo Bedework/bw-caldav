@@ -21,7 +21,7 @@
     <orderEntry type="library" name="Maven: org.apache.derby:derbynet:10.8.2.2" level="project" />
     <orderEntry type="library" name="Maven: org.apache.derby:derby:10.8.2.2" level="project" />
     <orderEntry type="library" name="Maven: com.h2database:h2:1.2.130" level="project" />
-    <orderEntry type="library" name="Maven: net.fortuna.ical4j:ical4j:head-20100601" level="project" />
+    <orderEntry type="library" name="Maven: net.fortuna.ical4j:ical4j:1.0-BW-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: commons-logging:commons-logging:1.1.1" level="project" />
     <orderEntry type="library" name="Maven: commons-codec:commons-codec:1.5" level="project" />
     <orderEntry type="library" name="Maven: commons-lang:commons-lang:2.4" level="project" />
