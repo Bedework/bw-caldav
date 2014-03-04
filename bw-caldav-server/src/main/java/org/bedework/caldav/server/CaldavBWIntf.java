@@ -36,6 +36,7 @@ import org.bedework.caldav.server.get.IscheduleGetHandler;
 import org.bedework.caldav.server.get.WebcalGetHandler;
 import org.bedework.caldav.server.soap.synch.SynchConnections;
 import org.bedework.caldav.server.soap.synch.SynchConnectionsMBean;
+import org.bedework.caldav.server.sysinterface.CalDAVSystemProperties;
 import org.bedework.caldav.server.sysinterface.CalPrincipalInfo;
 import org.bedework.caldav.server.sysinterface.RetrievalMode;
 import org.bedework.caldav.server.sysinterface.SysIntf;
@@ -244,6 +245,35 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       namespacePrefix = WebdavUtils.getUrlPrefix(req);
       namespace = namespacePrefix + "/schema";
+
+      final String hdr = req.getHeader("X-BEDEWORK-NOTE");
+
+      if (hdr != null) {
+        final String[] hparts = hdr.split(":");
+        String id = null;
+
+        if (hparts.length == 2) {
+          id = hparts[0];
+
+          CalDAVSystemProperties sysprops = sysi.getSystemProperties();
+
+          String token = hparts[1];
+
+          if (id != null) {
+            if (!id.equals(sysprops.getNotifierId()) ||
+                    (token == null) ||
+                    !token.equals(sysprops.getNotifierToken())) {
+              id = null;
+            }
+          }
+        }
+
+        if (id == null) {
+          throw new WebdavBadRequest();
+        }
+
+        account = id;
+      }
 
       sysi.init(req, account, false, calWs);
 
