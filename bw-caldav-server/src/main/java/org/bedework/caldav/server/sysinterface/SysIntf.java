@@ -68,17 +68,18 @@ public interface SysIntf {
   /** Called before any other method is called to allow initialization to
    * take place at the first or subsequent requests
    *
-   * @param req
-   * @param account
+   * @param req the http servlet request
+   * @param account - possible account
    * @param service - true if this is a service call - e.g. iSchedule -
    *                rather than a real user.
    * @param calWs  true if this is a CalWs-SOAP service
+   * @return the account which may have changed
    * @throws WebdavException
    */
-  public void init(HttpServletRequest req,
-                   String account,
-                   boolean service,
-                   boolean calWs) throws WebdavException;
+  public String init(HttpServletRequest req,
+                     String account,
+                     boolean service,
+                     boolean calWs) throws WebdavException;
 
   /** Allows some special handling of some requets - mostly to do with
    * cleanup of accounts when testing.

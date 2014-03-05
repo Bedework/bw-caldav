@@ -118,32 +118,6 @@ public interface CalDAVSystemProperties extends Serializable {
   @MBeanInfo("Calws soap web service uri - null for no service")
   String getCalSoapWsURI();
 
-  /** Notification system id - null for no service
-   *
-   * @param val    String
-   */
-  void setNotifierId(final String val);
-
-  /** Notification system id - null for no service
-   *
-   * @return String
-   */
-  @MBeanInfo("Notification system id")
-  String getNotifierId();
-
-  /** Notification system token - null for no service
-   *
-   * @param val    String
-   */
-  void setNotifierToken(final String val);
-
-  /** Notification system id - null for no service
-   *
-   * @return String
-   */
-  @MBeanInfo("Notification system token")
-  String getNotifierToken();
-
   /** Set the max number of items per vpoll. null for no limit
    *
    * @param val    Integer max
