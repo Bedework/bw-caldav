@@ -21,11 +21,12 @@ package org.bedework.caldav.util.sharing;
 import org.bedework.util.misc.ToString;
 import org.bedework.util.xml.XmlEmit;
 import org.bedework.util.xml.tagdefs.AppleServerTags;
+import org.bedework.util.xml.tagdefs.BedeworkServerTags;
 import org.bedework.util.xml.tagdefs.WebdavTags;
 
 import javax.xml.namespace.QName;
 
-/** Class to represent reply to a sharing request.
+/** Class to represent a user in a sharing request.
  *
  * @author Mike Douglass douglm
  */
@@ -35,6 +36,7 @@ public class UserType {
   private QName inviteStatus;
   private AccessType access;
   private String summary;
+  private boolean externalUser;
 
   /**
    * @param val the href
@@ -106,6 +108,20 @@ public class UserType {
     return summary;
   }
 
+  /**
+   * @param val true for an external user
+   */
+  public void setExternalUser(final boolean val) {
+    externalUser = val;
+  }
+
+  /**
+   * @return true for an external user
+   */
+  public boolean getExternalUser() {
+    return externalUser;
+  }
+
   /* ====================================================================
    *                   Convenience methods
    * ==================================================================== */
@@ -121,6 +137,8 @@ public class UserType {
     xml.emptyTag(getInviteStatus());
     getAccess().toXml(xml);
     xml.property(AppleServerTags.summary, getSummary());
+    xml.property(BedeworkServerTags.externalUser,
+                 String.valueOf(getExternalUser()));
     xml.closeTag(AppleServerTags.user);
   }
 
@@ -134,6 +152,7 @@ public class UserType {
     ts.append("status", getInviteStatus().toString());
     ts.append(getAccess().toString());
     ts.append("summary", getSummary());
+    ts.append("externalUser", getExternalUser());
   }
 
   @Override
