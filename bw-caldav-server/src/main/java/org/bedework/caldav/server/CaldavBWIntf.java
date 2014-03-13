@@ -50,6 +50,7 @@ import org.bedework.util.xml.XmlEmit.NameSpace;
 import org.bedework.util.xml.XmlUtil;
 import org.bedework.util.xml.tagdefs.AppleIcalTags;
 import org.bedework.util.xml.tagdefs.AppleServerTags;
+import org.bedework.util.xml.tagdefs.BedeworkServerTags;
 import org.bedework.util.xml.tagdefs.CalWSXrdDefs;
 import org.bedework.util.xml.tagdefs.CaldavDefs;
 import org.bedework.util.xml.tagdefs.CaldavTags;
@@ -497,6 +498,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       xml.addNs(new NameSpace(AppleIcalTags.appleIcalNamespace, "AI"), false);
       xml.addNs(new NameSpace(CaldavDefs.icalNamespace, "ical"), false);
       xml.addNs(new NameSpace(AppleServerTags.appleCaldavNamespace, "CS"), false);
+      xml.addNs(new NameSpace(BedeworkServerTags.bedeworkCaldavNamespace, "BSS"), false);
     } catch (Throwable t) {
       throw new WebdavException(t);
     }

@@ -18,6 +18,7 @@
 */
 package org.bedework.caldav.util.notifications;
 
+import org.bedework.util.xml.tagdefs.BedeworkServerTags;
 import org.bedework.webdav.servlet.shared.UrlPrefixer;
 import org.bedework.webdav.servlet.shared.UrlUnprefixer;
 import org.bedework.util.xml.XmlEmit;
@@ -56,7 +57,7 @@ public abstract class BaseNotificationType {
    * this will have the encoded path of the resource for which we are getting a
    * notification. The resource name is too short to handle it at the moment.
    *
-   * @param val
+   * @param val encoding or path
    */
   public abstract void setEncoding(String val);
 
@@ -75,8 +76,8 @@ public abstract class BaseNotificationType {
     private String value;
 
     /**
-     * @param name
-     * @param value
+     * @param name attrname
+     * @param value attrvalue
      */
     public AttributeType(final String name,
                          final String value) {
@@ -105,25 +106,21 @@ public abstract class BaseNotificationType {
   public abstract List<AttributeType> getElementAttributes();
 
   /**
-   * @param xml
-   * @throws Throwable
-   */
-  /**
-   * @param xml
+   * @param xml emitter
    * @throws Throwable
    */
   public abstract void toXml(final XmlEmit xml) throws Throwable;
 
   /** Called before we send it out via caldav
    *
-   * @param prefixer
+   * @param prefixer the prefixer
    * @throws Throwable
    */
   public abstract void prefixHrefs(UrlPrefixer prefixer) throws Throwable;
 
   /** Called after we obtain it via caldav
    *
-   * @param unprefixer
+   * @param unprefixer the unprefixer
    * @throws Throwable
    */
   public abstract void unprefixHrefs(UrlUnprefixer unprefixer) throws Throwable;
@@ -133,12 +130,13 @@ public abstract class BaseNotificationType {
    * @throws Throwable
    */
   public String toXml() throws Throwable {
-    StringWriter str = new StringWriter();
-    XmlEmit xml = new XmlEmit();
+    final StringWriter str = new StringWriter();
+    final XmlEmit xml = new XmlEmit();
 
     xml.addNs(new NameSpace(WebdavTags.namespace, "DAV"), false);
     xml.addNs(new NameSpace(CaldavDefs.caldavNamespace, "C"), false);
     xml.addNs(new NameSpace(AppleServerTags.appleCaldavNamespace, "CSS"), false);
+    xml.addNs(new NameSpace(BedeworkServerTags.bedeworkCaldavNamespace, "BSS"), false);
 
     xml.startEmit(str);
     toXml(xml);

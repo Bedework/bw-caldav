@@ -22,6 +22,7 @@ import org.bedework.util.misc.ToString;
 import org.bedework.util.xml.XmlEmit;
 import org.bedework.util.xml.XmlEmit.NameSpace;
 import org.bedework.util.xml.tagdefs.AppleServerTags;
+import org.bedework.util.xml.tagdefs.BedeworkServerTags;
 import org.bedework.util.xml.tagdefs.CaldavDefs;
 import org.bedework.util.xml.tagdefs.WebdavTags;
 
@@ -76,6 +77,7 @@ public class InviteType {
     xml.addNs(new NameSpace(WebdavTags.namespace, "DAV"), false);
     xml.addNs(new NameSpace(CaldavDefs.caldavNamespace, "C"), false);
     xml.addNs(new NameSpace(AppleServerTags.appleCaldavNamespace, "CSS"), false);
+    xml.addNs(new NameSpace(BedeworkServerTags.bedeworkCaldavNamespace, "BSS"), false);
 
     xml.startEmit(str);
     toXml(xml);

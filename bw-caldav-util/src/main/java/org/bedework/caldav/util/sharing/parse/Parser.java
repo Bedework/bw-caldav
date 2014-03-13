@@ -31,6 +31,7 @@ import org.bedework.caldav.util.sharing.ShareType;
 import org.bedework.caldav.util.sharing.UserType;
 import org.bedework.util.xml.XmlUtil;
 import org.bedework.util.xml.tagdefs.AppleServerTags;
+import org.bedework.util.xml.tagdefs.BedeworkServerTags;
 import org.bedework.util.xml.tagdefs.CaldavTags;
 import org.bedework.util.xml.tagdefs.WebdavTags;
 import org.bedework.webdav.servlet.shared.WebdavBadRequest;
@@ -129,6 +130,9 @@ public class Parser {
 
   /** */
   public static final QName summaryTag = AppleServerTags.summary;
+
+  /** */
+  public static final QName externalUserTag = BedeworkServerTags.externalUser;
 
   /** */
   public static final QName supportedComponentsTag =
@@ -603,10 +607,11 @@ public class Parser {
         throw new WebdavBadRequest("Expected " + userTag);
       }
 
-      UserType u = new UserType();
-      Element[] shareEls = XmlUtil.getElementsArray(nd);
+      final UserType u = new UserType();
+      final Element[] shareEls = XmlUtil.getElementsArray(nd);
+      boolean parsedExternalElement = false;
 
-      for (Element curnode: shareEls) {
+      for (final Element curnode: shareEls) {
         if (XmlUtil.nodeMatches(curnode, hrefTag)) {
           if (u.getHref() != null) {
             throw badUser();
@@ -633,8 +638,9 @@ public class Parser {
             throw badAccess();
           }
 
-          u.setInviteStatus(new QName(AppleServerTags.appleCaldavNamespace,
-                                      curnode.getLocalName()));
+          u.setInviteStatus(new QName(
+                  AppleServerTags.appleCaldavNamespace,
+                  curnode.getLocalName()));
 
           continue;
         }
@@ -657,6 +663,16 @@ public class Parser {
           continue;
         }
 
+        if (XmlUtil.nodeMatches(curnode, externalUserTag)) {
+          if (parsedExternalElement) {
+            throw badUser();
+          }
+
+          parsedExternalElement = true;
+          u.setExternalUser(Boolean.valueOf(XmlUtil.getElementContent(curnode)));
+          continue;
+        }
+
         throw badInviteNotification();
       }
 
@@ -667,11 +683,11 @@ public class Parser {
       }
 
       return u;
-    } catch (SAXException e) {
+    } catch (final SAXException e) {
       throw parseException(e);
-    } catch (WebdavException wde) {
+    } catch (final WebdavException wde) {
       throw wde;
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }
