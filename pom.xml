@@ -116,11 +116,6 @@
 				<version>${ical4j.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>org.apache.geronimo.framework</groupId>
-				<artifactId>geronimo-kernel</artifactId>
-				<version>2.2.1</version>
-			</dependency>
-			<dependency>
 				<groupId>net.fortuna.ical4j</groupId>
 				<artifactId>ical4j</artifactId>
 				<version>${ical4j.version}</version>
@@ -159,31 +154,6 @@
 	</dependencyManagement>
 
 	<repositories>
-		<repository>
-			<id>jboss.repository</id>
-			<name>JBoss Public Repository Group</name>
-			<url>http://repository.jboss.org/nexus/content/groups/developer/</url>
-			<layout>default</layout>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-		<!-- Only needed for JBoss 5 dependencies. We should remove this when we
-			move Bedework off of JBoss 5. -->
-		<repository>
-			<id>jboss-deprecated</id>
-			<name>JBoss Deprecated Repository</name>
-			<url>http://repository.jboss.org/nexus/content/repositories/deprecated</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
 		<repository>
 			<id>bedework.repository</id>
 			<name>Bedework Maven Repository</name>
