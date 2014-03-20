@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.bedework</groupId>
 	<artifactId>bw-caldav</artifactId>
-	<version>4.0.0</version>
+	<version>4.0.1-SNAPSHOT</version>
 	<name>bw-caldav</name>
 	<packaging>pom</packaging>
 
