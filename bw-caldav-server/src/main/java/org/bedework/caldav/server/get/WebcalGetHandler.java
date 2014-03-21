@@ -43,7 +43,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class WebcalGetHandler extends GetHandler {
   /**
-   * @param intf
+   * @param intf the interface
    */
   public WebcalGetHandler(final CaldavBWIntf intf) {
     super(intf);
@@ -57,14 +57,14 @@ public class WebcalGetHandler extends GetHandler {
                       final HttpServletResponse resp,
                       final RequestPars pars) throws WebdavException {
     try {
-      CalDAVAuthProperties authp = getSysi().getAuthProperties();
+      final CalDAVAuthProperties authp = getSysi().getAuthProperties();
 
-      TimeRange tr = ParseUtil.getPeriod(req.getParameter("start"),
-                                         req.getParameter("end"),
-                                         java.util.Calendar.DATE,
-                                         authp.getDefaultWebCalPeriod(),
-                                         java.util.Calendar.DATE,
-                                         authp.getMaxWebCalPeriod());
+      final TimeRange tr = ParseUtil.getPeriod(req.getParameter("start"),
+                                               req.getParameter("end"),
+                                               java.util.Calendar.DATE,
+                                               authp.getDefaultWebCalPeriod(),
+                                               java.util.Calendar.DATE,
+                                               authp.getMaxWebCalPeriod());
 
       if (tr == null) {
         resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Date/times");
@@ -73,8 +73,8 @@ public class WebcalGetHandler extends GetHandler {
 
       String calPath;
 
-      if (pars.webcalGetAccept) {
-        calPath = pars.resourceUri;
+      if (pars.isWebcalGetAccept()) {
+        calPath = pars.getResourceUri();
       } else {
         calPath = req.getParameter("calPath");
         if (calPath == null) {
@@ -85,9 +85,9 @@ public class WebcalGetHandler extends GetHandler {
         calPath = WebdavNsIntf.fixPath(calPath);
       }
 
-      WebdavNsNode node = getNode(calPath,
-                                  WebdavNsIntf.existanceMust,
-                                  WebdavNsIntf.nodeTypeUnknown);
+      final WebdavNsNode node = getNode(calPath,
+                                        WebdavNsIntf.existanceMust,
+                                        WebdavNsIntf.nodeTypeUnknown);
 
       if ((node == null) || !node.getExists()) {
         resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -99,17 +99,17 @@ public class WebcalGetHandler extends GetHandler {
         return;
       }
 
-      Collection<CalDAVEvent> evs = new ArrayList<CalDAVEvent>();
+      final Collection<CalDAVEvent> evs = new ArrayList<>();
 
-      for (WebdavNsNode child: getChildren(node)) {
+      for (final WebdavNsNode child: getChildren(node)) {
         if (child instanceof CaldavComponentNode) {
           evs.add(((CaldavComponentNode)child).getEvent());
         }
       }
 
 
-      String suffix;
-      String acceptType = pars.acceptType;
+      final String suffix;
+      String acceptType = pars.getAcceptType();
       if (acceptType == null) {
         acceptType = getSysi().getDefaultContentType();
       }
@@ -131,9 +131,9 @@ public class WebcalGetHandler extends GetHandler {
                               null,
                               resp.getWriter(),
                               acceptType);
-    } catch (WebdavException wde) {
+    } catch (final WebdavException wde) {
       throw wde;
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }

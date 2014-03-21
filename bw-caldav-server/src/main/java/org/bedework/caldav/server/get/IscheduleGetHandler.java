@@ -53,7 +53,7 @@ public class IscheduleGetHandler extends GetHandler {
                       final HttpServletResponse resp,
                       final RequestPars pars) throws WebdavException {
     try {
-      if (pars.noPrefixResourceUri.length() == 0) {
+      if (pars.getNoPrefixResourceUri().length() == 0) {
         String query = req.getParameter("action");
 
         if (Util.equalsString(query, "capabilities")) {
@@ -64,8 +64,8 @@ public class IscheduleGetHandler extends GetHandler {
         resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Bad request parameters");
       }
 
-      if (pars.noPrefixResourceUri.startsWith("/domainkey")) {
-        String[] pe = pars.noPrefixResourceUri.split("/");
+      if (pars.getNoPrefixResourceUri().startsWith("/domainkey")) {
+        String[] pe = pars.getNoPrefixResourceUri().split("/");
 
         if (pe.length < 3) {
           resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Bad request parameters");

@@ -62,7 +62,7 @@ public class CaldavBWServlet extends WebdavServlet {
       methods.put("GET", new MethodInfo(GetMethod.class, false));
       methods.put("HEAD", new MethodInfo(HeadMethod.class, false));
       methods.put("OPTIONS", new MethodInfo(OptionsMethod.class, false));
-      methods.put("POST", new MethodInfo(PostMethod.class, false));  // Allow unauth POST for freebusy etc. true));
+      methods.put("POST", new MethodInfo(CaldavPostMethod.class, false));  // Allow unauth POST for freebusy etc. true));
       methods.put("PUT", new MethodInfo(PutMethod.class, true));
 
       return;
@@ -73,7 +73,7 @@ public class CaldavBWServlet extends WebdavServlet {
     // Replace methods
     methods.put("MKCALENDAR", new MethodInfo(MkcalendarMethod.class, true));
     //methods.put("OPTIONS", new MethodInfo(CalDavOptionsMethod.class, false));
-    methods.put("POST", new MethodInfo(PostMethod.class, false));  // Allow unauth POST for freebusy etc. true));
+    methods.put("POST", new MethodInfo(CaldavPostMethod.class, false));  // Allow unauth POST for freebusy etc. true));
     methods.put("REPORT", new MethodInfo(CaldavReportMethod.class, false));
   }
 

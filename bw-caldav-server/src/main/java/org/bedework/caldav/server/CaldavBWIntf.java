@@ -438,6 +438,11 @@ public class CaldavBWIntf extends WebdavNsIntf {
   }
 
   @Override
+  public String getAddMemberSuffix() throws WebdavException {
+    return ";add-member";
+  }
+
+  @Override
   public boolean getDirectoryBrowsingDisallowed() throws WebdavException {
     return sysi.getAuthProperties().getDirectoryBrowsingDisallowed();
   }
@@ -730,10 +735,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       if (node.isCollection() && (ctype != null) &&
           "text/calendar".equals(ctype)) {
-        GetHandler handler = new WebcalGetHandler(this);
-        RequestPars pars = new RequestPars(req, this, getResourceUri(req));
+        final GetHandler handler = new WebcalGetHandler(this);
+        final RequestPars pars = new RequestPars(req, this, getResourceUri(req));
 
-        pars.webcalGetAccept = true;
+        pars.setWebcalGetAccept(true);
 
         handler.process(req, resp, pars);
 
@@ -1426,11 +1431,11 @@ public class CaldavBWIntf extends WebdavNsIntf {
     RequestPars pars = new RequestPars(req, this, resourceUri);
     GetHandler handler = null;
 
-    if (pars.iSchedule) {
+    if (pars.isiSchedule()) {
       handler = new IscheduleGetHandler(this);
-    } else if (pars.freeBusy) {
+    } else if (pars.isFreeBusy()) {
       handler = new FreeBusyGetHandler(this);
-    } else if (pars.webcal) {
+    } else if (pars.isWebcal()) {
       handler = new WebcalGetHandler(this);
     }
 

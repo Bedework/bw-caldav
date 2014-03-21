@@ -20,111 +20,50 @@ package org.bedework.caldav.server;
 
 import org.bedework.caldav.server.sysinterface.CalDAVSystemProperties;
 import org.bedework.caldav.server.sysinterface.SysIntf;
-import org.bedework.util.misc.Util;
-import org.bedework.webdav.servlet.shared.WebdavBadRequest;
+import org.bedework.webdav.servlet.common.PostRequestPars;
 import org.bedework.webdav.servlet.shared.WebdavException;
 
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
-import java.io.Reader;
-
 import javax.servlet.http.HttpServletRequest;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 /**
  */
-public class RequestPars {
-  /** */
-  public HttpServletRequest req;
+public class RequestPars extends PostRequestPars {
+  private IscheduleIn ischedRequest;
 
-  /** */
-  public String method;
+  private SysiIcalendar ic;
 
-  /** */
-  public String resourceUri;
+  private CalDAVCollection col;
 
-  /** If this request is for a special URI this is the resource URI without
-   * the prefix and any parameters. It may be an empty string but will not be null.
-   * <p>for example /ischedule/domainkey/... will become /domainkey/...
-   */
-  public String noPrefixResourceUri;
+  private boolean share;
 
-  /** from accept header */
-  public String acceptType;
+  private boolean iSchedule;
 
-  /** type of request body */
-  String contentType;
+  private boolean freeBusy;
 
-  /** Broken out content type */
-  public String[] contentTypePars;
+  private boolean webcal;
 
-  /** Special parameters for iSchedule
-   */
-  public IscheduleIn ischedRequest;
+  private boolean webcalGetAccept;
 
-  Reader reqRdr;
+  private boolean entityCreate;
 
-  SysiIcalendar ic;
+  private boolean synchws;
 
-  CalDAVCollection cal;
-
-  /** true if this is a CalDAV share request */
-  public boolean share;
-
-  /* true if this is an iSchedule request */
-  boolean iSchedule;
-
-  /** true if this is a free busy request */
-  public boolean freeBusy;
-
-  /** true if this is a web calendar request */
-  public boolean webcal;
-
-  /** true if this is a web calendar request with GET + ACCEPT */
-  public boolean webcalGetAccept;
-
-  /** true if web service create of entity */
-  public boolean entityCreate;
-
-  /** true if this is an synch web service request */
-  public boolean synchws;
-
-  /** true if this is a calws soap web service request */
-  public boolean calwsSoap;
-
-  /** Set if the content type is xml */
-  public Document xmlDoc;
-
-  private boolean getTheReader = true;
+  private boolean calwsSoap;
 
   /**
-   * @param req
-   * @param intf
-   * @param resourceUri
+   * @param req - the request
+   * @param intf service interface
+   * @param resourceUri the uri
    * @throws WebdavException
    */
   public RequestPars(final HttpServletRequest req,
                      final CaldavBWIntf intf,
                      final String resourceUri) throws WebdavException {
-    SysIntf sysi = intf.getSysi();
+    super(req, intf, resourceUri);
 
-    CalDAVSystemProperties sp = sysi.getSystemProperties();
+    final SysIntf sysi = intf.getSysi();
 
-    this.req = req;
-    this.resourceUri = resourceUri;
-
-    method = req.getMethod();
-
-    acceptType = req.getHeader("ACCEPT");
-
-    contentType = req.getContentType();
-
-    if (contentType != null) {
-      contentTypePars = contentType.split(";");
-    }
+    final CalDAVSystemProperties sp = sysi.getSystemProperties();
 
     testRequest: {
       iSchedule = checkUri(sp.getIscheduleURI());
@@ -179,110 +118,107 @@ public class RequestPars {
       /* Not any of the special URIs - this could be a post aimed at one of
        * our caldav resources.
        */
-      if (isAppXml()) {
-        try {
-          reqRdr = req.getReader();
-        } catch (Throwable t) {
-          throw new WebdavException(t);
-        }
-
-        xmlDoc = parseXml(reqRdr);
-        getTheReader = false;
-      }
+      processXml();
     } // testRequest
 
-    if (getTheReader) {
-      try {
-        reqRdr = req.getReader();
-      } catch (Throwable t) {
-        throw new WebdavException(t);
-      }
-    }
+    getReader();
   }
 
   /**
-   * @param val
-   * @return parsed Document
-   * @throws WebdavException
+   * @return  Special parameters for iSchedule
    */
-  private Document parseXml(final Reader rdr) throws WebdavException{
-    if (rdr == null) {
-      return null;
-    }
-
-    try {
-      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-      factory.setNamespaceAware(true);
-
-      DocumentBuilder builder = factory.newDocumentBuilder();
-
-      return builder.parse(new InputSource(rdr));
-    } catch (SAXException e) {
-      throw new WebdavBadRequest();
-    } catch (Throwable t) {
-      throw new WebdavException(t);
-    }
+  public IscheduleIn getIschedRequest() {
+    return ischedRequest;
   }
 
   /**
-   * @return true if we have an xml content
+   * @return true if this is a calws soap web service request
    */
-  public boolean isAppXml() {
-    if (contentTypePars == null) {
-      return false;
-    }
-
-    return contentTypePars[0].equals("application/xml") ||
-        contentTypePars[0].equals("text/xml");
+  public boolean isCalwsSoap() {
+    return calwsSoap;
   }
 
   /**
-   * @param val
+   * @return true if this is an synch web service request
    */
-  public void setContentType(final String val) {
-    contentType = val;
+  public boolean isSynchws() {
+    return synchws;
   }
 
-  private boolean checkUri(final String specialUri) {
-    if (specialUri == null) {
-      return false;
-    }
-
-    String toMatch = Util.buildPath(true, specialUri);
-    String prefix;
-
-    int pos = resourceUri.indexOf("/", 1);
-
-    if (pos < 0) {
-      prefix = noParameters(resourceUri);
-    } else {
-      prefix = resourceUri.substring(0, pos);
-    }
-
-    if (!toMatch.equals(Util.buildPath(true, prefix))) {
-      noPrefixResourceUri = noParameters(resourceUri);
-      return false;
-    }
-
-    if (pos < 0) {
-      noPrefixResourceUri = "";
-    } else {
-      noPrefixResourceUri = noParameters(resourceUri.substring(pos));
-    }
-
-    return true;
+  /**
+   * @return true if this is a web calendar request
+   */
+  public boolean isWebcal() {
+    return webcal;
   }
 
-  private String noParameters(String uri) {
-    int pos = uri.indexOf("?");
-    if (pos > 0) {
-      uri = uri.substring(0, pos);
-    }
+  /**
+   * @param val true if this is a web calendar request with GET + ACCEPT
+   */
+  public void setWebcalGetAccept(final boolean val) {
+    webcalGetAccept = val;
+  }
 
-    if (uri.equals("/")) {
-      uri = "";
-    }
+  /**
+   * @return true if web service create of entity
+   */
+  public boolean isEntityCreate() {
+    return entityCreate;
+  }
 
-    return uri;
+  /**
+   * @return true if this is a web calendar request with GET + ACCEPT
+   */
+  public boolean isWebcalGetAccept() {
+    return webcalGetAccept;
+  }
+
+  /**
+   * @return true if this is a free busy request
+   */
+  public boolean isFreeBusy() {
+    return freeBusy;
+  }
+
+  /**
+   * @return true if this is an iSchedule request
+   */
+  public boolean isiSchedule() {
+    return iSchedule;
+  }
+
+  /**
+   * @return true if this is a CalDAV share request
+   */
+  public boolean isShare() {
+    return share;
+  }
+
+  /**
+   * @param val a collection
+   */
+  public void setCol(final CalDAVCollection val) {
+    col = val;
+  }
+
+  /**
+   * @return a collection
+   */
+  public CalDAVCollection getCol() {
+    return col;
+  }
+
+  /**
+   * @param val SysiCalendar object
+   */
+  public void setIcalendar(final SysiIcalendar val) {
+    ic = val;
+  }
+
+  /**
+   * @return SysiCalendar object
+   */
+  public SysiIcalendar getIcalendar() {
+    return ic;
   }
 }

@@ -41,7 +41,7 @@ import org.bedework.util.xml.tagdefs.IscheduleTags;
 import org.bedework.util.xml.tagdefs.WebdavTags;
 import org.bedework.util.xml.tagdefs.XcalTags;
 import org.bedework.webdav.servlet.common.Headers.IfHeaders;
-import org.bedework.webdav.servlet.common.MethodBase;
+import org.bedework.webdav.servlet.common.PostMethod;
 import org.bedework.webdav.servlet.shared.WebdavBadRequest;
 import org.bedework.webdav.servlet.shared.WebdavException;
 import org.bedework.webdav.servlet.shared.WebdavForbidden;
@@ -72,7 +72,7 @@ import javax.xml.namespace.QName;
  *
  *   @author Mike Douglass   douglm - rpi.edu
  */
-public class PostMethod extends MethodBase {
+public class CaldavPostMethod extends PostMethod {
   @Override
   public void init() {
   }
@@ -84,27 +84,32 @@ public class PostMethod extends MethodBase {
       trace("PostMethod: doMethod");
     }
 
-    CaldavBWIntf intf = (CaldavBWIntf)getNsIntf();
+    final CaldavBWIntf intf = (CaldavBWIntf)getNsIntf();
 
-    RequestPars pars = new RequestPars(req, intf, getResourceUri(req));
+    final RequestPars pars = new RequestPars(req, intf, getResourceUri(req));
 
-    if (pars.entityCreate) {
+    if (pars.isAddMember()) {
+      handleAddMember(pars, resp);
+      return;
+    }
+
+    if (pars.isEntityCreate()) {
       /* Web Service create */
       doEntityCreate(intf, pars, resp);
       return;
     }
 
-    if (pars.synchws) {
+    if (pars.isSynchws()) {
       new SynchwsHandler(intf).processPost(req, resp, pars);
       return;
     }
 
-    if (pars.calwsSoap) {
+    if (pars.isCalwsSoap()) {
       new CalwsHandler(intf).processPost(req, resp, pars);
       return;
     }
 
-    if (!pars.iSchedule) {
+    if (!pars.isiSchedule()) {
       if (intf.getCalWS()) {
         doWsQuery(intf, pars, resp);
 
@@ -123,7 +128,7 @@ public class PostMethod extends MethodBase {
 
     try {
       xml.addNs(new NameSpace(IscheduleTags.namespace, "IS"), true);
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
 
@@ -136,23 +141,23 @@ public class PostMethod extends MethodBase {
 
   /** Handle entity creation for the web service.
    *
-   * @param intf
-   * @param pars
-   * @param resp
+   * @param intf the interface
+   * @param pars POST parameters
+   * @param resp response
    * @throws WebdavException
    */
   public void doEntityCreate(final CaldavBWIntf intf,
                              final RequestPars pars,
                              final HttpServletResponse resp) throws WebdavException {
-    IfHeaders ih = new IfHeaders();
+    final IfHeaders ih = new IfHeaders();
     ih.create = true;
-    intf.putContent(pars.req, resp, true, ih);
+    intf.putContent(pars.getReq(), null, resp, true, ih);
   }
 
   private void doWsQuery(final CaldavBWIntf intf,
                          final RequestPars pars,
                          final HttpServletResponse resp) throws WebdavException {
-    if (!pars.contentTypePars[0].equals("text/xml")) {
+    if (!pars.getContentTypePars()[0].equals("text/xml")) {
       resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
       return;
     }
@@ -161,9 +166,9 @@ public class PostMethod extends MethodBase {
      * For the moment just hand it over to REPORT
      */
 
-    CaldavReportMethod method = new CaldavReportMethod();
+    final CaldavReportMethod method = new CaldavReportMethod();
     method.init(intf, true);
-    method.doMethod(pars.req, resp);
+    method.doMethod(pars.getReq(), resp);
   }
 
   private void doCalDav(final CaldavBWIntf intf,
@@ -176,9 +181,9 @@ public class PostMethod extends MethodBase {
       return;
     }
 
-    WebdavNsNode node = intf.getNode(pars.resourceUri,
-                                     WebdavNsIntf.existanceMust,
-                                     WebdavNsIntf.nodeTypeCollection);
+    final WebdavNsNode node = intf.getNode(pars.getResourceUri(),
+                                           WebdavNsIntf.existanceMust,
+                                           WebdavNsIntf.nodeTypeCollection);
 
     if (node == null) {
       resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -189,13 +194,13 @@ public class PostMethod extends MethodBase {
       throw new WebdavForbidden("Not a collection");
     }
 
-    CaldavCalNode calnode = (CaldavCalNode)node;
-    CalDAVCollection col = (CalDAVCollection)calnode.getCollection(false);
+    final CaldavCalNode calnode = (CaldavCalNode)node;
+    final CalDAVCollection col = (CalDAVCollection)calnode.getCollection(false);
 
-    Element root = pars.xmlDoc.getDocumentElement();
+    final Element root = pars.getXmlDoc().getDocumentElement();
 
-    SysIntf sysi = intf.getSysi();
-    Parser parse = new Parser();
+    final SysIntf sysi = intf.getSysi();
+    final Parser parse = new Parser();
 
     if (XmlUtil.nodeMatches(root, AppleServerTags.inviteReply)) {
       /* It's a reply to a sharing invitation. Parse it then doctor the url to
@@ -204,10 +209,10 @@ public class PostMethod extends MethodBase {
        * A successful response is a shared-as xml response giving the url of
        * the new collection in the sharees home.
        */
-      InviteReplyType reply = parse.parseInviteReply(root);
+      final InviteReplyType reply = parse.parseInviteReply(root);
       reply.setHostUrl(intf.getUri(reply.getHostUrl()));
 
-      String newUri = sysi.sharingReply(col, reply);
+      final String newUri = sysi.sharingReply(col, reply);
 
       if (newUri == null) {
         // Appropriate for declined
@@ -215,17 +220,17 @@ public class PostMethod extends MethodBase {
         return;
       }
 
-      SharedAsType sa = new SharedAsType(newUri);
+      final SharedAsType sa = new SharedAsType(newUri);
 
       resp.setStatus(HttpServletResponse.SC_OK);
       resp.setContentType("text/xml; charset=UTF-8");
 
       startEmit(resp);
-      XmlEmit xml = intf.getXmlEmit();
+      final XmlEmit xml = intf.getXmlEmit();
 
       try {
         sa.toXml(xml);
-      } catch (Throwable t) {
+      } catch (final Throwable t) {
         throw new WebdavException(t);
       }
 
@@ -233,9 +238,9 @@ public class PostMethod extends MethodBase {
     }
 
     if (XmlUtil.nodeMatches(root, AppleServerTags.share)) {
-      ShareType share = parse.parseShare(root);
+      final ShareType share = parse.parseShare(root);
 
-      ShareResultType sr = sysi.share(col, share);
+      final ShareResultType sr = sysi.share(col, share);
 
       if (sr.getBadSharees().isEmpty()) {
         /* No response needed when all OK */
@@ -247,12 +252,12 @@ public class PostMethod extends MethodBase {
       resp.setContentType("text/xml; charset=UTF-8");
 
       startEmit(resp);
-      XmlEmit xml = intf.getXmlEmit();
+      final XmlEmit xml = intf.getXmlEmit();
 
       try {
         xml.openTag(WebdavTags.multistatus);
 
-        for (String s:sr.getGoodSharees()) {
+        for (final String s:sr.getGoodSharees()) {
           xml.openTag(WebdavTags.response);
           xml.property(WebdavTags.href, s);
           addStatus(HttpServletResponse.SC_OK, null);
@@ -260,7 +265,7 @@ public class PostMethod extends MethodBase {
           xml.closeTag(WebdavTags.response);
         }
 
-        for (String s:sr.getBadSharees()) {
+        for (final String s:sr.getBadSharees()) {
           xml.openTag(WebdavTags.response);
           xml.property(WebdavTags.href, s);
           addStatus(HttpServletResponse.SC_FORBIDDEN, null);
@@ -269,30 +274,28 @@ public class PostMethod extends MethodBase {
         }
 
         xml.closeTag(WebdavTags.multistatus);
-      } catch (Throwable t) {
+      } catch (final Throwable t) {
         throw new WebdavException(t);
       }
-
-      return;
     }
   }
 
   /** Handle a scheduling action. The Only non-iSchedule regular action we see
    * this way should be freebusy requests posted at the authenticated user Outbox.
    *
-   * @param intf
-   * @param pars
-   * @param resp
+   * @param intf the interface
+   * @param pars POST parameters
+   * @param resp response
    * @throws WebdavException
    */
   public void doSchedule(final CaldavBWIntf intf,
                          final RequestPars pars,
                          final HttpServletResponse resp) throws WebdavException {
-    SysIntf sysi = intf.getSysi();
+    final SysIntf sysi = intf.getSysi();
 
-    WebdavNsNode node = intf.getNode(pars.resourceUri,
-                                     WebdavNsIntf.existanceMust,
-                                     WebdavNsIntf.nodeTypeCollection);
+    final WebdavNsNode node = intf.getNode(pars.getResourceUri(),
+                                           WebdavNsIntf.existanceMust,
+                                           WebdavNsIntf.nodeTypeCollection);
 
     if (node == null) {
       resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -339,9 +342,9 @@ public class PostMethod extends MethodBase {
       }
 
       /* Don't deref - this should be targetted at a real outbox */
-      pars.cal = (CalDAVCollection)node.getCollection(false);
+      pars.setCol((CalDAVCollection)node.getCollection(false));
 
-      if (pars.cal.getCalType() != CalDAVCollection.calTypeOutbox) {
+      if (pars.getCol().getCalType() != CalDAVCollection.calTypeOutbox) {
         if (debug) {
           debugMsg("Not targetted at Outbox");
         }
@@ -354,16 +357,18 @@ public class PostMethod extends MethodBase {
 
       /* (CALDAV:organizer-allowed) -- later */
 
-      pars.ic = intf.getSysi().fromIcal(pars.cal, pars.reqRdr,
-                                        pars.contentTypePars[0],
-                                        IcalResultType.OneComponent,
-                                        false);
+      pars.setIcalendar(intf.getSysi().fromIcal(pars.getCol(),
+                                                pars.getReader(),
+                                                pars.getContentTypePars()[0],
+                                                IcalResultType.OneComponent,
+                                                false));
 
       /* (CALDAV:valid-calendar-data) -- checjed in fromIcal */
 
-      if (!pars.ic.validItipMethodType()) {
+      if (!pars.getIcalendar().validItipMethodType()) {
         if (debug) {
-          debugMsg("Bad method: " + String.valueOf(pars.ic.getMethodType()));
+          debugMsg("Bad method: " +
+                           String.valueOf(pars.getIcalendar().getMethodType()));
         }
         throw new WebdavForbidden(CaldavTags.validCalendarData, "Bad METHOD");
       }
@@ -374,72 +379,74 @@ public class PostMethod extends MethodBase {
 
       /* (CALDAV:organizer-allowed) */
       /* There must be a valid organizer with an outbox for outgoing. */
-      if (pars.ic.requestMethodType()) {
-        Organizer organizer = pars.ic.getOrganizer();
+      if (pars.getIcalendar().requestMethodType()) {
+        final Organizer organizer = pars.getIcalendar().getOrganizer();
 
         if (organizer == null) {
           throw new WebdavForbidden(CaldavTags.organizerAllowed,
-          "No access for scheduling");
+                                    "No access for scheduling");
         }
 
         /* See if it's a valid calendar user. */
-        String cn = organizer.getOrganizerUri();
+        final String cn = organizer.getOrganizerUri();
         organizer.setOrganizerUri(sysi.getUrlHandler().unprefix(cn));
-        CalPrincipalInfo organizerInfo = sysi.getCalPrincipalInfo(sysi.caladdrToPrincipal(cn));
+        final CalPrincipalInfo organizerInfo =
+                sysi.getCalPrincipalInfo(sysi.caladdrToPrincipal(cn));
 
         if (debug) {
           if (organizerInfo == null) {
             trace("organizerInfo for " + cn + " is NULL");
           } else {
             trace("organizer cn = " + cn +
-                  ", resourceUri = " + pars.resourceUri +
+                  ", resourceUri = " + pars.getResourceUri() +
                   ", outBoxPath = " + organizerInfo.outboxPath);
           }
         }
 
         if (organizerInfo == null) {
           throw new WebdavForbidden(CaldavTags.organizerAllowed,
-          "No access for scheduling");
+                                    "No access for scheduling");
         }
 
         /* This must be targeted at the organizers outbox. */
-        if (!pars.resourceUri.equals(organizerInfo.outboxPath)) {
+        if (!pars.getResourceUri().equals(organizerInfo.outboxPath)) {
           throw new WebdavForbidden(CaldavTags.organizerAllowed,
                                     "No access for scheduling");
         }
-      } else {
-        /* This must have only one attendee - request must be targeted at attendees outbox*/
+        //      } else {
+        //      /* This must have only one attendee - request must be targeted at attendees outbox*/
       }
 
-      if (pars.ic.getComponentType() == IcalComponentType.freebusy) {
+      if (pars.getIcalendar().getComponentType() == IcalComponentType.freebusy) {
         handleFreeBusy(sysi, pars, resp);
       } else {
         if (debug) {
-          debugMsg("Unsupported component type: " + pars.ic.getComponentType());
+          debugMsg("Unsupported component type: " +
+                           pars.getIcalendar().getComponentType());
         }
         throw new WebdavForbidden("org.bedework.caldav.unsupported.component " +
-                                  pars.ic.getComponentType());
+                                  pars.getIcalendar().getComponentType());
       }
 
       flush();
-    } catch (WebdavException we) {
+    } catch (final WebdavException we) {
       throw we;
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }
 
   /** Handle an iSchedule action
    *
-   * @param intf
-   * @param pars
-   * @param resp
+   * @param intf the interface
+   * @param pars POST parameters
+   * @param resp response
    * @throws WebdavException
    */
   public void doISchedule(final CaldavBWIntf intf,
                           final RequestPars pars,
                           final HttpServletResponse resp) throws WebdavException {
-    SysIntf sysi = intf.getSysi();
+    final SysIntf sysi = intf.getSysi();
 
     try {
       /* Preconditions:
@@ -477,13 +484,13 @@ public class PostMethod extends MethodBase {
       */
 
       /* (ISCHED:supported-calendar-data) */
-      if (!pars.contentTypePars[0].equals("text/calendar") &&
-          !pars.contentTypePars[0].equals(XcalTags.mimetype)) {
+      if (!pars.getContentTypePars()[0].equals("text/calendar") &&
+          !pars.getContentTypePars()[0].equals(XcalTags.mimetype)) {
         if (debug) {
-          debugMsg("Bad content type: " + pars.contentType);
+          debugMsg("Bad content type: " + pars.getContentType());
         }
         throw new WebdavForbidden(IscheduleTags.invalidCalendarDataType,
-                                  "Bad content type: " + pars.contentType);
+                                  "Bad content type: " + pars.getContentType());
       }
 
       /* (CALDAV:valid-calendar-data) -- later */
@@ -491,7 +498,9 @@ public class PostMethod extends MethodBase {
 
       /* (ISCHED:originator-specified)
        *  */
-      if (pars.ischedRequest.getOriginator() == null) {
+
+      final IscheduleIn isi = pars.getIschedRequest();
+      if (isi.getOriginator() == null) {
         if (debug) {
           debugMsg("No originator");
         }
@@ -500,7 +509,7 @@ public class PostMethod extends MethodBase {
       }
 
       /* (ISCHED:recipient-specified) */
-      if (pars.ischedRequest.getRecipients().isEmpty()) {
+      if (isi.getRecipients().isEmpty()) {
         if (debug) {
           debugMsg("No recipient(s)");
         }
@@ -508,7 +517,7 @@ public class PostMethod extends MethodBase {
                                   "No recipient(s)");
       }
 
-      if (pars.ischedRequest.getIScheduleMessageId() == null) {
+      if (isi.getIScheduleMessageId() == null) {
         if (debug) {
           debugMsg("No message id");
         }
@@ -516,23 +525,26 @@ public class PostMethod extends MethodBase {
                                   "No message id");
       }
 
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      streamCopy(pars.req.getInputStream(), baos);
+      final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      streamCopy(pars.getReq().getInputStream(), baos);
 
-      validateHost(intf, pars, resp,
+      validateHost(pars,
                    new ByteArrayInputStream(baos.toByteArray()));
 
-      pars.ic = sysi.fromIcal(pars.cal,
-                              new InputStreamReader(new ByteArrayInputStream(baos.toByteArray())),
-                              pars.contentTypePars[0],
-                              IcalResultType.OneComponent,
-                              false);
+      pars.setIcalendar(sysi.fromIcal(pars.getCol(),
+                                      new InputStreamReader(
+                                              new ByteArrayInputStream(
+                                                      baos.toByteArray())),
+                                      pars.getContentTypePars()[0],
+                                      IcalResultType.OneComponent,
+                                      false));
 
       /* (ISCHED:valid-calendar-data) -- checked in fromIcal */
 
-      if (!pars.ic.validItipMethodType()) {
+      if (pars.getIcalendar().validItipMethodType()) {
         if (debug) {
-          debugMsg("Bad method: " + String.valueOf(pars.ic.getMethodType()));
+          debugMsg("Bad method: " +
+                           String.valueOf(pars.getIcalendar().getMethodType()));
         }
         throw new WebdavForbidden(IscheduleTags.invalidCalendarData, "Bad METHOD");
       }
@@ -540,7 +552,7 @@ public class PostMethod extends MethodBase {
       /* Do the stuff we deferred above */
 
       /* (CALDAV:valid-scheduling-message) -- later */
-      IcalComponentType ctype = pars.ic.getComponentType();
+      final IcalComponentType ctype = pars.getIcalendar().getComponentType();
 
       if (ctype == IcalComponentType.event) {
         handleEvent(sysi, pars, resp);
@@ -555,18 +567,17 @@ public class PostMethod extends MethodBase {
       }
 
       flush();
-    } catch (WebdavException we) {
+    } catch (final WebdavException we) {
       throw we;
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }
 
-  private void validateHost(final CaldavBWIntf intf,
-                            final RequestPars pars,
-                            final HttpServletResponse resp,
+  private void validateHost(final RequestPars pars,
                             final InputStream content) throws WebdavException {
-    SignatureRecord sig = pars.ischedRequest.getDkimSignature();
+    final IscheduleIn isi = pars.getIschedRequest();
+    final SignatureRecord sig = isi.getDkimSignature();
 
     if (sig == null) {
       // Check to see if we allow this host -
@@ -575,18 +586,18 @@ public class PostMethod extends MethodBase {
 
     try {
       /* Do DKIM validation */
-      DKIMVerifier verifier = new IscheduleDKIMVerifier();
-      BodyHasher bh = verifier.newBodyHasher(pars.ischedRequest);
+      final DKIMVerifier verifier = new IscheduleDKIMVerifier();
+      final BodyHasher bh = verifier.newBodyHasher(isi);
 
       if (bh != null) {
-        OutputStream os = bh.getOutputStream();
+        final OutputStream os = bh.getOutputStream();
         streamCopy(content, os);
       }
 
       verifier.verify(bh);
-    } catch (IOException e) {
+    } catch (final IOException e) {
       throw new WebdavException(e);
-    } catch (FailException e) {
+    } catch (final FailException e) {
       if (debug) {
         error(e);
       }
@@ -596,26 +607,26 @@ public class PostMethod extends MethodBase {
 
   /** Only for iSchedule - handle incoming event.
    *
-   * @param intf
-   * @param pars
-   * @param resp
+   * @param intf the interface
+   * @param pars POST parameters
+   * @param resp response
    * @throws WebdavException
    */
   private void handleEvent(final SysIntf intf,
                            final RequestPars pars,
                            final HttpServletResponse resp) throws WebdavException {
-    CalDAVEvent ev = pars.ic.getEvent();
+    final CalDAVEvent ev = pars.getIcalendar().getEvent();
 
-    if (pars.ischedRequest.getRecipients() != null) {
-      for (String r: pars.ischedRequest.getRecipients()) {
+    if (pars.getIschedRequest().getRecipients() != null) {
+      for (final String r: pars.getIschedRequest().getRecipients()) {
         ev.addRecipient(r);
       }
     }
 
     validateOriginator(pars, ev);
-    ev.setScheduleMethod(pars.ic.getMethodType());
+    ev.setScheduleMethod(pars.getIcalendar().getMethodType());
 
-    Collection<SchedRecipientResult> srrs = intf.schedule(ev);
+    final Collection<SchedRecipientResult> srrs = intf.schedule(ev);
 
     resp.setStatus(HttpServletResponse.SC_OK);
     resp.setContentType("text/xml; charset=UTF-8");
@@ -624,7 +635,7 @@ public class PostMethod extends MethodBase {
 
     openTag(IscheduleTags.scheduleResponse);
 
-    for (SchedRecipientResult srr: srrs) {
+    for (final SchedRecipientResult srr: srrs) {
       openTag(IscheduleTags.response);
 
       property(IscheduleTags.recipient, srr.recipient);
@@ -639,31 +650,31 @@ public class PostMethod extends MethodBase {
   private void handleFreeBusy(final SysIntf intf,
                               final RequestPars pars,
                               final HttpServletResponse resp) throws WebdavException {
-    CalDAVEvent<?> ev = pars.ic.getEvent();
+    final CalDAVEvent<?> ev = pars.getIcalendar().getEvent();
 
-    if (pars.iSchedule) {
-      ev.setRecipients(pars.ischedRequest.getRecipients());
+    if (pars.isiSchedule()) {
+      ev.setRecipients(pars.getIschedRequest().getRecipients());
     } else {
       /* Set recipients from attendees */
       ev.setRecipients(ev.getAttendeeUris());
     }
 
     validateOriginator(pars, ev);
-    ev.setScheduleMethod(pars.ic.getMethodType());
+    ev.setScheduleMethod(pars.getIcalendar().getMethodType());
 
-    Collection<SchedRecipientResult> srrs = intf.requestFreeBusy(ev, true);
+    final Collection<SchedRecipientResult> srrs = intf.requestFreeBusy(ev, true);
 
     resp.setStatus(HttpServletResponse.SC_OK);
-    resp.setContentType(pars.contentTypePars[0] + "; charset=UTF-8");
+    resp.setContentType(pars.getContentTypePars()[0] + "; charset=UTF-8");
 
     startEmit(resp);
 
-    QName sresponseTag;
-    QName responseTag;
-    QName recipientTag;
-    QName calendarDataTag;
+    final QName sresponseTag;
+    final QName responseTag;
+    final QName recipientTag;
+    final QName calendarDataTag;
 
-    if (pars.iSchedule) {
+    if (pars.isiSchedule()) {
       sresponseTag = IscheduleTags.scheduleResponse;
       responseTag = IscheduleTags.response;
       recipientTag = IscheduleTags.recipient;
@@ -677,10 +688,10 @@ public class PostMethod extends MethodBase {
 
     openTag(sresponseTag);
 
-    for (SchedRecipientResult srr: srrs) {
+    for (final SchedRecipientResult srr: srrs) {
       openTag(responseTag);
 
-      if (pars.iSchedule) {
+      if (pars.isiSchedule()) {
         property(recipientTag, srr.recipient);
       } else {
         openTag(recipientTag);
@@ -688,19 +699,19 @@ public class PostMethod extends MethodBase {
         closeTag(recipientTag);
       }
 
-      setReqstat(srr.status, pars.iSchedule);
+      setReqstat(srr.status, pars.isiSchedule());
 
-      CalDAVEvent rfb = srr.freeBusy;
+      final CalDAVEvent rfb = srr.freeBusy;
       if (rfb != null) {
-        rfb.setOrganizer(pars.ic.getOrganizer());
+        rfb.setOrganizer(pars.getIcalendar().getOrganizer());
 
         try {
           cdataProperty(calendarDataTag,
                         "content-type",
-                        pars.contentType,
+                        pars.getContentType(),
                         rfb.toIcalString(ScheduleMethods.methodTypeReply,
-                                         pars.contentTypePars[0]));
-        } catch (Throwable t) {
+                                         pars.getContentTypePars()[0]));
+        } catch (final Throwable t) {
           if (debug) {
             error(t);
           }
@@ -716,15 +727,15 @@ public class PostMethod extends MethodBase {
 
   private void validateOriginator(final RequestPars pars,
                                   final CalDAVEvent ev) throws WebdavException {
-    Organizer org = ev.getOrganizer();
+    final Organizer org = ev.getOrganizer();
 
     if (org == null) {
       throw new WebdavBadRequest(IscheduleTags.invalidCalendarData,
                                  "Missing organizer");
     }
 
-    if (pars.iSchedule) {
-      String origUrl = pars.ischedRequest.getOriginator();
+    if (pars.isiSchedule()) {
+      final String origUrl = pars.getIschedRequest().getOriginator();
 
       if (!origUrl.equals(org.getOrganizerUri())) {
         throw new WebdavBadRequest(IscheduleTags.invalidCalendarData,
@@ -739,7 +750,7 @@ public class PostMethod extends MethodBase {
 
   private void setReqstat(final int status,
                           final boolean iSchedule) throws WebdavException {
-    String reqstat;
+    final String reqstat;
 
     if (status == SchedRecipientResult.scheduleDeferred) {
       reqstat = IcalDefs.requestStatusDeferred;
@@ -767,12 +778,12 @@ public class PostMethod extends MethodBase {
 
   private void streamCopy(final InputStream in, final OutputStream out)
           throws IOException {
-      byte[] buffer = new byte[2048];
-      int read;
-      while ((read = in.read(buffer)) > 0) {
-          out.write(buffer, 0, read);
-      }
-      in.close();
-      out.close();
+    final byte[] buffer = new byte[2048];
+    int read;
+    while ((read = in.read(buffer)) > 0) {
+      out.write(buffer, 0, read);
+    }
+    in.close();
+    out.close();
   }
 }
