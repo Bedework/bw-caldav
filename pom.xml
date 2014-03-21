@@ -14,13 +14,13 @@
 		<!-- Bedework Versions -->
 		<bedework.releases.repo.url>scp://dev.bedework.org/data/repository/maven/maven2</bedework.releases.repo.url>
 		<bedework.snapshots.repo.url>scp://dev.bedework.org/data/repository/maven/maven2</bedework.snapshots.repo.url>
-		<bw-access.version>4.0.0</bw-access.version>
-		<bw-util.version>4.0.0</bw-util.version>
-		<bw-webdav.version>4.0.0</bw-webdav.version>
-		<bw-ws.version>4.0.0</bw-ws.version>
+		<bw-access.version>4.0.1-SNAPSHOT</bw-access.version>
+		<bw-util.version>4.0.1-SNAPSHOT</bw-util.version>
+		<bw-webdav.version>4.0.1-SNAPSHOT</bw-webdav.version>
+		<bw-ws.version>4.0.1-SNAPSHOT</bw-ws.version>
 		<!-- Third Party Library Versions -->
 		<servlet-api.version>2.5</servlet-api.version>
-    <ical4j.version>1.0-BW</ical4j.version>
+    <ical4j.version>1.1-BW-SNAPSHOT</ical4j.version>
 		<log4j.version>1.2.15</log4j.version>
 	</properties>
 
