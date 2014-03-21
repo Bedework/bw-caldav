@@ -63,7 +63,8 @@ public class MkcalendarMethod extends PropPatchMethod {
 
     CaldavCalNode node = (CaldavCalNode)getNsIntf().getNode(resourceUri,
                                                             WebdavNsIntf.existanceNot,
-                                                            WebdavNsIntf.nodeTypeCollection);
+                                                            WebdavNsIntf.nodeTypeCollection,
+                                                            false);
 
     node.setDefaults(CaldavTags.mkcalendar);
 

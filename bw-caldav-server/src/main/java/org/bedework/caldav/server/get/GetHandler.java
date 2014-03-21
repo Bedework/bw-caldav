@@ -108,7 +108,8 @@ public abstract class GetHandler {
   public WebdavNsNode getNode(final String uri,
                               final int existance,
                               final int nodeType) throws WebdavException {
-    return intf.getNode(uri, existance, nodeType);
+    return intf.getNode(uri, existance, nodeType,
+                        false);
   }
 
   protected void openTag(final QName tag) throws WebdavException {

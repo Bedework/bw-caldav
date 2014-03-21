@@ -99,7 +99,8 @@ public class ReportBase extends CaldavReportMethod {
                                         final CalendarQueryType cq) throws WebdavException {
     WebdavNsNode node = getNsIntf().getNode(resourceUri,
                                             WebdavNsIntf.existanceMust,
-                                            WebdavNsIntf.nodeTypeUnknown);
+                                            WebdavNsIntf.nodeTypeUnknown,
+                                            false);
 
     CalendarQueryPars cqp = new CalendarQueryPars();
 

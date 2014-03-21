@@ -372,7 +372,8 @@ public class CaldavReportMethod extends ReportMethod {
     CaldavBWIntf intf = (CaldavBWIntf)getNsIntf();
     WebdavNsNode node = intf.getNode(resourceUri,
                                      WebdavNsIntf.existanceMust,
-                                     WebdavNsIntf.nodeTypeUnknown);
+                                     WebdavNsIntf.nodeTypeUnknown,
+                                     false);
 
     openTag(WebdavTags.multistatus);
 
@@ -435,7 +436,8 @@ public class CaldavReportMethod extends ReportMethod {
       try {
         n = intf.getNode(intf.getUri(hr),
                          WebdavNsIntf.existanceMust,
-                         WebdavNsIntf.nodeTypeUnknown);
+                         WebdavNsIntf.nodeTypeUnknown,
+                         false);
       } catch (WebdavException we) {
         if (hr.endsWith("/")) {
           n = new CaldavCalNode(intf.getSysi(),
@@ -666,7 +668,8 @@ public class CaldavReportMethod extends ReportMethod {
     CaldavBWIntf intf = (CaldavBWIntf)getNsIntf();
     WebdavNsNode node = intf.getNode(resourceUri,
                                      WebdavNsIntf.existanceMust,
-                                     WebdavNsIntf.nodeTypeCollection);
+                                     WebdavNsIntf.nodeTypeCollection,
+                                     false);
 
     if (!(node instanceof CaldavCalNode)) {
       if (debug) {

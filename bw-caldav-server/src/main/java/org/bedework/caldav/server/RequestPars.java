@@ -44,8 +44,6 @@ public class RequestPars extends PostRequestPars {
 
   private boolean webcalGetAccept;
 
-  private boolean entityCreate;
-
   private boolean synchws;
 
   private boolean calwsSoap;
@@ -66,6 +64,10 @@ public class RequestPars extends PostRequestPars {
     final CalDAVSystemProperties sp = sysi.getSystemProperties();
 
     testRequest: {
+      if (processRequest()) {
+        break testRequest;
+      }
+
       iSchedule = checkUri(sp.getIscheduleURI());
 
       if (iSchedule) {
@@ -92,9 +94,9 @@ public class RequestPars extends PostRequestPars {
       // not ischedule or freeBusy or webcal
 
       if (intf.getCalWS()) {
-        // POST of entity for create?
+        // POST of entity for create? - same as DAV:add-member
         if ("create".equals(req.getParameter("action"))) {
-          entityCreate = true;
+          addMember = true;
         }
         break testRequest;
       }
@@ -157,13 +159,6 @@ public class RequestPars extends PostRequestPars {
    */
   public void setWebcalGetAccept(final boolean val) {
     webcalGetAccept = val;
-  }
-
-  /**
-   * @return true if web service create of entity
-   */
-  public boolean isEntityCreate() {
-    return entityCreate;
   }
 
   /**

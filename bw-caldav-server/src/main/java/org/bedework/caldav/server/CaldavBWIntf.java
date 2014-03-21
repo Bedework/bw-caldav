@@ -511,9 +511,11 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
   @Override
   public WebdavNsNode getNode(final String uri,
-                              final int existance,
-                              final int nodeType) throws WebdavException {
-    return getNodeInt(uri, existance, nodeType, null, null, null);
+                              final int existence,
+                              final int nodeType,
+                              final boolean addMember) throws WebdavException {
+    return getNodeInt(uri, existence, nodeType, addMember,
+                      null, null, null);
   }
 
   @Override
@@ -644,7 +646,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
         al.add(getNodeInt(Util.buildPath(true, uri, "/", name),
                           WebdavNsIntf.existanceDoesExist,
-                          nodeType, col, ev, r));
+                          nodeType,
+                          false,
+                          col, ev, r));
       }
 
       return al;
@@ -867,7 +871,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       }
 
       /** We can only put a single resource - that resource will be an ics file
-       * containing freebusy information or an event or todo and possible overrides.
+       * containing freebusy information or an event or vtodo and possible overrides.
        */
 
       pcr.created = putEvent(req, resp, bwnode,
@@ -1483,7 +1487,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
         if (parent == null) {
           parent = getNode(srdi.getVpath(),
                            WebdavNsIntf.existanceMust,
-                           WebdavNsIntf.nodeTypeCollection);
+                           WebdavNsIntf.nodeTypeCollection,
+                           false);
 
           parents.put(srdi.getVpath(), parent);
         }
@@ -1514,7 +1519,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
                                                             srdi.getVpath(),
                                                             "/", name),
                                              WebdavNsIntf.existanceDoesExist,
-                                             nodeType, col, ev, r),
+                                             nodeType,
+                                             false,
+                                             col, ev, r),
                                              srdi.getToken(),
                                              canSync);
 
@@ -1594,9 +1601,11 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
   @Override
   public void updateAccess(final AclInfo info) throws WebdavException {
-    CaldavBwNode node = (CaldavBwNode)getNode(info.what,
-                                              WebdavNsIntf.existanceMust,
-                                              WebdavNsIntf.nodeTypeUnknown);
+    final CaldavBwNode node =
+            (CaldavBwNode)getNode(info.what,
+                                  WebdavNsIntf.existanceMust,
+                                  WebdavNsIntf.nodeTypeUnknown,
+                                  false);
     updateAccess(info, node);
   }
 
@@ -1873,10 +1882,12 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
         String evuri = Util.buildPath(false, uri, "/", evName);
 
-        CaldavComponentNode evnode = (CaldavComponentNode)getNodeInt(evuri,
-                                                   WebdavNsIntf.existanceDoesExist,
-                                                   WebdavNsIntf.nodeTypeEntity,
-                                                   col, ev, null);
+        final CaldavComponentNode evnode =
+                (CaldavComponentNode)getNodeInt(evuri,
+                                                WebdavNsIntf.existanceDoesExist,
+                                                WebdavNsIntf.nodeTypeEntity,
+                                                false,
+                                                col, ev, null);
 
         evnodes.add(evnode);
       }
@@ -1948,6 +1959,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
   private WebdavNsNode getNodeInt(final String uri,
                                   final int existance,
                                   final int nodeType,
+                                  final boolean addMember,
                                   final CalDAVCollection col,
                                   final CalDAVEvent ev,
                                   final CalDAVResource r) throws WebdavException {
@@ -1960,7 +1972,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
 
     try {
-      CaldavURI wi = findURI(uri, existance, nodeType, col, ev, r);
+      final CaldavURI wi = findURI(uri, existance, nodeType, addMember,
+                                   col, ev, r);
 
       if (wi == null) {
         return null;
@@ -2009,15 +2022,17 @@ public class CaldavBWIntf extends WebdavNsIntf {
    * @param uri        String uri - just the path part
    * @param existance        Say's something about the state of existance
    * @param nodeType         Say's something about the type of node
+   * @param addMember        From POST
    * @param collection        Supplied CalDAVCollection object if we already have it.
-   * @param ev
-   * @param rsrc
+   * @param ev               an entity
+   * @param rsrc             a resource
    * @return CaldavURI object representing the uri
    * @throws WebdavException
    */
   private CaldavURI findURI(String uri,
                             final int existance,
                             final int nodeType,
+                            final boolean addMember,
                             final CalDAVCollection collection,
                             CalDAVEvent ev,
                             CalDAVResource rsrc) throws WebdavException {
@@ -2071,7 +2086,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
         } else if (rsrc != null) {
           curi = new CaldavURI(collection, rsrc, true);
         } else {
-          curi = new CaldavURI(collection, ev, name, true, false);
+          curi = new CaldavURI(collection,
+                               null, null, true, false);
         }
         //putUriPath(curi);
 
@@ -2117,7 +2133,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       String parentPath;
       String entityName = null;
 
-      if (calWs && (existance == WebdavNsIntf.existanceNot)) {
+      if (addMember && (existance == WebdavNsIntf.existanceNot)) {
         /* If we are trying to create we POST to the collection - there is no
            entity name */
         parentPath = uri;

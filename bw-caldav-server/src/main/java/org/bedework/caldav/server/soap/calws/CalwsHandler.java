@@ -224,7 +224,8 @@ public class CalwsHandler extends SoapHandler {
       if (url != null) {
         WebdavNsNode calNode = getNsIntf().getNode(url,
                                                    WebdavNsIntf.existanceMust,
-                                                   WebdavNsIntf.nodeTypeCollection);
+                                                   WebdavNsIntf.nodeTypeCollection,
+                                                   false);
 
         if (calNode != null) {
           CaldavBwNode nd = (CaldavBwNode)calNode;
@@ -269,7 +270,8 @@ public class CalwsHandler extends SoapHandler {
 
         WebdavNsNode elNode = getNsIntf().getNode(url,
                                                   WebdavNsIntf.existanceMust,
-                                                  WebdavNsIntf.nodeTypeUnknown);
+                                                  WebdavNsIntf.nodeTypeUnknown,
+                                                  false);
 
         if (!(elNode instanceof CaldavPrincipalNode)) {
           frr.setStatus(StatusType.ERROR);
@@ -550,7 +552,8 @@ public class CalwsHandler extends SoapHandler {
 
       WebdavNsNode elNode = getNsIntf().getNode(entityPath,
                                                 WebdavNsIntf.existanceNot,
-                                                WebdavNsIntf.nodeTypeEntity);
+                                                WebdavNsIntf.nodeTypeEntity,
+                                                false);
 
       try {
         /*
@@ -609,7 +612,8 @@ public class CalwsHandler extends SoapHandler {
     try {
       WebdavNsNode elNode = getNsIntf().getNode(fi.getHref(),
                                                 WebdavNsIntf.existanceMust,
-                                                WebdavNsIntf.nodeTypeEntity);
+                                                WebdavNsIntf.nodeTypeEntity,
+                                                false);
 
       if (elNode == null) {
         errorResponse(fir, new WebdavNotFound());
@@ -659,7 +663,8 @@ public class CalwsHandler extends SoapHandler {
     try {
       WebdavNsNode node = getNsIntf().getNode(di.getHref(),
                                               WebdavNsIntf.existanceMust,
-                                              WebdavNsIntf.nodeTypeUnknown);
+                                              WebdavNsIntf.nodeTypeUnknown,
+                                              false);
 
       if (node == null) {
         errorResponse(dir, new WebdavNotFound());
@@ -707,7 +712,8 @@ public class CalwsHandler extends SoapHandler {
     try {
       WebdavNsNode elNode = getNsIntf().getNode(ui.getHref(),
                                                 WebdavNsIntf.existanceMust,
-                                                WebdavNsIntf.nodeTypeEntity);
+                                                WebdavNsIntf.nodeTypeEntity,
+                                                false);
 
       updateItem: {
         if (elNode == null) {

@@ -40,7 +40,6 @@ import org.bedework.util.xml.tagdefs.CaldavTags;
 import org.bedework.util.xml.tagdefs.IscheduleTags;
 import org.bedework.util.xml.tagdefs.WebdavTags;
 import org.bedework.util.xml.tagdefs.XcalTags;
-import org.bedework.webdav.servlet.common.Headers.IfHeaders;
 import org.bedework.webdav.servlet.common.PostMethod;
 import org.bedework.webdav.servlet.shared.WebdavBadRequest;
 import org.bedework.webdav.servlet.shared.WebdavException;
@@ -93,12 +92,6 @@ public class CaldavPostMethod extends PostMethod {
       return;
     }
 
-    if (pars.isEntityCreate()) {
-      /* Web Service create */
-      doEntityCreate(intf, pars, resp);
-      return;
-    }
-
     if (pars.isSynchws()) {
       new SynchwsHandler(intf).processPost(req, resp, pars);
       return;
@@ -139,21 +132,6 @@ public class CaldavPostMethod extends PostMethod {
     doISchedule(intf, pars, resp);
   }
 
-  /** Handle entity creation for the web service.
-   *
-   * @param intf the interface
-   * @param pars POST parameters
-   * @param resp response
-   * @throws WebdavException
-   */
-  public void doEntityCreate(final CaldavBWIntf intf,
-                             final RequestPars pars,
-                             final HttpServletResponse resp) throws WebdavException {
-    final IfHeaders ih = new IfHeaders();
-    ih.create = true;
-    intf.putContent(pars.getReq(), null, resp, true, ih);
-  }
-
   private void doWsQuery(final CaldavBWIntf intf,
                          final RequestPars pars,
                          final HttpServletResponse resp) throws WebdavException {
@@ -183,7 +161,8 @@ public class CaldavPostMethod extends PostMethod {
 
     final WebdavNsNode node = intf.getNode(pars.getResourceUri(),
                                            WebdavNsIntf.existanceMust,
-                                           WebdavNsIntf.nodeTypeCollection);
+                                           WebdavNsIntf.nodeTypeCollection,
+                                           false);
 
     if (node == null) {
       resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -295,7 +274,8 @@ public class CaldavPostMethod extends PostMethod {
 
     final WebdavNsNode node = intf.getNode(pars.getResourceUri(),
                                            WebdavNsIntf.existanceMust,
-                                           WebdavNsIntf.nodeTypeCollection);
+                                           WebdavNsIntf.nodeTypeCollection,
+                                           false);
 
     if (node == null) {
       resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
