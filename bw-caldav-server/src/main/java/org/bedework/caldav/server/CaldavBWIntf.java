@@ -2113,8 +2113,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
           // We'll try as an entity for unknown
         } else {
-          if ((nodeType == WebdavNsIntf.nodeTypeUnknown) &&
-              (existance == WebdavNsIntf.existanceNot)) {
+          if (existance == WebdavNsIntf.existanceNot) {
             throw new WebdavForbidden(WebdavTags.resourceMustBeNull);
           }
 
