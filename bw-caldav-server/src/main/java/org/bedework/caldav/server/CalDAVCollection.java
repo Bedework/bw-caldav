@@ -64,7 +64,7 @@ public abstract class CalDAVCollection <T extends CalDAVCollection> extends WdCo
   public abstract T resolveAlias(final boolean resolveSubAlias) throws WebdavException;
 
   /**
-   *  @param val
+   *  @param val type
    * @throws WebdavException
    */
   public abstract void setCalType(int val) throws WebdavException;
@@ -109,7 +109,7 @@ public abstract class CalDAVCollection <T extends CalDAVCollection> extends WdCo
 
   /** Set the collection timezone property
    *
-   * @param val
+   * @param val the tzid
    * @throws WebdavException
    */
   public abstract void setTimezone(String val) throws WebdavException;
@@ -123,7 +123,7 @@ public abstract class CalDAVCollection <T extends CalDAVCollection> extends WdCo
 
   /** Set the calendar color property
    *
-   * @param val
+   * @param val the color
    * @throws WebdavException
    */
   public abstract void setColor(String val) throws WebdavException;
