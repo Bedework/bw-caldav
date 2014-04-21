@@ -109,6 +109,7 @@ public class PropertyFilter extends FilterBase {
    *
    * @param sb    StringBuffer for result
    */
+   @Override
    protected void toStringSegment(StringBuilder sb) {
     super.toStringSegment(sb);
     sb.append(", propertyIndex=");

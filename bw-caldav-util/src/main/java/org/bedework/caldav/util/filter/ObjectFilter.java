@@ -355,22 +355,10 @@ public class ObjectFilter<T> extends PropertyFilter {
 
   @Override
   public String toString() {
-    if (getPropertyIndex()== PropertyInfoIndex.CATEGORIES) {
-      StringBuilder sb = new StringBuilder("(categories=");
-      sb.append(getEntity());
-      sb.append(")");
+    ToString ts= new ToString(this);
 
-      return sb.toString();
-    }
+    ts.append(getEntity());
 
-    StringBuilder sb = new StringBuilder("BwObjectFilter{");
-
-    super.toStringSegment(sb);
-    sb.append("\nobj=");
-    sb.append(getEntity());
-
-    sb.append("}");
-
-    return sb.toString();
+    return ts.toString();
   }
 }
