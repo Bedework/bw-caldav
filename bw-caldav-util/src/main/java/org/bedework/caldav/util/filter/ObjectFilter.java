@@ -19,8 +19,8 @@
 package org.bedework.caldav.util.filter;
 
 import org.bedework.caldav.util.TimeRange;
-
 import org.bedework.util.calendar.PropertyIndex.PropertyInfoIndex;
+import org.bedework.util.misc.ToString;
 
 import java.util.List;
 
