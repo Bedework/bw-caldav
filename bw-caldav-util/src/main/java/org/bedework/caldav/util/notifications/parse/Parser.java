@@ -311,7 +311,7 @@ public class Parser {
     }
 
     if ((len > pos) &&
-            XmlUtil.nodeMatches(els[pos], BedeworkServerTags.status)) {
+            XmlUtil.nodeMatches(els[pos], WebdavTags.status)) {
       pt.setStatus(XmlUtil.getElementContent(els[pos]));
       pos++;
     }
