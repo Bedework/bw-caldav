@@ -101,12 +101,10 @@ public class RequestPars extends PostRequestPars {
         break testRequest;
       }
 
-      if (intf.getSynchWsURI() != null) {
-        synchws = intf.getSynchWsURI().equals(resourceUri);
-        if (synchws) {
-          getTheReader = false;
-          break testRequest;
-        }
+      synchws = intf.getSynchWs();
+      if (synchws) {
+        getTheReader = false;
+        break testRequest;
       }
 
       if (sp.getCalSoapWsURI() != null) {

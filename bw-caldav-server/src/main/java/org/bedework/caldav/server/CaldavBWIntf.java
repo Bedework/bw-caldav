@@ -144,15 +144,15 @@ public class CaldavBWIntf extends WebdavNsIntf {
   /* true if this is a CalWS server */
   private boolean calWs;
 
-  /* The bedework end of the synch service. This is a web
+  /* Marks the bedework end of the synch service. This is a web
     service called by the synch engine to get information out of
     bedework and to update events and status.
 
-    This path should probably be restricted to a given host only.
+    This service should probably be restricted to a given host only.
 
     Coming up on a separate port might help to lock it down.
    */
-  private String synchWsURI;
+  private boolean synchWs;
 
   private static Set<ObjectName> registeredMBeans = new CopyOnWriteArraySet<>();
   private static ManagementContext managementContext;
@@ -224,10 +224,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
   /** Called before any other method is called to allow initialization to
    * take place at the first or subsequent requests
    *
-   * @param servlet
-   * @param req
+   * @param servlet calling servlet
+   * @param req http request
    * @param methods    HashMap   table of method info
-   * @param dumpContent
+   * @param dumpContent true if we dump content
    * @throws WebdavException
    */
   @Override
@@ -238,7 +238,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
     try {
       // Needed before any other initialization
       calWs = Boolean.parseBoolean(servlet.getInitParameter("calws"));
-      synchWsURI = servlet.getInitParameter("synchWsURI");
+      synchWs = Boolean.parseBoolean(servlet.getInitParameter("synchws"));
       sysi = getSysi(servlet.getInitParameter("sysintfImpl"));
 
       super.init(servlet, req, methods, dumpContent);
@@ -250,9 +250,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       accessUtil = new AccessUtil(namespacePrefix, xml,
                                   new CalDavAccessXmlCb(sysi));
-    } catch (WebdavException we) {
+    } catch (final WebdavException we) {
       throw we;
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }
@@ -311,10 +311,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
   /** Get the synch web service uri - null for no service
    *
-   * @return String
+   * @return true if it's a synch service
    */
-  public String getSynchWsURI() {
-    return synchWsURI;
+  public boolean getSynchWs() {
+    return synchWs;
   }
 
   @Override
