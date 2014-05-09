@@ -88,7 +88,7 @@ public class ChangedPropertyType {
    */
   public List<ChangedParameterType> getChangedParameter() {
     if (changedParameter == null) {
-      changedParameter = new ArrayList<ChangedParameterType>();
+      changedParameter = new ArrayList<>();
     }
 
     return changedParameter;
@@ -99,12 +99,12 @@ public class ChangedPropertyType {
    * ==================================================================== */
 
   /**
-   * @param xml
+   * @param xml emitter
    * @throws Throwable
    */
   public void toXml(final XmlEmit xml) throws Throwable {
     xml.openTag(AppleServerTags.changedProperty, "name", getName());
-    for (ChangedParameterType cp: getChangedParameter()) {
+    for (final ChangedParameterType cp: getChangedParameter()) {
       cp.toXml(xml);
     }
 
@@ -122,11 +122,11 @@ public class ChangedPropertyType {
 
   /** Add our stuff to the StringBuffer
    *
-   * @param ts
+   * @param ts for output
    */
   protected void toStringSegment(final ToString ts) {
     ts.append("ChangedProperty:name", getName());
-    for (ChangedParameterType cp: getChangedParameter()) {
+    for (final ChangedParameterType cp: getChangedParameter()) {
       cp.toStringSegment(ts);
     }
     if (getDataFrom() != null) {
@@ -139,7 +139,7 @@ public class ChangedPropertyType {
 
   @Override
   public String toString() {
-    ToString ts = new ToString(this);
+    final ToString ts = new ToString(this);
 
     toStringSegment(ts);
 

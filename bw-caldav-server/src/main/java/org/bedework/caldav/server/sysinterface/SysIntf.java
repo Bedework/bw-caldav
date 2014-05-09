@@ -81,12 +81,24 @@ public interface SysIntf {
                      boolean service,
                      boolean calWs) throws WebdavException;
 
-  /** Allows some special handling of some requets - mostly to do with
+  /** Allows some special handling of some requests - mostly to do with
    * cleanup of accounts when testing.
    *
    * @return true for test mode.
    */
   public boolean testMode();
+
+  /** true if bedework extensions are enabled for the request. Client
+   * has sent a header "X-BEDEWORK-EXTENSIONS: TRUE".
+   *
+   * <p>Current extensions<ul>
+   * <li>Extra elements in notifications</li>
+   * </ul>
+   * </p>
+   *
+   * @return true for extensions enabled.
+   */
+  public boolean bedeworkExtensionsEnabled();
 
   /** Return CalDAV properties rleevent to authentication state.
    *

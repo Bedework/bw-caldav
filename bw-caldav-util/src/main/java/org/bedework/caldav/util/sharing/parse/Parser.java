@@ -158,8 +158,8 @@ public class Parser {
     setStatusMaps(inviteInvalidTag);
   }
 
-  private static List<BaseNotificationParser> parsers =
-      new ArrayList<BaseNotificationParser>();
+  private static final List<BaseNotificationParser> parsers =
+      new ArrayList<>();
   static {
     parsers.add(new InviteParser());
     parsers.add(new InviteReplyParser());
@@ -220,7 +220,7 @@ public class Parser {
 
   private static abstract class SharingNotificationParser implements BaseNotificationParser {
     private static final int maxPoolSize = 10;
-    private List<Parser> parsers = new ArrayList<Parser>();
+    private final List<Parser> parsers = new ArrayList<>();
 
     protected Parser parser;
 
@@ -488,10 +488,10 @@ public class Parser {
         throw new WebdavBadRequest("Expected " + inviteNotificationTag);
       }
 
-      InviteNotificationType in = new InviteNotificationType();
+      final InviteNotificationType in = new InviteNotificationType();
       in.setSharedType(XmlUtil.getAttrVal(nd, "shared-type"));
 
-      Element[] els = XmlUtil.getElementsArray(nd);
+      final Element[] els = XmlUtil.getElementsArray(nd);
 
       for (Element curnode: els) {
         if (XmlUtil.nodeMatches(curnode, uidTag)) {

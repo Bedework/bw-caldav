@@ -72,8 +72,8 @@ public abstract class BaseNotificationType {
   /**
    */
   public static class AttributeType {
-    private String name;
-    private String value;
+    private final String name;
+    private final String value;
 
     /**
      * @param name attrname

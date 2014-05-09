@@ -170,7 +170,7 @@ public class InviteNotificationType extends BaseNotificationType {
    */
   public List<String> getSupportedComponents() {
     if (supportedComponents == null) {
-      supportedComponents = new ArrayList<String>();
+      supportedComponents = new ArrayList<>();
     }
 
     return supportedComponents;
@@ -211,7 +211,7 @@ public class InviteNotificationType extends BaseNotificationType {
       return attrs;
     }
 
-    attrs = new ArrayList<AttributeType>();
+    attrs = new ArrayList<>();
 
     attrs.add(new AttributeType("shared-type", getSharedType()));
 
@@ -252,7 +252,7 @@ public class InviteNotificationType extends BaseNotificationType {
     xml.property(AppleServerTags.summary, getSummary());
 
     xml.openTag(CaldavTags.supportedCalendarComponentSet);
-    for (String s: getSupportedComponents()) {
+    for (final String s: getSupportedComponents()) {
       xml.emptyTag(CaldavTags.comp, "name", s);
     }
     xml.closeTag(CaldavTags.supportedCalendarComponentSet);
@@ -266,7 +266,7 @@ public class InviteNotificationType extends BaseNotificationType {
 
   /** Add our stuff to the StringBuffer
    *
-   * @param ts
+   * @param ts to build result
    */
   protected void toStringSegment(final ToString ts) {
     ts.append("uid", getUid());
@@ -281,7 +281,7 @@ public class InviteNotificationType extends BaseNotificationType {
 
   @Override
   public String toString() {
-    ToString ts = new ToString(this);
+    final ToString ts = new ToString(this);
 
     toStringSegment(ts);
 

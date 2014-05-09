@@ -32,6 +32,8 @@ import org.bedework.caldav.util.notifications.CreatedType;
 import org.bedework.caldav.util.notifications.DeletedDetailsType;
 import org.bedework.caldav.util.notifications.DeletedType;
 import org.bedework.caldav.util.notifications.NotificationType;
+import org.bedework.caldav.util.notifications.ProcessorType;
+import org.bedework.caldav.util.notifications.ProcessorsType;
 import org.bedework.caldav.util.notifications.PropType;
 import org.bedework.caldav.util.notifications.RecurrenceType;
 import org.bedework.caldav.util.notifications.ResourceChangeType;
@@ -74,28 +76,28 @@ import javax.xml.transform.stream.StreamResult;
  */
 public class Parser {
   /* Notifications we know about */
-  private static Map<QName, BaseNotificationParser> parsers =
-      new HashMap<QName, BaseNotificationParser>();
+  private final static Map<QName, BaseNotificationParser> parsers =
+      new HashMap<>();
 
   static {
-    for (BaseNotificationParser bnp:
+    for (final BaseNotificationParser bnp:
          org.bedework.caldav.util.sharing.parse.Parser.getParsers()) {
       parsers.put(bnp.getElement(), bnp);
     }
 
-    BaseNotificationParser bnp = new ResourceChangeParser();
+    final BaseNotificationParser bnp = new ResourceChangeParser();
     parsers.put(bnp.getElement(), bnp);
   }
 
   /* General notifications elements */
 
-  private static QName dtstampTag = AppleServerTags.dtstamp;
+  private static final QName dtstampTag = AppleServerTags.dtstamp;
 
-  private static QName notificationTag = AppleServerTags.notification;
+  private static final QName notificationTag = AppleServerTags.notification;
 
   private static abstract class AbstractNotificationParser implements BaseNotificationParser {
     private static final int maxPoolSize = 10;
-    private List<Parser> parsers = new ArrayList<Parser>();
+    private final List<Parser> parsers = new ArrayList<>();
 
     protected Parser parser;
 
@@ -159,19 +161,19 @@ public class Parser {
    * @return parsed notification or null
    * @throws WebdavException
    */
-  public static NotificationType fromXml(final String val) throws WebdavException{
+  public static NotificationType fromXml(final String val) throws WebdavException {
     ByteArrayInputStream bais = new ByteArrayInputStream(val.getBytes());
 
     return fromXml(bais);
   }
 
   /**
-   * @param is
+   * @param is stream
    * @return parsed notification or null
    * @throws WebdavException
    */
   public static NotificationType fromXml(final InputStream is) throws WebdavException{
-    Document doc = parseXmlString(is);
+    final Document doc = parseXmlString(is);
 
     if (doc == null) {
       return null;
@@ -191,10 +193,10 @@ public class Parser {
     }
 
     try {
-      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+      final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
       factory.setNamespaceAware(true);
 
-      DocumentBuilder builder = factory.newDocumentBuilder();
+      final DocumentBuilder builder = factory.newDocumentBuilder();
 
       return builder.parse(new InputSource(is));
     } catch (SAXException e) {
@@ -216,33 +218,105 @@ public class Parser {
       }
 
       NotificationType n = new NotificationType();
-      Element[] els = XmlUtil.getElementsArray(nd);
+      final Element[] els = XmlUtil.getElementsArray(nd);
 
-      for (Element curnode: els) {
+      int pos = parseCommonElements(n, nd);
+
+      while (pos < els.length) {
+        final Element curnode = els[pos];
+
         if (XmlUtil.nodeMatches(curnode, dtstampTag)) {
           n.setDtstamp(XmlUtil.getElementContent(curnode));
-          continue;
-        }
+        } else {
+          final BaseNotificationParser bnp = parsers.get(XmlUtil.fromNode(curnode));
+          if ((bnp == null) ||
+              (n.getNotification() != null)) {
+            throw badNotification(curnode);
+          }
 
-        BaseNotificationParser bnp = parsers.get(XmlUtil.fromNode(curnode));
-        if ((bnp == null) ||
-            (n.getNotification() != null)) {
-          throw badNotification(curnode);
+          n.setNotification(bnp.parse(curnode));
         }
-
-        n.setNotification(bnp.parse(curnode));
-        continue;
+        pos++;
       }
 
       return n;
-    } catch (SAXException e) {
+    } catch (final SAXException e) {
       dumpXml(nd);
       throw new WebdavBadRequest();
-    } catch (WebdavException wde) {
+    } catch (final WebdavException wde) {
       throw wde;
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
+  }
+
+  /** Parse elements common to all
+   *
+   * @param note the notification
+   * @param nd   the node
+   * @throws WebdavException
+   * @return number of elements parsed
+   */
+  public int parseCommonElements(final NotificationType note,
+                                 final Node nd) throws Throwable {
+    final Element[] els = XmlUtil.getElementsArray(nd);
+
+    if (els.length == 0) {
+      return 0;
+    }
+
+    if (!XmlUtil.nodeMatches(els[0], BedeworkServerTags.processors)) {
+      return 0;
+    }
+
+    note.setProcessors(parseProcessors(els[0]));
+
+    return 1;
+  }
+
+  ProcessorsType parseProcessors(final Element nd) throws Throwable {
+    final ProcessorsType pt = new ProcessorsType();
+
+    final Element[] els = XmlUtil.getElementsArray(nd);
+
+    for (final Element curnode: els) {
+      if (!XmlUtil.nodeMatches(curnode, BedeworkServerTags.processor)) {
+        throw new WebdavBadRequest("Expected " + BedeworkServerTags.processor);
+      }
+
+      pt.getProcessor().add(parseProcessor(curnode));
+    }
+
+    return pt;
+  }
+
+  ProcessorType parseProcessor(final Element nd) throws Throwable {
+    final ProcessorType pt = new ProcessorType();
+
+    final Element[] els = XmlUtil.getElementsArray(nd);
+    final int len = els.length;
+
+    int pos = 0;
+
+    if ((len > pos) &&
+            XmlUtil.nodeMatches(els[pos], BedeworkServerTags.type)) {
+      pt.setType(XmlUtil.getElementContent(els[pos]));
+      pos++;
+    }
+
+    if ((els.length > pos) &&
+            XmlUtil.nodeMatches(els[pos], dtstampTag)) {
+      pt.setDtstamp(XmlUtil.getElementContent(els[pos]));
+      pos++;
+    }
+
+    if ((len > pos) &&
+            XmlUtil.nodeMatches(els[pos], BedeworkServerTags.status)) {
+      pt.setStatus(XmlUtil.getElementContent(els[pos]));
+      pos++;
+    }
+
+    return pt;
   }
 
   /**
@@ -262,7 +336,7 @@ public class Parser {
 
       Object parsed = null;
 
-      for (Element curnode: els) {
+      for (final Element curnode: els) {
         if (XmlUtil.nodeMatches(curnode, AppleServerTags.created)) {
           if (parsed != null) {
             throw badNotification(curnode);

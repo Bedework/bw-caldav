@@ -39,9 +39,25 @@ import javax.xml.namespace.QName;
  * @author Mike Douglass douglm
  */
 public class NotificationType {
+  private ProcessorsType processors;
+
   private String dtstamp;
 
   private BaseNotificationType notification;
+
+  /**
+   * @param processors processor information
+   */
+  public void setProcessors(final ProcessorsType processors) {
+    this.processors = processors;
+  }
+
+  /**
+   * @return any processor information
+   */
+  public ProcessorsType getProcessors() {
+    return processors;
+  }
 
   /**
    * @param val the dtstamp
@@ -79,9 +95,9 @@ public class NotificationType {
       return;
     }
 
-    BaseNotificationType bn = getNotification();
+    final BaseNotificationType bn = getNotification();
 
-    String prefix = bn.getElementName().getLocalPart();
+    final String prefix = bn.getElementName().getLocalPart();
 
     if (val.length() < prefix.length()) {
       return;
@@ -94,7 +110,7 @@ public class NotificationType {
    * @return an appropriate name for this object
    */
   public String getName() {
-    BaseNotificationType bn = getNotification();
+    final BaseNotificationType bn = getNotification();
 
     return bn.getElementName().getLocalPart() + bn.getName();
   }
@@ -107,16 +123,16 @@ public class NotificationType {
    * @return an encoded content type - used internally
    */
   public String getContentType() {
-    StringBuilder sb = new StringBuilder("notification;type=");
+    final StringBuilder sb = new StringBuilder("notification;type=");
 
-    QName qn = getNotification().getElementName();
+    final QName qn = getNotification().getElementName();
 
     sb.append(qn);
 
-    List<AttributeType> attrs = getNotification().getElementAttributes();
+    final List<AttributeType> attrs = getNotification().getElementAttributes();
 
     if (!Util.isEmpty(attrs)) {
-      for (AttributeType attr: attrs) {
+      for (final AttributeType attr: attrs) {
         sb.append(";noteattr_");
         sb.append(attr.getName());
         sb.append("=");
@@ -128,7 +144,7 @@ public class NotificationType {
   }
 
   /**
-   * @param val
+   * @param val content type to decode and test
    * @return true if this is one of ours
    */
   public static boolean isNotificationContentType(final String val) {
@@ -146,7 +162,7 @@ public class NotificationType {
   }
 
   /**
-   * @param val
+   * @param val to decode
    * @return decoded content type
    */
   public static NotificationInfo fromContentType(final String val) {
@@ -158,13 +174,13 @@ public class NotificationType {
       return null;
     }
 
-    String[] parts = val.split(";");
+    final String[] parts = val.split(";");
 
     if ((parts.length < 2) || !parts[1].startsWith("type=")) {
       return null;
     }
 
-    NotificationInfo ni = new NotificationInfo();
+    final NotificationInfo ni = new NotificationInfo();
 
     ni.type = QName.valueOf(parts[1].substring(5));
 
@@ -174,10 +190,10 @@ public class NotificationType {
       }
 
       if (ni.attrs == null) {
-        ni.attrs = new ArrayList<AttributeType>();
+        ni.attrs = new ArrayList<>();
       }
 
-      int pos = parts[i].indexOf("=");
+      final int pos = parts[i].indexOf("=");
       ni.attrs.add(new AttributeType(parts[i].substring(9, pos),
                                      parts[i].substring(pos + 1)));
     }
@@ -199,8 +215,8 @@ public class NotificationType {
    * @throws Throwable
    */
   public String toXml(final boolean withBedeworkElements) throws Throwable {
-    StringWriter str = new StringWriter();
-    XmlEmit xml = new XmlEmit();
+    final StringWriter str = new StringWriter();
+    final XmlEmit xml = new XmlEmit();
 
     if (withBedeworkElements) {
       xml.setProperty("withBedeworkElements", "true");
@@ -218,11 +234,17 @@ public class NotificationType {
   }
 
   /**
-   * @param xml
+   * @param xml emitter
    * @throws Throwable
    */
   public void toXml(final XmlEmit xml) throws Throwable {
     xml.openTag(AppleServerTags.notification);
+
+    if (Boolean.parseBoolean(xml.getProperty("withBedeworkElements")) &&
+            (getProcessors() != null)) {
+      getProcessors().toXml(xml);
+    }
+
     xml.property(AppleServerTags.dtstamp, getDtstamp());
     getNotification().toXml(xml);
     xml.closeTag(AppleServerTags.notification);
@@ -230,7 +252,7 @@ public class NotificationType {
 
   /** Add our stuff to the StringBuffer
    *
-   * @param ts
+   * @param ts for output
    */
   protected void toStringSegment(final ToString ts) {
     ts.append("dtstamp", getDtstamp());
@@ -239,7 +261,7 @@ public class NotificationType {
 
   @Override
   public String toString() {
-    ToString ts = new ToString(this);
+    final ToString ts = new ToString(this);
 
     toStringSegment(ts);
 
