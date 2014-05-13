@@ -153,6 +153,13 @@ public abstract class CaldavBwNode extends WebdavNsNode {
    *                         Public methods
    * ==================================================================== */
 
+  /**
+   * @return the interface
+   */
+  public SysIntf getIntf() {
+    return sysi;
+  }
+
   @Override
   public WdCollection getCollection(final boolean deref) throws WebdavException {
     if (!deref) {

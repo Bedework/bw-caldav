@@ -19,6 +19,7 @@
 package org.bedework.caldav.server.calquery;
 
 import org.bedework.caldav.server.CaldavComponentNode;
+import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.caldav.util.DumpUtil;
 import org.bedework.caldav.util.ParseUtil;
 import org.bedework.util.xml.XmlEmit;
@@ -264,9 +265,9 @@ public class CalData extends WebdavProperty {
       return;
     }
 
-    CaldavComponentNode node = (CaldavComponentNode)wdnode;
+    final CaldavComponentNode node = (CaldavComponentNode)wdnode;
 
-    CompType comp = getCalendarData().getComp();
+    final CompType comp = getCalendarData().getComp();
 
     if (comp == null) {
       node.writeContent(xml, null, contentType);
@@ -294,14 +295,11 @@ public class CalData extends WebdavProperty {
     // Currently we only handle VEVENT -
     // If there's no VEVENT element what does that imply?
 
-    Iterator it = comp.getComp().iterator();
-
-    while (it.hasNext()) {
-      CompType subcomp = (CompType)it.next();
-      String nm = subcomp.getName().toUpperCase();
+    for (final CompType subcomp : comp.getComp()) {
+      final String nm = subcomp.getName().toUpperCase();
 
       if ("VEVENT".equals(nm) ||
-          "VTODO".equals(nm)) {
+              "VTODO".equals(nm)) {
         if (subcomp.getAllprop() != null) {
           node.writeContent(xml, null, contentType);
           return;
@@ -309,13 +307,16 @@ public class CalData extends WebdavProperty {
 
         try {
           if ((contentType != null) &&
-              contentType.equals(XcalTags.mimetype)) {
+                  contentType.equals(XcalTags.mimetype)) {
             // XXX Just return the whole lot for the moment
             node.writeContent(xml, null, contentType);
           } else {
-            xml.cdataValue(transformVevent(node.getIcal(), subcomp.getProp()));
+            xml.cdataValue(transformVevent(node.getIntf(),
+                                           node.getIcal(),
+                                           subcomp.getProp(),
+                                           contentType));
           }
-        } catch (IOException ioe) {
+        } catch (final IOException ioe) {
           throw new WebdavException(ioe);
         }
         return;
@@ -330,12 +331,14 @@ public class CalData extends WebdavProperty {
   /* Transform one or more VEVENT objects based on a list of required
    * properties.
    */
-  private String transformVevent(final Calendar ical,
-                                 final Collection<PropType> props)  throws WebdavException {
+  private String transformVevent(final SysIntf intf,
+                                 final Calendar ical,
+                                 final Collection<PropType> props,
+                                 final String contentType)  throws WebdavException {
     try {
-      Calendar nical = new Calendar();
-      PropertyList pl = ical.getProperties();
-      PropertyList npl = nical.getProperties();
+      final Calendar nical = new Calendar();
+      final PropertyList pl = ical.getProperties();
+      final PropertyList npl = nical.getProperties();
 
       // Add all vcalendar properties to new cal
       Iterator it = pl.iterator();
@@ -344,24 +347,24 @@ public class CalData extends WebdavProperty {
         npl.add((Property)it.next());
       }
 
-      ComponentList cl = ical.getComponents();
-      ComponentList ncl = nical.getComponents();
+      final ComponentList cl = ical.getComponents();
+      final ComponentList ncl = nical.getComponents();
 
       it = cl.iterator();
 
       while (it.hasNext()) {
-        Component c = (Component)it.next();
+        final Component c = (Component)it.next();
 
         if (!(c instanceof VEvent)) {
           ncl.add(c);
         } else {
-          VEvent v = new VEvent();
+          final VEvent v = new VEvent();
 
-          PropertyList vpl = c.getProperties();
-          PropertyList nvpl = v.getProperties();
+          final PropertyList vpl = c.getProperties();
+          final PropertyList nvpl = v.getProperties();
 
-          for (PropType pr: props) {
-            Property p = vpl.getProperty(pr.getName());
+          for (final PropType pr: props) {
+            final Property p = vpl.getProperty(pr.getName());
 
             if (p != null) {
               nvpl.add(p);
@@ -372,8 +375,8 @@ public class CalData extends WebdavProperty {
         }
       }
 
-      return nical.toString();
-    } catch (Throwable t) {
+      return intf.toIcalString(nical, contentType);
+    } catch (final Throwable t) {
       if (debug) {
         getLogger().error("transformVevent exception: ", t);
       }
