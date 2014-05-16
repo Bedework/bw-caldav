@@ -39,7 +39,7 @@ import javax.xml.namespace.QName;
  */
 public class IscheduleGetHandler extends GetHandler {
   /**
-   * @param intf
+   * @param intf system interface
    */
   public IscheduleGetHandler(final CaldavBWIntf intf) {
     super(intf);
@@ -54,18 +54,18 @@ public class IscheduleGetHandler extends GetHandler {
                       final RequestPars pars) throws WebdavException {
     try {
       if (pars.getNoPrefixResourceUri().length() == 0) {
-        String query = req.getParameter("action");
+        final String query = req.getParameter("action");
 
         if (Util.equalsString(query, "capabilities")) {
-          doCapabilities(req, resp, pars);
+          doCapabilities(resp);
           return;
         }
 
         resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Bad request parameters");
       }
 
-      if (pars.getNoPrefixResourceUri().startsWith("/domainkey")) {
-        String[] pe = pars.getNoPrefixResourceUri().split("/");
+      if (pars.getNoPrefixResourceUri().startsWith("/domainkey/")) {
+        final String[] pe = pars.getNoPrefixResourceUri().split("/");
 
         if (pe.length < 3) {
           resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Bad request parameters");
@@ -80,7 +80,7 @@ public class IscheduleGetHandler extends GetHandler {
 
     //} catch (WebdavException wde) {
     //  throw wde;
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }
@@ -89,7 +89,7 @@ public class IscheduleGetHandler extends GetHandler {
                              final String domain,
                              final String service) throws WebdavException {
     try {
-      byte[] key = intf.getSysi().getPublicKey(domain, service);
+      final byte[] key = intf.getSysi().getPublicKey(domain, service);
 
       if ((key == null) || (key.length == 0)) {
         resp.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -98,26 +98,22 @@ public class IscheduleGetHandler extends GetHandler {
 
       resp.setContentType("text/plain");
 
-      Writer wtr = resp.getWriter();
+      final Writer wtr = resp.getWriter();
 
       wtr.write("v=DKIM1;p=");
       wtr.write(new String(new Base64().encode(key)));
       wtr.close();
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }
 
   /** Generate an ischedule capabilities response
    *
-   * @param req
-   * @param resp
-   * @param pars
+   * @param resp the response
    * @throws WebdavException
    */
-  private void doCapabilities(final HttpServletRequest req,
-                              final HttpServletResponse resp,
-                              final RequestPars pars) throws WebdavException {
+  private void doCapabilities(final HttpServletResponse resp) throws WebdavException {
     try {
       startEmit(resp);
 
@@ -155,12 +151,12 @@ public class IscheduleGetHandler extends GetHandler {
 
       openTag(IscheduleTags.calendarDataTypes);
 
-      String[] calDataNames = {"content-type",
-                               "version"
+      final String[] calDataNames = {"content-type",
+                                     "version"
       };
 
-      String[] calDataVals = {"text/calendar",
-                               "2.0"
+      final String[] calDataVals = {"text/calendar",
+                                    "2.0"
       };
 
       attrTag(IscheduleTags.calendarData, calDataNames, calDataVals);
@@ -180,7 +176,7 @@ public class IscheduleGetHandler extends GetHandler {
       closeTag(IscheduleTags.supportedRecipientUriSchemeSet);
       */
 
-      CalDAVAuthProperties authp = intf.getSysi().getAuthProperties();
+      final CalDAVAuthProperties authp = intf.getSysi().getAuthProperties();
 
       prop(IscheduleTags.maxContentLength, authp.getMaxUserEntitySize());
       prop(IscheduleTags.minDateTime, authp.getMinDateTime());
@@ -192,9 +188,9 @@ public class IscheduleGetHandler extends GetHandler {
 
       closeTag(IscheduleTags.capabilities);
       closeTag(IscheduleTags.queryResult);
-    } catch (WebdavException wde) {
+    } catch (final WebdavException wde) {
       throw wde;
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }
@@ -211,7 +207,7 @@ public class IscheduleGetHandler extends GetHandler {
   private void supportedMethod(final String val) throws WebdavException {
     try {
       attrTag(IscheduleTags.method, "name", val);
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }
@@ -222,7 +218,7 @@ public class IscheduleGetHandler extends GetHandler {
       xml.startTag(tag);
       xml.attribute(attrName, attrVal);
       xml.endEmptyTag();
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }
@@ -235,7 +231,7 @@ public class IscheduleGetHandler extends GetHandler {
         xml.attribute(attrNames[i], attrVals[i]);
       }
       xml.endEmptyTag();
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }
