@@ -521,7 +521,7 @@ public class CaldavPostMethod extends PostMethod {
 
       /* (ISCHED:valid-calendar-data) -- checked in fromIcal */
 
-      if (pars.getIcalendar().validItipMethodType()) {
+      if (!pars.getIcalendar().validItipMethodType()) {
         if (debug) {
           debugMsg("Bad method: " +
                            String.valueOf(pars.getIcalendar().getMethodType()));
