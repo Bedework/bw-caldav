@@ -534,7 +534,8 @@ public class CaldavPostMethod extends PostMethod {
       /* (CALDAV:valid-scheduling-message) -- later */
       final IcalComponentType ctype = pars.getIcalendar().getComponentType();
 
-      if (ctype == IcalComponentType.event) {
+      if ((ctype == IcalComponentType.event) ||
+          (ctype == IcalComponentType.vpoll)) {
         handleEvent(sysi, pars, resp);
       } else if (ctype == IcalComponentType.freebusy) {
         handleFreeBusy(sysi, pars, resp);
