@@ -62,6 +62,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.Collection;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -604,8 +605,8 @@ public class CaldavPostMethod extends PostMethod {
       }
     }
 
-    validateOriginator(pars, ev);
     ev.setScheduleMethod(pars.getIcalendar().getMethodType());
+    validateOriginator(pars, ev);
 
     final Collection<SchedRecipientResult> srrs = intf.schedule(ev);
 
@@ -640,8 +641,8 @@ public class CaldavPostMethod extends PostMethod {
       ev.setRecipients(ev.getAttendeeUris());
     }
 
-    validateOriginator(pars, ev);
     ev.setScheduleMethod(pars.getIcalendar().getMethodType());
+    validateOriginator(pars, ev);
 
     final Collection<SchedRecipientResult> srrs = intf.requestFreeBusy(ev, true);
 
@@ -706,8 +707,39 @@ public class CaldavPostMethod extends PostMethod {
     closeTag(sresponseTag);
   }
 
+  /**
+   *
+   +----------------+----------------------------------+
+   | Method         | Originator Requirement           |
+   +----------------+----------------------------------+
+   | PUBLISH        | None                             |
+   | REQUEST        | MUST match ORGANIZER or ATTENDEE |
+   | REPLY          | MUST match ATTENDEE              |
+   | ADD            | MUST match ORGANIZER             |
+   | CANCEL         | MUST match ORGANIZER             |
+   | REFRESH        | None                             |
+   | COUNTER        | MUST match ATTENDEE              |
+   | DECLINECOUNTER | MUST match ORGANIZER             |
+   +----------------+----------------------------------+
+   * @param pars for request
+   * @param ev object to be validated
+   * @throws WebdavException
+   */
   private void validateOriginator(final RequestPars pars,
                                   final CalDAVEvent ev) throws WebdavException {
+    final int meth = ev.getScheduleMethod();
+
+    if (meth == ScheduleMethods.methodTypePublish) {
+      return;
+    }
+
+    final boolean matchOrganizer =
+            (meth == ScheduleMethods.methodTypeAdd) ||
+                    (meth == ScheduleMethods.methodTypeCancel) ||
+                    (meth == ScheduleMethods.methodTypeDeclineCounter);
+
+    final boolean request = meth == ScheduleMethods.methodTypeRequest;
+
     final Organizer org = ev.getOrganizer();
 
     if (org == null) {
@@ -717,13 +749,34 @@ public class CaldavPostMethod extends PostMethod {
 
     if (pars.isiSchedule()) {
       final String origUrl = pars.getIschedRequest().getOriginator();
+      boolean matchAttendee = true;
 
-      if (!origUrl.equals(org.getOrganizerUri())) {
-        throw new WebdavBadRequest(IscheduleTags.invalidCalendarData,
-            "Organizer/originator mismatch");
+      if (matchOrganizer || request) {
+        if (!origUrl.equals(org.getOrganizerUri())) {
+          if (!request) {
+            throw new WebdavBadRequest(IscheduleTags.invalidCalendarData,
+                                       "Organizer/originator mismatch");
+          }
+        } else {
+          matchAttendee = false;
+        }
       }
 
       ev.setOriginator(origUrl);
+
+      if (matchAttendee){
+        @SuppressWarnings("unchecked") final Set<String> attUris = ev.getAttendeeUris();
+
+        if (attUris.size() != 1) {
+          throw new WebdavBadRequest(IscheduleTags.invalidCalendarData,
+                                     "Attendee/originator mismatch");
+        }
+
+        if (!attUris.contains(origUrl)) {
+          throw new WebdavBadRequest(IscheduleTags.invalidCalendarData,
+                                     "Attendee/originator mismatch");
+        }
+      }
     } else{
       ev.setOriginator(org.getOrganizerUri());
     }

@@ -144,6 +144,14 @@ public abstract class CalDAVEvent <T> extends WdEntity<T> {
    */
   public abstract void setScheduleMethod(int val) throws WebdavException;
 
+  /** Get the scheduleMethod for this event. Takes methodType values defined
+   * in Icalendar
+   *
+   * @return the method
+   * @throws WebdavException
+   */
+  public abstract int getScheduleMethod() throws WebdavException;
+
   /**
    * @return String uid
    * @throws WebdavException
