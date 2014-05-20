@@ -736,6 +736,7 @@ public class CaldavPostMethod extends PostMethod {
     final boolean matchOrganizer =
             (meth == ScheduleMethods.methodTypeAdd) ||
                     (meth == ScheduleMethods.methodTypeCancel) ||
+                    (meth == ScheduleMethods.methodTypePollStatus) ||
                     (meth == ScheduleMethods.methodTypeDeclineCounter);
 
     final boolean request = meth == ScheduleMethods.methodTypeRequest;
