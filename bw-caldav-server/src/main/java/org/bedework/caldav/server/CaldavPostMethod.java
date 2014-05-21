@@ -647,7 +647,7 @@ public class CaldavPostMethod extends PostMethod {
     final Collection<SchedRecipientResult> srrs = intf.requestFreeBusy(ev, true);
 
     resp.setStatus(HttpServletResponse.SC_OK);
-    resp.setContentType(pars.getContentTypePars()[0] + "; charset=UTF-8");
+    resp.setContentType("application/xml; charset=UTF-8");
 
     startEmit(resp);
 
