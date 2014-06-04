@@ -28,6 +28,12 @@ import javax.servlet.http.HttpServletRequest;
 /**
  */
 public class RequestPars extends PostRequestPars {
+  /** Update this if any change is made which alters the capabilities
+   * of the service.
+   *
+   */
+  public static final int iScheduleSerialNumber = 2;
+
   private IscheduleIn ischedRequest;
 
   private SysiIcalendar ic;

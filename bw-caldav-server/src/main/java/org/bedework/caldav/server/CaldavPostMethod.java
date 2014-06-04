@@ -612,6 +612,8 @@ public class CaldavPostMethod extends PostMethod {
 
     resp.setStatus(HttpServletResponse.SC_OK);
     resp.setContentType("text/xml; charset=UTF-8");
+    resp.addHeader("iSchedule-Capabilities",
+                   String.valueOf(RequestPars.iScheduleSerialNumber));
 
     startEmit(resp);
 
@@ -648,6 +650,8 @@ public class CaldavPostMethod extends PostMethod {
 
     resp.setStatus(HttpServletResponse.SC_OK);
     resp.setContentType("application/xml; charset=UTF-8");
+    resp.addHeader("iSchedule-Capabilities",
+                   String.valueOf(RequestPars.iScheduleSerialNumber));
 
     startEmit(resp);
 

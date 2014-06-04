@@ -120,6 +120,9 @@ public class IscheduleGetHandler extends GetHandler {
       openTag(IscheduleTags.queryResult);
       openTag(IscheduleTags.capabilities);
 
+      property(IscheduleTags.serialNumber,
+               String.valueOf(RequestPars.iScheduleSerialNumber));
+
       openTag(IscheduleTags.versions);
       property(IscheduleTags.version, "1");
       closeTag(IscheduleTags.versions);
@@ -142,7 +145,16 @@ public class IscheduleGetHandler extends GetHandler {
       supportedMethod("CANCEL");
       closeTag(IscheduleTags.component);
 
+      openTag(IscheduleTags.component, "name", "VPOLL");
+      supportedMethod("POLLSTATUS");
+      supportedMethod("REQUEST");
+      supportedMethod("ADD");
+      supportedMethod("REPLY");
+      supportedMethod("CANCEL");
+      closeTag(IscheduleTags.component);
+
       openTag(IscheduleTags.component, "name", "VFREEBUSY");
+      supportedMethod("REQUEST");
       closeTag(IscheduleTags.component);
 
       closeTag(IscheduleTags.schedulingMessages);
