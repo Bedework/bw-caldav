@@ -106,6 +106,8 @@ import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.management.ObjectName;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletContextEvent;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBContext;
@@ -144,6 +146,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
   /* true if this is a CalWS server */
   private boolean calWs;
 
+  /* ====================================================================
+   *                     JMX configuration
+   * ==================================================================== */
+
   /* Marks the bedework end of the synch service. This is a web
     service called by the synch engine to get information out of
     bedework and to update events and status.
@@ -158,6 +164,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
   private static ManagementContext managementContext;
   private static SynchConnections synchConn;
 
+  /*
   static {
     try {
       synchConn = new SynchConnections();
@@ -167,6 +174,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       e.printStackTrace();
     }
   }
+  */
 
   public static void registerMbean(final ObjectName key,
                                    final Object bean) {
@@ -215,6 +223,58 @@ public class CaldavBWIntf extends WebdavNsIntf {
       managementContext = new ManagementContext(ManagementContext.DEFAULT_DOMAIN);
     }
     return managementContext;
+  }
+
+  static void contextInitialized(final ServletContextEvent sce) {
+    /* We may enter a number of times for each context implementing
+       DAV or SOAP services.
+
+       We cannot set flags such as synchws as static fields because
+       they are context dependent and the context share a common
+       set of loaded classes.
+
+       We'll only do this once - based on the presence of a management
+       context.
+     */
+    try {
+      synchronized (registeredMBeans) {
+        if (managementContext != null) {
+          // Already done
+          return;
+        }
+
+        final ServletContext sc = sce.getServletContext();
+
+        synchConn = new SynchConnections();
+        registerMbean(new ObjectName(synchConn.getServiceName()),
+                      synchConn);
+      }
+    } catch (final Throwable t) {
+      t.printStackTrace();
+    }
+  }
+
+  static void contextDestroyed(final ServletContextEvent sce) {
+    synchronized (registeredMBeans) {
+      if (managementContext == null) {
+        // Already cleaned up.
+        return;
+      }
+
+      try {
+        for (final ObjectName on: registeredMBeans) {
+          unregister(on);
+        }
+      } catch (final Throwable t) {
+        t.printStackTrace();
+      } finally {
+        try {
+          managementContext.stop();
+        } catch (final Throwable ignored) {}
+
+        managementContext = null;
+      }
+    }
   }
 
   /* ====================================================================

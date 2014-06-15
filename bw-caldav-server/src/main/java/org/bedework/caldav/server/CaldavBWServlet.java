@@ -29,15 +29,21 @@ import org.bedework.webdav.servlet.shared.WebdavException;
 import org.bedework.webdav.servlet.shared.WebdavNsIntf;
 
 import javax.servlet.ServletConfig;
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
 /** This class extends the webdav servlet class, implementing the abstract
  * methods and overriding others to extend/modify the behaviour.
  *
+ * <p>We implement ServletContextListener methods here to load and
+ * unload the configurations.</p>
+ *
  * @author Mike Douglass   douglm  rpi.edu
  */
-public class CaldavBWServlet extends WebdavServlet {
+public class CaldavBWServlet extends WebdavServlet implements
+        ServletContextListener {
   /* Is this a CalWS servlet? */
   private boolean calWs;
 
@@ -80,9 +86,26 @@ public class CaldavBWServlet extends WebdavServlet {
   @Override
   public WebdavNsIntf getNsIntf(final HttpServletRequest req)
       throws WebdavException {
-    CaldavBWIntf wi = new CaldavBWIntf();
+    final CaldavBWIntf wi = new CaldavBWIntf();
 
     wi.init(this, req, methods, dumpContent);
     return wi;
+  }
+  @Override
+  public void contextInitialized(final ServletContextEvent sce) {
+    try {
+      CaldavBWIntf.contextInitialized(sce);
+    } catch (Throwable t) {
+      t.printStackTrace();
+    }
+  }
+
+  @Override
+  public void contextDestroyed(final ServletContextEvent sce) {
+    try {
+      CaldavBWIntf.contextDestroyed(sce);
+    } catch (Throwable t) {
+      t.printStackTrace();
+    }
   }
 }
