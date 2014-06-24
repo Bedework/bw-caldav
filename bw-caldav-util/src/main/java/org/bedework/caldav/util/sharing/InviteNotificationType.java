@@ -52,6 +52,8 @@ public class InviteNotificationType extends BaseNotificationType {
   private String summary;
   private List<String> supportedComponents;
 
+  private QName previousStatus;
+
   /**
    * @param val the sharedType
    */
@@ -176,6 +178,20 @@ public class InviteNotificationType extends BaseNotificationType {
     return supportedComponents;
   }
 
+  /**
+   * @param val status we found in the shared resource
+   */
+  public void setPreviousStatus(final QName val) {
+    previousStatus = val;
+  }
+
+  /**
+   * @return status we found in the shared resource
+   */
+  public QName getPreviousStatus() {
+    return previousStatus;
+  }
+
   /* ====================================================================
    *                   BaseNotificationType methods
    * ==================================================================== */
@@ -271,10 +287,10 @@ public class InviteNotificationType extends BaseNotificationType {
   protected void toStringSegment(final ToString ts) {
     ts.append("uid", getUid());
     ts.append("href", getHref());
-    ts.append("status", getInviteStatus().toString());
-    ts.append(getAccess().toString());
+    ts.append("status", getInviteStatus());
+    ts.append("access", getAccess());
     ts.append("hostUrl", getHostUrl());
-    ts.append("organizer", getOrganizer().toString());
+    ts.append("organizer", getOrganizer());
     ts.append("summary", getSummary());
     ts.append("supportedComponents", getSupportedComponents());
   }
