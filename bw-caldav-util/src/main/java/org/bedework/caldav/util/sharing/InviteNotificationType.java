@@ -253,6 +253,9 @@ public class InviteNotificationType extends BaseNotificationType {
       xml.openTag(AppleServerTags.inviteNotification);
     }
 
+    /* base notification fields */
+    super.toXml(xml);
+
     xml.property(AppleServerTags.uid, getUid());
     xml.property(WebdavTags.href, getHref());
     xml.emptyTag(getInviteStatus());

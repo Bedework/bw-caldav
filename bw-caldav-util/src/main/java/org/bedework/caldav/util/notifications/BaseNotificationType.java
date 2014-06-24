@@ -38,6 +38,8 @@ import javax.xml.namespace.QName;
  * @author Mike Douglass douglm
  */
 public abstract class BaseNotificationType {
+  private String name;
+
   /**
    * @return a name to identify the type of notification
    */
@@ -46,12 +48,16 @@ public abstract class BaseNotificationType {
   /**
    * @param val String used as (part of) a resource name
    */
-  public abstract void setName(String val);
+  public void setName(String val) {
+    name = val;
+  }
 
   /**
    * @return a String to use as (part of) a resource name
    */
-  public abstract String getName();
+  public String getName() {
+    return name;
+  }
 
   /** NOTE: this may not be a valid encoding value. Until we update the schema
    * this will have the encoded path of the resource for which we are getting a
@@ -105,12 +111,6 @@ public abstract class BaseNotificationType {
    */
   public abstract List<AttributeType> getElementAttributes();
 
-  /**
-   * @param xml emitter
-   * @throws Throwable
-   */
-  public abstract void toXml(final XmlEmit xml) throws Throwable;
-
   /** Called before we send it out via caldav
    *
    * @param prefixer the prefixer
@@ -143,4 +143,16 @@ public abstract class BaseNotificationType {
 
     return str.toString();
   }
+
+  /**
+   * @param xml emitter
+   * @throws Throwable
+   */
+  public void toXml(final XmlEmit xml) throws Throwable {
+    if (Boolean.parseBoolean(xml.getProperty("withBedeworkElements")) &&
+            (getName() != null)) {
+      xml.property(BedeworkServerTags.name, getName());
+    }
+  }
+
 }

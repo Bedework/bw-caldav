@@ -337,6 +337,11 @@ public class Parser {
       Object parsed = null;
 
       for (final Element curnode: els) {
+        if (XmlUtil.nodeMatches(curnode, BedeworkServerTags.name)) {
+          rc.setName(XmlUtil.getElementContent(curnode));
+          continue;
+        }
+
         if (XmlUtil.nodeMatches(curnode, AppleServerTags.created)) {
           if (parsed != null) {
             throw badNotification(curnode);

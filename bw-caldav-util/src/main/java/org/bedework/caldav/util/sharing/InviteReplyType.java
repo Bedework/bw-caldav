@@ -122,12 +122,12 @@ public class InviteReplyType extends BaseNotificationType {
   }
 
   @Override
-  public void setName(final String val) {
-  }
-
-  @Override
   public String getName() {
-    return getInReplyTo() + "-reply";
+    if (super.getName() == null) {
+      setName(getInReplyTo() + "-reply");
+    }
+
+    return super.getName();
   }
 
   @Override
@@ -161,6 +161,10 @@ public class InviteReplyType extends BaseNotificationType {
   @Override
   public void toXml(final XmlEmit xml) throws Throwable {
     xml.openTag(AppleServerTags.inviteReply);
+
+    /* base notification fields */
+    super.toXml(xml);
+
     xml.property(WebdavTags.href, getHref());
     if (testAccepted()) {
       xml.emptyTag(AppleServerTags.inviteAccepted);

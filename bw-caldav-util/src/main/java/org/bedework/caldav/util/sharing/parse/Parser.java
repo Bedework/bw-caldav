@@ -132,6 +132,9 @@ public class Parser {
   public static final QName summaryTag = AppleServerTags.summary;
 
   /** */
+  public static final QName bwnameTag = BedeworkServerTags.name;
+
+  /** */
   public static final QName externalUserTag = BedeworkServerTags.externalUser;
 
   /** */
@@ -391,6 +394,11 @@ public class Parser {
       Element[] shareEls = XmlUtil.getElementsArray(nd);
 
       for (Element curnode: shareEls) {
+        if (XmlUtil.nodeMatches(curnode, bwnameTag)) {
+          ir.setName(XmlUtil.getElementContent(curnode));
+          continue;
+        }
+
         if (XmlUtil.nodeMatches(curnode, commonNameTag)) {
           continue;
         }
@@ -494,6 +502,11 @@ public class Parser {
       final Element[] els = XmlUtil.getElementsArray(nd);
 
       for (Element curnode: els) {
+        if (XmlUtil.nodeMatches(curnode, bwnameTag)) {
+          in.setName(XmlUtil.getElementContent(curnode));
+          continue;
+        }
+
         if (XmlUtil.nodeMatches(curnode, uidTag)) {
           if (in.getUid() != null) {
             throw badInviteNotification();
