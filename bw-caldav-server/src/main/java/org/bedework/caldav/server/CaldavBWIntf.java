@@ -2110,16 +2110,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
       }
 
       CaldavURI curi = null;
-      /* Look for it in the map * /
-       * This is stateless so we probably never find it.
-      CaldavURI curi = getUriPath(uri);
-      if (curi != null) {
-        if (debug) {
-          debugMsg("reuse uri - " + curi.getPath() +
-                   "\" entityName=\"" + curi.getEntityName() + "\"");
-        }
-        return curi;
-      }*/
 
       boolean isPrincipal = sysi.isPrincipal(uri);
 
@@ -2323,32 +2313,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
 
     return new SplitResult(Util.buildPath(true, path), name);
-  }
-
-  private String normalizeUri(String uri) throws WebdavException {
-    /*Remove all "." and ".." components */
-    try {
-      uri = new URI(null, null, uri, null).toString();
-
-      uri = new URI(URLEncoder.encode(uri, "UTF-8")).normalize().getPath();
-
-      uri = URLDecoder.decode(uri, "UTF-8");
-
-      //if ((uri.length() > 1) && uri.endsWith("/")) {
-      //  uri = uri.substring(0, uri.length() - 1);
-      //}
-
-      if (debug) {
-        debugMsg("Normalized uri=" + uri);
-      }
-
-      return uri;
-    } catch (Throwable t) {
-      if (debug) {
-        error(t);
-      }
-      throw new WebdavBadRequest("Bad uri: " + uri);
-    }
   }
 
   /*
