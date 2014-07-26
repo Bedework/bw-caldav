@@ -46,7 +46,7 @@ public class CaldavPrincipalNode extends WebdavPrincipalNode {
   private SysIntf sysi;
 
   private final static HashMap<QName, PropertyTagEntry> propertyNames =
-    new HashMap<QName, PropertyTagEntry>();
+    new HashMap<>();
 
   static {
     addPropEntry(propertyNames, CaldavTags.calendarHomeSet);

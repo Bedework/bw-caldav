@@ -20,6 +20,8 @@ package org.bedework.caldav.server.sysinterface;
 
 import org.bedework.access.AccessPrincipal;
 
+import net.fortuna.ical4j.vcard.VCard;
+
 import java.io.Serializable;
 
 /**
@@ -30,6 +32,10 @@ public class CalPrincipalInfo implements Serializable {
   /** As supplied
    */
   public AccessPrincipal principal;
+
+  /** As supplied
+   */
+  public VCard card;
 
   /** Path to user home
    */
@@ -55,27 +61,36 @@ public class CalPrincipalInfo implements Serializable {
   private long quota;
 
   /**
-   * @param principal
-   * @param userHomePath
-   * @param defaultCalendarPath
-   * @param inboxPath
-   * @param outboxPath
-   * @param notificationsPath
-   * @param quota
+   * @param principal this represents
+   * @param userHomePath path
+   * @param defaultCalendarPath path
+   * @param inboxPath path
+   * @param outboxPath path
+   * @param notificationsPath path
+   * @param quota allowed
    */
   public CalPrincipalInfo(final AccessPrincipal principal,
+                          final VCard card,
                           final String userHomePath,
                           final String defaultCalendarPath, final String inboxPath,
                           final String outboxPath,
                           final String notificationsPath,
                           final long quota) {
     this.principal = principal;
+    this.card = card;
     this.userHomePath = userHomePath;
     this.defaultCalendarPath = defaultCalendarPath;
     this.inboxPath = inboxPath;
     this.outboxPath = outboxPath;
     this.notificationsPath = notificationsPath;
     this.quota = quota;
+  }
+
+  /**
+   * @return  associated vcard
+   */
+  public VCard getCard() {
+    return card;
   }
 
   /**
