@@ -43,7 +43,7 @@ public class CaldavPrincipalNode extends WebdavPrincipalNode {
   private CalPrincipalInfo ui;
 
   /* for accessing calendars */
-  private SysIntf sysi;
+  private final SysIntf sysi;
 
   private final static HashMap<QName, PropertyTagEntry> propertyNames =
     new HashMap<>();
@@ -53,19 +53,21 @@ public class CaldavPrincipalNode extends WebdavPrincipalNode {
     addPropEntry(propertyNames, CaldavTags.calendarUserAddressSet);
     addPropEntry(propertyNames, CaldavTags.scheduleInboxURL);
     addPropEntry(propertyNames, CaldavTags.scheduleOutboxURL);
+    addPropEntry(propertyNames, CarddavTags.addressData);
     addPropEntry(propertyNames, AppleServerTags.notificationURL);
   }
 
   /**
-   * @param cdURI
-   * @param sysi
-   * @param ui
-   * @param isUser
+   * @param cdURI represents the URI
+   * @param sysi system interface
+   * @param ui principal information
+   * @param isUser true if this is a user
    * @throws WebdavException
    */
   public CaldavPrincipalNode(final CaldavURI cdURI, final SysIntf sysi,
                              final CalPrincipalInfo ui,
-                             final boolean isUser) throws WebdavException {
+                             @SuppressWarnings(
+                                     "UnusedParameters") final boolean isUser) throws WebdavException {
     super(sysi.getUrlHandler(), cdURI.getPath(),
           cdURI.getPrincipal(),
           cdURI.isCollection(), cdURI.getUri());
@@ -95,7 +97,7 @@ public class CaldavPrincipalNode extends WebdavPrincipalNode {
   public boolean generatePropertyValue(final QName tag,
                                        final WebdavNsIntf intf,
                                        final boolean allProp) throws WebdavException {
-    XmlEmit xml = intf.getXmlEmit();
+    final XmlEmit xml = intf.getXmlEmit();
 
     try {
       if (tag.equals(CaldavTags.calendarHomeSet)) {
@@ -106,6 +108,16 @@ public class CaldavPrincipalNode extends WebdavPrincipalNode {
         xml.openTag(tag);
         generateHref(xml, ui.userHomePath);
         xml.closeTag(tag);
+
+        return true;
+      }
+
+      if (tag.equals(CarddavTags.addressData)) {
+        if (ui == null) {
+          return false;
+        }
+
+        xml.property(tag, ui.getCardStr());
 
         return true;
       }
@@ -156,14 +168,14 @@ public class CaldavPrincipalNode extends WebdavPrincipalNode {
 
       // Not known - try higher
       return super.generatePropertyValue(tag, intf, allProp);
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }
 
   @Override
   public Collection<PropertyTagEntry> getPropertyNames()throws WebdavException {
-    Collection<PropertyTagEntry> res = new ArrayList<PropertyTagEntry>();
+    final Collection<PropertyTagEntry> res = new ArrayList<>();
 
     res.addAll(super.getPropertyNames());
     res.addAll(propertyNames.values());

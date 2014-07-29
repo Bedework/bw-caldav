@@ -37,6 +37,8 @@ public class CalPrincipalInfo implements Serializable {
    */
   public VCard card;
 
+  private String cardStr;
+
   /** Path to user home
    */
   public String userHomePath;
@@ -71,6 +73,7 @@ public class CalPrincipalInfo implements Serializable {
    */
   public CalPrincipalInfo(final AccessPrincipal principal,
                           final VCard card,
+                          final String cardStr,
                           final String userHomePath,
                           final String defaultCalendarPath, final String inboxPath,
                           final String outboxPath,
@@ -78,6 +81,7 @@ public class CalPrincipalInfo implements Serializable {
                           final long quota) {
     this.principal = principal;
     this.card = card;
+    this.cardStr = cardStr;
     this.userHomePath = userHomePath;
     this.defaultCalendarPath = defaultCalendarPath;
     this.inboxPath = inboxPath;
@@ -91,6 +95,13 @@ public class CalPrincipalInfo implements Serializable {
    */
   public VCard getCard() {
     return card;
+  }
+
+  /**
+   * @return  associated vcard as a string
+   */
+  public String getCardStr() {
+    return cardStr;
   }
 
   /**
