@@ -251,10 +251,10 @@ public class CalData extends WebdavProperty {
     }
   }
 
-  /** Given the CaldavBwNode, returns the transformed content.
+  /** Given the WebdavNsNode, returns the transformed content.
    *
-   * @param wdnode
-   * @param xml
+   * @param wdnode the node
+   * @param xml output
    * @param contentType - first element from content type or null
    * @throws WebdavException
    */
