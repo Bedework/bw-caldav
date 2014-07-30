@@ -79,6 +79,17 @@ public class CaldavPrincipalNode extends WebdavPrincipalNode {
     }
   }
 
+  @Override
+  public String getDisplayname() throws WebdavException {
+    final String dn = ui.getDisplayname();
+
+    if (dn == null) {
+      return super.getDisplayname();
+    }
+
+    return dn;
+  }
+
   /* ====================================================================
    *                   Property methods
    * ==================================================================== */
