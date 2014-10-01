@@ -27,6 +27,9 @@
     <orderEntry type="library" name="Maven: commons-codec:commons-codec:1.5" level="project" />
     <orderEntry type="library" name="Maven: commons-lang:commons-lang:2.4" level="project" />
     <orderEntry type="library" name="Maven: backport-util-concurrent:backport-util-concurrent:3.1" level="project" />
+    <orderEntry type="library" name="Maven: org.mnode.ical4j:ical4j-vcard:0.9.6-BW-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: org.mnode.ical4j:ical4j:1.1-BW-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: commons-io:commons-io:2.3" level="project" />
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpclient:4.2.2" level="project" />
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpcore:4.2.2" level="project" />
     <orderEntry type="library" name="Maven: jtidy:jtidy:4aug2000r7-dev" level="project" />
@@ -48,10 +51,11 @@
     <orderEntry type="module" module-name="bw-util-calendar" />
     <orderEntry type="module" module-name="bw-ws-icalendar" />
     <orderEntry type="module" module-name="bw-util-timezones" />
-    <orderEntry type="module" module-name="bw-webdav" />
-    <orderEntry type="module" module-name="bw-util-servlet" />
+    <orderEntry type="module" module-name="bw-util-http" />
     <orderEntry type="module" module-name="bw-util-config" />
     <orderEntry type="module" module-name="bw-util-jmx" />
+    <orderEntry type="module" module-name="bw-webdav" />
+    <orderEntry type="module" module-name="bw-util-servlet" />
     <orderEntry type="library" name="Maven: org.apache.james.jdkim:apache-jdkim-library:0.2-BW" level="project" />
     <orderEntry type="library" name="Maven: org.apache.geronimo.specs:geronimo-activation_1.1_spec:1.0.2" level="project" />
     <orderEntry type="library" name="Maven: org.apache.geronimo.javamail:geronimo-javamail_1.4_mail:1.6" level="project" />
@@ -61,9 +65,6 @@
     <orderEntry type="library" name="Maven: org.apache.james:apache-mime4j-dom:0.7" level="project" />
     <orderEntry type="library" name="Maven: dnsjava:dnsjava:2.1.1" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: javax.servlet:servlet-api:2.5" level="project" />
-    <orderEntry type="library" name="Maven: org.mnode.ical4j:ical4j-vcard:0.9.6-BW-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: org.mnode.ical4j:ical4j:1.1-BW-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: commons-io:commons-io:2.3" level="project" />
   </component>
 </module>
 
