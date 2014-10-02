@@ -563,6 +563,7 @@ public class CaldavPostMethod extends PostMethod {
 
     if (sig == null) {
       // Check to see if we allow this host -
+      warn("Unchecked host - no dkim signature:");
       return;
     }
 
