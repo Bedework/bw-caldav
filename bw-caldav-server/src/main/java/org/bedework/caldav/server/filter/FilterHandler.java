@@ -170,7 +170,7 @@ public class FilterHandler {
       }
     }*/
 
-      CalDAVCollection c = (CalDAVCollection)wdnode.getCollection(true);
+      CalDAVCollection c = (CalDAVCollection)wdnode.getCollection(false);
       if (c == null) {
         return null;
       }
