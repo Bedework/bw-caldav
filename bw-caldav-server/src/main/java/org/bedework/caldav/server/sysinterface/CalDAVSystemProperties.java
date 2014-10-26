@@ -29,6 +29,19 @@ import java.io.Serializable;
  *
  */
 public interface CalDAVSystemProperties extends Serializable {
+  /** Set the feature flags property
+   *
+   * @param val
+   */
+  void setFeatureFlags(final String val);
+
+  /** Get the feature flags property
+   *
+   * @return String
+   */
+  @MBeanInfo("Feature flags - see documentation")
+  String getFeatureFlags();
+
   /** Set the administrator contact property
    *
    * @param val
