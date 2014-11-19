@@ -44,10 +44,10 @@ import javax.xml.bind.JAXBElement;
  * @author Mike Douglass
  */
 public class SynchwsHandler extends CalwsHandler {
-  private ObjectFactory of = new ObjectFactory();
+  private final ObjectFactory of = new ObjectFactory();
 
   /**
-   * @param intf
+   * @param intf caldav interface
    * @throws WebdavException
    */
   public SynchwsHandler(final CaldavBWIntf intf) throws WebdavException {
@@ -60,9 +60,9 @@ public class SynchwsHandler extends CalwsHandler {
   }
 
   /**
-   * @param req
-   * @param resp
-   * @param pars
+   * @param req http request
+   * @param resp http response
+   * @param pars processed request parameters
    * @throws WebdavException
    */
   @Override
@@ -70,7 +70,7 @@ public class SynchwsHandler extends CalwsHandler {
                           final HttpServletResponse resp,
                           final RequestPars pars) throws WebdavException {
     try {
-      UnmarshalResult ur = unmarshal(req);
+      final UnmarshalResult ur = unmarshal(req);
 
       Object body = ur.body;
       if (body instanceof JAXBElement) {
@@ -88,7 +88,7 @@ public class SynchwsHandler extends CalwsHandler {
       }
 
       SynchIdTokenType idToken = null;
-      Object o = null;
+      Object o;
       if ((ur.hdrs != null) && (ur.hdrs.length == 1)) {
         o = ur.hdrs[0];
         if (o instanceof JAXBElement) {
@@ -112,9 +112,9 @@ public class SynchwsHandler extends CalwsHandler {
       }
 
       throw new WebdavException("Unhandled request");
-    } catch (WebdavException we) {
+    } catch (final WebdavException we) {
       throw we;
-    } catch(Throwable t) {
+    } catch(final Throwable t) {
       throw new WebdavException(t);
     }
   }
@@ -144,9 +144,9 @@ public class SynchwsHandler extends CalwsHandler {
       setActiveConnection(sc);
 
       startServiceResponse(resp, sc, true);
-    } catch (WebdavException we) {
+    } catch (final WebdavException we) {
       throw we;
-    } catch(Throwable t) {
+    } catch(final Throwable t) {
       throw new WebdavException(t);
     }
   }
@@ -160,9 +160,9 @@ public class SynchwsHandler extends CalwsHandler {
 
     try {
       synchronized (monitor) {
-        KeepAliveResponseType kar = of.createKeepAliveResponseType();
+        final KeepAliveResponseType kar = of.createKeepAliveResponseType();
 
-        SynchConnection sc = getActiveConnection(kan.getSubscribeUrl());
+        final SynchConnection sc = getActiveConnection(kan.getSubscribeUrl());
 
         if (sc == null) {
           kar.setStatus(StatusType.NOT_FOUND);
@@ -178,13 +178,13 @@ public class SynchwsHandler extends CalwsHandler {
         resp.setStatus(HttpServletResponse.SC_OK);
         resp.setContentType("text/xml; charset=UTF-8");
 
-        JAXBElement<KeepAliveResponseType> jax = of.createKeepAliveResponse(kar);
+        final JAXBElement<KeepAliveResponseType> jax = of.createKeepAliveResponse(kar);
 
         marshal(jax, resp.getOutputStream());
       }
-    } catch (WebdavException we) {
+    } catch (final WebdavException we) {
       throw we;
-    } catch(Throwable t) {
+    } catch(final Throwable t) {
       throw new WebdavException(t);
     }
   }
@@ -194,10 +194,11 @@ public class SynchwsHandler extends CalwsHandler {
     try {
       if (idToken.getPrincipalHref() != null) {
         getIntf().reAuth(req, idToken.getPrincipalHref(),
-                         false); // service
+                         false, // service
+                         idToken.getOpaqueData());
       }
 
-      SynchConnection sc = getActiveConnection(idToken.getSubscribeUrl());
+      final SynchConnection sc = getActiveConnection(idToken.getSubscribeUrl());
 
       if ((sc != null) &&
           (idToken.getSynchToken().equals(sc.getSynchToken()))) {
@@ -206,9 +207,9 @@ public class SynchwsHandler extends CalwsHandler {
 
       throw new WebdavException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
                                 "Invalid synch token");
-    } catch (WebdavException we) {
+    } catch (final WebdavException we) {
       throw we;
-    } catch(Throwable t) {
+    } catch(final Throwable t) {
       throw new WebdavException(t);
     }
   }
@@ -221,7 +222,7 @@ public class SynchwsHandler extends CalwsHandler {
       resp.setStatus(HttpServletResponse.SC_OK);
       resp.setContentType("text/xml; charset=UTF-8");
 
-      StartServiceResponseType ssr = of.createStartServiceResponseType();
+      final StartServiceResponseType ssr = of.createStartServiceResponseType();
 
       if (ok) {
         ssr.setStatus(StatusType.OK);
@@ -230,12 +231,12 @@ public class SynchwsHandler extends CalwsHandler {
         ssr.setStatus(StatusType.ERROR);
       }
 
-      JAXBElement<StartServiceResponseType> jax = of.createStartServiceResponse(ssr);
+      final JAXBElement<StartServiceResponseType> jax = of.createStartServiceResponse(ssr);
 
       marshal(jax, resp.getOutputStream());
-    } catch (WebdavException we) {
+    } catch (final WebdavException we) {
       throw we;
-    } catch(Throwable t) {
+    } catch(final Throwable t) {
       throw new WebdavException(t);
     }
   }

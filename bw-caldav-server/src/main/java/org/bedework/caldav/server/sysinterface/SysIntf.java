@@ -59,7 +59,7 @@ import javax.xml.namespace.QName;
  * interface.
  *
  * <p>We're using the bedework object classes here. To simplify matters (a little)
- * we don't have distinct event, todo and journal classes. They are all currently
+ * we don't have distinct event, task and journal classes. They are all currently
  * the BwEvent class with an entityType defining what the object represents.
  *
  * @author Mike Douglass douglm at rpi.edu
@@ -73,20 +73,22 @@ public interface SysIntf {
    * @param service - true if this is a service call - e.g. iSchedule -
    *                rather than a real user.
    * @param calWs  true if this is a CalWs-SOAP service
+   * @param opaqueData  possibly from headers etc.
    * @return the account which may have changed
    * @throws WebdavException
    */
-  public String init(HttpServletRequest req,
-                     String account,
-                     boolean service,
-                     boolean calWs) throws WebdavException;
+  String init(HttpServletRequest req,
+              String account,
+              boolean service,
+              boolean calWs,
+              String opaqueData) throws WebdavException;
 
   /** Allows some special handling of some requests - mostly to do with
    * cleanup of accounts when testing.
    *
    * @return true for test mode.
    */
-  public boolean testMode();
+  boolean testMode();
 
   /** true if bedework extensions are enabled for the request. Client
    * has sent a header "X-BEDEWORK-EXTENSIONS: TRUE".

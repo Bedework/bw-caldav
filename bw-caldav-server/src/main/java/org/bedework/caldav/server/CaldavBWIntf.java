@@ -306,7 +306,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       namespacePrefix = WebdavUtils.getUrlPrefix(req);
       namespace = namespacePrefix + "/schema";
 
-      account = sysi.init(req, account, false, calWs);
+      account = sysi.init(req, account, false, calWs, null);
 
       accessUtil = new AccessUtil(namespacePrefix, xml,
                                   new CalDavAccessXmlCb(sysi));
@@ -331,20 +331,22 @@ public class CaldavBWIntf extends WebdavNsIntf {
   /** See if we can reauthenticate. Use for real-time service which needs to
    * authenticate as a particular principal.
    *
-   * @param req
-   * @param account
+   * @param req http request
+   * @param account to reinit as
    * @param service - true if this is a service call - e.g. iSchedule -
    *                rather than a real user.
+   * @param opaqueData  - possibly from headers
    * @throws WebdavException
    */
   public void reAuth(final HttpServletRequest req,
                      final String account,
-                     final boolean service) throws WebdavException {
+                     final boolean service,
+                     final String opaqueData) throws WebdavException {
     try {
       if (sysi != null) {
         try {
           sysi.close();
-        } catch (Throwable t) {
+        } catch (final Throwable t) {
           throw new WebdavException(t);
         }
       } else {
@@ -353,11 +355,11 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       this.account = account;
 
-      sysi.init(req, account, service, calWs);
+      sysi.init(req, account, service, calWs, opaqueData);
 
       accessUtil = new AccessUtil(namespacePrefix, xml,
                                   new CalDavAccessXmlCb(sysi));
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }

@@ -127,7 +127,7 @@ public class CaldavPostMethod extends PostMethod {
     }
 
     if (intf.getSysi().getPrincipal() == null) {
-      intf.reAuth(req, "isched01", true);
+      intf.reAuth(req, "isched01", true, null);
     }
 
     doISchedule(intf, pars, resp);

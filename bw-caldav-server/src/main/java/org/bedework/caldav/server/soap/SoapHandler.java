@@ -57,7 +57,7 @@ public abstract class SoapHandler extends MethodBase {
   private MessageFactory soapMsgFactory;
   protected JAXBContext jc;
 
-  protected static volatile Object monitor = new Object();
+  protected static final Object monitor = new Object();
 
   /**
    * @param intf
