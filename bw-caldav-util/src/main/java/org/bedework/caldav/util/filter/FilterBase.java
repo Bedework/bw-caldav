@@ -191,6 +191,10 @@ public class FilterBase implements Serializable {
    * @param val     BwFilter child
    */
   public void addChild(final FilterBase val) {
+    if (val == null) {
+      return;
+    }
+
     List<FilterBase> c = getChildren();
 
     if (c == null) {
