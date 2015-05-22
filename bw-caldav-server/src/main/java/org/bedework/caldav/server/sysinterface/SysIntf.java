@@ -73,6 +73,7 @@ public interface SysIntf {
    * @param service - true if this is a service call - e.g. iSchedule -
    *                rather than a real user.
    * @param calWs  true if this is a CalWs-SOAP service
+   * @param synchWs  true if this is a SynchWs-SOAP service
    * @param opaqueData  possibly from headers etc.
    * @return the account which may have changed
    * @throws WebdavException
@@ -81,6 +82,7 @@ public interface SysIntf {
               String account,
               boolean service,
               boolean calWs,
+              boolean synchWs,
               String opaqueData) throws WebdavException;
 
   /** Allows some special handling of some requests - mostly to do with

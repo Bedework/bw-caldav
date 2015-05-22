@@ -306,7 +306,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
       namespacePrefix = WebdavUtils.getUrlPrefix(req);
       namespace = namespacePrefix + "/schema";
 
-      account = sysi.init(req, account, false, calWs, null);
+      account = sysi.init(req, account, false,
+                          calWs, synchWs, null);
 
       accessUtil = new AccessUtil(namespacePrefix, xml,
                                   new CalDavAccessXmlCb(sysi));
@@ -355,7 +356,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       this.account = account;
 
-      sysi.init(req, account, service, calWs, opaqueData);
+      sysi.init(req, account, service,
+                calWs, synchWs, opaqueData);
 
       accessUtil = new AccessUtil(namespacePrefix, xml,
                                   new CalDavAccessXmlCb(sysi));
