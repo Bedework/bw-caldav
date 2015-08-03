@@ -80,11 +80,13 @@ public class Parser {
       new HashMap<>();
 
   static {
+    /* Add the sharing parsers */
     for (final BaseNotificationParser bnp:
          org.bedework.caldav.util.sharing.parse.Parser.getParsers()) {
       parsers.put(bnp.getElement(), bnp);
     }
 
+    /* Add the resource change parser (defined below) */
     final BaseNotificationParser bnp = new ResourceChangeParser();
     parsers.put(bnp.getElement(), bnp);
   }
@@ -139,6 +141,22 @@ public class Parser {
     public QName getElement() {
       return element;
     }
+  }
+
+  /**
+   *
+   * @param bnp the parser
+   * @return false if already registered - will not overwrite
+   */
+  public static boolean register(final BaseNotificationParser bnp) {
+    final QName key = bnp.getElement();
+
+    if (parsers.get(key) != null) {
+      return false;
+    }
+
+    parsers.put(key, bnp);
+    return true;
   }
 
   static class ResourceChangeParser extends AbstractNotificationParser {

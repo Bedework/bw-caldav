@@ -226,6 +226,7 @@ public class NotificationType {
     xml.addNs(new NameSpace(CaldavDefs.caldavNamespace, "C"), false);
     xml.addNs(new NameSpace(AppleServerTags.appleCaldavNamespace, "CSS"), false);
     xml.addNs(new NameSpace(BedeworkServerTags.bedeworkCaldavNamespace, "BW"), false);
+    xml.addNs(new NameSpace(BedeworkServerTags.bedeworkSystemNamespace, "BSS"), false);
 
     xml.startEmit(str);
     toXml(xml);

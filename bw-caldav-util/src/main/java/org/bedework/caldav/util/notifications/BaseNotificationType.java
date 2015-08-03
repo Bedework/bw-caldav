@@ -48,7 +48,7 @@ public abstract class BaseNotificationType {
   /**
    * @param val String used as (part of) a resource name
    */
-  public void setName(String val) {
+  public void setName(final String val) {
     name = val;
   }
 
@@ -137,6 +137,7 @@ public abstract class BaseNotificationType {
     xml.addNs(new NameSpace(CaldavDefs.caldavNamespace, "C"), false);
     xml.addNs(new NameSpace(AppleServerTags.appleCaldavNamespace, "CSS"), false);
     xml.addNs(new NameSpace(BedeworkServerTags.bedeworkCaldavNamespace, "BSS"), false);
+    xml.addNs(new NameSpace(BedeworkServerTags.bedeworkSystemNamespace, "BSYS"), false);
 
     xml.startEmit(str);
     toXml(xml);
