@@ -124,7 +124,7 @@ public abstract class CaldavBwNode extends WebdavNsNode {
                final String path,
                final boolean collection,
                final String uri) {
-    super(sysi.getUrlHandler(), path, collection, uri);
+    super(sysi, sysi.getUrlHandler(), path, collection, uri);
 
     this.sysi = sysi;
 
@@ -134,7 +134,7 @@ public abstract class CaldavBwNode extends WebdavNsNode {
   CaldavBwNode(final boolean collection,
                final SysIntf sysi,
                final String uri) {
-    super(sysi.getUrlHandler(), null, collection, uri);
+    super(sysi, sysi.getUrlHandler(), null, collection, uri);
 
     //this.cdURI = cdURI;
     this.sysi = sysi;

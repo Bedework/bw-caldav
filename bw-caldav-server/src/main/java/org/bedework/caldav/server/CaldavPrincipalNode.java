@@ -55,7 +55,6 @@ public class CaldavPrincipalNode extends WebdavPrincipalNode {
     addPropEntry(propertyNames, CaldavTags.scheduleInboxURL);
     addPropEntry(propertyNames, CaldavTags.scheduleOutboxURL);
     addPropEntry(propertyNames, CarddavTags.addressData);
-    addPropEntry(propertyNames, AppleServerTags.notificationURL);
   }
 
   /**
@@ -65,11 +64,12 @@ public class CaldavPrincipalNode extends WebdavPrincipalNode {
    * @param isUser true if this is a user
    * @throws WebdavException
    */
-  public CaldavPrincipalNode(final CaldavURI cdURI, final SysIntf sysi,
+  public CaldavPrincipalNode(final CaldavURI cdURI,
+                             final SysIntf sysi,
                              final CalPrincipalInfo ui,
                              @SuppressWarnings(
                                      "UnusedParameters") final boolean isUser) throws WebdavException {
-    super(sysi.getUrlHandler(), cdURI.getPath(),
+    super(sysi, sysi.getUrlHandler(), cdURI.getPath(),
           cdURI.getPrincipal(),
           cdURI.isCollection(), cdURI.getUri());
     this.sysi = sysi;
@@ -161,18 +161,6 @@ public class CaldavPrincipalNode extends WebdavPrincipalNode {
 
         xml.openTag(tag);
         generateHref(xml, ui.outboxPath);
-        xml.closeTag(tag);
-
-        return true;
-      }
-
-      if (tag.equals(AppleServerTags.notificationURL)) {
-        if ((ui == null) || (ui.notificationsPath == null)) {
-          return false;
-        }
-
-        xml.openTag(tag);
-        generateHref(xml, ui.notificationsPath);
         xml.closeTag(tag);
 
         return true;

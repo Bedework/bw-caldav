@@ -39,11 +39,11 @@ import org.bedework.util.xml.XmlEmit;
 import org.bedework.webdav.servlet.shared.PrincipalPropertySearch;
 import org.bedework.webdav.servlet.shared.UrlHandler;
 import org.bedework.webdav.servlet.shared.WdEntity;
+import org.bedework.webdav.servlet.shared.WdSysIntf;
 import org.bedework.webdav.servlet.shared.WebdavException;
 
 import ietf.params.xml.ns.icalendar_2.IcalendarType;
 import net.fortuna.ical4j.model.Calendar;
-
 import org.oasis_open.docs.ws_calendar.ns.soap.ComponentSelectionType;
 
 import java.io.Reader;
@@ -64,7 +64,7 @@ import javax.xml.namespace.QName;
  *
  * @author Mike Douglass douglm at rpi.edu
  */
-public interface SysIntf {
+public interface SysIntf extends WdSysIntf {
   /** Called before any other method is called to allow initialization to
    * take place at the first or subsequent requests
    *
@@ -104,7 +104,7 @@ public interface SysIntf {
    */
   public boolean bedeworkExtensionsEnabled();
 
-  /** Return CalDAV properties rleevent to authentication state.
+  /** Return CalDAV properties relevant to authentication state.
    *
    * @return CalDAVAuthProperties object - never null.
    * @throws WebdavException
@@ -117,20 +117,6 @@ public interface SysIntf {
    * @throws WebdavException
    */
   public CalDAVSystemProperties getSystemProperties() throws WebdavException;
-
-  /**
-   * @param col
-   * @return true if this is a collection which allows a sync-report.
-   * @throws WebdavException
-   */
-  public boolean allowsSyncReport(CalDAVCollection col) throws WebdavException;
-
-  /** Return default content type for this service.
-   *
-   * @return String - never null.
-   * @throws WebdavException
-   */
-  public String getDefaultContentType() throws WebdavException;
 
   /** Return the current principal
    *
