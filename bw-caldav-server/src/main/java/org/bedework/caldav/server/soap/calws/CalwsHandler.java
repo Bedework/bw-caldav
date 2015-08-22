@@ -93,15 +93,14 @@ public class CalwsHandler extends SoapHandler {
   }
 
   /**
-   * @param req
-   * @param resp
-   * @param pars
+   * @param req the request
+   * @param resp the response
+   * @param pars request parameters
    * @throws WebdavException
    */
   public void processPost(final HttpServletRequest req,
                           final HttpServletResponse resp,
                           final RequestPars pars) throws WebdavException {
-
     try {
       initResponse(resp);
 

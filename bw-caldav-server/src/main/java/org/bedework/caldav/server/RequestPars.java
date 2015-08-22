@@ -52,6 +52,8 @@ public class RequestPars extends PostRequestPars {
 
   private boolean synchws;
 
+  private boolean notifyws;
+
   private boolean calwsSoap;
 
   /**
@@ -107,6 +109,11 @@ public class RequestPars extends PostRequestPars {
         break testRequest;
       }
 
+      notifyws = intf.getNotifyWs();
+      if (notifyws) {
+        break testRequest;
+      }
+
       synchws = intf.getSynchWs();
       if (synchws) {
         getTheReader = false;
@@ -149,6 +156,13 @@ public class RequestPars extends PostRequestPars {
    */
   public boolean isSynchws() {
     return synchws;
+  }
+
+  /**
+   * @return true if this is an notify web service request
+   */
+  public boolean isNotifyws() {
+    return notifyws;
   }
 
   /**

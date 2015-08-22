@@ -160,6 +160,16 @@ public class CaldavBWIntf extends WebdavNsIntf {
    */
   private boolean synchWs;
 
+  /* Marks the bedework end of the notification service. This is a web
+    service called by the notification engine to get information out of
+    bedework and to update notifications.
+
+    This service should probably be restricted to a given host only.
+
+    Coming up on a separate port might help to lock it down.
+   */
+  private boolean notifyWs;
+
   private static Set<ObjectName> registeredMBeans = new CopyOnWriteArraySet<>();
   private static ManagementContext managementContext;
   private static SynchConnections synchConn;
@@ -299,6 +309,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       // Needed before any other initialization
       calWs = Boolean.parseBoolean(servlet.getInitParameter("calws"));
       synchWs = Boolean.parseBoolean(servlet.getInitParameter("synchws"));
+      notifyWs = Boolean.parseBoolean(servlet.getInitParameter("notifyws"));
       sysi = getSysi(servlet.getInitParameter("sysintfImpl"));
 
       super.init(servlet, req, methods, dumpContent);
@@ -307,7 +318,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       namespace = namespacePrefix + "/schema";
 
       account = sysi.init(req, account, false,
-                          calWs, synchWs, null);
+                          calWs, synchWs, notifyWs, null);
 
       accessUtil = new AccessUtil(namespacePrefix, xml,
                                   new CalDavAccessXmlCb(sysi));
@@ -357,7 +368,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       this.account = account;
 
       sysi.init(req, account, service,
-                calWs, synchWs, opaqueData);
+                calWs, synchWs, notifyWs, opaqueData);
 
       accessUtil = new AccessUtil(namespacePrefix, xml,
                                   new CalDavAccessXmlCb(sysi));
@@ -373,12 +384,20 @@ public class CaldavBWIntf extends WebdavNsIntf {
     return calWs;
   }
 
-  /** Get the synch web service uri - null for no service
+  /** Get the synch web service flag
    *
    * @return true if it's a synch service
    */
   public boolean getSynchWs() {
     return synchWs;
+  }
+
+  /** Get the notify web service flag
+   *
+   * @return true if it's a notify service
+   */
+  public boolean getNotifyWs() {
+    return notifyWs;
   }
 
   @Override

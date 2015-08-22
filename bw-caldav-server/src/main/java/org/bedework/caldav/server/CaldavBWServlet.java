@@ -23,6 +23,7 @@ import org.bedework.webdav.servlet.common.GetMethod;
 import org.bedework.webdav.servlet.common.HeadMethod;
 import org.bedework.webdav.servlet.common.MethodBase.MethodInfo;
 import org.bedework.webdav.servlet.common.OptionsMethod;
+import org.bedework.webdav.servlet.common.PropFindMethod;
 import org.bedework.webdav.servlet.common.PutMethod;
 import org.bedework.webdav.servlet.common.WebdavServlet;
 import org.bedework.webdav.servlet.shared.WebdavException;
@@ -47,6 +48,9 @@ public class CaldavBWServlet extends WebdavServlet implements
   /* Is this a CalWS servlet? */
   private boolean calWs;
 
+  /* Is this a notifyWS servlet? */
+  private boolean notifyWs;
+
   /* ====================================================================
    *                     Abstract servlet methods
    * ==================================================================== */
@@ -54,12 +58,26 @@ public class CaldavBWServlet extends WebdavServlet implements
   @Override
   public void init(final ServletConfig config) throws ServletException {
     calWs = Boolean.parseBoolean(config.getInitParameter("calws"));
+    notifyWs = Boolean.parseBoolean(config.getInitParameter("notifyws"));
 
     super.init(config);
   }
 
   @Override
   protected void addMethods() {
+    if (notifyWs) {
+      // Reduced method set
+      methods.clear();
+
+      methods.put("GET", new MethodInfo(GetMethod.class, false));
+      methods.put("HEAD", new MethodInfo(HeadMethod.class, false));
+      methods.put("OPTIONS", new MethodInfo(OptionsMethod.class, false));
+      methods.put("PROPFIND", new MethodInfo(PropFindMethod.class, false));
+      methods.put("REPORT", new MethodInfo(CaldavReportMethod.class, false));
+
+      return;
+    }
+
     if (calWs) {
       // Much reduced method set
       methods.clear();
