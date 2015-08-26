@@ -28,6 +28,8 @@ import org.bedework.util.xml.tagdefs.BedeworkServerTags;
 import org.bedework.util.xml.tagdefs.CaldavDefs;
 import org.bedework.util.xml.tagdefs.WebdavTags;
 
+import org.w3c.dom.Document;
+
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +46,8 @@ public class NotificationType {
   private String dtstamp;
 
   private BaseNotificationType notification;
+
+  private Document parsed;
 
   /**
    * @param processors processor information
@@ -71,6 +75,22 @@ public class NotificationType {
    */
   public String getDtstamp() {
     return dtstamp;
+  }
+
+  /**
+   *
+   * @param val the parsed form of the XML
+   */
+  public void setParsed(final Document val) {
+    parsed = val;
+  }
+
+  /**
+   *
+   * @return the parsed form of the XML
+   */
+  public Document getParsed() {
+    return parsed;
   }
 
   /**

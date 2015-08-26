@@ -197,7 +197,12 @@ public class Parser {
       return null;
     }
 
-    return new Parser().parseNotification(doc.getDocumentElement());
+    final NotificationType note =
+            new Parser().parseNotification(doc.getDocumentElement());
+
+    note.setParsed(doc);
+
+    return note;
   }
 
   /**
