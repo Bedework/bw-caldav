@@ -72,6 +72,7 @@ public class CaldavBWServlet extends WebdavServlet implements
       methods.put("GET", new MethodInfo(GetMethod.class, false));
       methods.put("HEAD", new MethodInfo(HeadMethod.class, false));
       methods.put("OPTIONS", new MethodInfo(OptionsMethod.class, false));
+      methods.put("POST", new MethodInfo(CaldavPostMethod.class, false));
       methods.put("PROPFIND", new MethodInfo(PropFindMethod.class, false));
       methods.put("REPORT", new MethodInfo(CaldavReportMethod.class, false));
 
