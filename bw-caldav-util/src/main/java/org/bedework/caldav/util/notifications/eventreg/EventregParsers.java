@@ -53,6 +53,12 @@ public class EventregParsers {
   public static final QName cancelledTag = BedeworkServerTags.eventregCancelled;
 
   /** */
+  public static final QName registeredTag = BedeworkServerTags.eventregRegistered;
+
+  /** */
+  public static final QName numTicketsTag = BedeworkServerTags.eventregNumTickets;
+
+  /** */
   public static final QName commentTag = BedeworkServerTags.comment;
 
   /** */
@@ -69,6 +75,7 @@ public class EventregParsers {
 
   static {
     Parser.register(new EventCancelledParser());
+    Parser.register(new EventRegisteredParser());
   }
 
   /**
@@ -166,6 +173,21 @@ public class EventregParsers {
     }
   }
 
+  static class EventRegisteredParser extends EvRegParser {
+    EventRegisteredParser() {
+      super(registeredTag);
+    }
+
+    @Override
+    public BaseNotificationType parse(final Element nd) throws WebdavException {
+      try {
+        return getParser().parseEventRegistered(nd);
+      } finally {
+        putParser();
+      }
+    }
+  }
+
   /**
    * @param val XML representation
    * @return populated EventregCancelledNotificationType object
@@ -192,33 +214,7 @@ public class EventregParsers {
       final Element[] els = XmlUtil.getElementsArray(nd);
 
       for (final Element curnode: els) {
-        if (XmlUtil.nodeMatches(curnode, nameTag)) {
-          note.setName(XmlUtil.getElementContent(curnode));
-          continue;
-        }
-
-        if (XmlUtil.nodeMatches(curnode, uidTag)) {
-          note.setUid(XmlUtil.getElementContent(curnode));
-          continue;
-        }
-
-        if (XmlUtil.nodeMatches(curnode, hrefTag)) {
-          note.setHref(XmlUtil.getElementContent(curnode));
-          continue;
-        }
-
-        if (XmlUtil.nodeMatches(curnode, principalURLTag)) {
-          Element href = XmlUtil.getOnlyElement(curnode);
-
-          if ((href == null) || !XmlUtil.nodeMatches(href, hrefTag)) {
-            throw new WebdavBadRequest("Expected " + hrefTag);
-          }
-          note.setPrincipalHref(XmlUtil.getElementContent(href));
-          continue;
-        }
-
-        if (XmlUtil.nodeMatches(curnode, commentTag)) {
-          note.setComment(XmlUtil.getElementContent(curnode));
+        if (eventregBaseNode(note, curnode)) {
           continue;
         }
 
@@ -226,6 +222,95 @@ public class EventregParsers {
       }
 
       return note;
+    } catch (final SAXException e) {
+      throw parseException(e);
+    } catch (final WebdavException wde) {
+      throw wde;
+    } catch (final Throwable t) {
+      throw new WebdavException(t);
+    }
+  }
+
+  /**
+   * @param nd MUST be the cancelled xml element
+   * @return populated SuggestNotificationType object
+   * @throws WebdavException
+   */
+  public EventregRegisteredNotificationType parseEventRegistered(final Node nd) throws WebdavException {
+    try {
+      if (!XmlUtil.nodeMatches(nd, registeredTag)) {
+        throw new WebdavBadRequest("Expected " + registeredTag);
+      }
+
+      final EventregRegisteredNotificationType note =
+              new EventregRegisteredNotificationType();
+      final Element[] els = XmlUtil.getElementsArray(nd);
+
+      for (final Element curnode: els) {
+        if (eventregBaseNode(note, curnode)) {
+          continue;
+        }
+
+        if (XmlUtil.nodeMatches(curnode, numTicketsTag)) {
+          note.setNumTickets(
+                  Integer.valueOf(XmlUtil.getElementContent(curnode)));
+          continue;
+        }
+
+        throw new WebdavBadRequest("Unexpected element " + curnode);
+      }
+
+      return note;
+    } catch (final SAXException e) {
+      throw parseException(e);
+    } catch (final WebdavException wde) {
+      throw wde;
+    } catch (final Throwable t) {
+      throw new WebdavException(t);
+    }
+  }
+
+  /** handle base notification elements
+   *
+   * @param curnode MAY be one of the notification xml elements
+   * @return true if absorbed
+   * @throws WebdavException
+   */
+  private boolean eventregBaseNode(final EventregBaseNotificationType base,
+                                   final Element curnode) throws WebdavException {
+    try {
+      // Standard notification name element
+      if (XmlUtil.nodeMatches(curnode, nameTag)) {
+        base.setName(XmlUtil.getElementContent(curnode));
+        return true;
+      }
+
+      if (XmlUtil.nodeMatches(curnode, uidTag)) {
+        base.setUid(XmlUtil.getElementContent(curnode));
+        return true;
+      }
+
+      if (XmlUtil.nodeMatches(curnode, hrefTag)) {
+        base.setHref(XmlUtil.getElementContent(curnode));
+        return true;
+      }
+
+      if (XmlUtil.nodeMatches(curnode, principalURLTag)) {
+        final Element href = XmlUtil.getOnlyElement(curnode);
+
+        if ((href == null) || !XmlUtil.nodeMatches(href, hrefTag)) {
+          throw new WebdavBadRequest("Expected " + hrefTag);
+        }
+        base.setPrincipalHref(XmlUtil.getElementContent(href));
+        return true;
+      }
+
+      if (XmlUtil.nodeMatches(curnode, commentTag)) {
+        base.setComment(XmlUtil.getElementContent(curnode));
+        return true;
+      }
+
+      return false;
     } catch (final SAXException e) {
       throw parseException(e);
     } catch (final WebdavException wde) {

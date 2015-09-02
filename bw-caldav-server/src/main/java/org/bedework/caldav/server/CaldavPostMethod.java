@@ -24,8 +24,6 @@ import org.bedework.caldav.server.sysinterface.CalPrincipalInfo;
 import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.caldav.server.sysinterface.SysIntf.IcalResultType;
 import org.bedework.caldav.server.sysinterface.SysIntf.SchedRecipientResult;
-import org.bedework.caldav.util.notifications.NotificationType;
-import org.bedework.caldav.util.notifications.eventreg.EventregCancelledNotificationType;
 import org.bedework.caldav.util.sharing.InviteReplyType;
 import org.bedework.caldav.util.sharing.ShareResultType;
 import org.bedework.caldav.util.sharing.ShareType;
@@ -57,7 +55,6 @@ import org.apache.james.jdkim.api.BodyHasher;
 import org.apache.james.jdkim.api.SignatureRecord;
 import org.apache.james.jdkim.exceptions.FailException;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -66,9 +63,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -110,7 +105,7 @@ public class CaldavPostMethod extends PostMethod {
     }
 
     if (pars.isNotifyws()) {
-      doNotify(intf, pars, resp);
+      new BwNotifyHandler().doNotify(intf, pars, resp);
       return;
     }
 
@@ -159,96 +154,6 @@ public class CaldavPostMethod extends PostMethod {
     final CaldavReportMethod method = new CaldavReportMethod();
     method.init(intf, true);
     method.doMethod(pars.getReq(), resp);
-  }
-
-  private void doNotify(final CaldavBWIntf intf,
-                        final RequestPars pars,
-                        final HttpServletResponse resp) throws WebdavException {
-    if (!pars.processXml()) {
-      resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-      return;
-    }
-
-    try {
-      final SysIntf sysi = intf.getSysi();
-
-      final Node root = pars.getXmlDoc().getDocumentElement();
-
-      if (XmlUtil.nodeMatches(root,
-                              BedeworkServerTags.eventregCancelled)) {
-        final List<Element> els = XmlUtil.getElements(root);
-
-        if (els.size() < 2) {
-          resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-          return;
-        }
-
-        // Require event href first
-
-        // Build a notification for each principal
-        Element el = els.get(0);
-
-        if (!XmlUtil.nodeMatches(el, WebdavTags.href)) {
-          resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-          return;
-        }
-
-        final String href = XmlUtil.getElementContent(el);
-
-        String uid = null;
-
-        int index = 1;
-        if (index < els.size()) {
-          el = els.get(index);
-
-          if (XmlUtil.nodeMatches(el, AppleServerTags.uid)) {
-            uid = XmlUtil.getElementContent(el);
-            index++;
-          }
-        }
-
-        if (uid == null) {
-          uid = UUID.randomUUID().toString();
-        }
-
-        // Remaining nodes should be principalURLs
-
-        while (index < els.size()) {
-          el = els.get(index);
-          index++;
-
-          if (XmlUtil.nodeMatches(el, AppleServerTags.uid)) {
-            continue;
-          }
-
-          if (!XmlUtil.nodeMatches(el, WebdavTags.principalURL)) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return;
-          }
-
-          el = XmlUtil.getOnlyElement(el);
-          if (!XmlUtil.nodeMatches(el, WebdavTags.href)) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return;
-          }
-
-          final EventregCancelledNotificationType ecnt =
-                  new EventregCancelledNotificationType();
-
-          ecnt.setUid(uid);
-          ecnt.setHref(href);
-          ecnt.setPrincipalHref(XmlUtil.getElementContent(el));
-          // comment?
-
-          final NotificationType note = new NotificationType();
-          note.setNotification(ecnt);
-
-          sysi.sendNotification(ecnt.getPrincipalHref(), note);
-        }
-      }
-    } catch (final Throwable t) {
-      throw new WebdavException(t);
-    }
   }
 
   private void doCalDav(final CaldavBWIntf intf,
