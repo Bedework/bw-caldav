@@ -512,12 +512,11 @@ public interface SysIntf extends WdSysIntf {
    *
    * @param col        CalDAVCollection object
    * @param val        String possible name
-   * @param recurRetrieval
    * @return CalDAVEvent or null
    * @throws WebdavException
    */
-  public CalDAVEvent getEvent(CalDAVCollection col, String val,
-                              RetrievalMode recurRetrieval)
+  public CalDAVEvent getEvent(CalDAVCollection col,
+                              String val)
           throws WebdavException;
 
   /**
