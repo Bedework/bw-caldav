@@ -200,7 +200,9 @@ public class Parser {
     final NotificationType note =
             new Parser().parseNotification(doc.getDocumentElement());
 
-    note.setParsed(doc);
+    if (note != null) {
+      note.setParsed(doc);
+    }
 
     return note;
   }
@@ -254,7 +256,8 @@ public class Parser {
           final BaseNotificationParser bnp = parsers.get(XmlUtil.fromNode(curnode));
           if ((bnp == null) ||
               (n.getNotification() != null)) {
-            throw badNotification(curnode);
+            error("No parser to handle " + curnode);
+            return  null;
           }
 
           n.setNotification(bnp.parse(curnode));
@@ -864,5 +867,9 @@ public class Parser {
 
   private static Logger getLog() {
     return Logger.getLogger(Parser.class);
+  }
+
+  private void error(final String msg) {
+    getLog().error(msg);
   }
 }
