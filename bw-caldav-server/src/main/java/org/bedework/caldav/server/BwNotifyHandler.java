@@ -31,6 +31,7 @@ import org.bedework.webdav.servlet.shared.WebdavException;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
@@ -64,6 +65,12 @@ public class BwNotifyHandler {
       if (XmlUtil.nodeMatches(root,
                               BedeworkServerTags.eventregRegistered)) {
         doEventregReg(root, sysi, resp);
+        return;
+      }
+
+      if (XmlUtil.nodeMatches(root,
+                              BedeworkServerTags.notifySubscribe)) {
+        doNotifySubscribe(root, sysi, resp);
         return;
       }
 
@@ -185,6 +192,63 @@ public class BwNotifyHandler {
       note.setNotification(ereg);
 
       sysi.sendNotification(ereg.getPrincipalHref(), note);
+    } catch (final WebdavException we) {
+      throw we;
+    } catch (final Throwable t) {
+      throw new WebdavException(t);
+    }
+  }
+
+  private void doNotifySubscribe(final Node root,
+                                 final SysIntf sysi,
+                                 final HttpServletResponse resp)
+          throws WebdavException {
+    try {
+      final List<Element> els = XmlUtil.getElements(root);
+
+      /* Expect
+          <principal-href><href>principal</href></principal-href>
+          <action>add</action>
+          <email>email-address</email>
+
+          email may be repeated
+       */
+      if (els.size() < 3) {
+        resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        return;
+      }
+
+      // Require principal href first
+
+      final String principalHref = mustPrincipalHref(els.get(0),
+                                                     resp);
+      if (principalHref == null) {
+        return;
+      }
+
+      final String action = must(els.get(1),
+                                 BedeworkServerTags.action,
+                                 resp);
+      if (action == null) {
+        return;
+      }
+
+      final List<String> emails = new ArrayList<>();
+
+      for (int i = 2; i < els.size(); i++) {
+        final String email = must(els.get(i),
+                                  BedeworkServerTags.email,
+                                  resp);
+        if (email == null) {
+          return;
+        }
+
+        emails.add(email);
+      }
+
+      if (!sysi.subscribeNotification(principalHref, action, emails)) {
+        resp.setStatus(HttpServletResponse.SC_EXPECTATION_FAILED);
+      }
     } catch (final WebdavException we) {
       throw we;
     } catch (final Throwable t) {

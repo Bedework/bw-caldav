@@ -279,6 +279,19 @@ public interface SysIntf extends WdSysIntf {
    *                   Notifications
    * ==================================================================== */
 
+  /** Subscribe for email notifications to the notification engine for the
+   * indicated calendar user.
+   *
+   * @param principalHref the subscriber
+   * @param action "add"/"remove"
+   * @param emails addresses to add or remove
+   * @return false for not done
+   * @throws WebdavException
+   */
+  boolean subscribeNotification(String principalHref,
+                                String action,
+                                List<String> emails) throws WebdavException;
+
   /** Add the given notification to the notification collection for the
    * indicated calendar user.
    *
@@ -287,8 +300,8 @@ public interface SysIntf extends WdSysIntf {
    * @return false for unknown CU
    * @throws WebdavException
    */
-  public boolean sendNotification(String href,
-                                  NotificationType val) throws WebdavException;
+  boolean sendNotification(String href,
+                           NotificationType val) throws WebdavException;
 
   /** Remove the given notification from the notification collection for the
    * indicated calendar user.
