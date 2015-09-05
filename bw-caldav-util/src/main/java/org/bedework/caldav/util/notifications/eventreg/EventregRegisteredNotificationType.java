@@ -23,12 +23,14 @@ import org.bedework.util.xml.tagdefs.BedeworkServerTags;
 
 import javax.xml.namespace.QName;
 
-/** Public events registration cancel message.
+/** Public events registration registered message.
  *
  * @author Mike Douglass douglm
  */
 public class EventregRegisteredNotificationType
         extends EventregBaseNotificationType {
+  private int numTicketsRequested;
+
   private int numTickets;
 
   @Override
@@ -37,7 +39,21 @@ public class EventregRegisteredNotificationType
   }
 
   /**
-   * @param val the number of tickets
+   * @param val the number of tickets requested
+   */
+  public void setNumTicketsRequested(final int val) {
+    numTickets = val;
+  }
+
+  /**
+   * @return the number of tickets
+   */
+  public int getNumTicketsRequested() {
+    return numTickets;
+  }
+
+  /**
+   * @param val the number of tickets assigned
    */
   public void setNumTickets(final int val) {
     numTickets = val;
@@ -54,6 +70,8 @@ public class EventregRegisteredNotificationType
     /* base notification fields */
     super.bodyToXml(xml);
 
+    xml.property(BedeworkServerTags.eventregNumTicketsRequested,
+                 String.valueOf(getNumTicketsRequested()));
     xml.property(BedeworkServerTags.eventregNumTickets,
                  String.valueOf(getNumTickets()));
   }

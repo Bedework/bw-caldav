@@ -153,14 +153,19 @@ public class BwNotifyHandler {
         return;
       }
 
-      final Integer numTickets = mustInt(els.get(2),
+      final Integer numTicketsRequested =
+              mustInt(els.get(2),
+                      BedeworkServerTags.eventregNumTicketsRequested,
+                      resp);
+
+      final Integer numTickets = mustInt(els.get(3),
                                          BedeworkServerTags.eventregNumTickets,
                                          resp);
       if (numTickets == null) {
         return;
       }
 
-      final String principalHref = mustPrincipalHref(els.get(3),
+      final String principalHref = mustPrincipalHref(els.get(4),
                                                      resp);
       if (principalHref == null) {
         return;
@@ -171,6 +176,7 @@ public class BwNotifyHandler {
 
       ereg.setUid(uid);
       ereg.setHref(href);
+      ereg.setNumTicketsRequested(numTicketsRequested);
       ereg.setNumTickets(numTickets);
       ereg.setPrincipalHref(principalHref);
       // comment?

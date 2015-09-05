@@ -56,6 +56,10 @@ public class EventregParsers {
   public static final QName registeredTag = BedeworkServerTags.eventregRegistered;
 
   /** */
+  public static final QName numTicketsRequestedTag =
+          BedeworkServerTags.eventregNumTicketsRequested;
+
+  /** */
   public static final QName numTicketsTag = BedeworkServerTags.eventregNumTickets;
 
   /** */
@@ -200,7 +204,7 @@ public class EventregParsers {
   }
 
   /**
-   * @param nd MUST be the invite xml element
+   * @param nd MUST be the cancelled xml element
    * @return populated SuggestNotificationType object
    * @throws WebdavException
    */
@@ -248,6 +252,12 @@ public class EventregParsers {
 
       for (final Element curnode: els) {
         if (eventregBaseNode(note, curnode)) {
+          continue;
+        }
+
+        if (XmlUtil.nodeMatches(curnode, numTicketsRequestedTag)) {
+          note.setNumTicketsRequested(
+                  Integer.valueOf(XmlUtil.getElementContent(curnode)));
           continue;
         }
 
