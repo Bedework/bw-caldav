@@ -61,6 +61,10 @@ public class AdminNoteParsers {
   public static final QName acceptedTag = BedeworkServerTags.accepted;
 
   /** */
+  public static final QName calsuiteURLTag =
+          BedeworkServerTags.calsuiteURL;
+
+  /** */
   public static final QName commentTag = BedeworkServerTags.comment;
 
   /** */
@@ -310,6 +314,16 @@ public class AdminNoteParsers {
 
       if (XmlUtil.nodeMatches(curnode, commentTag)) {
         base.setComment(XmlUtil.getElementContent(curnode));
+        return true;
+      }
+
+      if (XmlUtil.nodeMatches(curnode, calsuiteURLTag)) {
+        final Element href = XmlUtil.getOnlyElement(curnode);
+
+        if ((href == null) || !XmlUtil.nodeMatches(href, hrefTag)) {
+          throw new WebdavBadRequest("Expected " + hrefTag);
+        }
+        base.setCalsuiteHref(XmlUtil.getElementContent(href));
         return true;
       }
 

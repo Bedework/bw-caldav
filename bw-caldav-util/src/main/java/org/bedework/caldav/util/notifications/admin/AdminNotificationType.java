@@ -39,6 +39,7 @@ public abstract class AdminNotificationType extends BaseNotificationType {
   private String href; // Of the entity if any
   private String principalHref; // Of the registered user
   private String comment;
+  private String calsuiteHref; // Of the calsuite group
 
   /**
    * @param val the uid
@@ -98,6 +99,14 @@ public abstract class AdminNotificationType extends BaseNotificationType {
     return comment;
   }
 
+  public String getCalsuiteHref() {
+    return calsuiteHref;
+  }
+
+  public void setCalsuiteHref(final String calsuiteHref) {
+    this.calsuiteHref = calsuiteHref;
+  }
+
   /* ====================================================================
    *                   BaseNotificationType methods
    * ==================================================================== */
@@ -137,12 +146,14 @@ public abstract class AdminNotificationType extends BaseNotificationType {
   public void prefixHrefs(final UrlPrefixer prefixer) throws Throwable {
     setHref(prefixer.prefix(getHref()));
     setPrincipalHref(prefixer.prefix(getPrincipalHref()));
+    setCalsuiteHref(prefixer.prefix(getCalsuiteHref()));
   }
 
   @Override
   public void unprefixHrefs(final UrlUnprefixer unprefixer) throws Throwable {
     setHref(unprefixer.unprefix(getHref()));
     setPrincipalHref(unprefixer.unprefix(getPrincipalHref()));
+    setCalsuiteHref(unprefixer.unprefix(getCalsuiteHref()));
   }
 
   protected void bodyToXml(final XmlEmit xml) throws Throwable {
@@ -155,6 +166,9 @@ public abstract class AdminNotificationType extends BaseNotificationType {
     xml.property(WebdavTags.href, getPrincipalHref());
     xml.closeTag(WebdavTags.principalURL);
     xml.property(BedeworkServerTags.comment, getComment());
+    xml.openTag(BedeworkServerTags.calsuiteURL);
+    xml.property(WebdavTags.href, getCalsuiteHref());
+    xml.closeTag(BedeworkServerTags.calsuiteURL);
   }
 
   /* ====================================================================
@@ -170,6 +184,7 @@ public abstract class AdminNotificationType extends BaseNotificationType {
     ts.append("href", getHref());
     ts.append("principalHref", getPrincipalHref());
     ts.append("comment", getComment());
+    ts.append("calsuiteHref", getCalsuiteHref());
   }
 
   @Override
