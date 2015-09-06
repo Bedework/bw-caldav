@@ -16,19 +16,19 @@
     specific language governing permissions and limitations
     under the License.
 */
-package org.bedework.caldav.util.notifications.suggest;
+package org.bedework.caldav.util.notifications.admin;
 
-import org.bedework.util.misc.ToString;
 import org.bedework.util.xml.XmlEmit;
 import org.bedework.util.xml.tagdefs.BedeworkServerTags;
 
 import javax.xml.namespace.QName;
 
-/** Public events admin suggested an event to another group.
+/** Public events registration cancel message.
  *
  * @author Mike Douglass douglm
  */
-public class SuggestResponseNotificationType extends SuggestBaseNotificationType {
+public class ApprovalResponseNotificationType
+        extends AdminNotificationType {
   private boolean accepted;
 
   /**
@@ -51,7 +51,7 @@ public class SuggestResponseNotificationType extends SuggestBaseNotificationType
 
   @Override
   public QName getElementName() {
-    return BedeworkServerTags.suggestReply;
+    return BedeworkServerTags.approvalResponse;
   }
 
   @Override
@@ -60,21 +60,9 @@ public class SuggestResponseNotificationType extends SuggestBaseNotificationType
 
     bodyToXml(xml);
 
-    xml.property(BedeworkServerTags.accepted, String.valueOf(getAccepted()));
+    xml.property(BedeworkServerTags.accepted,
+                 String.valueOf(getAccepted()));
 
     xml.closeTag(getElementName());
-  }
-
-  /* ====================================================================
-   *                   Convenience methods
-   * ==================================================================== */
-
-  /** Add our stuff to the ToString
-   *
-   * @param ts to build result
-   */
-  protected void toStringSegment(final ToString ts) {
-    super.toStringSegment(ts);
-    ts.append("accepted", getAccepted());
   }
 }
