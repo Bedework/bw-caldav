@@ -31,7 +31,7 @@ public class AwaitingApprovalNotificationType
         extends AdminNotificationType {
   @Override
   public QName getElementName() {
-    return BedeworkServerTags.eventregCancelled;
+    return BedeworkServerTags.awaitingApproval;
   }
 
   @Override
