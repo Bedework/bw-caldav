@@ -2256,7 +2256,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
                      entityName + "\"");
           }
 
-          ev = sysi.getEvent(col, entityName, null);
+          ev = sysi.getEvent(col, entityName);
 
           if ((existance == existanceMust) && (ev == null)) {
             throw new WebdavNotFound(uri);
