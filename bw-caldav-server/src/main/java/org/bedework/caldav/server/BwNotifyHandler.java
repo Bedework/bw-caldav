@@ -22,6 +22,7 @@ import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.caldav.util.notifications.NotificationType;
 import org.bedework.caldav.util.notifications.eventreg.EventregCancelledNotificationType;
 import org.bedework.caldav.util.notifications.eventreg.EventregRegisteredNotificationType;
+import org.bedework.util.misc.Logged;
 import org.bedework.util.xml.XmlUtil;
 import org.bedework.util.xml.tagdefs.AppleServerTags;
 import org.bedework.util.xml.tagdefs.BedeworkServerTags;
@@ -41,7 +42,7 @@ import javax.xml.namespace.QName;
  *
  *   @author Mike Douglass   douglm - rpi.edu
  */
-public class BwNotifyHandler {
+public class BwNotifyHandler extends Logged {
   public void doNotify(final CaldavBWIntf intf,
                        final RequestPars pars,
                        final HttpServletResponse resp)
@@ -141,6 +142,10 @@ public class BwNotifyHandler {
                              final HttpServletResponse resp)
           throws WebdavException {
     try {
+      if (debug) {
+        debug("enter doEventregReg");
+      }
+
       final List<Element> els = XmlUtil.getElements(root);
 
       if (els.size() < 2) {
@@ -152,11 +157,19 @@ public class BwNotifyHandler {
 
       final String href = mustHref(els.get(0), resp);
       if (href == null) {
+        if (debug) {
+          debug("No href");
+        }
+
         return;
       }
 
       final String uid = mustUid(els.get(1), resp);
       if (uid == null) {
+        if (debug) {
+          debug("No uid");
+        }
+
         return;
       }
 
@@ -169,13 +182,25 @@ public class BwNotifyHandler {
                                          BedeworkServerTags.eventregNumTickets,
                                          resp);
       if (numTickets == null) {
+        if (debug) {
+          debug("No num tickets");
+        }
+
         return;
       }
 
       final String principalHref = mustPrincipalHref(els.get(4),
                                                      resp);
       if (principalHref == null) {
+        if (debug) {
+          debug("No principal href");
+        }
+
         return;
+      }
+
+      if (debug) {
+        debug("principal href=" + principalHref);
       }
 
       final EventregRegisteredNotificationType ereg =
