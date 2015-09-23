@@ -76,11 +76,6 @@
         <artifactId>bw-util-timezones</artifactId>
         <version>${bw-util.version}</version>
       </dependency>
-      <dependency>
-        <groupId>org.bedework</groupId>
-        <artifactId>bw-util-timezones</artifactId>
-        <version>${bw-util.version}</version>
-      </dependency>
 			<!-- Bedework: Access -->
 			<dependency>
 				<groupId>org.bedework</groupId>
