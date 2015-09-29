@@ -114,8 +114,7 @@ public class SuggestParsers {
     }
   }
 
-  private static abstract class SuggestionParser implements
-          BaseNotificationParser {
+  private static abstract class SuggestionParser implements BaseNotificationParser {
     private static final int maxPoolSize = 10;
     private final List<SuggestParsers> parsers = new ArrayList<>();
 
@@ -267,8 +266,8 @@ public class SuggestParsers {
    */
   public SuggestResponseNotificationType parseSuggestReply(final Node nd) throws WebdavException {
     try {
-      if (!XmlUtil.nodeMatches(nd, suggestTag)) {
-        throw new WebdavBadRequest("Expected " + suggestTag);
+      if (!XmlUtil.nodeMatches(nd, suggestReplyTag)) {
+        throw new WebdavBadRequest("Expected " + suggestReplyTag);
       }
 
       final SuggestResponseNotificationType srnt = new SuggestResponseNotificationType();
