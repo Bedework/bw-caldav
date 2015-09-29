@@ -59,7 +59,11 @@ public abstract class CaldavBwNode extends WebdavNsNode {
   protected CalDAVCollection col;
 
   private final static HashMap<QName, PropertyTagEntry> propertyNames =
-    new HashMap<QName, PropertyTagEntry>();
+    new HashMap<>();
+
+  static {
+    addPropEntry(propertyNames, WebdavTags.serverInfoHref);
+  }
 
   private final static Collection<QName> supportedReports = new ArrayList<QName>();
 
@@ -245,6 +249,16 @@ public abstract class CaldavBwNode extends WebdavNsNode {
                                        final WebdavNsIntf intf,
                                        final boolean allProp) throws WebdavException {
     try {
+      final XmlEmit xml = intf.getXmlEmit();
+
+      if (tag.equals(WebdavTags.serverInfoHref)) {
+        xml.openTag(tag);
+        generateHref(xml, "/serverinfo/serverinfo.xml");
+        xml.closeTag(tag);
+
+        return true;
+      }
+
       // Not known - try higher
       return super.generatePropertyValue(tag, intf, allProp);
     } catch (WebdavException wde) {

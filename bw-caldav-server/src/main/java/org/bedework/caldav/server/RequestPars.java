@@ -42,6 +42,8 @@ public class RequestPars extends PostRequestPars {
 
   private boolean share;
 
+  private boolean serverInfo;
+
   private boolean iSchedule;
 
   private boolean freeBusy;
@@ -73,6 +75,13 @@ public class RequestPars extends PostRequestPars {
 
     testRequest: {
       if (processRequest()) {
+        break testRequest;
+      }
+
+      serverInfo = checkUri("/serverinfo");
+
+      if (serverInfo) {
+        getTheReader = false;
         break testRequest;
       }
 
@@ -184,6 +193,13 @@ public class RequestPars extends PostRequestPars {
    */
   public boolean isWebcalGetAccept() {
     return webcalGetAccept;
+  }
+
+  /**
+   * @return true if this is a system info request
+   */
+  public boolean isServerInfo() {
+    return serverInfo;
   }
 
   /**

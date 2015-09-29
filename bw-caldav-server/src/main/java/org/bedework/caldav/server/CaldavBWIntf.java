@@ -33,6 +33,7 @@ import org.bedework.caldav.server.filter.FilterHandler;
 import org.bedework.caldav.server.get.FreeBusyGetHandler;
 import org.bedework.caldav.server.get.GetHandler;
 import org.bedework.caldav.server.get.IscheduleGetHandler;
+import org.bedework.caldav.server.get.ServerInfoGetHandler;
 import org.bedework.caldav.server.get.WebcalGetHandler;
 import org.bedework.caldav.server.soap.synch.SynchConnections;
 import org.bedework.caldav.server.soap.synch.SynchConnectionsMBean;
@@ -80,6 +81,9 @@ import org.bedework.webdav.servlet.shared.WebdavProperty;
 import org.bedework.webdav.servlet.shared.WebdavServerError;
 import org.bedework.webdav.servlet.shared.WebdavUnauthorized;
 import org.bedework.webdav.servlet.shared.WebdavUnsupportedMediaType;
+import org.bedework.webdav.servlet.shared.serverInfo.Application;
+import org.bedework.webdav.servlet.shared.serverInfo.Feature;
+import org.bedework.webdav.servlet.shared.serverInfo.ServerInfo;
 
 import ietf.params.xml.ns.caldav.FilterType;
 import ietf.params.xml.ns.icalendar_2.IcalendarType;
@@ -93,9 +97,6 @@ import java.io.CharArrayReader;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.Serializable;
-import java.net.URI;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -145,6 +146,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
   /* true if this is a CalWS server */
   private boolean calWs;
+
+  private ServerInfo serverInfo;
 
   /* ====================================================================
    *                     JMX configuration
@@ -418,6 +421,32 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
 
     return hdr;
+  }
+
+  @Override
+  public ServerInfo getServerInfo() {
+    if (serverInfo !=  null) {
+      return serverInfo;
+    }
+
+    serverInfo = super.getServerInfo();
+
+    /* Augment with our services */
+
+    //<calendarserver-principal-property-search xmlns='http://calendarserver.org/ns/'/>
+    //<calendarserver-principal-search xmlns='http://calendarserver.org/ns/'/>
+
+    final Application app = new Application("caldav");
+
+    app.addFeature(new Feature(CaldavTags.calendarAccess));
+    app.addFeature(new Feature(CaldavTags.calendarAutoschedule));
+    app.addFeature(new Feature(CaldavTags.calendarDefaultAlarms));
+    app.addFeature(new Feature(CaldavTags.calendarNoTimezone));
+    app.addFeature(new Feature(AppleServerTags.calendarServerSharing));
+
+    serverInfo.addApplication(app);
+
+    return serverInfo;
   }
 
   @Override
@@ -1515,11 +1544,13 @@ public class CaldavBWIntf extends WebdavNsIntf {
   public boolean specialUri(final HttpServletRequest req,
                             final HttpServletResponse resp,
                             final String resourceUri) throws WebdavException {
-    RequestPars pars = new RequestPars(req, this, resourceUri);
+    final RequestPars pars = new RequestPars(req, this, resourceUri);
     GetHandler handler = null;
 
     if (pars.isiSchedule()) {
       handler = new IscheduleGetHandler(this);
+    } else if (pars.isServerInfo()) {
+      handler = new ServerInfoGetHandler(this);
     } else if (pars.isFreeBusy()) {
       handler = new FreeBusyGetHandler(this);
     } else if (pars.isWebcal()) {
