@@ -147,7 +147,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
   /* true if this is a CalWS server */
   private boolean calWs;
 
-  private ServerInfo serverInfo;
+  private static ServerInfo serverInfo;
 
   /* ====================================================================
    *                     JMX configuration

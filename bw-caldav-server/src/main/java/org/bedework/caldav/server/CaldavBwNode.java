@@ -61,14 +61,11 @@ public abstract class CaldavBwNode extends WebdavNsNode {
   private final static HashMap<QName, PropertyTagEntry> propertyNames =
     new HashMap<>();
 
-  static {
-    addPropEntry(propertyNames, WebdavTags.serverInfoHref);
-  }
-
-  private final static Collection<QName> supportedReports = new ArrayList<QName>();
+  private final static Collection<QName> supportedReports =
+          new ArrayList<>();
 
   private final static HashMap<QName, PropertyTagEntry> calWSSoapNames =
-    new HashMap<QName, PropertyTagEntry>();
+    new HashMap<>();
 
   static {
     supportedReports.add(CaldavTags.calendarMultiget); // Calendar access
@@ -249,16 +246,6 @@ public abstract class CaldavBwNode extends WebdavNsNode {
                                        final WebdavNsIntf intf,
                                        final boolean allProp) throws WebdavException {
     try {
-      final XmlEmit xml = intf.getXmlEmit();
-
-      if (tag.equals(WebdavTags.serverInfoHref)) {
-        xml.openTag(tag);
-        generateHref(xml, "/serverinfo/serverinfo.xml");
-        xml.closeTag(tag);
-
-        return true;
-      }
-
       // Not known - try higher
       return super.generatePropertyValue(tag, intf, allProp);
     } catch (WebdavException wde) {
