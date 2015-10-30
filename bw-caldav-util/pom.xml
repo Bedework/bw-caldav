@@ -45,6 +45,14 @@
 			<groupId>org.bedework</groupId>
 			<artifactId>bw-webdav</artifactId>
 		</dependency>
+    <dependency>
+      <groupId>org.bedework</groupId>
+      <artifactId>bw-ical4j-cl</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.bedework</groupId>
+      <artifactId>apache-jdkim-library</artifactId>
+    </dependency>
 
 		<!-- Third Party Dependencies -->
     <dependency>
@@ -52,16 +60,8 @@
       <artifactId>commons-codec</artifactId>
     </dependency>
 		<dependency>
-			<groupId>net.fortuna.ical4j</groupId>
-			<artifactId>ical4j</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>servlet-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.james.jdkim</groupId>
-			<artifactId>apache-jdkim-library</artifactId>
 		</dependency>
 	</dependencies>
 
