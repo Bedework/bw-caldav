@@ -11,17 +11,18 @@
 		<!-- Maven Plugin Versions -->
 		<maven.compiler.plugin.version>2.3.2</maven.compiler.plugin.version>
 		<maven.source.plugin.version>2.1.2</maven.source.plugin.version>
+
 		<!-- Bedework Versions -->
-		<bedework.releases.repo.url>scp://dev.bedework.org/data/repository/maven/maven2</bedework.releases.repo.url>
-		<bedework.snapshots.repo.url>scp://dev.bedework.org/data/repository/maven/maven2</bedework.snapshots.repo.url>
-		<bw-access.version>4.0.1-SNAPSHOT</bw-access.version>
-		<bw-util.version>4.0.1-SNAPSHOT</bw-util.version>
-		<bw-webdav.version>4.0.1-SNAPSHOT</bw-webdav.version>
-		<bw-ws.version>4.0.1-SNAPSHOT</bw-ws.version>
+		<bw-access.version>4.0.1</bw-access.version>
+		<bw-util.version>4.0.2</bw-util.version>
+		<bw-webdav.version>4.0.1</bw-webdav.version>
+		<bw-ws.version>4.0.3</bw-ws.version>
+    <ical4j.version>1.1.1</ical4j.version>
+    <ical4j-vcard.version>1.0.1</ical4j-vcard.version>
+
 		<!-- Third Party Library Versions -->
     <commons-codec.version>1.5</commons-codec.version>
 		<servlet-api.version>2.5</servlet-api.version>
-    <ical4j.version>1.1-BW-SNAPSHOT</ical4j.version>
 		<log4j.version>1.2.15</log4j.version>
 	</properties>
 
@@ -52,6 +53,34 @@
 		<module>bw-caldav-util</module>
 		<module>bw-caldav-server</module>
 	</modules>
+
+  <developers>
+    <developer>
+      <name>Mike Douglass</name>
+      <organization>
+        Spherical Cow Group
+      </organization>
+      <organizationUrl>http://sphericalcowgroup.com/</organizationUrl>
+    </developer>
+    <developer>
+      <name>Arlen Johnson</name>
+      <organization>
+        Spherical Cow Group
+      </organization>
+      <organizationUrl>http://sphericalcowgroup.com/</organizationUrl>
+    </developer>
+  </developers>
+
+  <distributionManagement>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
+    <repository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+  </distributionManagement>
 
 	<dependencyManagement>
 		<dependencies>
@@ -104,27 +133,28 @@
 				<artifactId>bw-ws-synchws</artifactId>
 				<version>${bw-ws.version}</version>
 			</dependency>
+      <dependency>
+        <groupId>org.bedework</groupId>
+        <artifactId>bw-ical4j-cl</artifactId>
+        <version>${ical4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.bedework</groupId>
+        <artifactId>bw-ical4j-vcard</artifactId>
+        <version>${ical4j-vcard.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.bedework</groupId>
+        <artifactId>apache-jdkim-library</artifactId>
+        <version>0.4</version>
+      </dependency>
+
 			<!-- Third Party Dependencies -->
-			<dependency>
-				<groupId>org.mnode.ical4j</groupId>
-				<artifactId>ical4j</artifactId>
-				<version>${ical4j.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>net.fortuna.ical4j</groupId>
-				<artifactId>ical4j</artifactId>
-				<version>${ical4j.version}</version>
-			</dependency>
       <dependency>
         <groupId>commons-codec</groupId>
         <artifactId>commons-codec</artifactId>
         <version>${commons-codec.version}</version>
       </dependency>
-			<dependency>
-				<groupId>org.apache.james.jdkim</groupId>
-				<artifactId>apache-jdkim-library</artifactId>
-				<version>0.2-BW</version>
-			</dependency>
 			<dependency>
 				<groupId>log4j</groupId>
 				<artifactId>log4j</artifactId>
@@ -152,34 +182,6 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
-
-	<repositories>
-		<repository>
-			<id>bedework.repository</id>
-			<name>Bedework Maven Repository</name>
-			<url>http://repository.bedework.org/maven2/</url>
-			<layout>default</layout>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-	</repositories>
-
-	<distributionManagement>
-		<repository>
-			<id>bedework-releases-repository</id>
-			<name>Bedework Releases Repository</name>
-			<url>${bedework.releases.repo.url}</url>
-		</repository>
-		<snapshotRepository>
-			<id>bedework-snapshots-repository</id>
-			<name>Bedework Snapshots Repository</name>
-			<url>${bedework.snapshots.repo.url}</url>
-		</snapshotRepository>
-	</distributionManagement>
 
 	<build>
 		<extensions>
@@ -218,7 +220,81 @@
 					</execution>
 				</executions>
 			</plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-release-plugin</artifactId>
+        <version>2.5</version>
+        <configuration>
+          <autoVersionSubmodules>true</autoVersionSubmodules>
+          <useReleaseProfile>false</useReleaseProfile>
+          <releaseProfiles>release</releaseProfiles>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>2.9.1</version>
+        <configuration>
+          <additionalparam>-Xdoclint:none</additionalparam>
+          <failOnError>false</failOnError>
+        </configuration>
+      </plugin>
 		</plugins>
 	</build>
 
+  <profiles>
+    <profile>
+      <id>release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <version>2.2.1</version>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar-no-fork</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>2.9.1</version>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <additionalparam>-Xdoclint:none</additionalparam>
+              <failOnError>false</failOnError>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>1.5</version>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
