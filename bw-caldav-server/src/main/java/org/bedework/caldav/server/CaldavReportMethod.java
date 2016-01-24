@@ -256,10 +256,10 @@ public class CaldavReportMethod extends ReportMethod {
           // Node content should be a timezone def
           String tzdef = getElementContent(curnode);
           SysiIcalendar ical = intf.getSysi().fromIcal(null,
-                                                   new StringReader(tzdef),
-                                                   null,
-                                                   IcalResultType.TimeZone,
-                                                   false);
+                                                       new StringReader(tzdef),
+                                                       "text/calendar",
+                                                       IcalResultType.TimeZone,
+                                                       false);
           Collection<TimeZone> tzs = ical.getTimeZones();
           cqpars.tzid = tzs.iterator().next().getID();
         }

@@ -2183,10 +2183,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       if (existance == WebdavNsIntf.existanceDoesExist) {
         // Provided with calendar and entity if needed.
-        String name = null;
         if (ev != null) {
-          name = ev.getName();
-          curi = new CaldavURI(collection, ev, name, true, false);
+          curi = new CaldavURI(collection, ev, ev.getName(), true, false);
         } else if (rsrc != null) {
           curi = new CaldavURI(collection, rsrc, true);
         } else {
@@ -2198,14 +2196,15 @@ public class CaldavBWIntf extends WebdavNsIntf {
         return curi;
       }
 
+      String coluri = Util.buildPath(true, uri);
+      if (debug) {
+        debugMsg("search for collection uri \"" + coluri + "\"");
+      }
+      CalDAVCollection col = sysi.getCollection(coluri);
+
       if ((nodeType == WebdavNsIntf.nodeTypeCollection) ||
           (nodeType == WebdavNsIntf.nodeTypeUnknown)) {
         // For unknown we try the full path first as a calendar.
-        String coluri = Util.buildPath(true, uri);
-        if (debug) {
-          debugMsg("search for collection uri \"" + coluri + "\"");
-        }
-        CalDAVCollection col = sysi.getCollection(coluri);
 
         if (col == null) {
           if ((nodeType == WebdavNsIntf.nodeTypeCollection) &&
@@ -2230,6 +2229,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
           return curi;
         }
+      } else if (col != null) {
+        throw new WebdavForbidden(WebdavTags.resourceMustBeNull);
       }
 
       // Entity or unknown
@@ -2254,7 +2255,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       }
 
       /* Look for the parent */
-      CalDAVCollection col = sysi.getCollection(parentPath);
+      col = sysi.getCollection(parentPath);
 
       if (col == null) {
         if (nodeType == WebdavNsIntf.nodeTypeCollection) {

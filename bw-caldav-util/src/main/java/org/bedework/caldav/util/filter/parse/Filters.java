@@ -258,14 +258,22 @@ public class Filters {
       }
 
       if ((st == null) && (et == null)) {
-        throw new WebdavBadRequest(CaldavTags.validFilter, "Invalid time-range - no start and no end");
+        throw new WebdavForbidden(CaldavTags.validFilter, "Invalid time-range - no start and no end");
+      }
+
+      if ((st != null) && !st.isUtc()) {
+        throw new WebdavForbidden(CaldavTags.validFilter, "Invalid time-range - start not UTC");
+      }
+
+      if ((et != null) && !et.isUtc()) {
+        throw new WebdavForbidden(CaldavTags.validFilter, "Invalid time-range - end not UTC");
       }
 
       return new TimeRange(st, et);
-    } catch (WebdavException wde) {
+    } catch (final WebdavException wde) {
       throw wde;
-    } catch (Throwable t) {
-      throw new WebdavBadRequest(CaldavTags.validFilter, "Invalid time-range");
+    } catch (final Throwable t) {
+      throw new WebdavForbidden(CaldavTags.validFilter, "Invalid time-range");
     }
   }
 
