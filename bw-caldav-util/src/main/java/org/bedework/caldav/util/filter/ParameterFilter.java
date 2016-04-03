@@ -18,7 +18,6 @@
 */
 package org.bedework.caldav.util.filter;
 
-import org.bedework.util.calendar.PropertyIndex;
 import org.bedework.util.calendar.PropertyIndex.ParameterInfoIndex;
 import org.bedework.util.calendar.PropertyIndex.PropertyInfoIndex;
 import org.bedework.util.misc.Uid;
@@ -31,7 +30,7 @@ import org.bedework.util.misc.Uid;
  * @author Mike Douglass douglm
  */
 public class ParameterFilter extends FilterBase {
-  private PropertyIndex.PropertyInfoIndex parentPropertyIndex;
+  private PropertyInfoIndex parentPropertyIndex;
   private ParameterInfoIndex parameterIndex;
 
   /**

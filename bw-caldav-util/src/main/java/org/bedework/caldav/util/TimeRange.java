@@ -18,12 +18,11 @@
 */
 package org.bedework.caldav.util;
 
-import org.apache.log4j.Logger;
-
 import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.Dur;
 import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.property.DateProperty;
+import org.apache.log4j.Logger;
 
 /** Express the CalDAV time-range element.
  * @author douglm

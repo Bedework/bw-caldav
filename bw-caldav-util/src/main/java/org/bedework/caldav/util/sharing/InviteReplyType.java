@@ -23,7 +23,6 @@ import org.bedework.util.misc.ToString;
 import org.bedework.util.xml.XmlEmit;
 import org.bedework.util.xml.tagdefs.AppleServerTags;
 import org.bedework.util.xml.tagdefs.WebdavTags;
-
 import org.bedework.webdav.servlet.shared.UrlPrefixer;
 import org.bedework.webdav.servlet.shared.UrlUnprefixer;
 

@@ -18,8 +18,6 @@
 */
 package org.bedework.caldav.util;
 
-import org.apache.log4j.Logger;
-
 import ietf.params.xml.ns.caldav.CalendarDataType;
 import ietf.params.xml.ns.caldav.CompFilterType;
 import ietf.params.xml.ns.caldav.CompType;
@@ -29,6 +27,7 @@ import ietf.params.xml.ns.caldav.PropFilterType;
 import ietf.params.xml.ns.caldav.PropType;
 import ietf.params.xml.ns.caldav.TextMatchType;
 import ietf.params.xml.ns.caldav.UTCTimeRangeType;
+import org.apache.log4j.Logger;
 
 /** Various debug dump methods
  *

@@ -18,14 +18,14 @@
 */
 package org.bedework.caldav.util.notifications;
 
-import org.bedework.util.xml.tagdefs.BedeworkServerTags;
-import org.bedework.webdav.servlet.shared.UrlPrefixer;
-import org.bedework.webdav.servlet.shared.UrlUnprefixer;
 import org.bedework.util.xml.XmlEmit;
 import org.bedework.util.xml.XmlEmit.NameSpace;
 import org.bedework.util.xml.tagdefs.AppleServerTags;
+import org.bedework.util.xml.tagdefs.BedeworkServerTags;
 import org.bedework.util.xml.tagdefs.CaldavDefs;
 import org.bedework.util.xml.tagdefs.WebdavTags;
+import org.bedework.webdav.servlet.shared.UrlPrefixer;
+import org.bedework.webdav.servlet.shared.UrlUnprefixer;
 
 import java.io.StringWriter;
 import java.util.List;

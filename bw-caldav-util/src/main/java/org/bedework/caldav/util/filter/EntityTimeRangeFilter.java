@@ -19,7 +19,6 @@
 package org.bedework.caldav.util.filter;
 
 import org.bedework.caldav.util.TimeRange;
-
 import org.bedework.util.calendar.PropertyIndex.PropertyInfoIndex;
 
 /** A filter that selects calendar entities that fall within a given timerange.
