@@ -135,6 +135,48 @@ public abstract class CalDAVCollection <T extends CalDAVCollection> extends WdCo
    */
   public abstract String getColor() throws WebdavException;
 
+  /** Set the calendar aliasUri property
+   *
+   * @param val
+   * @throws WebdavException
+   */
+  public abstract void setAliasUri(String val) throws WebdavException;
+
+  /** Get the calendar aliasUri property
+   *
+   * @return String calendar AliasUri
+   * @throws WebdavException
+   */
+  public abstract String getAliasUri() throws WebdavException;
+
+  /** Set the calendar remoteId property
+   *
+   * @param val
+   * @throws WebdavException
+   */
+  public abstract void setRemoteId(String val) throws WebdavException;
+
+  /** Get the calendar remoteId property
+   *
+   * @return String calendar RemoteId
+   * @throws WebdavException
+   */
+  public abstract String getRemoteId() throws WebdavException;
+
+  /** Set the calendar remotePw property
+   *
+   * @param val
+   * @throws WebdavException
+   */
+  public abstract void setRemotePw(String val) throws WebdavException;
+
+  /** Get the calendar remotePw property
+   *
+   * @return String calendar RemotePw
+   * @throws WebdavException
+   */
+  public abstract String getRemotePw() throws WebdavException;
+
   /**
    * @param val the supported component names e.g. "VEVENT", "VTODO" etc.
    * @throws WebdavException

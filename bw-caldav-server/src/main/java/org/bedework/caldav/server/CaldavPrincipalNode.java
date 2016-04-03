@@ -21,7 +21,6 @@ package org.bedework.caldav.server;
 import org.bedework.caldav.server.sysinterface.CalPrincipalInfo;
 import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.util.xml.XmlEmit;
-import org.bedework.util.xml.tagdefs.AppleServerTags;
 import org.bedework.util.xml.tagdefs.CaldavTags;
 import org.bedework.util.xml.tagdefs.CarddavTags;
 import org.bedework.util.xml.tagdefs.WebdavTags;

@@ -28,6 +28,7 @@ import org.bedework.util.xml.tagdefs.CaldavTags;
 import org.bedework.util.xml.tagdefs.XcalTags;
 import org.bedework.webdav.servlet.shared.WebdavBadRequest;
 import org.bedework.webdav.servlet.shared.WebdavException;
+import org.bedework.webdav.servlet.shared.WebdavForbidden;
 import org.bedework.webdav.servlet.shared.WebdavNsNode;
 import org.bedework.webdav.servlet.shared.WebdavProperty;
 
@@ -190,9 +191,14 @@ public class CalData extends WebdavProperty {
             throw new WebdavBadRequest();
           }
         } else if (attrName.equals("xmlns")) {
+        } else if (attrName.equals("version")) {
+          if (!"2.0".equals(attr.getNodeValue())) {
+            // TODO - wrong response if not in a filter
+            throw new WebdavForbidden(CaldavTags.validFilter, "Invalid attribute: " + attrName);
+          }
         } else {
           // Bad attribute(s)
-          throw new WebdavBadRequest("Invalid attribute: " + attrName);
+          throw new WebdavForbidden(CaldavTags.validFilter, "Invalid attribute: " + attrName);
         }
       }
     }

@@ -33,6 +33,7 @@ import org.bedework.util.xml.XmlEmit;
 import org.bedework.util.xml.XmlUtil;
 import org.bedework.util.xml.tagdefs.AppleIcalTags;
 import org.bedework.util.xml.tagdefs.AppleServerTags;
+import org.bedework.util.xml.tagdefs.BedeworkServerTags;
 import org.bedework.util.xml.tagdefs.CalWSSoapTags;
 import org.bedework.util.xml.tagdefs.CalWSXrdDefs;
 import org.bedework.util.xml.tagdefs.CaldavTags;
@@ -122,6 +123,9 @@ public class CaldavCalNode extends CaldavBwNode {
     addPropEntry(propertyNames, AppleServerTags.invite);
     addPropEntry(propertyNames, AppleServerTags.sharedUrl);
     addPropEntry(propertyNames, AppleIcalTags.calendarColor);
+    addPropEntry(propertyNames, BedeworkServerTags.aliasUri);
+    addPropEntry(propertyNames, BedeworkServerTags.remoteId);
+    addPropEntry(propertyNames, BedeworkServerTags.remotePw);
 
     /* Default alarms */
 
@@ -695,6 +699,24 @@ public class CaldavCalNode extends CaldavBwNode {
         return true;
       }
 
+      if (XmlUtil.nodeMatches(val, BedeworkServerTags.aliasUri)) {
+        col.setAliasUri(XmlUtil.getElementContent(val));
+
+        return true;
+      }
+
+      if (XmlUtil.nodeMatches(val, BedeworkServerTags.remoteId)) {
+        col.setRemoteId(XmlUtil.getElementContent(val));
+
+        return true;
+      }
+
+      if (XmlUtil.nodeMatches(val, BedeworkServerTags.remotePw)) {
+        col.setRemotePw(XmlUtil.getElementContent(val));
+
+        return true;
+      }
+
       return false;
     } catch (WebdavException wde) {
       throw wde;
@@ -1184,6 +1206,39 @@ public class CaldavCalNode extends CaldavBwNode {
         }
         xml.newline();
         xml.closeTag(tag);
+
+        return true;
+      }
+
+      if(tag.equals (BedeworkServerTags.aliasUri)) {
+        String alias = col.getAliasUri ();
+        if(alias == null) {
+          return false;
+        }
+
+        xml.property (tag, alias);
+
+        return true;
+      }
+
+      if(tag.equals (BedeworkServerTags.remoteId)) {
+        String id = col.getRemoteId ();
+        if(id == null) {
+          return false;
+        }
+
+        xml.property (tag, id);
+
+        return true;
+      }
+
+      if(tag.equals (BedeworkServerTags.remotePw)) {
+        String pw = col.getRemotePw ();
+        if(pw == null) {
+          return false;
+        }
+
+        xml.property (tag, pw);
 
         return true;
       }

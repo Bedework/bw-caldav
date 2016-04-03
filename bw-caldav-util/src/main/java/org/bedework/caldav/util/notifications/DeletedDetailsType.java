@@ -22,6 +22,9 @@ import org.bedework.util.misc.ToString;
 import org.bedework.util.xml.XmlEmit;
 import org.bedework.util.xml.tagdefs.AppleServerTags;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /** Class to represent a sharing request.
  *
  * <pre>
@@ -67,6 +70,7 @@ public class DeletedDetailsType {
   private String deletedNextInstanceTzid;
   private boolean deletedHadMoreInstances;
   private String deletedDisplayname;
+  private List<ChangedPropertyType> deletedProps = new ArrayList<ChangedPropertyType>();
 
   /** The main calendar component type of the deleted resource,
    * e.g., "VEVENT", "VTODO"
@@ -159,6 +163,20 @@ public class DeletedDetailsType {
     return deletedDisplayname;
   }
 
+  /**
+   * @param val the deletedProps
+   */
+  public void setDeletedProps(final List<ChangedPropertyType> val) {
+    deletedProps = val;
+  }
+
+  /**
+   * @return the deletedProps
+   */
+  public List<ChangedPropertyType> getDeletedProps() {
+    return deletedProps;
+  }
+
   /* ====================================================================
    *                   BaseNotificationType methods
    * ==================================================================== */
@@ -191,6 +209,9 @@ public class DeletedDetailsType {
     if (getDeletedHadMoreInstances()) {
       xml.emptyTag(AppleServerTags.deletedHadMoreInstances);
     }
+    for (ChangedPropertyType cp: getDeletedProps()) {
+      cp.toXml(xml);
+    }
 
     xml.closeTag(AppleServerTags.deletedDetails);
   }
@@ -217,6 +238,9 @@ public class DeletedDetailsType {
     }
     if (getDeletedHadMoreInstances()) {
       ts.append("deletedHadMoreInstances", getDeletedHadMoreInstances());
+    }
+    for (ChangedPropertyType cp: getDeletedProps()) {
+      ts.append("deletedProp", cp);
     }
   }
 

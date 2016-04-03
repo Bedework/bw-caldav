@@ -385,7 +385,7 @@ public boolean generatePropertyValue(final QName tag,
   }
 
   /* UNUSED(non-Javadoc)
-   * @see edu.bedework.cct.webdav.servlet.shared.WebdavNsNode#getProperties(java.lang.String)
+   * @see edu.rpi.cct.webdav.servlet.shared.WebdavNsNode#getProperties(java.lang.String)
    * /
   public Collection<WebdavProperty> getProperties(final String ns) throws WebdavException {
     init(true);

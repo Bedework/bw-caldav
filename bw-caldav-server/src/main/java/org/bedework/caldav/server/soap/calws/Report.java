@@ -19,7 +19,6 @@
 package org.bedework.caldav.server.soap.calws;
 
 import org.bedework.caldav.server.soap.ReportBase;
-
 import org.bedework.webdav.servlet.shared.WebdavNsIntf;
 
 /**

@@ -43,6 +43,12 @@ public abstract class CalDAVCollectionBase <T extends CalDAVCollectionBase> exte
 
   private String color;
 
+  private String aliasUri;
+
+  private String remoteId;
+
+  private String remotePw;
+
   /** Constructor
    *
    * @param calType
@@ -145,5 +151,47 @@ public abstract class CalDAVCollectionBase <T extends CalDAVCollectionBase> exte
   @Override
   public String getColor() throws WebdavException {
     return color;
+  }
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.CalDAVCollection#setAliasUri(java.lang.String)
+   */
+  public void setAliasUri(String val) throws WebdavException {
+    aliasUri = val;
+  }
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.CalDAVCollection#getAliasUri()
+   */
+  public String getAliasUri() throws WebdavException {
+    return aliasUri;
+  }
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.CalDAVCollection#setRemoteId(java.lang.String)
+   */
+  public void setRemoteId(String val) throws WebdavException {
+    remoteId = val;
+  }
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.CalDAVCollection#getRemoteId()
+   */
+  public String getRemoteId() throws WebdavException {
+    return remoteId;
+  }
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.CalDAVCollection#setRemotePw(java.lang.String)
+   */
+  public void setRemotePw(String val) throws WebdavException {
+    remotePw = val;
+  }
+
+  /* (non-Javadoc)
+   * @see org.bedework.caldav.server.CalDAVCollection#getRemotePw()
+   */
+  public String getRemotePw() throws WebdavException {
+    return remotePw;
   }
 }

@@ -69,6 +69,7 @@ public class CaldavBWServlet extends WebdavServlet implements
       // Reduced method set
       methods.clear();
 
+      methods.put("DELETE", new MethodInfo(DeleteMethod.class, false));
       methods.put("GET", new MethodInfo(GetMethod.class, false));
       methods.put("HEAD", new MethodInfo(HeadMethod.class, false));
       methods.put("OPTIONS", new MethodInfo(OptionsMethod.class, false));

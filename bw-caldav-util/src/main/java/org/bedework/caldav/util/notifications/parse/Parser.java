@@ -621,12 +621,17 @@ public class Parser {
       pos++;
     }
 
-    if (els.length > pos) {
-      expect(els[pos], AppleServerTags.deletedHadMoreInstances);
+    if ((els.length > pos) &&
+      XmlUtil.nodeMatches(els[pos], AppleServerTags.deletedHadMoreInstances)) {
       dd.setDeletedHadMoreInstances(true);
       pos++;
     }
 
+    while (els.length > pos) {
+      dd.getDeletedProps().add(parseChangedProperty(els[pos]));
+      pos++;
+    }
+    
     if (els.length > pos) {
       throw badNotification(els[pos]);
     }

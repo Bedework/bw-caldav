@@ -36,7 +36,6 @@ import org.bedework.util.xml.XmlEmit;
 import org.bedework.util.xml.XmlEmit.NameSpace;
 import org.bedework.util.xml.XmlUtil;
 import org.bedework.util.xml.tagdefs.AppleServerTags;
-import org.bedework.util.xml.tagdefs.BedeworkServerTags;
 import org.bedework.util.xml.tagdefs.CaldavTags;
 import org.bedework.util.xml.tagdefs.IscheduleTags;
 import org.bedework.util.xml.tagdefs.WebdavTags;
