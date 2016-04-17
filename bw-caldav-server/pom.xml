@@ -45,7 +45,11 @@
     </dependency>
     <dependency>
       <groupId>org.bedework</groupId>
-      <artifactId>bw-util-misc </artifactId>
+      <artifactId>bw-util-misc</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.bedework</groupId>
+      <artifactId>bw-util-xml</artifactId>
     </dependency>
 		<dependency>
 			<groupId>org.bedework</groupId>
