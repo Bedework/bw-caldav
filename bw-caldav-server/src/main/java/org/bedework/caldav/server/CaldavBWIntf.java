@@ -1076,7 +1076,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
     SysiIcalendar cal = sysi.fromIcal(col, contentRdr, contentType,
                                       IcalResultType.OneComponent,
-                                      ifStag != null); // mergeAttendees
+                                      true); // mergeAttendees
     if (cal.getMethod() != null) {
       throw new WebdavForbidden(CaldavTags.validCalendarObjectResource,
                                 "No method on PUT");
