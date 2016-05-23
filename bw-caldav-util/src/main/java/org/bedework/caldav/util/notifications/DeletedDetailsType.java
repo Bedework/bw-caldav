@@ -70,7 +70,7 @@ public class DeletedDetailsType {
   private String deletedNextInstanceTzid;
   private boolean deletedHadMoreInstances;
   private String deletedDisplayname;
-  private List<ChangedPropertyType> deletedProps = new ArrayList<ChangedPropertyType>();
+  private List<ChangedPropertyType> deletedProps = new ArrayList<>();
 
   /** The main calendar component type of the deleted resource,
    * e.g., "VEVENT", "VTODO"

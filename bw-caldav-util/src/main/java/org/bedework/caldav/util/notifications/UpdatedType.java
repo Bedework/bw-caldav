@@ -21,9 +21,6 @@ package org.bedework.caldav.util.notifications;
 import org.bedework.util.misc.ToString;
 import org.bedework.util.xml.XmlEmit;
 import org.bedework.util.xml.tagdefs.AppleServerTags;
-import org.bedework.util.xml.tagdefs.WebdavTags;
-import org.bedework.webdav.servlet.shared.UrlPrefixer;
-import org.bedework.webdav.servlet.shared.UrlUnprefixer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,40 +31,10 @@ import java.util.List;
  *
  * @author Mike Douglass douglm
  */
-public class UpdatedType {
-  private String href;
-  private ChangedByType changedBy;
+public class UpdatedType extends BaseEntityChangeType {
   private boolean content;
   private PropType prop;
   private List<CalendarChangesType> calendarChanges;
-
-  /**
-   * @param val the href
-   */
-  public void setHref(final String val) {
-    href = val;
-  }
-
-  /**
-   * @return the href
-   */
-  public String getHref() {
-    return href;
-  }
-
-  /**
-   * @param val the changedBy
-   */
-  public void setChangedBy(final ChangedByType val) {
-    changedBy = val;
-  }
-
-  /**
-   * @return the first name
-   */
-  public ChangedByType getChangedBy() {
-    return changedBy;
-  }
 
   /**
    * @param val the content flag
@@ -103,7 +70,7 @@ public class UpdatedType {
    */
   public List<CalendarChangesType> getCalendarChanges() {
     if (calendarChanges == null) {
-      calendarChanges = new ArrayList<CalendarChangesType>();
+      calendarChanges = new ArrayList<>();
     }
 
     return calendarChanges;
@@ -113,34 +80,28 @@ public class UpdatedType {
    *                   Convenience methods
    * ==================================================================== */
 
-  /** Called before we send it out via caldav
-   *
-   * @param prefixer
-   * @throws Throwable
-   */
-  public void prefixHrefs(final UrlPrefixer prefixer) throws Throwable {
-    setHref(prefixer.prefix(getHref()));
-  }
+  public UpdatedType copyForAlias(final String collectionHref) {
+    final UpdatedType copy = new UpdatedType();
 
-  /** Called after we obtain it via caldav
-   *
-   * @param unprefixer
-   * @throws Throwable
-   */
-  public void unprefixHrefs(final UrlUnprefixer unprefixer) throws Throwable {
-    setHref(unprefixer.unprefix(getHref()));
+    copyForAlias(copy, collectionHref);
+
+    copy.content = content;
+    copy.prop = prop;
+    
+    if (calendarChanges != null) {
+      copy.calendarChanges = new ArrayList<>(calendarChanges);
+    }
+
+    return copy;
   }
 
   /**
-   * @param xml
+   * @param xml builder
    * @throws Throwable
    */
   public void toXml(final XmlEmit xml) throws Throwable {
     xml.openTag(AppleServerTags.updated);
-    xml.property(WebdavTags.href, getHref());
-    if (getChangedBy() != null) {
-      getChangedBy().toXml(xml);
-    }
+    toXmlSegment(xml);
 
     if (getContent()) {
       xml.emptyTag(AppleServerTags.content);
@@ -150,7 +111,7 @@ public class UpdatedType {
       getProp().toXml(xml);
     }
 
-    for (CalendarChangesType cc: getCalendarChanges()) {
+    for (final CalendarChangesType cc: getCalendarChanges()) {
       cc.toXml(xml);
     }
 
@@ -159,13 +120,10 @@ public class UpdatedType {
 
   /** Add our stuff to the StringBuffer
    *
-   * @param ts
+   * @param ts builder
    */
   protected void toStringSegment(final ToString ts) {
-    ts.append("href", getHref());
-    if (getChangedBy() != null) {
-      getChangedBy().toStringSegment(ts);
-    }
+    super.toStringSegment(ts);
     if (getContent()) {
       ts.append("content", true);
     }
@@ -174,17 +132,8 @@ public class UpdatedType {
       getProp().toStringSegment(ts);
     }
 
-    for (CalendarChangesType cc: getCalendarChanges()) {
+    for (final CalendarChangesType cc: getCalendarChanges()) {
       cc.toStringSegment(ts);
     }
-  }
-
-  @Override
-  public String toString() {
-    ToString ts = new ToString(this);
-
-    toStringSegment(ts);
-
-    return ts.toString();
   }
 }

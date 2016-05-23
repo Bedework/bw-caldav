@@ -19,6 +19,7 @@
 package org.bedework.caldav.util.notifications;
 
 import org.bedework.util.misc.ToString;
+import org.bedework.util.misc.Util;
 import org.bedework.util.xml.XmlEmit;
 import org.bedework.util.xml.tagdefs.AppleServerTags;
 import org.bedework.webdav.servlet.shared.UrlPrefixer;
@@ -216,7 +217,7 @@ public class ResourceChangeType extends BaseNotificationType {
    */
   public List<UpdatedType> getUpdated() {
     if (updated == null) {
-      updated = new ArrayList<UpdatedType>();
+      updated = new ArrayList<>();
     }
 
     return Collections.unmodifiableList(updated);
@@ -227,7 +228,7 @@ public class ResourceChangeType extends BaseNotificationType {
    */
   public void addUpdate(final UpdatedType val) {
     if (updated == null) {
-      updated = new ArrayList<UpdatedType>();
+      updated = new ArrayList<>();
     }
 
     updated.add(val);
@@ -257,7 +258,7 @@ public class ResourceChangeType extends BaseNotificationType {
   /** SCHEMA - some squirrelly stuff until we get a name long enough to really be
    * the name
    *
-   * @param val
+   * @param val actually the uid
    */
   @Override
   public void setName(final String val) {
@@ -269,6 +270,10 @@ public class ResourceChangeType extends BaseNotificationType {
     return uid;
   }
 
+  /* SCHEMA
+    This is being used to store the base64 encoded href of the event 
+    until we change the schema
+   */
   @Override
   public void setEncoding(final String val) {
     name = val;
@@ -287,7 +292,7 @@ public class ResourceChangeType extends BaseNotificationType {
       return attrs;
     }
 
-    attrs = new ArrayList<AttributeType>();
+    attrs = new ArrayList<>();
 
     return attrs;
   }
@@ -309,7 +314,7 @@ public class ResourceChangeType extends BaseNotificationType {
       return;
     }
 
-    for (UpdatedType u: getUpdated()) {
+    for (final UpdatedType u: getUpdated()) {
       u.prefixHrefs(prefixer);
     }
   }
@@ -331,7 +336,7 @@ public class ResourceChangeType extends BaseNotificationType {
       return;
     }
 
-    for (UpdatedType u: getUpdated()) {
+    for (final UpdatedType u: getUpdated()) {
       u.unprefixHrefs(unprefixer);
     }
   }
@@ -343,7 +348,7 @@ public class ResourceChangeType extends BaseNotificationType {
     if (getCreated() != null) {
       getCreated().toXml(xml);
     } else if (!getUpdated().isEmpty()) {
-      for (UpdatedType u: getUpdated()) {
+      for (final UpdatedType u: getUpdated()) {
         u.toXml(xml);
       }
     } else if (getDeleted() != null) {
@@ -358,10 +363,22 @@ public class ResourceChangeType extends BaseNotificationType {
   /* ====================================================================
    *                   Convenience methods
    * ==================================================================== */
+  
+  public boolean sameHref(final String val) {
+    final String bval = Base64.encodeBase64String(val.getBytes());
+
+    return bval.equals(getEncoding());
+  }
+
+  public void setHref(final String val) {
+    final String bval = Base64.encodeBase64String(val.getBytes());
+
+    setEncoding(bval);
+  }
 
   /** Add our stuff to the StringBuffer
    *
-   * @param ts
+   * @param ts for string output
    */
   protected void toStringSegment(final ToString ts) {
     if (getCollectionChanges() != null) {
@@ -373,7 +390,7 @@ public class ResourceChangeType extends BaseNotificationType {
       getCreated().toStringSegment(ts);
     }
 
-    for (UpdatedType u: getUpdated()) {
+    for (final UpdatedType u: getUpdated()) {
       u.toStringSegment(ts);
     }
 
@@ -384,11 +401,53 @@ public class ResourceChangeType extends BaseNotificationType {
 
   @Override
   public String toString() {
-    ToString ts = new ToString(this);
+    final ToString ts = new ToString(this);
 
     toStringSegment(ts);
 
     return ts.toString();
+  }
+
+  /** Create a copy with hrefs adjusted so that the path leading up
+   * to the element name is that of the supplied collection href. 
+   * 
+   * <p>This is used to provide notification information for sharees
+   * who refer to the entity via a different path</p>
+   * 
+   * @param collectionHref of alias
+   * @return copied object with hrefs adjusted
+   */
+  public ResourceChangeType copyForAlias(final String collectionHref) {
+    final ResourceChangeType copy = new ResourceChangeType();
+    
+    copy.uid = uid;
+    copy.name = name;
+
+    if (created != null) {
+      copy.created = created.copyForAlias(collectionHref);      
+    }
+
+    if (deleted != null) {
+      copy.deleted = deleted.copyForAlias(collectionHref);
+    }
+
+    if (collectionChanges != null) {
+      copy.collectionChanges = collectionChanges.copyForAlias(collectionHref);
+    }
+
+    if (!Util.isEmpty(updated)) {
+      copy.updated = new ArrayList<>(updated.size());
+      
+      for (final UpdatedType u: updated) {
+        copy.updated.add(u.copyForAlias(collectionHref));
+      }
+    }
+
+    if (!Util.isEmpty(attrs)) {
+      copy.attrs = new ArrayList<>(attrs);
+    }
+
+    return copy;
   }
 
   /* ====================================================================
@@ -396,7 +455,7 @@ public class ResourceChangeType extends BaseNotificationType {
    * ==================================================================== */
 
   private void checkName(final String val) {
-    String bval = Base64.encodeBase64String(val.getBytes());
+    final String bval = Base64.encodeBase64String(val.getBytes());
 
     if (getEncoding() == null) {
       setEncoding(bval);

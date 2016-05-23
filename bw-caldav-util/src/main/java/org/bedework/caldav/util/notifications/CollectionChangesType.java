@@ -19,10 +19,9 @@
 package org.bedework.caldav.util.notifications;
 
 import org.bedework.util.misc.ToString;
+import org.bedework.util.misc.Util;
 import org.bedework.util.xml.XmlEmit;
 import org.bedework.util.xml.tagdefs.AppleServerTags;
-import org.bedework.webdav.servlet.shared.UrlPrefixer;
-import org.bedework.webdav.servlet.shared.UrlUnprefixer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,27 +35,20 @@ import java.util.List;
  *
  * @author Mike Douglass douglm
  */
-public class CollectionChangesType {
-  private String href;
-  private List<ChangedByType> changedBy;
+public class CollectionChangesType extends BaseEntityChangeType {
+  private List<ChangedByType> changedByList;
   private PropType prop;
   private ChildCreatedType childCreated;
   private ChildUpdatedType childUpdated;
   private ChildDeletedType childDeleted;
-
-  /** href of changed collection
-   *
-   * @param val the href
-   */
-  public void setHref(final String val) {
-    href = val;
-  }
-
-  /**
-   * @return the href
-   */
-  public String getHref() {
-    return href;
+  
+  public List<ChangedByType> getChangedByList() {
+    if (changedByList != null) {
+      return changedByList;
+    }
+    
+    changedByList = new ArrayList<>();
+    return changedByList;
   }
 
   /** The DAV:prop element indicates a change to WebDAV properties on the
@@ -73,17 +65,6 @@ public class CollectionChangesType {
    */
   public PropType getProp() {
     return prop;
-  }
-
-  /**
-   * @return the changedBy list
-   */
-  public List<ChangedByType> getChangedBy() {
-    if (changedBy == null) {
-      changedBy = new ArrayList<ChangedByType>();
-    }
-
-    return changedBy;
   }
 
   /**
@@ -132,33 +113,30 @@ public class CollectionChangesType {
    *                   Convenience methods
    * ==================================================================== */
 
-  /** Called before we send it out via caldav
-   *
-   * @param prefixer
-   * @throws Throwable
-   */
-  public void prefixHrefs(final UrlPrefixer prefixer) throws Throwable {
-    setHref(prefixer.prefix(getHref()));
-  }
+  public CollectionChangesType copyForAlias(final String collectionHref) {
+    final CollectionChangesType copy = new CollectionChangesType();
 
-  /** Called after we obtain it via caldav
-   *
-   * @param unprefixer
-   * @throws Throwable
-   */
-  public void unprefixHrefs(final UrlUnprefixer unprefixer) throws Throwable {
-    setHref(unprefixer.unprefix(getHref()));
+    copyForAlias(copy, collectionHref);
+    
+    if (!Util.isEmpty(changedByList)) {
+      copy.changedByList = new ArrayList<>(changedByList);
+    }
+    
+    copy.prop = prop;
+    copy.childCreated = childCreated;
+    copy.childDeleted = childDeleted;
+    copy.childUpdated = childUpdated;
+
+    return copy;
   }
 
   /**
-   * @param xml
+   * @param xml builder
    * @throws Throwable
    */
   public void toXml(final XmlEmit xml) throws Throwable {
     xml.openTag(AppleServerTags.collectionChanges);
-    for (ChangedByType cb: getChangedBy()) {
-      cb.toXml(xml);
-    }
+    toXmlSegment(xml);
 
     if (getProp() != null) {
       getProp().toXml(xml);
@@ -181,12 +159,10 @@ public class CollectionChangesType {
 
   /** Add our stuff to the StringBuffer
    *
-   * @param ts
+   * @param ts builder
    */
   protected void toStringSegment(final ToString ts) {
-    for (ChangedByType cb: getChangedBy()) {
-      cb.toStringSegment(ts);
-    }
+    super.toStringSegment(ts);
 
     if (getProp() != null) {
       getProp().toStringSegment(ts);
@@ -203,14 +179,5 @@ public class CollectionChangesType {
     if (getChildDeleted() != null) {
       getChildDeleted().toStringSegment(ts);
     }
-  }
-
-  @Override
-  public String toString() {
-    ToString ts = new ToString(this);
-
-    toStringSegment(ts);
-
-    return ts.toString();
   }
 }

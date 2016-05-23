@@ -532,7 +532,7 @@ public class Parser {
 
     while ((els.length > pos) &&
       XmlUtil.nodeMatches(els[pos], AppleServerTags.changedBy)) {
-      cc.getChangedBy().add(parseChangedBy(els[pos]));
+      cc.getChangedByList().add(parseChangedBy(els[pos]));
       pos++;
     }
 
