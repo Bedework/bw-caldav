@@ -158,6 +158,15 @@ public interface SysIntf extends WdSysIntf {
    */
   public boolean isPrincipal(String val) throws WebdavException;
 
+  /** Return principal information for the given account.
+   *
+   *
+   * @param account
+   * @return PrincipalInfo
+   * @throws WebdavException
+   */
+  public AccessPrincipal getPrincipalForUser(String account) throws WebdavException;
+
   /** Return principal information for the given href. Also tests for a valid
    * principal.
    *
