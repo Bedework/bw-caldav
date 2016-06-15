@@ -38,15 +38,12 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class FreeBusyGetHandler extends GetHandler {
   /**
-   * @param intf
+   * @param intf the interface
    */
   public FreeBusyGetHandler(final CaldavBWIntf intf) {
     super(intf);
   }
 
-  /* (non-Javadoc)
-   * @see org.bedework.caldav.server.get.GetHandler#process(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, org.bedework.caldav.server.PostMethod.RequestPars)
-   */
   @Override
   public void process(final HttpServletRequest req,
                       final HttpServletResponse resp,
@@ -59,7 +56,7 @@ public class FreeBusyGetHandler extends GetHandler {
       }
 
       String cua = req.getParameter("cua");
-      String user = null;
+      String user;
 
       if (cua == null) {
         user = req.getParameter("user");
@@ -72,26 +69,26 @@ public class FreeBusyGetHandler extends GetHandler {
           user = getAccount();
         }
 
-        cua = getSysi().principalToCaladdr(getSysi().getPrincipal(user));
+        cua = getSysi().principalToCaladdr(getSysi().getPrincipalForUser(user));
       }
 
       pars.setContentType("text/calendar; charset=UTF-8");
 
-      CalDAVAuthProperties authp = getSysi().getAuthProperties();
+      final CalDAVAuthProperties authp = getSysi().getAuthProperties();
 
-      TimeRange tr = ParseUtil.getPeriod(req.getParameter("start"),
-                                         req.getParameter("end"),
-                                         java.util.Calendar.DATE,
-                                         authp.getDefaultFBPeriod(),
-                                         java.util.Calendar.DATE,
-                                         authp.getMaxFBPeriod());
+      final TimeRange tr = ParseUtil.getPeriod(req.getParameter("start"),
+                                               req.getParameter("end"),
+                                               java.util.Calendar.DATE,
+                                               authp.getDefaultFBPeriod(),
+                                               java.util.Calendar.DATE,
+                                               authp.getMaxFBPeriod());
 
       if (tr == null) {
         resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Date/times");
         return;
       }
 
-      Set<String> recipients = new TreeSet<String>();
+      final Set<String> recipients = new TreeSet<>();
       resp.setHeader("Content-Disposition",
                      "Attachment; Filename=\"freebusy.ics\"");
       resp.setContentType("text/calendar; charset=UTF-8");
@@ -100,11 +97,11 @@ public class FreeBusyGetHandler extends GetHandler {
       getSysi().getSpecialFreeBusy(cua, recipients,
                                    originator,
                                    tr, resp.getWriter());
-    } catch (WebdavForbidden wdf) {
+    } catch (final WebdavForbidden wdf) {
       resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
-    } catch (WebdavException wde) {
+    } catch (final WebdavException wde) {
       throw wde;
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }
