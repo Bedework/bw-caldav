@@ -46,7 +46,7 @@
  */
 package org.bedework.caldav.util.filter;
 
-import java.util.Collection;
+import org.bedework.util.misc.ToString;
 
 /** A filter that allows us to indicate true/false.
  *
@@ -54,18 +54,20 @@ import java.util.Collection;
  * @version 1.0
  */
 public class BooleanFilter extends FilterBase {
-  private boolean val;
+  private final boolean val;
 
   /** */
   public static final BooleanFilter falseFilter = new BooleanFilter(false);
   /** */
+  @SuppressWarnings("unused")
   public static final BooleanFilter trueFilter = new BooleanFilter(true);
 
   /**
-   * @param val
+   * @param val true/false
    */
-  public BooleanFilter(boolean val) {
+  public BooleanFilter(final boolean val) {
     super("Boolean");
+    this.val = val;
   }
 
   /**
@@ -80,21 +82,12 @@ public class BooleanFilter extends FilterBase {
    * ==================================================================== */
 
   public String toString() {
-    StringBuilder sb = new StringBuilder("BooleanFilter{");
+    final ToString ts = new ToString(this);
 
-    super.toStringSegment(sb);
-    sb.append(", value=");
-    sb.append(getValue());
+    super.toStringSegment(ts);
+    ts.append("value", getValue());
+    ts.append("children", getChildren());
 
-    Collection<FilterBase> c = getChildren();
-
-    if (c != null) {
-      for (FilterBase f: c) {
-        sb.append("\n");
-        sb.append(f);
-      }
-    }
-
-    return sb.toString();
+    return ts.toString();
   }
 }

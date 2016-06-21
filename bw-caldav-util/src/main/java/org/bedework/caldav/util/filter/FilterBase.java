@@ -18,6 +18,7 @@
 */
 package org.bedework.caldav.util.filter;
 
+import org.bedework.util.misc.ToString;
 import org.bedework.webdav.servlet.shared.WebdavException;
 
 import java.io.Serializable;
@@ -322,6 +323,21 @@ public class FilterBase implements Serializable {
     if (parent != null) {
       sb.append(", parent=");
       sb.append(parent.getName());
+    }
+  }
+
+  /** Add our stuff to the builder
+   *
+   * @param ts    Builder for result
+   */
+  protected void toStringSegment(final ToString ts) {
+    //sb.append("\n, name=");
+    //sb.append(name);
+
+    ts.append("description", description);
+
+    if (parent != null) {
+      ts.append("parent", parent.getName());
     }
   }
 }
