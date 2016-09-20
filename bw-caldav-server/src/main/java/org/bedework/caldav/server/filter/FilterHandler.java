@@ -30,6 +30,7 @@ import org.bedework.util.calendar.IcalDefs;
 import org.bedework.webdav.servlet.common.WebdavUtils;
 import org.bedework.webdav.servlet.shared.WebdavBadRequest;
 import org.bedework.webdav.servlet.shared.WebdavException;
+import org.bedework.webdav.servlet.shared.WebdavForbidden;
 import org.bedework.webdav.servlet.shared.WebdavNsNode;
 
 import ietf.params.xml.ns.caldav.CompFilterType;
@@ -170,24 +171,25 @@ public class FilterHandler {
       }
     }*/
 
-      CalDAVCollection c = (CalDAVCollection)wdnode.getCollection(false);
+      final CalDAVCollection c = (CalDAVCollection)wdnode.getCollection(false);
       if (c == null) {
         return null;
       }
 
-      Collection<CalDAVEvent> events = wdnode.getSysi().getEvents(c,
-                                                                  eventq.filter,
-                                                                  retrieveList,
-                                                                  retrieveRecur);
+      final Collection<CalDAVEvent> events = 
+              wdnode.getSysi().getEvents(c,
+                                         eventq.filter,
+                                         retrieveList,
+                                         retrieveRecur);
 
       if (debug) {
         trace("Query returned " + events.size());
       }
 
       return events;
-    } catch (WebdavBadRequest wbr) {
-      throw wbr;
-    } catch (Throwable t) {
+    } catch (final WebdavBadRequest | WebdavForbidden wd) {
+      throw wd;
+    } catch (final Throwable t) {
       error(t);
       throw new WebdavException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
     }

@@ -27,13 +27,23 @@ import org.bedework.util.calendar.PropertyIndex.PropertyInfoIndex;
  * @version 1.0
  */
 public class EntityTimeRangeFilter extends ObjectFilter<TimeRange> {
+  private int entityType;
+  
   /** Match the time range
    *
    * @param name - null one will be created
-   * @param tr
+   * @param entityType of component
+   * @param tr timerange
    */
-  public EntityTimeRangeFilter(String name, TimeRange tr) {
+  public EntityTimeRangeFilter(final String name, 
+                               final int entityType,
+                               final TimeRange tr) {
     super(name, PropertyInfoIndex.ENTITY_TYPE);
+    this.entityType = entityType;
     setEntity(tr);
+  }
+  
+  public int getEntityType() {
+    return entityType;
   }
 }

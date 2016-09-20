@@ -179,7 +179,7 @@ public class Filters {
       // XXX
       entityType = IcalDefs.entityTypeAlarm;
 
-      filter = makeFilter(name, isNotDefined, matchAll(cf),
+      filter = makeFilter(name, entityType, isNotDefined, matchAll(cf),
                           makeTimeRange(cf.getTimeRange()), null, false,
                           null);
 
@@ -208,8 +208,10 @@ public class Filters {
         } else {
           eq.trange.merge(timeRange);
         } */
-        EntityTimeRangeFilter etrf = new EntityTimeRangeFilter(null,
-                        makeTimeRange(cf.getTimeRange()));
+        final EntityTimeRangeFilter etrf = 
+                new EntityTimeRangeFilter(null,
+                                          entityType,
+                                          makeTimeRange(cf.getTimeRange()));
         filter = FilterBase.addAndChild(filter, etrf);
       }
     }
@@ -301,7 +303,7 @@ public class Filters {
       }
       boolean andParams = "allof".equals(pf.getTest());
 
-      FilterBase filter = makeFilter(pname, isNotDefined, testPresent,
+      FilterBase filter = makeFilter(pname, -1, isNotDefined, testPresent,
                                  tr,
                                  tm, andParams, pf.getParamFilter());
 
@@ -335,6 +337,7 @@ public class Filters {
   }
 
   private static FilterBase makeFilter(final String pname,
+                                       final int entityType, 
                                        final boolean testNotDefined,
                                        final boolean testPresent,
                                        final TimeRange timeRange,
@@ -357,7 +360,12 @@ public class Filters {
       // Presence check
       filter = new PresenceFilter(null, pi, true);
     } else if (timeRange != null) {
-      filter = ObjectFilter.makeFilter(null, pi, timeRange);
+      if (entityType < 0) {
+        filter = ObjectFilter.makeFilter(null, pi, timeRange);
+      } else {
+        filter = new EntityTimeRangeFilter(null, entityType,
+                                           timeRange);
+      }
     } else if (match != null) {
       ObjectFilter<String> f = new ObjectFilter<String>(null, pi);
       f.setEntity(match.getValue());
@@ -393,10 +401,12 @@ public class Filters {
       boolean isNotDefined = pf.getIsNotDefined() != null;
       boolean testPresent = isNotDefined && (tm == null);
 
-      PropertyFilter filter = (PropertyFilter)makeFilter(pf.getName(),
-                                                         isNotDefined,
-                                                         testPresent,
-                                                         null, tm, false, null);
+      final PropertyFilter filter = 
+              (PropertyFilter)makeFilter(pf.getName(),
+                                         -1,
+                                         isNotDefined,
+                                         testPresent,
+                                         null, tm, false, null);
 
       if (filter != null) {
         filter.setParentPropertyIndex(parentIndex);

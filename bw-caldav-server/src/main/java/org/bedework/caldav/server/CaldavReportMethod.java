@@ -32,6 +32,7 @@ import org.bedework.webdav.servlet.common.PropFindMethod.PropRequest;
 import org.bedework.webdav.servlet.common.ReportMethod;
 import org.bedework.webdav.servlet.shared.WebdavBadRequest;
 import org.bedework.webdav.servlet.shared.WebdavException;
+import org.bedework.webdav.servlet.shared.WebdavForbidden;
 import org.bedework.webdav.servlet.shared.WebdavNsIntf;
 import org.bedework.webdav.servlet.shared.WebdavNsNode;
 import org.bedework.webdav.servlet.shared.WebdavProperty;
@@ -219,7 +220,8 @@ public class CaldavReportMethod extends ReportMethod {
         cqpars = new CalendarQueryPars();
 
         if (!XmlUtil.nodeMatches(curnode, CaldavTags.filter)) {
-          throw new WebdavBadRequest("Expected filter");
+          throw new WebdavForbidden(CaldavTags.validFilter,
+                                    "Expected filter");
         }
 
         cqpars.filter = Filters.parse(curnode);
@@ -250,7 +252,8 @@ public class CaldavReportMethod extends ReportMethod {
           // Only timezone allowed
 
           if (!XmlUtil.nodeMatches(curnode, CaldavTags.timezone)) {
-            throw new WebdavBadRequest("Expected timezone");
+            throw new WebdavForbidden(CaldavTags.validTimezone,
+                                      "Missing timezone");
           }
 
           // Node content should be a timezone def
@@ -375,18 +378,18 @@ public class CaldavReportMethod extends ReportMethod {
                                      WebdavNsIntf.nodeTypeUnknown,
                                      false);
 
-    openTag(WebdavTags.multistatus);
-
     int status = HttpServletResponse.SC_OK;
 
     Collection<WebdavNsNode> nodes = null;
-    Collection<String> badHrefs = new ArrayList<String>();
+    final Collection<String> badHrefs = new ArrayList<String>();
 
     if (reportType == reportTypeQuery) {
       nodes = doNodeAndChildren(cqp, node);
     } else if (reportType == reportTypeMultiGet) {
       nodes = getMgetNodes(hrefs, badHrefs);
     }
+
+    openTag(WebdavTags.multistatus);
 
     if (status != HttpServletResponse.SC_OK) {
       if (debug) {
@@ -396,13 +399,13 @@ public class CaldavReportMethod extends ReportMethod {
       node.setStatus(status);
       doNodeProperties(node);
     } else if (nodes != null) {
-      for (WebdavNsNode curnode: nodes) {
+      for (final WebdavNsNode curnode: nodes) {
         doNodeProperties(curnode);
       }
     }
 
     if (!Util.isEmpty(badHrefs)) {
-      for (String hr: badHrefs) {
+      for (final String hr: badHrefs) {
         openTag(WebdavTags.response);
         property(WebdavTags.href, intf.getSysi().getUrlHandler().prefix(hr));
         property(WebdavTags.status, "HTTP/1.1 " + HttpServletResponse.SC_NOT_FOUND);
