@@ -143,7 +143,7 @@ public class CalData extends WebdavProperty {
          end value: an iCalendar "date with UTC time"
 
    */
-  private boolean debug;
+  private final boolean debug;
 
   protected transient Logger log;
 
@@ -167,52 +167,56 @@ public class CalData extends WebdavProperty {
 
   /** The given node must be the Filter element
    *
-   * @param nd
-   * @throws WebdavException
+   * @param nd XML node
+   * @throws WebdavException on error
    */
   public void parse(final Node nd) throws WebdavException {
     /* Either empty - show everything or
               comp + optional (expand-recurrence-set or
                                limit-recurrence-set)
      */
-    NamedNodeMap nnm = nd.getAttributes();
-    CalendarDataType cd = new CalendarDataType();
+    final NamedNodeMap nnm = nd.getAttributes();
+    final CalendarDataType cd = new CalendarDataType();
 
     calendarData = cd;
 
     if (nnm != null) {
       for (int nnmi = 0; nnmi < nnm.getLength(); nnmi++) {
-        Node attr = nnm.item(nnmi);
-        String attrName = attr.getNodeName();
+        final Node attr = nnm.item(nnmi);
+        final String attrName = attr.getNodeName();
 
-        if (attrName.equals("content-type")) {
-          cd.setContentType(attr.getNodeValue());
-          if (cd.getContentType() == null) {
-            throw new WebdavBadRequest();
-          }
-        } else if (attrName.equals("xmlns")) {
-        } else if (attrName.equals("version")) {
-          if (!"2.0".equals(attr.getNodeValue())) {
-            // TODO - wrong response if not in a filter
-            throw new WebdavForbidden(CaldavTags.validFilter, "Invalid attribute: " + attrName);
-          }
-        } else {
-          // Bad attribute(s)
-          throw new WebdavForbidden(CaldavTags.validFilter, "Invalid attribute: " + attrName);
+        switch (attrName) {
+          case "content-type":
+            cd.setContentType(attr.getNodeValue());
+            if (cd.getContentType() == null) {
+              throw new WebdavBadRequest();
+            }
+            break;
+          case "xmlns":
+            break;
+          case "version":
+            if (!"2.0".equals(attr.getNodeValue())) {
+              // TODO - wrong response if not in a filter
+              throw new WebdavForbidden(CaldavTags.validFilter,
+                                        "Invalid attribute: " + attrName);
+            }
+            break;
+          default:
+            // Bad attribute(s)
+            throw new WebdavForbidden(CaldavTags.validFilter,
+                                      "Invalid attribute: " + attrName);
         }
       }
     }
 
-    Element[] children = getChildren(nd);
+    final Element[] children = getChildren(nd);
 
     try {
-      for (int i = 0; i < children.length; i++) {
-        Node curnode = children[i];
-
+      for (final Element curnode : children) {
         if (debug) {
           trace("calendar-data node type: " +
-              curnode.getNodeType() + " name:" +
-              curnode.getNodeName());
+                        curnode.getNodeType() + " name:" +
+                        curnode.getNodeName());
         }
 
         if (XmlUtil.nodeMatches(curnode, CaldavTags.comp)) {
@@ -246,9 +250,9 @@ public class CalData extends WebdavProperty {
           throw new WebdavBadRequest();
         }
       }
-    } catch (WebdavBadRequest wbr) {
+    } catch (final WebdavBadRequest wbr) {
       throw wbr;
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavBadRequest();
     }
 
@@ -262,7 +266,7 @@ public class CalData extends WebdavProperty {
    * @param wdnode the node
    * @param xml output
    * @param contentType - first element from content type or null
-   * @throws WebdavException
+   * @throws WebdavException on error
    */
   public void process(final WebdavNsNode wdnode,
                       final XmlEmit xml,
@@ -280,7 +284,7 @@ public class CalData extends WebdavProperty {
       return;
     }
 
-    /** Ensure node exists */
+    /* Ensure node exists */
     node.init(true);
     if (!node.getExists()) {
       throw new WebdavException(HttpServletResponse.SC_NOT_FOUND);
@@ -399,26 +403,24 @@ public class CalData extends WebdavProperty {
     /* Either allcomp + (either allprop or 0 or more prop) or
               0 or more comp + (either allprop or 0 or more prop)
      */
-    String name = getOnlyAttrVal(nd, "name");
+    final String name = getOnlyAttrVal(nd, "name");
     if (name == null) {
       throw new WebdavBadRequest();
     }
 
-    CompType c = new CompType();
+    final CompType c = new CompType();
     c.setName(name);
 
-    Element[] children = getChildren(nd);
+    final Element[] children = getChildren(nd);
 
     boolean hadComps = false;
     boolean hadProps = false;
 
-    for (int i = 0; i < children.length; i++) {
-      Node curnode = children[i];
-
+    for (final Element curnode : children) {
       if (debug) {
         trace("comp node type: " +
-              curnode.getNodeType() + " name:" +
-              curnode.getNodeName());
+                      curnode.getNodeType() + " name:" +
+                      curnode.getNodeName());
       }
 
       if (XmlUtil.nodeMatches(curnode, CaldavTags.allcomp)) {
@@ -456,29 +458,29 @@ public class CalData extends WebdavProperty {
   }
 
   private PropType parseProp(final Node nd) throws WebdavException {
-    NamedNodeMap nnm = nd.getAttributes();
+    final NamedNodeMap nnm = nd.getAttributes();
 
     if ((nnm == null) || (nnm.getLength() == 0)) {
       throw new WebdavBadRequest();
     }
 
-    String name = XmlUtil.getAttrVal(nnm, "name");
+    final String name = XmlUtil.getAttrVal(nnm, "name");
     if (name == null) {
       throw new WebdavBadRequest();
     }
 
-    Boolean val = null;
+    final Boolean val;
 
     try {
       val = XmlUtil.getYesNoAttrVal(nnm, "novalue");
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavBadRequest();
     }
 
-    PropType pr = new PropType();
+    final PropType pr = new PropType();
     pr.setName(name);
 
-    if ((val != null) && val.booleanValue()) {
+    if ((val != null) && val) {
       pr.setNovalue("yes");
     }
 
@@ -488,7 +490,7 @@ public class CalData extends WebdavProperty {
   private Element[] getChildren(final Node nd) throws WebdavException {
     try {
       return XmlUtil.getElementsArray(nd);
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       if (debug) {
         getLogger().error("<filter>: parse exception: ", t);
       }
@@ -499,19 +501,20 @@ public class CalData extends WebdavProperty {
 
   /** Fetch required attribute. Return null for error
    *
-   * @param nd
-   * @param name
+   * @param nd XML node
+   * @param name of attribute
    * @return String
-   * @throws WebdavException
+   * @throws WebdavException on error
    */
-  private String getOnlyAttrVal(final Node nd, final String name) throws WebdavException {
-    NamedNodeMap nnm = nd.getAttributes();
+  private String getOnlyAttrVal(final Node nd, 
+                                final String name) throws WebdavException {
+    final NamedNodeMap nnm = nd.getAttributes();
 
     if ((nnm == null) || (nnm.getLength() != 1)) {
       throw new WebdavBadRequest();
     }
 
-    String res = XmlUtil.getAttrVal(nnm, name);
+    final String res = XmlUtil.getAttrVal(nnm, name);
     if (res == null) {
       throw new WebdavBadRequest();
     }
