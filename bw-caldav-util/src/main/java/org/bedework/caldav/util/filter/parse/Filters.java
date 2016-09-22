@@ -367,11 +367,13 @@ public class Filters {
                                            timeRange);
       }
     } else if (match != null) {
-      ObjectFilter<String> f = new ObjectFilter<String>(null, pi);
+      final ObjectFilter<String> f = new ObjectFilter<String>(null, pi);
       f.setEntity(match.getValue());
       f.setExact(false);
 
-      boolean caseless = match.getCollation().equals("i;ascii-casemap");
+      final boolean caseless = 
+              match.getCollation().equals("i;ascii-casemap") &&
+              pi != PropertyInfoIndex.UID;
       f.setCaseless(caseless);
       f.setNot(match.getNegateCondition().equals("yes"));
       filter = f;

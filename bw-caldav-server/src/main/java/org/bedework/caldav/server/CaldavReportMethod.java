@@ -251,19 +251,25 @@ public class CaldavReportMethod extends ReportMethod {
         if (curnode != null) {
           // Only timezone allowed
 
+          if (intf.getSysi().getSystemProperties().getTimezonesByReference() &&
+                  XmlUtil.nodeMatches(curnode, CaldavTags.timezoneId)) {
+            cqpars.tzid = getElementContent(curnode);
+            return;
+          }
+          
           if (!XmlUtil.nodeMatches(curnode, CaldavTags.timezone)) {
             throw new WebdavForbidden(CaldavTags.validTimezone,
                                       "Missing timezone");
           }
 
           // Node content should be a timezone def
-          String tzdef = getElementContent(curnode);
-          SysiIcalendar ical = intf.getSysi().fromIcal(null,
+          final String tzdef = getElementContent(curnode);
+          final SysiIcalendar ical = intf.getSysi().fromIcal(null,
                                                        new StringReader(tzdef),
                                                        "text/calendar",
                                                        IcalResultType.TimeZone,
                                                        false);
-          Collection<TimeZone> tzs = ical.getTimeZones();
+          final Collection<TimeZone> tzs = ical.getTimeZones();
           cqpars.tzid = tzs.iterator().next().getID();
         }
 

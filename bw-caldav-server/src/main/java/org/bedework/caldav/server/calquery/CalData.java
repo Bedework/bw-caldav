@@ -369,10 +369,14 @@ public class CalData extends WebdavProperty {
           ncl.add(c);
         } else {
           final VEvent v = new VEvent();
+          
+          // This adds a DTSTAMP
 
           final PropertyList vpl = c.getProperties();
           final PropertyList nvpl = v.getProperties();
 
+          nvpl.clear();
+          
           for (final PropType pr: props) {
             final Property p = vpl.getProperty(pr.getName());
 
