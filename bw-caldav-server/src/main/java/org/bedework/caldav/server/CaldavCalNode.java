@@ -811,24 +811,15 @@ public class CaldavCalNode extends CaldavBwNode {
       }
 
       if (tag.equals(AppleServerTags.invite)) {
-        InviteType inv = getSysi().getInviteStatus(cundereffed);
+        final CalDAVCollection imm =
+                (CalDAVCollection)getImmediateTargetCollection();
+        final InviteType inv = getSysi().getInviteStatus(imm);
 
         if (inv == null) {
           return false;
         }
-
-        xml.openTag(tag);
-
-        /*
-         *    <!ELEMENT user (DAV:href, common-name?, (invite-noresponse |
-                   invite-accepted | invite-declined | invite-invalid),
-                   access, summary?)>
-         */
-        for (UserType u: inv.getUsers()) {
-          u.toXml(xml);
-        }
-
-        xml.closeTag(tag);
+        
+        inv.toXml(xml);
 
         return true;
       }

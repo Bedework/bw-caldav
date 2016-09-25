@@ -19,6 +19,7 @@
 package org.bedework.caldav.util.sharing;
 
 import org.bedework.caldav.util.notifications.BaseNotificationType;
+import org.bedework.caldav.util.sharing.parse.Parser;
 import org.bedework.util.misc.ToString;
 import org.bedework.util.xml.XmlEmit;
 import org.bedework.util.xml.tagdefs.AppleServerTags;
@@ -195,9 +196,9 @@ public class InviteReplyType extends BaseNotificationType {
     return f;
   }
 
-  /** Add our stuff to the StringBuffer
+  /** Add our stuff to the ToString object
    *
-   * @param ts
+   * @param ts to build in
    */
   protected void toStringSegment(final ToString ts) {
     ts.append("href", getHref());
@@ -209,10 +210,20 @@ public class InviteReplyType extends BaseNotificationType {
 
   @Override
   public String toString() {
-    ToString ts = new ToString(this);
+    final ToString ts = new ToString(this);
 
     toStringSegment(ts);
 
     return ts.toString();
+  }
+
+  @Override
+  public Object clone() {
+    try {
+      final String xml = toXml();
+      return new Parser().parseInviteReply(xml);
+    } catch (final Throwable t) {
+      throw new RuntimeException(t);
+    }
   }
 }

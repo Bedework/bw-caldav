@@ -322,7 +322,12 @@ public class Parser {
       InviteType in = new InviteType();
       Element[] shareEls = XmlUtil.getElementsArray(nd);
 
-      for (Element curnode: shareEls) {
+      for (final Element curnode: shareEls) {
+        if (XmlUtil.nodeMatches(curnode, organizerTag)) {
+          in.setOrganizer(parseOrganizer(curnode));
+          continue;
+        }
+
         if (XmlUtil.nodeMatches(curnode, userTag)) {
           in.getUsers().add(parseUser(curnode));
           continue;
@@ -379,6 +384,12 @@ public class Parser {
     }
   }
 
+  public InviteReplyType parseInviteReply(final String s) throws WebdavException {
+    final Document d = parseXmlString(s);
+    
+    return parseInviteReply(d.getDocumentElement());
+  }
+  
   /**
    * @param nd MUST be the invite-reply xml element
    * @return populated InviteReplyType object

@@ -35,7 +35,22 @@ import java.util.List;
  * @author Mike Douglass douglm
  */
 public class InviteType {
+  private OrganizerType organizer;
   private List<UserType> users;
+
+  /**
+   * @param val organizer - i.e. sharer
+   */
+  public void setOrganizer(final OrganizerType val) {
+    organizer = val;
+  }
+
+  /**
+   * @return organizer - i.e. sharer
+   */
+  public OrganizerType getOrganizer() {
+    return organizer;
+  }
 
   /**
    * @return list of UserType - never null
@@ -53,11 +68,11 @@ public class InviteType {
    * ==================================================================== */
 
   /**
-   * @param href
+   * @param href of user
    * @return null or corresponding entry
    */
   public UserType finduser(final String href) {
-    for (UserType u: getUsers()) {
+    for (final UserType u: getUsers()) {
       if (u.getHref().equals(href)) {
         return u;
       }
@@ -68,11 +83,11 @@ public class InviteType {
 
   /**
    * @return XML version of notification
-   * @throws Throwable
+   * @throws Throwable on error
    */
   public String toXml() throws Throwable {
-    StringWriter str = new StringWriter();
-    XmlEmit xml = new XmlEmit();
+    final StringWriter str = new StringWriter();
+    final XmlEmit xml = new XmlEmit();
 
     xml.addNs(new NameSpace(WebdavTags.namespace, "DAV"), false);
     xml.addNs(new NameSpace(CaldavDefs.caldavNamespace, "C"), false);
@@ -87,29 +102,34 @@ public class InviteType {
   }
 
   /**
-   * @param xml
-   * @throws Throwable
+   * @param xml builder
+   * @throws Throwable on error
    */
   public void toXml(final XmlEmit xml) throws Throwable {
     xml.openTag(AppleServerTags.invite);
 
-    for (UserType u: getUsers()) {
+    if (getOrganizer() != null) {
+      getOrganizer().toXml(xml);
+    }
+    
+    for (final UserType u: getUsers()) {
       u.toXml(xml);
     }
     xml.closeTag(AppleServerTags.invite);
   }
 
-  /** Add our stuff to the StringBuffer
+  /** Add our stuff to the builder
    *
-   * @param ts
+   * @param ts the builder
    */
   protected void toStringSegment(final ToString ts) {
+    ts.append("organizer", getOrganizer());
     ts.append("users", getUsers());
   }
 
   @Override
   public String toString() {
-    ToString ts = new ToString(this);
+    final ToString ts = new ToString(this);
 
     toStringSegment(ts);
 

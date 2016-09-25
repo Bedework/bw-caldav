@@ -18,6 +18,7 @@
 */
 package org.bedework.caldav.util.notifications;
 
+import org.bedework.caldav.util.notifications.parse.Parser;
 import org.bedework.util.xml.XmlEmit;
 import org.bedework.util.xml.XmlEmit.NameSpace;
 import org.bedework.util.xml.tagdefs.AppleServerTags;
@@ -114,20 +115,20 @@ public abstract class BaseNotificationType {
   /** Called before we send it out via caldav
    *
    * @param prefixer the prefixer
-   * @throws Throwable
+   * @throws Throwable on error
    */
   public abstract void prefixHrefs(UrlPrefixer prefixer) throws Throwable;
 
   /** Called after we obtain it via caldav
    *
    * @param unprefixer the unprefixer
-   * @throws Throwable
+   * @throws Throwable on error
    */
   public abstract void unprefixHrefs(UrlUnprefixer unprefixer) throws Throwable;
 
   /**
    * @return XML version of notification
-   * @throws Throwable
+   * @throws Throwable on error
    */
   public String toXml() throws Throwable {
     final StringWriter str = new StringWriter();
@@ -147,7 +148,7 @@ public abstract class BaseNotificationType {
 
   /**
    * @param xml emitter
-   * @throws Throwable
+   * @throws Throwable on error
    */
   public void toXml(final XmlEmit xml) throws Throwable {
     if (Boolean.parseBoolean(xml.getProperty("withBedeworkElements")) &&
@@ -156,4 +157,15 @@ public abstract class BaseNotificationType {
     }
   }
 
+  @Override
+  public Object clone() {
+    try {
+      final String xml = toXml();
+      final NotificationType note = Parser.fromXml(xml);
+      
+      return note.getNotification();
+    } catch (final Throwable t) {
+      throw new RuntimeException(t);
+    }
+  }
 }
