@@ -36,11 +36,30 @@ import javax.xml.namespace.QName;
  * @author Mike Douglass douglm
  */
 public class InviteReplyType extends BaseNotificationType {
+  /** This seems to be required by the caldav tests
+   */
+  public static final String sharedTypeCalendar = "calendar";
+
+  private String sharedType;
   private String href;
   private Boolean accepted;
   private String hostUrl;
   private String inReplyTo;
   private String summary;
+
+  /**
+   * @param val the sharedType
+   */
+  public void setSharedType(final String val) {
+    sharedType = val;
+  }
+
+  /**
+   * @return the sharedType
+   */
+  public String getSharedType() {
+    return sharedType;
+  }
 
   /**
    * @param val the href
@@ -155,12 +174,18 @@ public class InviteReplyType extends BaseNotificationType {
   }
 
   /**
-   * @param xml
-   * @throws Throwable
+   * @param xml builder
+   * @throws Throwable on error
    */
   @Override
   public void toXml(final XmlEmit xml) throws Throwable {
-    xml.openTag(AppleServerTags.inviteReply);
+    if (getSharedType() != null) {
+      xml.openTag(AppleServerTags.inviteReply,
+                  "shared-type", getSharedType());
+    } else {
+      xml.openTag(AppleServerTags.inviteReply,
+                  "shared-type", sharedTypeCalendar);
+    }
 
     /* base notification fields */
     super.toXml(xml);
@@ -201,6 +226,7 @@ public class InviteReplyType extends BaseNotificationType {
    * @param ts to build in
    */
   protected void toStringSegment(final ToString ts) {
+    ts.append("sharedType", getSharedType());
     ts.append("href", getHref());
     ts.append("accepted", getAccepted());
     ts.append("hostUrl", getHostUrl());

@@ -393,18 +393,20 @@ public class Parser {
   /**
    * @param nd MUST be the invite-reply xml element
    * @return populated InviteReplyType object
-   * @throws WebdavException
+   * @throws WebdavException on error
    */
-  public InviteReplyType parseInviteReply(final Node nd) throws WebdavException {
+  public InviteReplyType parseInviteReply(final Element nd) throws WebdavException {
     try {
       if (!XmlUtil.nodeMatches(nd, inviteReplyTag)) {
         throw new WebdavBadRequest("Expected " + inviteReplyTag);
       }
 
-      InviteReplyType ir = new InviteReplyType();
-      Element[] shareEls = XmlUtil.getElementsArray(nd);
+      final InviteReplyType ir = new InviteReplyType();
+      ir.setSharedType(XmlUtil.getAttrVal(nd, "shared-type"));
+      
+      final Element[] shareEls = XmlUtil.getElementsArray(nd);
 
-      for (Element curnode: shareEls) {
+      for (final Element curnode: shareEls) {
         if (XmlUtil.nodeMatches(curnode, bwnameTag)) {
           ir.setName(XmlUtil.getElementContent(curnode));
           continue;
