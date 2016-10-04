@@ -466,7 +466,7 @@ public class CaldavCalNode extends CaldavBwNode {
 
   @Override
   public boolean getDeleted() throws WebdavException {
-    return col.getDeleted();
+    return col.getDeleted() | ((CalDAVCollection)getCollection(true)).getDeleted();
   }
 
   @Override
