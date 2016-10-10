@@ -516,6 +516,13 @@ public class CaldavCalNode extends CaldavBwNode {
     }
 
     try {
+      if (XmlUtil.nodeMatches(val, WebdavTags.description)) {
+        if (checkCalForSetProp(spr)) {
+          col.setDescription(null);
+        }
+        return true;
+      }
+
       if (XmlUtil.nodeMatches(val, CaldavTags.calendarTimezone)) {
         col.setTimezone(null);
 
@@ -666,7 +673,13 @@ public class CaldavCalNode extends CaldavBwNode {
       }
 
       if (XmlUtil.nodeMatches(val, CaldavTags.calendarTimezone)) {
-        col.setTimezone(getSysi().tzidFromTzdef(XmlUtil.getElementContent(val)));
+        try {
+          col.setTimezone(getSysi().tzidFromTzdef(
+                  XmlUtil.getElementContent(val)));
+        } catch (final Throwable t) {
+          spr.status = HttpServletResponse.SC_BAD_REQUEST;
+          spr.message = t.getLocalizedMessage();
+        }
 
         return true;
       }
@@ -766,6 +779,12 @@ public class CaldavCalNode extends CaldavBwNode {
         }
         xml.property(WebdavTags.href, href);
         xml.closeTag(tag);
+
+        return true;
+      }
+      
+      if (tag.equals(WebdavTags.description)) {
+        xml.property(tag, col.getDescription());
 
         return true;
       }

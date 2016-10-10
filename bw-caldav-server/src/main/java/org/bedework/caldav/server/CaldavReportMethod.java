@@ -271,11 +271,18 @@ public class CaldavReportMethod extends ReportMethod {
 
           // Node content should be a timezone def
           final String tzdef = getElementContent(curnode);
-          final SysiIcalendar ical = intf.getSysi().fromIcal(null,
-                                                       new StringReader(tzdef),
-                                                       "text/calendar",
-                                                       IcalResultType.TimeZone,
-                                                       false);
+          final SysiIcalendar ical;
+          
+          try {
+            ical = intf.getSysi().fromIcal(null,
+                                           new StringReader(tzdef),
+                                           "text/calendar",
+                                           IcalResultType.TimeZone,
+                                           false);
+          } catch (final Throwable t) {
+            throw new WebdavForbidden(CaldavTags.validCalendarData,
+                                      t.getLocalizedMessage());
+          }
           final Collection<TimeZone> tzs = ical.getTimeZones();
           cqpars.tzid = tzs.iterator().next().getID();
         }
