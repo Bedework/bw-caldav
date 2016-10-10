@@ -25,6 +25,7 @@ import org.bedework.caldav.server.sysinterface.SysIntf.IcalResultType;
 import org.bedework.caldav.util.DumpUtil;
 import org.bedework.caldav.util.filter.parse.Filters;
 import org.bedework.util.misc.Util;
+import org.bedework.util.timezones.Timezones;
 import org.bedework.util.xml.XmlUtil;
 import org.bedework.util.xml.tagdefs.CaldavTags;
 import org.bedework.util.xml.tagdefs.WebdavTags;
@@ -254,6 +255,12 @@ public class CaldavReportMethod extends ReportMethod {
           if (intf.getSysi().getSystemProperties().getTimezonesByReference() &&
                   XmlUtil.nodeMatches(curnode, CaldavTags.timezoneId)) {
             cqpars.tzid = getElementContent(curnode);
+
+            final TimeZone tz = Timezones.getTz(cqpars.tzid);
+            if (tz == null) {
+              throw new WebdavForbidden(CaldavTags.validTimezone,
+                                        "Unknown timezone " + cqpars.tzid);
+            }
             return;
           }
           
