@@ -16,8 +16,8 @@
 
 		<!-- Bedework Versions -->
 		<bw-access.version>4.0.1</bw-access.version>
-		<bw-util.version>4.0.6-SNAPSHOT</bw-util.version>
-		<bw-webdav.version>4.0.1</bw-webdav.version>
+		<bw-util.version>4.0.11-SNAPSHOT</bw-util.version>
+		<bw-webdav.version>4.0.2-SNAPSHOT</bw-webdav.version>
 		<bw-ws.version>4.0.3</bw-ws.version>
     <ical4j.version>1.1.4-SNAPSHOT</ical4j.version>
     <ical4j-vcard.version>1.0.1</ical4j-vcard.version>
