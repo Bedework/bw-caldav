@@ -639,13 +639,13 @@ public class CaldavBWIntf extends WebdavNsIntf {
   public void delete(final WebdavNsNode node) throws WebdavException {
     try {
       if (node instanceof CaldavResourceNode) {
-        CaldavResourceNode rnode = (CaldavResourceNode)node;
+        final CaldavResourceNode rnode = (CaldavResourceNode)node;
 
         sysi.deleteFile(rnode.getResource());
       } else if (node instanceof CaldavComponentNode) {
-        CaldavComponentNode cnode = (CaldavComponentNode)node;
+        final CaldavComponentNode cnode = (CaldavComponentNode)node;
 
-        CalDAVEvent ev = cnode.getEvent();
+        final CalDAVEvent ev = cnode.getEvent();
 
         if (ev != null) {
           if (debug) {
@@ -655,10 +655,11 @@ public class CaldavBWIntf extends WebdavNsIntf {
           boolean sendSchedulingMessage = true;
 
           if (sysi.testMode()) {
-            String userAgent = getRequest().getHeader("user-agent");
+            final String userAgent = getRequest().getHeader("user-agent");
 
             if ((userAgent != null) &&
-                    userAgent.contains("| END_REQUESTS") &&
+                    (userAgent.contains("| END_REQUESTS") ||
+                             userAgent.contains("| START_REQUESTS")) &&
                     userAgent.contains("| DELETEALL")) {
               sendSchedulingMessage = false;
             }
