@@ -208,7 +208,7 @@ public class CaldavPostMethod extends PostMethod {
       final SharedAsType sa = new SharedAsType(newUri);
 
       resp.setStatus(HttpServletResponse.SC_OK);
-      resp.setContentType("text/xml; charset=UTF-8");
+      resp.setContentType("text/xml;charset=utf-8");
 
       startEmit(resp);
       final XmlEmit xml = intf.getXmlEmit();
@@ -234,7 +234,7 @@ public class CaldavPostMethod extends PostMethod {
       }
 
       resp.setStatus(WebdavStatusCode.SC_MULTI_STATUS);
-      resp.setContentType("text/xml; charset=UTF-8");
+      resp.setContentType("text/xml;charset=utf-8");
 
       startEmit(resp);
       final XmlEmit xml = intf.getXmlEmit();
@@ -617,7 +617,7 @@ public class CaldavPostMethod extends PostMethod {
     final Collection<SchedRecipientResult> srrs = intf.schedule(ev);
 
     resp.setStatus(HttpServletResponse.SC_OK);
-    resp.setContentType("text/xml; charset=UTF-8");
+    resp.setContentType("text/xml;charset=utf-8");
     resp.addHeader("iSchedule-Capabilities",
                    String.valueOf(RequestPars.iScheduleSerialNumber));
 
@@ -655,7 +655,7 @@ public class CaldavPostMethod extends PostMethod {
     final Collection<SchedRecipientResult> srrs = intf.requestFreeBusy(ev, true);
 
     resp.setStatus(HttpServletResponse.SC_OK);
-    resp.setContentType("application/xml; charset=UTF-8");
+    resp.setContentType("application/xml;charset=utf-8");
     resp.addHeader("iSchedule-Capabilities",
                    String.valueOf(RequestPars.iScheduleSerialNumber));
 

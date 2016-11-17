@@ -119,7 +119,7 @@ public class WebcalGetHandler extends GetHandler {
         resp.setContentType(acceptType);
         suffix = ".xcs";
       } else {
-        resp.setContentType(acceptType + "; charset=UTF-8");
+        resp.setContentType(acceptType + ";charset=utf-8");
         suffix = ".ics";
       }
 

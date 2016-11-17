@@ -176,7 +176,7 @@ public class SynchwsHandler extends CalwsHandler {
 
         resp.setCharacterEncoding("UTF-8");
         resp.setStatus(HttpServletResponse.SC_OK);
-        resp.setContentType("text/xml; charset=UTF-8");
+        resp.setContentType("text/xml;charset=utf-8");
 
         final JAXBElement<KeepAliveResponseType> jax = of.createKeepAliveResponse(kar);
 
@@ -220,7 +220,7 @@ public class SynchwsHandler extends CalwsHandler {
     try {
       resp.setCharacterEncoding("UTF-8");
       resp.setStatus(HttpServletResponse.SC_OK);
-      resp.setContentType("text/xml; charset=UTF-8");
+      resp.setContentType("text/xml;charset=utf-8");
 
       final StartServiceResponseType ssr = of.createStartServiceResponseType();
 

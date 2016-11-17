@@ -72,7 +72,7 @@ public class FreeBusyGetHandler extends GetHandler {
         cua = getSysi().principalToCaladdr(getSysi().getPrincipalForUser(user));
       }
 
-      pars.setContentType("text/calendar; charset=UTF-8");
+      pars.setContentType("text/calendar;charset=utf-8");
 
       final CalDAVAuthProperties authp = getSysi().getAuthProperties();
 
@@ -91,7 +91,7 @@ public class FreeBusyGetHandler extends GetHandler {
       final Set<String> recipients = new TreeSet<>();
       resp.setHeader("Content-Disposition",
                      "Attachment; Filename=\"freebusy.ics\"");
-      resp.setContentType("text/calendar; charset=UTF-8");
+      resp.setContentType("text/calendar;charset=utf-8");
       recipients.add(cua);
 
       getSysi().getSpecialFreeBusy(cua, recipients,

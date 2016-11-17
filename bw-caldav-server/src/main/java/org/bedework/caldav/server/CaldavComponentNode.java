@@ -589,7 +589,7 @@ public boolean generatePropertyValue(final QName tag,
 
   @Override
   public String getContentType() throws WebdavException {
-    return "text/calendar; charset=UTF-8";
+    return "text/calendar;charset=utf-8";
   }
 
   @Override

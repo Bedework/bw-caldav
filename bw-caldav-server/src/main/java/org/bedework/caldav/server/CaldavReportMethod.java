@@ -377,7 +377,7 @@ public class CaldavReportMethod extends ReportMethod {
                           final HttpServletResponse resp,
                           final int depth) throws WebdavException {
     resp.setStatus(WebdavStatusCode.SC_MULTI_STATUS);
-    resp.setContentType("text/xml; charset=UTF-8");
+    resp.setContentType("text/xml;charset=utf-8");
 
     startEmit(resp);
 
@@ -684,7 +684,7 @@ public class CaldavReportMethod extends ReportMethod {
                             final HttpServletResponse resp,
                             final int depth) throws WebdavException {
     resp.setStatus(HttpServletResponse.SC_OK);
-    resp.setContentType("text/calendar; charset=UTF-8");
+    resp.setContentType("text/calendar;charset=utf-8");
 
     String resourceUri = getResourceUri(req);
 

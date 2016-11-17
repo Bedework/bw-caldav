@@ -881,7 +881,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
         ctype = sysi.getDefaultContentType();
       }
 
-      resp.setContentType(ctype + "; charset=UTF-8");
+      resp.setContentType(ctype + ";charset=utf-8");
 
       Content c = new Content();
       c.written = true;
@@ -890,7 +890,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       if (c.contentType.indexOf(';') < 0) {
         // No charset
-        c.contentType += "; charset=UTF-8";
+        c.contentType += ";charset=utf-8";
       }
 
       return c;
@@ -1357,7 +1357,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
   private Content doXrd(final HttpServletRequest req,
                         final HttpServletResponse resp,
                         final CaldavBwNode node) throws WebdavException {
-    resp.setContentType("application/xrd+xml; charset=UTF-8");
+    resp.setContentType("application/xrd+xml;charset=utf-8");
 
     try {
       XRDType xrd = getXRD(node);
@@ -1711,7 +1711,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
   @Override
   public String makeUserHref(final String id) throws WebdavException {
-    return getSysi().makeHref(id, WhoDefs.whoTypeUser);
+    return getSysi().makeHref(id, Ace.whoTypeUser);
   }
 
   @Override
@@ -2098,9 +2098,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
       AccessPrincipal ap = wi.getPrincipal();
 
       if (ap != null) {
-        if (ap.getKind() == WhoDefs.whoTypeUser) {
+        if (ap.getKind() == Ace.whoTypeUser) {
           nd = new CaldavUserNode(wi, sysi, sysi.getCalPrincipalInfo(ap));
-        } else if (ap.getKind() == WhoDefs.whoTypeGroup) {
+        } else if (ap.getKind() == Ace.whoTypeGroup) {
           nd = new CaldavGroupNode(wi, sysi, sysi.getCalPrincipalInfo(ap));
         }
       } else if (wi.isCollection()) {

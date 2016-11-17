@@ -66,7 +66,7 @@ public class ServerInfoGetHandler extends GetHandler {
 
       startEmit(resp);
 
-      resp.setContentType("application/server-info+xml; charset=UTF-8");
+      resp.setContentType("application/server-info+xml;charset=utf-8");
 
       serverInfo.toXml(xml);
       resp.setStatus(HttpServletResponse.SC_OK);

@@ -425,7 +425,7 @@ public class CaldavCalNode extends CaldavBwNode {
   @Override
   public String getContentType() throws WebdavException {
     if (ical != null) {
-      return "text/calendar; charset=UTF-8";
+      return "text/calendar;charset=utf-8";
     }
 
     return null;
