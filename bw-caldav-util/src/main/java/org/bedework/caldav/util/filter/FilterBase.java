@@ -66,7 +66,7 @@ public class FilterBase implements Serializable {
   protected List<FilterBase> children;
 
   /**
-   * @param name
+   * @param name for filter
    */
   public FilterBase(final String name) {
     setName(name);
@@ -79,7 +79,7 @@ public class FilterBase implements Serializable {
    *
    * @param val    String name
    */
-  protected void setName(final String val) {
+  public void setName(final String val) {
     name = val;
   }
 
@@ -180,7 +180,7 @@ public class FilterBase implements Serializable {
    * @return int num children
    */
   public int getNumChildren() {
-    List<FilterBase> c = getChildren();
+    final List<FilterBase> c = getChildren();
     if (c == null) {
       return 0;
     }
@@ -199,7 +199,7 @@ public class FilterBase implements Serializable {
     List<FilterBase> c = getChildren();
 
     if (c == null) {
-      c = new ArrayList<FilterBase>();
+      c = new ArrayList<>();
       setChildren(c);
     }
 
@@ -214,7 +214,7 @@ public class FilterBase implements Serializable {
   /** Overridden by filters which attempt to match the object with the
    * requirements.
    *
-   * @param o
+   * @param o object to match
    * @param userHref - for whom we are matching
    * @return true for a match
    * @throws WebdavException - on matching errors
@@ -245,11 +245,12 @@ public class FilterBase implements Serializable {
    * <pre>filter = addOrChild(filter, child)</pre> is either null, a filter
    * or an 'or' filter.
    *
-   * @param filter
-   * @param child
+   * @param filter add child to this
+   * @param child possibly null
    * @return a filter
    */
-  public static FilterBase addOrChild(final FilterBase filter, final FilterBase child) {
+  public static FilterBase addOrChild(final FilterBase filter, 
+                                      final FilterBase child) {
     if (child == null) {
       return filter;
     }
@@ -258,7 +259,7 @@ public class FilterBase implements Serializable {
       return child;
     }
 
-    OrFilter orf;
+    final OrFilter orf;
     if (filter instanceof OrFilter) {
       orf = (OrFilter)filter;
     } else {
@@ -273,8 +274,8 @@ public class FilterBase implements Serializable {
 
   /** See addOrChild.
    *
-   * @param filter
-   * @param child
+   * @param filter add to this
+   * @param child possibly null
    * @return filter
    */
   public static FilterBase addAndChild(final FilterBase filter, final FilterBase child) {
@@ -286,7 +287,7 @@ public class FilterBase implements Serializable {
       return child;
     }
 
-    AndFilter andf;
+    final AndFilter andf;
     if (filter instanceof AndFilter) {
       andf = (AndFilter)filter;
     } else {
