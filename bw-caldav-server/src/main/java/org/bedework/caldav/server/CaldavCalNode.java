@@ -594,29 +594,25 @@ public class CaldavCalNode extends CaldavBwNode {
           }
 
           if (XmlUtil.nodeMatches(pval, CaldavTags.calendar)) {
-            // This is only valid for mkcalendar or an (extended) mkcol
-            if (!WebdavTags.mkcol.equals(spr.rootElement) &&
-                    !CaldavTags.mkcalendar.equals(spr.rootElement)) {
-              throw new WebdavForbidden();
-            }
+            // A change is only valid for mkcalendar or an (extended) mkcol
+            final CalDAVCollection c = (CalDAVCollection)getCollection(false); // Don't deref
 
-            CalDAVCollection c = (CalDAVCollection)getCollection(false); // Don't deref
-
+            if (WebdavTags.mkcol.equals(spr.rootElement) ||
+                    CaldavTags.mkcalendar.equals(spr.rootElement)) {
             c.setCalType(CalDAVCollection.calTypeCalendarCollection);
             continue;
           }
 
-          if (XmlUtil.nodeMatches(pval, AppleServerTags.sharedOwner)) {
-            // This is only valid for an the owner
-
-            CalDAVCollection c = (CalDAVCollection)getCollection(false); // Don't deref
-
-            if (!c.getOwner().equals(getSysi().getPrincipal())) {
-              throw new WebdavForbidden("Not owner");
+            if (c.getCalType() == CalDAVCollection.calTypeCalendarCollection) {
+              // No change - ignore
+              continue;
             }
+            
+            throw new WebdavForbidden();
+          }
 
-            c.setProperty(AppleServerTags.shared, "true");
-            continue;
+          if (XmlUtil.nodeMatches(pval, AppleServerTags.sharedOwner)) {
+            return false; // Not allowed
           }
         }
 
