@@ -64,19 +64,23 @@ public class OrganizerType {
    * ==================================================================== */
 
   /**
-   * @param xml
-   * @throws Throwable
+   * @param xml builder
+   * @throws Throwable on fatal error
    */
   public void toXml(final XmlEmit xml) throws Throwable {
     xml.openTag(AppleServerTags.organizer);
     xml.property(WebdavTags.href, getHref());
-    xml.property(AppleServerTags.commonName, getCommonName());
+    if (getCommonName() == null) {
+      xml.property(AppleServerTags.commonName, getHref());
+    } else {
+      xml.property(AppleServerTags.commonName, getCommonName());
+    }
     xml.closeTag(AppleServerTags.organizer);
   }
 
   /** Add our stuff to the StringBuffer
    *
-   * @param ts
+   * @param ts builder
    */
   protected void toStringSegment(final ToString ts) {
     ts.append("href", getHref());
@@ -85,7 +89,7 @@ public class OrganizerType {
 
   @Override
   public String toString() {
-    ToString ts = new ToString(this);
+    final ToString ts = new ToString(this);
 
     toStringSegment(ts);
 

@@ -127,13 +127,17 @@ public class UserType {
    * ==================================================================== */
 
   /**
-   * @param xml
-   * @throws Throwable
+   * @param xml builder
+   * @throws Throwable on fatal error
    */
   public void toXml(final XmlEmit xml) throws Throwable {
     xml.openTag(AppleServerTags.user);
     xml.property(WebdavTags.href, getHref());
-    xml.property(AppleServerTags.commonName, getCommonName());
+    if (getCommonName() == null) {
+      xml.property(AppleServerTags.commonName, getHref());
+    } else {
+      xml.property(AppleServerTags.commonName, getCommonName());
+    }
     xml.emptyTag(getInviteStatus());
     getAccess().toXml(xml);
     xml.property(AppleServerTags.summary, getSummary());
@@ -144,7 +148,7 @@ public class UserType {
 
   /** Add our stuff to the StringBuffer
    *
-   * @param ts
+   * @param ts builder
    */
   protected void toStringSegment(final ToString ts) {
     ts.append("href", getHref());
@@ -157,7 +161,7 @@ public class UserType {
 
   @Override
   public String toString() {
-    ToString ts = new ToString(this);
+    final ToString ts = new ToString(this);
 
     toStringSegment(ts);
 
@@ -179,7 +183,7 @@ public class UserType {
       return false;
     }
 
-    UserType that = (UserType)o;
+    final UserType that = (UserType)o;
 
     return this.getHref().equals(that.getHref());
   }
