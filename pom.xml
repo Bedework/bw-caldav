@@ -16,16 +16,24 @@
 
 		<!-- Bedework Versions -->
 		<bw-access.version>4.0.1</bw-access.version>
-		<bw-util.version>4.0.11-SNAPSHOT</bw-util.version>
+		<bw-util.version>4.0.12-SNAPSHOT</bw-util.version>
 		<bw-webdav.version>4.0.2-SNAPSHOT</bw-webdav.version>
 		<bw-ws.version>4.0.3</bw-ws.version>
-    <ical4j.version>1.1.4-SNAPSHOT</ical4j.version>
-    <ical4j-vcard.version>1.0.1</ical4j-vcard.version>
+    <ical4j.groupId>org.bedework.ical4j</ical4j.groupId>
+    <ical4j.artifactId>ical4j</ical4j.artifactId>
+    <ical4j.version>2.0.3</ical4j.version>
+    <!--
+    <ical4j.groupId>org.bedework.ical4j</ical4j.groupId>
+    <ical4j.artifactId>ical4j</ical4j.artifactId>
+    <ical4j.version>1.1.4</ical4j.version>
+    -->
+    <ical4j-vcard.version>1.0.4</ical4j-vcard.version>
 
 		<!-- Third Party Library Versions -->
     <commons-codec.version>1.5</commons-codec.version>
-		<servlet-api.version>2.5</servlet-api.version>
+    <junit.version>4.8.2</junit.version>
 		<log4j.version>1.2.15</log4j.version>
+    <servlet-api.version>2.5</servlet-api.version>
 	</properties>
 
 	<organization>
@@ -142,8 +150,8 @@
 				<version>${bw-ws.version}</version>
 			</dependency>
       <dependency>
-        <groupId>org.bedework</groupId>
-        <artifactId>bw-ical4j-cl</artifactId>
+        <groupId>${ical4j.groupId}</groupId>
+        <artifactId>${ical4j.artifactId}</artifactId>
         <version>${ical4j.version}</version>
       </dependency>
       <dependency>

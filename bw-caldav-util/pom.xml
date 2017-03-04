@@ -46,8 +46,8 @@
 			<artifactId>bw-webdav</artifactId>
 		</dependency>
     <dependency>
-      <groupId>org.bedework</groupId>
-      <artifactId>bw-ical4j-cl</artifactId>
+      <groupId>${ical4j.groupId}</groupId>
+      <artifactId>${ical4j.artifactId}</artifactId>
     </dependency>
     <dependency>
       <groupId>org.bedework</groupId>
