@@ -33,20 +33,28 @@ public class TimeRangeFilter extends ObjectFilter<TimeRange> {
   /** Match a created date.
    *
    * @param name - null one will be created
-   * @param propertyIndex
+   * @param propertyIndex of property
+   * @param intKey non-null if property is indexed by the key
+   * @param strKey non-null if ditto
    */
   public TimeRangeFilter(final String name,
-                         final PropertyInfoIndex propertyIndex) {
-    super(name, propertyIndex);
+                         final PropertyInfoIndex propertyIndex,
+                         final Integer intKey,
+                         final String strKey) {
+    super(name, propertyIndex, intKey, strKey);
   }
 
   /** Match a created date.
    *
    * @param name - null one will be created
-   * @param propertyIndexes
+   * @param propertyIndexes of dot separated properties
+   * @param intKey non-null if property is indexed by the key
+   * @param strKey non-null if ditto
    */
   public TimeRangeFilter(final String name,
-                         final List<PropertyInfoIndex> propertyIndexes) {
-    super(name, propertyIndexes);
+                         final List<PropertyInfoIndex> propertyIndexes,
+                         final Integer intKey,
+                         final String strKey) {
+    super(name, propertyIndexes, intKey, strKey);
   }
 }

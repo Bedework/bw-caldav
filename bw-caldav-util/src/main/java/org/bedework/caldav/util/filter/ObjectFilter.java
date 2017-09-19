@@ -41,19 +41,35 @@ public class ObjectFilter<T> extends PropertyFilter {
 
   private boolean caseless = true;
 
+  private boolean prefix;
+
   /** Match on any of the entities.
    *
    * @param name - null one will be created
-   * @param propertyIndex
+   * @param propertyIndex of property
    */
   public ObjectFilter(final String name,
                       final PropertyInfoIndex propertyIndex) {
-    super(name, propertyIndex);
+    this(name, propertyIndex, null, null);
   }
 
   /** Match on any of the entities.
    *
-   * @param propertyIndex
+   * @param name - null one will be created
+   * @param propertyIndex of property
+   * @param intKey non-null if property is indexed by the key
+   * @param strKey non-null if ditto
+   */
+  public ObjectFilter(final String name,
+                      final PropertyInfoIndex propertyIndex,
+                      final Integer intKey,
+                      final String strKey) {
+    super(name, propertyIndex, intKey, strKey);
+  }
+
+  /** Match on any of the entities.
+   *
+   * @param propertyIndex of property
    * @param val - a value to match
    */
   public ObjectFilter(final PropertyInfoIndex propertyIndex,
@@ -65,11 +81,25 @@ public class ObjectFilter<T> extends PropertyFilter {
   /** Match on any of the entities.
    *
    * @param name - null one will be created
-   * @param propertyIndexes
+   * @param propertyIndexes of dot separated properties
    */
   public ObjectFilter(final String name,
                       final List<PropertyInfoIndex> propertyIndexes) {
-    super(name, propertyIndexes);
+    this(name, propertyIndexes, null, null);
+  }
+
+  /** Match on any of the entities.
+   *
+   * @param name - null one will be created
+   * @param propertyIndexes of dot separated properties
+   * @param intKey non-null if property is indexed by the key
+   * @param strKey non-null if ditto
+   */
+  public ObjectFilter(final String name,
+                      final List<PropertyInfoIndex> propertyIndexes,
+                      final Integer intKey,
+                      final String strKey) {
+    super(name, propertyIndexes, intKey, strKey);
   }
 
   /** Set the entity we're filtering on
@@ -90,7 +120,7 @@ public class ObjectFilter<T> extends PropertyFilter {
 
   /** Set the exact flag
    *
-   * @param val
+   * @param val exact flag
    */
   public void setExact(final boolean val) {
     exact = val;
@@ -106,7 +136,7 @@ public class ObjectFilter<T> extends PropertyFilter {
 
   /** Set the caseless flag
    *
-   * @param val
+   * @param val caseless flag
    */
   public void setCaseless(final boolean val) {
     caseless = val;
@@ -118,6 +148,22 @@ public class ObjectFilter<T> extends PropertyFilter {
    */
   public boolean getCaseless() {
     return caseless;
+  }
+
+  /**
+   *
+   * @param val boolean true if this is a prefix match.
+   */
+  public void setPrefixMatch(final boolean val) {
+    prefix = val;
+  }
+
+  /**
+   *
+   * @return boolean true if this is a prefix match.
+   */
+  public boolean getPrefixMatch() {
+    return prefix;
   }
 
   /* * Create a filter for the given index and value
@@ -308,15 +354,19 @@ public class ObjectFilter<T> extends PropertyFilter {
 
   /** Create a timerange filter for the given index and value
    *
-   * @param name
-   * @param propertyIndex
+   * @param name of filter
+   * @param propertyIndex of property
    * @param val     TimeRange
+   * @param intKey non-null if property is indexed by the key
+   * @param strKey non-null if ditto
    * @return BwObjectFilter
    */
   public static ObjectFilter makeFilter(final String name,
-                                          final PropertyInfoIndex propertyIndex,
-                                          final TimeRange val) {
-    TimeRangeFilter trf = new TimeRangeFilter(name, propertyIndex);
+                                        final PropertyInfoIndex propertyIndex,
+                                        final TimeRange val,
+                                        final Integer intKey,
+                                        final String strKey) {
+    TimeRangeFilter trf = new TimeRangeFilter(name, propertyIndex, intKey, strKey);
 
     trf.setEntity(val);
 
@@ -325,23 +375,27 @@ public class ObjectFilter<T> extends PropertyFilter {
 
   /** Create a timerange filter for the given indexes and value
    *
-   * @param name
-   * @param propertyIndexes
+   * @param name of property
+   * @param propertyIndexes of dot separated properties
    * @param val     TimeRange
+   * @param intKey non-null if property is indexed by the key
+   * @param strKey non-null if ditto
    * @return BwObjectFilter
    */
   public static ObjectFilter makeFilter(final String name,
                                         final List<PropertyInfoIndex> propertyIndexes,
-                                        final TimeRange val) {
+                                        final TimeRange val,
+                                        final Integer intKey,
+                                        final String strKey) {
     if (propertyIndexes.size() == 1) {
-      return makeFilter(name, propertyIndexes.get(0), val);
+      return makeFilter(name, propertyIndexes.get(0), val, intKey, strKey);
     }
 
     if (propertyIndexes.size() != 2) {
       throw new RuntimeException("Not implemented - subfield depth > 2");
     }
 
-    TimeRangeFilter trf = new TimeRangeFilter(name, propertyIndexes);
+    TimeRangeFilter trf = new TimeRangeFilter(name, propertyIndexes, intKey, strKey);
 
     trf.setParentPropertyIndex(propertyIndexes.get(0));
     trf.setEntity(val);

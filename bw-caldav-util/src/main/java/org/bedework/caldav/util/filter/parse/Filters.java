@@ -361,7 +361,7 @@ public class Filters {
       filter = new PresenceFilter(null, pi, true);
     } else if (timeRange != null) {
       if (entityType < 0) {
-        filter = ObjectFilter.makeFilter(null, pi, timeRange);
+        filter = ObjectFilter.makeFilter(null, pi, timeRange, null, null);
       } else {
         filter = new EntityTimeRangeFilter(null, entityType,
                                            timeRange);

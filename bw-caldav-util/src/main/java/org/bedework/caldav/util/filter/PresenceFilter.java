@@ -19,6 +19,7 @@
 package org.bedework.caldav.util.filter;
 
 import org.bedework.util.calendar.PropertyIndex.PropertyInfoIndex;
+import org.bedework.util.misc.ToString;
 
 import java.util.List;
 
@@ -35,7 +36,7 @@ public class PresenceFilter extends PropertyFilter {
   /** Match on any of the entities.
    *
    * @param name - null one will be created
-   * @param propertyIndex
+   * @param propertyIndex identifies property
    * @param testPresent   false for not present
    */
   public PresenceFilter(final String name,
@@ -48,7 +49,7 @@ public class PresenceFilter extends PropertyFilter {
   /** Match on any of the entities.
    *
    * @param name - null one will be created
-   * @param propertyIndexes
+   * @param propertyIndexes identifies dot separated refs to property
    * @param testPresent   false for not present
    */
   public PresenceFilter(final String name,
@@ -58,10 +59,21 @@ public class PresenceFilter extends PropertyFilter {
     this.testPresent = testPresent;
   }
 
-  /** Set a test for present
+  /** Match on any of the entities.
+   *
+   * @param name - null one will be created
+   * @param propertyIndexes identifies dot separated refs to property
+   * @param testPresent   false for not present
+   * @param intKey non-null if property is indexed by the key
+   * @param strKey non-null if ditto
    */
-  public void setTestPresent() {
-    testPresent = true;
+  public PresenceFilter(final String name,
+                        final List<PropertyInfoIndex> propertyIndexes,
+                        final boolean testPresent,
+                        final Integer intKey,
+                        final String strKey) {
+    super(name, propertyIndexes, intKey, strKey);
+    this.testPresent = testPresent;
   }
 
   /** See if we're testing for present
@@ -77,17 +89,12 @@ public class PresenceFilter extends PropertyFilter {
    * ==================================================================== */
 
   public String toString() {
-    StringBuilder sb = new StringBuilder("PresenceFilter{");
+    final ToString ts = new ToString(this);
 
-    super.toStringSegment(sb);
-    if (getTestPresent()) {
-      sb.append("\nproperty not null");
-    } else {
-      sb.append("\nproperty null");
-    }
+    super.toStringSegment(ts);
+    
+    ts.append("testPresent", getTestPresent());
 
-    sb.append("}");
-
-    return sb.toString();
+    return ts.toString();
   }
 }

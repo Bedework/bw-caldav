@@ -19,8 +19,10 @@
 package org.bedework.caldav.util.filter;
 
 import org.bedework.util.calendar.PropertyIndex.PropertyInfoIndex;
+import org.bedework.util.misc.ToString;
 import org.bedework.util.misc.Uid;
 
+import java.util.Collections;
 import java.util.List;
 
 /** Base filter class for properties.
@@ -33,48 +35,87 @@ import java.util.List;
 public class PropertyFilter extends FilterBase {
   private PropertyInfoIndex parentPropertyIndex;
   private PropertyInfoIndex propertyIndex;
+  private List<PropertyInfoIndex> propertyIndexes;
+  
+  private String strKey; 
+  private Integer intKey;
 
   /**
    * @param name - null one will be created
-   * @param propertyIndex
+   * @param propertyIndex identifies property
    */
   public PropertyFilter(String name, PropertyInfoIndex propertyIndex) {
+    this(name, propertyIndex, null, null);
+  }
+
+  /**
+   * @param name - null one will be created
+   * @param propertyIndex identifies property
+   * @param intKey non-null if property is indexed by the key
+   * @param strKey non-null if ditto
+   */
+  public PropertyFilter(String name, PropertyInfoIndex propertyIndex,
+                        final Integer intKey,
+                        final String strKey) {
     super(name);
     if (name == null) {
       name = Uid.getUid();
       setName(name);
     }
-    setPropertyIndex(propertyIndex);
+    this.propertyIndex = propertyIndex;
+    
+    propertyIndexes = Collections.singletonList(propertyIndex);
+
+    this.intKey = intKey;
+    this.strKey = strKey;
   }
 
   /**
    * @param name - null one will be created
-   * @param propertyIndexes
+   * @param propertyIndexes identifies dot separated refs to property
    */
   public PropertyFilter(final String name,
                         final List<PropertyInfoIndex> propertyIndexes) {
+    this(name, propertyIndexes, null, null);
+  }
+
+  /**
+   * @param name - null one will be created
+   * @param propertyIndexes identifies dot separated refs to property
+   * @param intKey non-null if property is indexed by the key
+   * @param strKey non-null if ditto
+   */
+  public PropertyFilter(final String name,
+                        final List<PropertyInfoIndex> propertyIndexes,
+                        final Integer intKey,
+                        final String strKey) {
     super(name);
 
     if (name == null) {
       setName(Uid.getUid());
     }
 
+    this.propertyIndexes = propertyIndexes;
+    
     if (propertyIndexes.size() == 1) {
-      setPropertyIndex(propertyIndexes.get(0));
+      propertyIndex = propertyIndexes.get(0);
       return;
     }
 
     if (propertyIndexes.size() != 2) {
       throw new RuntimeException("Not implemented - subfield depth > 2");
     }
-    setPropertyIndex(propertyIndexes.get(1));
+    propertyIndex = propertyIndexes.get(1);
     setParentPropertyIndex(propertyIndexes.get(0));
+    
+    this.intKey = intKey;
+    this.strKey = strKey;
   }
 
   /**
-   * @param val
+   * @param val the index
    */
-  public void setPropertyIndex(PropertyInfoIndex val) {
+  protected void setPropertyIndex(PropertyInfoIndex val) {
     propertyIndex = val;
   }
 
@@ -87,7 +128,7 @@ public class PropertyFilter extends FilterBase {
 
   /** Parent property if this is a param
    *
-   * @param val
+   * @param val the index
    */
   public void setParentPropertyIndex(PropertyInfoIndex val) {
     parentPropertyIndex = val;
@@ -99,6 +140,24 @@ public class PropertyFilter extends FilterBase {
   public PropertyInfoIndex getParentPropertyIndex() {
     return parentPropertyIndex;
   }
+  
+  public List<PropertyInfoIndex> getPropertyIndexes() {
+    return propertyIndexes;
+  }
+
+  /**
+   * @return integer key (index) or null
+   */
+  public Integer getIntKey() {
+    return intKey;
+  }
+
+  /**
+   * @return String key (index) or null
+   */
+  public String getStrKey() {
+    return strKey;
+  }
 
   /* ====================================================================
    *                   Convenience methods
@@ -106,23 +165,19 @@ public class PropertyFilter extends FilterBase {
 
   /** Add our stuff to the StringBuffer
    *
-   * @param sb    StringBuffer for result
+   * @param ts for result
    */
    @Override
-   protected void toStringSegment(StringBuilder sb) {
-    super.toStringSegment(sb);
-    sb.append(", propertyIndex=");
-    sb.append(getPropertyIndex());
+   protected void toStringSegment(final ToString ts) {
+    super.toStringSegment(ts);
+    ts.append("propertyIndex", getPropertyIndex());
   }
 
   public String toString() {
-    StringBuilder sb = new StringBuilder("PropertyFilter{");
+    final ToString ts = new ToString(this);
 
-    super.toStringSegment(sb);
-    toStringSegment(sb);
+    toStringSegment(ts);
 
-    sb.append("}");
-
-    return sb.toString();
+    return ts.toString();
   }
 }

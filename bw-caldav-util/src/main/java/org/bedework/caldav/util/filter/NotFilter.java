@@ -46,7 +46,7 @@
  */
 package org.bedework.caldav.util.filter;
 
-import java.util.Collection;
+import org.bedework.util.misc.ToString;
 
 /** A filter that negates the sense of the single child.
  *
@@ -65,19 +65,12 @@ public class NotFilter extends FilterBase {
    * ==================================================================== */
 
   public String toString() {
-    StringBuilder sb = new StringBuilder("NotFilter{");
+    ToString ts = new ToString(this);
 
-    super.toStringSegment(sb);
+    super.toStringSegment(ts);
 
-    Collection<FilterBase> c = getChildren();
+    ts.append("children", getChildren());
 
-    if (c != null) {
-      for (FilterBase f: c) {
-        sb.append("\n");
-        sb.append(f);
-      }
-    }
-
-    return sb.toString();
+    return ts.toString();
   }
 }

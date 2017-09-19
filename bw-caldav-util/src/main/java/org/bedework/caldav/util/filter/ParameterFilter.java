@@ -20,6 +20,7 @@ package org.bedework.caldav.util.filter;
 
 import org.bedework.util.calendar.PropertyIndex.ParameterInfoIndex;
 import org.bedework.util.calendar.PropertyIndex.PropertyInfoIndex;
+import org.bedework.util.misc.ToString;
 import org.bedework.util.misc.Uid;
 
 /** Base filter class for parameters.
@@ -79,26 +80,22 @@ public class ParameterFilter extends FilterBase {
    *                   Convenience methods
    * ==================================================================== */
 
-  /** Add our stuff to the StringBuffer
+  /** Add our stuff to the ToString buffer
    *
-   * @param sb    StringBuffer for result
+   * @param ts  for result
    */
    @Override
-  protected void toStringSegment(final StringBuilder sb) {
-    super.toStringSegment(sb);
-    sb.append(", propertyIndex=");
-    sb.append(getParameterIndex());
+  protected void toStringSegment(final ToString ts) {
+    super.toStringSegment(ts);
+    ts.append("parameterIndex", getParameterIndex());
   }
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder("PropertyFilter{");
+    ToString ts = new ToString(this);
 
-    super.toStringSegment(sb);
-    toStringSegment(sb);
+    super.toStringSegment(ts);
 
-    sb.append("}");
-
-    return sb.toString();
+    return ts.toString();
   }
 }

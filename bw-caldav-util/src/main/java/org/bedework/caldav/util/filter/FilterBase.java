@@ -308,25 +308,6 @@ public class FilterBase implements Serializable {
     }
   }
 
-  /** Add our stuff to the StringBuffer
-   *
-   * @param sb    StringBuilder for result
-   */
-  protected void toStringSegment(final StringBuilder sb) {
-    //sb.append("\n, name=");
-    //sb.append(name);
-
-    if (description != null) {
-      sb.append("description=");
-      sb.append(description);
-    }
-
-    if (parent != null) {
-      sb.append(", parent=");
-      sb.append(parent.getName());
-    }
-  }
-
   /** Add our stuff to the builder
    *
    * @param ts    Builder for result
