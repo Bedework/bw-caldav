@@ -2087,7 +2087,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
 
     try {
-      final CaldavURI wi = findURI(uri, existance, nodeType, addMember,
+      final CaldavURI wi = findURI(uri, existance, nodeType,
                                    col, ev, r);
 
       if (wi == null) {
@@ -2137,7 +2137,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
    * @param uri        String uri - just the path part
    * @param existance        Say's something about the state of existance
    * @param nodeType         Say's something about the type of node
-   * @param addMember        From POST
    * @param collection        Supplied CalDAVCollection object if we already have it.
    * @param ev               an entity
    * @param rsrc             a resource
@@ -2147,7 +2146,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
   private CaldavURI findURI(String uri,
                             final int existance,
                             final int nodeType,
-                            final boolean addMember,
                             final CalDAVCollection collection,
                             CalDAVEvent ev,
                             CalDAVResource rsrc) throws WebdavException {
@@ -2238,22 +2236,16 @@ public class CaldavBWIntf extends WebdavNsIntf {
       String parentPath;
       String entityName = null;
 
-      if (addMember && (existance == WebdavNsIntf.existanceNot)) {
-        /* If we are trying to create we POST to the collection - there is no
-           entity name */
-        parentPath = uri;
-      } else {
-        /* Split name into parent path and entity name part */
-        SplitResult split = splitUri(uri);
+      /* Split name into parent path and entity name part */
+      SplitResult split = splitUri(uri);
 
-        if (split.name == null) {
-          // No name part
-          throw new WebdavNotFound(uri);
-        }
-
-        parentPath = split.path;
-        entityName = split.name;
+      if (split.name == null) {
+        // No name part
+        throw new WebdavNotFound(uri);
       }
+
+      parentPath = split.path;
+      entityName = split.name;
 
       /* Look for the parent */
       col = sysi.getCollection(parentPath);

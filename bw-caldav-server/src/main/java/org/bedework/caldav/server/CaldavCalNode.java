@@ -598,9 +598,9 @@ public class CaldavCalNode extends CaldavBwNode {
 
             if (WebdavTags.mkcol.equals(spr.rootElement) ||
                     CaldavTags.mkcalendar.equals(spr.rootElement)) {
-            c.setCalType(CalDAVCollection.calTypeCalendarCollection);
-            continue;
-          }
+              c.setCalType(CalDAVCollection.calTypeCalendarCollection);
+              continue;
+            }
 
             if (c.getCalType() == CalDAVCollection.calTypeCalendarCollection) {
               // No change - ignore
