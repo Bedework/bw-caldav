@@ -18,8 +18,6 @@
 */
 package org.bedework.caldav.util.filter;
 
-import org.bedework.webdav.servlet.shared.WebdavException;
-
 import ietf.params.xml.ns.caldav.PropFilterType;
 import ietf.params.xml.ns.caldav.TextMatchType;
 import ietf.params.xml.ns.caldav.UTCTimeRangeType;
@@ -43,38 +41,33 @@ public class FilterUtil {
    * @param pf
    * @param c
    * @return boolean true if the given component matches the property filter
-   * @throws WebdavException
    */
   public static boolean filter(final PropFilterType pf,
-                               final Component c) throws WebdavException {
-    try {
-      PropertyList pl = c.getProperties();
+                               final Component c) {
+    PropertyList pl = c.getProperties();
 
-      if (pl == null) {
-        return false;
-      }
-
-      Property prop = pl.getProperty(pf.getName());
-
-      if (prop == null) {
-        return pf.getIsNotDefined() != null;
-      }
-
-      TextMatchType match = pf.getTextMatch();
-      if (match != null) {
-        return matches(match, prop.getValue());
-      }
-
-      UTCTimeRangeType tr = pf.getTimeRange();
-      if (tr == null) {
-        // invalid state?
-        return true;
-      }
-
-      return matches(tr, prop);
-    } catch (Throwable t) {
-      throw new WebdavException(t);
+    if (pl == null) {
+      return false;
     }
+
+    Property prop = pl.getProperty(pf.getName());
+
+    if (prop == null) {
+      return pf.getIsNotDefined() != null;
+    }
+
+    TextMatchType match = pf.getTextMatch();
+    if (match != null) {
+      return matches(match, prop.getValue());
+    }
+
+    UTCTimeRangeType tr = pf.getTimeRange();
+    if (tr == null) {
+      // invalid state?
+      return true;
+    }
+
+    return matches(tr, prop);
   }
 
   /**

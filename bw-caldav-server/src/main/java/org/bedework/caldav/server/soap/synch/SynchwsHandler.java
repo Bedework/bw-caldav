@@ -70,6 +70,7 @@ public class SynchwsHandler extends CalwsHandler {
                           final HttpServletResponse resp,
                           final RequestPars pars) throws WebdavException {
     try {
+      initResponse(resp);
       final UnmarshalResult ur = unmarshal(req);
 
       Object body = ur.body;
@@ -127,7 +128,7 @@ public class SynchwsHandler extends CalwsHandler {
                               final HttpServletResponse resp) throws WebdavException {
     try {
       if (debug) {
-        trace("StartServiceNotification: url=" + ssn.getSubscribeUrl());
+        debug("StartServiceNotification: url=" + ssn.getSubscribeUrl());
       }
 
       SynchConnection sc = getActiveConnection(ssn.getSubscribeUrl());
@@ -154,7 +155,7 @@ public class SynchwsHandler extends CalwsHandler {
   private void doKeepAlive(final KeepAliveNotificationType kan,
                            final HttpServletResponse resp) throws WebdavException {
     if (debug) {
-      trace("KeepAliveNotification: url=" + kan.getSubscribeUrl() +
+      debug("KeepAliveNotification: url=" + kan.getSubscribeUrl() +
             "\n                token=" + kan.getToken());
     }
 
@@ -173,10 +174,6 @@ public class SynchwsHandler extends CalwsHandler {
           sc.setLastPing(System.currentTimeMillis());
           setActiveConnection(sc);
         }
-
-        resp.setCharacterEncoding("UTF-8");
-        resp.setStatus(HttpServletResponse.SC_OK);
-        resp.setContentType("text/xml;charset=utf-8");
 
         final JAXBElement<KeepAliveResponseType> jax = of.createKeepAliveResponse(kar);
 
@@ -218,10 +215,6 @@ public class SynchwsHandler extends CalwsHandler {
                                     final SynchConnection sc,
                                     final boolean ok) throws WebdavException {
     try {
-      resp.setCharacterEncoding("UTF-8");
-      resp.setStatus(HttpServletResponse.SC_OK);
-      resp.setContentType("text/xml;charset=utf-8");
-
       final StartServiceResponseType ssr = of.createStartServiceResponseType();
 
       if (ok) {

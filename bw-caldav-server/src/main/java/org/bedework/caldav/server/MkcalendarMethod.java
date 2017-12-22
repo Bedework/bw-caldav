@@ -43,7 +43,7 @@ public class MkcalendarMethod extends PropPatchMethod {
   public void doMethod(final HttpServletRequest req,
                         final HttpServletResponse resp) throws WebdavException {
     if (debug) {
-      trace("MkcalendarMethod: doMethod");
+      debug("MkcalendarMethod: doMethod");
     }
 
     WebdavNsIntf intf = getNsIntf();

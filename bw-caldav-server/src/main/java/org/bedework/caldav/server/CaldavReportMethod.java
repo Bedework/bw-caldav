@@ -173,7 +173,7 @@ public class CaldavReportMethod extends ReportMethod {
         freeBusy = new FreeBusyQuery();
         freeBusy.parse(getOnlyChild(root));
         if (debug) {
-          trace("REPORT: free-busy");
+          debug("REPORT: free-busy");
           freeBusy.dump();
         }
 
@@ -228,7 +228,7 @@ public class CaldavReportMethod extends ReportMethod {
         cqpars.filter = Filters.parse(curnode);
 
         if (debug) {
-          trace("REPORT: query");
+          debug("REPORT: query");
           DumpUtil.dumpFilter(cqpars.filter, getLogger());
         }
 
@@ -343,10 +343,10 @@ public class CaldavReportMethod extends ReportMethod {
         }
 
         if (debug) {
-          trace("REPORT: multi-get");
+          debug("REPORT: multi-get");
 
           for (String href: hrefs) {
-            trace("    <DAV:href>" + href + "</DAV:href>");
+            debug("    <DAV:href>" + href + "</DAV:href>");
           }
         }
 
@@ -354,7 +354,7 @@ public class CaldavReportMethod extends ReportMethod {
       }
 
       if (debug) {
-        trace("REPORT: unexpected element " + curnode.getNodeName() +
+        debug("REPORT: unexpected element " + curnode.getNodeName() +
               " with type " + curnode.getNodeType());
       }
       throw new WebdavBadRequest("REPORT: unexpected element " + curnode.getNodeName() +
@@ -413,7 +413,7 @@ public class CaldavReportMethod extends ReportMethod {
 
     if (status != HttpServletResponse.SC_OK) {
       if (debug) {
-        trace("REPORT status " + status);
+        debug("REPORT status " + status);
       }
       // Entire request failed.
       node.setStatus(status);
@@ -491,7 +491,7 @@ public class CaldavReportMethod extends ReportMethod {
 
     if (preq != null) {
       if (debug) {
-        trace("REPORT: preq not null");
+        debug("REPORT: preq not null");
       }
 
       if (preq.reqType == PropRequest.ReqType.prop) {
@@ -606,7 +606,7 @@ public class CaldavReportMethod extends ReportMethod {
                                        final RetrievalMode rm,
                                        final List<String> retrieveList) throws WebdavException {
     if (debug) {
-      trace("doNodeAndChildren: curDepth=" + curDepth +
+      debug("doNodeAndChildren: curDepth=" + curDepth +
             " maxDepth=" + maxDepth + " uri=" + node.getUri());
     }
 
@@ -655,7 +655,7 @@ public class CaldavReportMethod extends ReportMethod {
                                             final List<String> retrieveList)
           throws WebdavException {
     if (debug) {
-      trace("getNodes: " + node.getUri());
+      debug("getNodes: " + node.getUri());
     }
 
     CaldavBWIntf intf = (CaldavBWIntf)getNsIntf();
@@ -696,7 +696,7 @@ public class CaldavReportMethod extends ReportMethod {
 
     if (!(node instanceof CaldavCalNode)) {
       if (debug) {
-        trace("Expected CaldavCalNode - got " + node);
+        debug("Expected CaldavCalNode - got " + node);
       }
       throw new WebdavBadRequest();
     }

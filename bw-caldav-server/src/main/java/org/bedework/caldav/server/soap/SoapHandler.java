@@ -61,11 +61,10 @@ public abstract class SoapHandler extends MethodBase {
 
   /**
    * @param intf
-   * @throws WebdavException
+   * @throws WebdavException on soap error
    */
   public SoapHandler(final CaldavBWIntf intf) throws WebdavException {
     nsIntf = intf;
-    debug = getLogger().isDebugEnabled();
 
     try {
       if (soapMsgFactory == null) {

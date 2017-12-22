@@ -649,7 +649,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
         if (ev != null) {
           if (debug) {
-            trace("About to delete event " + ev);
+            debug("About to delete event " + ev);
           }
 
           boolean sendSchedulingMessage = true;
@@ -672,7 +672,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
           sysi.deleteEvent(ev, sendSchedulingMessage);
         } else {
           if (debug) {
-            trace("No event object available");
+            debug("No event object available");
           }
         }
       } else {
@@ -715,7 +715,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       }
 
       if (debug) {
-        debugMsg("About to get children for " + node.getUri());
+        debug("About to get children for " + node.getUri());
       }
 
       Collection<? extends WdEntity> children = node.getChildren();
@@ -741,7 +741,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
           nodeType = WebdavNsIntf.nodeTypeCollection;
           if (debug) {
-            debugMsg("Found child " + col);
+            debug("Found child " + col);
           }
         } else if (wde instanceof CalDAVResource) {
           col = parent;
@@ -1093,7 +1093,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
 
     if (debug) {
-      debugMsg("putContent: intf has event with name " + entityName +
+      debug("putContent: intf has event with name " + entityName +
                " and summary " + ev.getSummary() +
                " new event = " + ev.isNew());
     }
@@ -1119,7 +1119,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       if ((ifHeaders.ifEtag != null) &&
           (!ifHeaders.ifEtag.equals(bwnode.getPrevEtagValue(true)))) {
         if (debug) {
-          debugMsg("putContent: etag mismatch if=" + ifHeaders.ifEtag +
+          debug("putContent: etag mismatch if=" + ifHeaders.ifEtag +
                    "prev=" + bwnode.getPrevEtagValue(true));
         }
         rollback();
@@ -1129,7 +1129,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       if ((ifStag != null) &&
           (!ifStag.equals(bwnode.getPrevStagValue()))) {
         if (debug) {
-          debugMsg("putContent: stag mismatch if=" + ifStag +
+          debug("putContent: stag mismatch if=" + ifStag +
                    "prev=" + bwnode.getPrevStagValue());
         }
         rollback();
@@ -1137,7 +1137,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       }
 
       if (debug) {
-        debugMsg("putContent: update event " + ev);
+        debug("putContent: update event " + ev);
       }
       sysi.updateEvent(ev);
 
@@ -1192,7 +1192,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
 
     if (debug) {
-      debugMsg("putContent: intf has event with name " + entityName +
+      debug("putContent: intf has event with name " + entityName +
                " and summary " + ev.getSummary() +
                " new event = " + ev.isNew());
     }
@@ -1218,7 +1218,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       if ((ifEtag != null) &&
           (!ifEtag.equals(bwnode.getPrevEtagValue(true)))) {
         if (debug) {
-          debugMsg("putContent: etag mismatch if=" + ifEtag +
+          debug("putContent: etag mismatch if=" + ifEtag +
                    "prev=" + bwnode.getPrevEtagValue(true));
         }
         rollback();
@@ -1228,7 +1228,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       if ((ifStag != null) &&
           (!ifStag.equals(bwnode.getPrevStagValue()))) {
         if (debug) {
-          debugMsg("putContent: stag mismatch if=" + ifStag +
+          debug("putContent: stag mismatch if=" + ifStag +
                    "prev=" + bwnode.getPrevStagValue());
         }
         rollback();
@@ -1236,7 +1236,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       }
 
       if (debug) {
-        debugMsg("putContent: update event " + ev);
+        debug("putContent: update event " + ev);
       }
       sysi.updateEvent(ev);
     }
@@ -1871,7 +1871,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
         CalData caldata = (CalData)pr;
 
         if (debug) {
-          trace("do CalendarData for " + node.getUri());
+          debug("do CalendarData for " + node.getUri());
         }
 
         String contentType = caldata.getCalendarData().getContentType();
@@ -2079,7 +2079,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
                                   final CalDAVEvent ev,
                                   final CalDAVResource r) throws WebdavException {
     if (debug) {
-      debugMsg("About to get node for " + uri);
+      debug("About to get node for " + uri);
     }
 
     if (uri == null)  {
@@ -2197,7 +2197,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       String coluri = Util.buildPath(true, uri);
       if (debug) {
-        debugMsg("search for collection uri \"" + coluri + "\"");
+        debug("search for collection uri \"" + coluri + "\"");
       }
       CalDAVCollection col = sysi.getCollection(coluri);
 
@@ -2220,7 +2220,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
           }
 
           if (debug) {
-            debugMsg("create collection uri - cal=\"" + col.getPath() + "\"");
+            debug("create collection uri - cal=\"" + col.getPath() + "\"");
           }
 
           curi = new CaldavURI(col, true);
@@ -2277,7 +2277,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
           (ctype == CalDAVCollection.calTypeOutbox)) {
         if (entityName != null) {
           if (debug) {
-            debugMsg("find event(s) - cal=\"" + col.getPath() + "\" name=\"" +
+            debug("find event(s) - cal=\"" + col.getPath() + "\" name=\"" +
                      entityName + "\"");
           }
 
@@ -2293,7 +2293,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       } else {
         if (entityName != null) {
           if (debug) {
-            debugMsg("find resource - cal=\"" + col.getPath() + "\" name=\"" +
+            debug("find resource - cal=\"" + col.getPath() + "\" name=\"" +
                      entityName + "\"");
           }
 

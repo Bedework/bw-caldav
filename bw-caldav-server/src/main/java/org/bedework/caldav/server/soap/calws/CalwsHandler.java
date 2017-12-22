@@ -117,8 +117,8 @@ public class CalwsHandler extends SoapHandler {
   static ObjectFactory of = new ObjectFactory();
 
   /**
-   * @param intf
-   * @throws WebdavException
+   * @param intf the interface
+   * @throws WebdavException on soap error
    */
   public CalwsHandler(final CaldavBWIntf intf) throws WebdavException {
     super(intf);
@@ -134,7 +134,7 @@ public class CalwsHandler extends SoapHandler {
    * @param req the request
    * @param resp the response
    * @param pars request parameters
-   * @throws WebdavException
+   * @throws WebdavException on soap error
    */
   public void processPost(final HttpServletRequest req,
                           final HttpServletResponse resp,
@@ -142,7 +142,7 @@ public class CalwsHandler extends SoapHandler {
     try {
       initResponse(resp);
 
-      UnmarshalResult ur = unmarshal(req);
+      final UnmarshalResult ur = unmarshal(req);
 
       Object body = ur.body;
       if (body instanceof JAXBElement) {
@@ -218,7 +218,7 @@ public class CalwsHandler extends SoapHandler {
                                                      final HttpServletResponse resp,
                                                      final RequestPars pars) throws WebdavException {
     if (debug) {
-      trace("MultiOpType: ");
+      debug("MultiOpType: ");
     }
 
     try {
@@ -247,7 +247,7 @@ public class CalwsHandler extends SoapHandler {
                                final HttpServletResponse resp,
                                final boolean multi) throws WebdavException {
     if (debug) {
-      trace("GetProperties: ");
+      debug("GetProperties: ");
     }
 
     try {
@@ -288,7 +288,7 @@ public class CalwsHandler extends SoapHandler {
                                 final HttpServletResponse resp,
                                 final boolean multi) throws WebdavException {
     if (debug) {
-      trace("FreebusyReport: ");
+      debug("FreebusyReport: ");
     }
 
     FreebusyReportResponseType frr = new FreebusyReportResponseType();
@@ -442,7 +442,7 @@ public class CalwsHandler extends SoapHandler {
                                final HttpServletResponse resp,
                                final boolean multi) throws WebdavException {
     if (debug) {
-      trace("CalendarMultiget: ");
+      debug("CalendarMultiget: ");
     }
 
     CalendarQueryResponseType cqr = new CalendarQueryResponseType();
@@ -516,8 +516,10 @@ public class CalwsHandler extends SoapHandler {
                                final HttpServletResponse resp,
                                final boolean multi) throws WebdavException {
     if (debug) {
-      trace("CalendarQuery: ");
+      debug("CalendarQuery: ");
     }
+
+    resp.setHeader("Content-Type", "application/soap+xml");
 
     CalendarQueryResponseType cqr = new CalendarQueryResponseType();
     JAXBElement<CalendarQueryResponseType> jax = of.createCalendarQueryResponse(cqr);
@@ -566,7 +568,7 @@ public class CalwsHandler extends SoapHandler {
                          final HttpServletResponse resp,
                          final boolean multi) throws WebdavException {
     if (debug) {
-      trace("AddItem: cal=" + ai.getHref());
+      debug("AddItem: cal=" + ai.getHref());
     }
 
     AddItemResponseType air = new AddItemResponseType();
@@ -639,7 +641,7 @@ public class CalwsHandler extends SoapHandler {
                            final HttpServletResponse resp,
                            final boolean multi) throws WebdavException {
     if (debug) {
-      trace("FetchItem:       cal=" + fi.getHref());
+      debug("FetchItem:       cal=" + fi.getHref());
     }
 
     FetchItemResponseType fir = new FetchItemResponseType();
@@ -690,7 +692,7 @@ public class CalwsHandler extends SoapHandler {
                            final HttpServletResponse resp,
                            final boolean multi) throws WebdavException {
     if (debug) {
-      trace("DeleteItem:       cal=" + di.getHref());
+      debug("DeleteItem:       cal=" + di.getHref());
     }
 
     DeleteItemResponseType dir = new DeleteItemResponseType();
@@ -739,7 +741,7 @@ public class CalwsHandler extends SoapHandler {
                             final HttpServletResponse resp,
                             final boolean multi) throws WebdavException {
     if (debug) {
-      trace("UpdateItem:       cal=" + ui.getHref());
+      debug("UpdateItem:       cal=" + ui.getHref());
     }
 
     UpdateItemResponseType uir = new UpdateItemResponseType();
@@ -759,16 +761,16 @@ public class CalwsHandler extends SoapHandler {
           break updateItem;
         }
 
-        CaldavComponentNode compNode = (CaldavComponentNode)elNode;
-        String changeToken = ui.getChangeToken();
+        final CaldavComponentNode compNode = (CaldavComponentNode)elNode;
+        final String changeToken = ui.getChangeToken();
 
         if (changeToken == null) {
           // Why can this happen? minOccurs = 1
           uir.setStatus(StatusType.ERROR);
 
-          ErrorResponseType er = new ErrorResponseType();
+          final ErrorResponseType er = new ErrorResponseType();
 
-          MissingChangeTokenType ec = new MissingChangeTokenType();
+          final MissingChangeTokenType ec = new MissingChangeTokenType();
           er.setError(of.createMissingChangeToken(ec));
           uir.setErrorResponse(er);
           uir.setMessage("Missing token");
@@ -777,22 +779,23 @@ public class CalwsHandler extends SoapHandler {
 
         // XXX Just do a straight compare for the moment
 
-        if (!changeToken.equals(compNode.getEtokenValue())) {
+        final String compEtoken = compNode.getEtokenValue();
+        if (!changeToken.equals(compEtoken)) {
           uir.setStatus(StatusType.ERROR);
 
-          ErrorResponseType er = new ErrorResponseType();
+          final ErrorResponseType er = new ErrorResponseType();
 
-          MismatchedChangeTokenType ec = new MismatchedChangeTokenType();
+          final MismatchedChangeTokenType ec = new MismatchedChangeTokenType();
           er.setError(of.createMismatchedChangeToken(ec));
           uir.setErrorResponse(er);
           uir.setMessage("Token mismatch");
           break updateItem;
         }
 
-        CalDAVEvent ev = compNode.getEvent();
+        final CalDAVEvent ev = compNode.getEvent();
 
         if (debug) {
-          trace("event: " + ev);
+          debug("event: " + ev);
         }
 
         UpdateResult ur = getIntf().getSysi().updateEvent(ev, ui.getSelect());
