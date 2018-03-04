@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module org.jetbrains.idea.maven.project.MavenProjectsManager.isMavenModule="true" type="JAVA_MODULE" version="4">
-  <component name="NewModuleRootManager">
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_7">
     <output url="file://$MODULE_DIR$/target/classes" />
     <output-test url="file://$MODULE_DIR$/target/test-classes" />
     <content url="file://$MODULE_DIR$">
@@ -9,13 +9,14 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Maven: org.bedework:bw-ws-synchws:4.0.3" level="project" />
-    <orderEntry type="library" name="Maven: org.bedework:bw-ws-caldav:4.0.3" level="project" />
-    <orderEntry type="library" name="Maven: org.bedework:bw-ws-calws-soap:4.0.3" level="project" />
+    <orderEntry type="module" module-name="bw-xml-synchws" />
+    <orderEntry type="module" module-name="bw-xml-caldav" />
+    <orderEntry type="module" module-name="bw-xml-calws-soap" />
     <orderEntry type="library" name="Maven: org.bedework:bw-access:4.0.1" level="project" />
     <orderEntry type="library" name="Maven: org.bedework:bw-util-caching:4.0.2" level="project" />
     <orderEntry type="library" name="Maven: org.bedework:bw-util-xml:4.0.12-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: org.bedework:bw-ws-tzsvr:4.0.4" level="project" />
+    <orderEntry type="library" name="Maven: org.bedework:bw-ws-calws-soap:4.0.4" level="project" />
     <orderEntry type="library" name="Maven: jtidy:jtidy:4aug2000r7-dev" level="project" />
     <orderEntry type="library" name="Maven: junit:junit:4.8.2" level="project" />
     <orderEntry type="library" name="Maven: log4j:log4j:1.2.15" level="project" />

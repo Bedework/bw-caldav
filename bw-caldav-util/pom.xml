@@ -13,15 +13,15 @@
 		<!-- Bedework: XML Dependencies -->
 		<dependency>
 			<groupId>org.bedework</groupId>
-			<artifactId>bw-ws-synchws</artifactId>
+			<artifactId>bw-xml-synchws</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.bedework</groupId>
-			<artifactId>bw-ws-caldav</artifactId>
+			<artifactId>bw-xml-caldav</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.bedework</groupId>
-			<artifactId>bw-ws-calws-soap</artifactId>
+			<artifactId>bw-xml-calws-soap</artifactId>
 		</dependency>
 
 		<!-- Bedework Project Dependencies -->

@@ -18,7 +18,7 @@
 		<bw-access.version>4.0.1</bw-access.version>
 		<bw-util.version>4.0.12-SNAPSHOT</bw-util.version>
 		<bw-webdav.version>4.0.2-SNAPSHOT</bw-webdav.version>
-		<bw-ws.version>4.0.3</bw-ws.version>
+		<bw-xml.version>4.0.5-SNAPSHOT</bw-xml.version>
     <ical4j.groupId>org.bedework.ical4j</ical4j.groupId>
     <ical4j.artifactId>ical4j</ical4j.artifactId>
     <ical4j.version>2.0.3</ical4j.version>
@@ -136,18 +136,18 @@
 			<!-- Bedework: Web Services -->
 			<dependency>
 				<groupId>org.bedework</groupId>
-				<artifactId>bw-ws-caldav</artifactId>
-				<version>${bw-ws.version}</version>
+				<artifactId>bw-xml-caldav</artifactId>
+				<version>${bw-xml.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.bedework</groupId>
-				<artifactId>bw-ws-calws-soap</artifactId>
-				<version>${bw-ws.version}</version>
+				<artifactId>bw-xml-calws-soap</artifactId>
+				<version>${bw-xml.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.bedework</groupId>
-				<artifactId>bw-ws-synchws</artifactId>
-				<version>${bw-ws.version}</version>
+				<artifactId>bw-xml-synchws</artifactId>
+				<version>${bw-xml.version}</version>
 			</dependency>
       <dependency>
         <groupId>${ical4j.groupId}</groupId>
