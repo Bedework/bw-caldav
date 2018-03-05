@@ -18,8 +18,6 @@
 */
 package org.bedework.caldav.server;
 
-import org.bedework.webdav.servlet.shared.WebdavException;
-
 import javax.servlet.http.HttpServletRequest;
 
 /** Retrieve and process CalDAV header values
@@ -38,11 +36,9 @@ public class CalDavHeaders {
    *
    * @param req    HttpServletRequest
    * @return boolean true if present
-   * @throws WebdavException
    */
-  public static boolean scheduleReply(final HttpServletRequest req)
-          throws WebdavException {
-    String hdrStr = req.getHeader("Schedule-Reply");
+  public static boolean scheduleReply(final HttpServletRequest req) {
+    final String hdrStr = req.getHeader("Schedule-Reply");
 
     if (hdrStr == null) {
       return true;
@@ -55,10 +51,8 @@ public class CalDavHeaders {
    *
    * @param req    HttpServletRequest
    * @return String non-null if present with value
-   * @throws WebdavException
    */
-  public static String getRunAs(final HttpServletRequest req)
-          throws WebdavException {
+  public static String getRunAs(final HttpServletRequest req) {
     return req.getHeader(runAs);
   }
 
@@ -66,10 +60,8 @@ public class CalDavHeaders {
    *
    * @param req    HttpServletRequest
    * @return String non-null if present with value
-   * @throws WebdavException
    */
-  public static String getClientId(final HttpServletRequest req)
-          throws WebdavException {
+  public static String getClientId(final HttpServletRequest req) {
     return req.getHeader(clientId);
   }
 
@@ -77,11 +69,9 @@ public class CalDavHeaders {
    *
    * @param req    HttpServletRequest
    * @return boolean true if present
-   * @throws WebdavException
    */
-  public static boolean isSchedulingAssistant(final HttpServletRequest req)
-          throws WebdavException {
-    String cid = getClientId(req);
+  public static boolean isSchedulingAssistant(final HttpServletRequest req) {
+    final String cid = getClientId(req);
 
     if (cid == null) {
       return false;

@@ -173,7 +173,13 @@ public class CaldavBWIntf extends WebdavNsIntf {
    */
   private boolean notifyWs;
 
-  private static Set<ObjectName> registeredMBeans = new CopyOnWriteArraySet<>();
+  /* Marks the bedework end of the websockets service. That service
+    acts as a websockets proxy to CalDAV.
+   */
+  private boolean socketWs;
+
+  private final static Set<ObjectName> registeredMBeans =
+          new CopyOnWriteArraySet<>();
   private static ManagementContext managementContext;
   private static SynchConnections synchConn;
 
@@ -313,6 +319,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       calWs = Boolean.parseBoolean(servlet.getInitParameter("calws"));
       synchWs = Boolean.parseBoolean(servlet.getInitParameter("synchws"));
       notifyWs = Boolean.parseBoolean(servlet.getInitParameter("notifyws"));
+      socketWs = Boolean.parseBoolean(servlet.getInitParameter("socketws"));
       sysi = getSysi(servlet.getInitParameter("sysintfImpl"));
 
       super.init(servlet, req, methods, dumpContent);
@@ -321,7 +328,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       namespace = namespacePrefix + "/schema";
 
       account = sysi.init(req, account, false,
-                          calWs, synchWs, notifyWs, null);
+                          calWs, synchWs, notifyWs, socketWs, null);
 
       accessUtil = new AccessUtil(namespacePrefix, xml,
                                   new CalDavAccessXmlCb(sysi));
@@ -371,7 +378,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       this.account = account;
 
       sysi.init(req, account, service,
-                calWs, synchWs, notifyWs, opaqueData);
+                calWs, synchWs, notifyWs, socketWs, opaqueData);
 
       accessUtil = new AccessUtil(namespacePrefix, xml,
                                   new CalDavAccessXmlCb(sysi));
@@ -757,7 +764,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
           throw new WebdavException("Unexpected return type");
         }
 
-        al.add(getNodeInt(Util.buildPath(true, uri, "/", name),
+        al.add(getNodeInt(Util.buildPath(false, uri, "/", name),
                           WebdavNsIntf.existanceDoesExist,
                           nodeType,
                           false,
@@ -1595,7 +1602,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
       WebdavNsNode parent = null; // Need for non-collection
       String name;
       boolean canSync;
-      boolean collection = false;
 
       if (srdi.getCol() == null) {
         parent = parents.get(srdi.getVpath());
@@ -1627,10 +1633,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
         col = srdi.getCol();
         name = col.getName();
         canSync = srdi.getCanSync();
-        collection = true;
       }
 
-      wri = new WdSynchReportItem(getNodeInt(Util.buildPath(collection,
+      wri = new WdSynchReportItem(getNodeInt(Util.buildPath(false,
                                                             srdi.getVpath(),
                                                             "/", name),
                                              WebdavNsIntf.existanceDoesExist,
@@ -2195,11 +2200,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
         return curi;
       }
 
-      String coluri = Util.buildPath(true, uri);
       if (debug) {
-        debug("search for collection uri \"" + coluri + "\"");
+        debug("search for collection uri \"" + uri + "\"");
       }
-      CalDAVCollection col = sysi.getCollection(coluri);
+      CalDAVCollection col = sysi.getCollection(uri);
 
       if ((nodeType == WebdavNsIntf.nodeTypeCollection) ||
           (nodeType == WebdavNsIntf.nodeTypeUnknown)) {
@@ -2264,7 +2268,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
         CalDAVCollection newCol = getSysi().newCollectionObject(false,
                                                                 col.getPath());
         newCol.setName(entityName);
-        newCol.setPath(Util.buildPath(true, col.getPath(), "/", newCol.getName()));
+        newCol.setPath(Util.buildPath(false, col.getPath(), "/", newCol.getName()));
 
         curi = new CaldavURI(newCol, false);
 
@@ -2339,28 +2343,20 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
   /* Split the uri so that result.path is the path up to the name part result.name
    *
+   * NormalizeUri was called previously so we have no trailing "/"
    */
   private SplitResult splitUri(final String uri) throws WebdavException {
-    // Remove any trailing slash = it makes things easier.
-    String noslUri = Util.buildPath(false, uri);
-
-    int pos = noslUri.lastIndexOf("/");
+    int pos = uri.lastIndexOf("/");
     if (pos < 0) {
       // bad uri
       throw new WebdavBadRequest("Invalid uri: " + uri);
     }
 
-    String path;
-    String name = null;
-
     if (pos == 0) {
-      path = Util.buildPath(true, uri);
-    } else {
-      path = noslUri.substring(0, pos);
-      name = noslUri.substring(pos + 1);
+      return new SplitResult(uri, null);
     }
 
-    return new SplitResult(Util.buildPath(true, path), name);
+    return new SplitResult(uri.substring(0, pos), uri.substring(pos + 1));
   }
 
   /*

@@ -53,7 +53,8 @@ public class CaldavBWServlet extends WebdavServlet implements
 
   /* ====================================================================
    *                     Abstract servlet methods
-   * ==================================================================== */
+   * ====================================================================
+   */
 
   @Override
   public void init(final ServletConfig config) throws ServletException {
@@ -116,7 +117,7 @@ public class CaldavBWServlet extends WebdavServlet implements
   public void contextInitialized(final ServletContextEvent sce) {
     try {
       CaldavBWIntf.contextInitialized(sce);
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       t.printStackTrace();
     }
   }
@@ -125,7 +126,7 @@ public class CaldavBWServlet extends WebdavServlet implements
   public void contextDestroyed(final ServletContextEvent sce) {
     try {
       CaldavBWIntf.contextDestroyed(sce);
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       t.printStackTrace();
     }
   }

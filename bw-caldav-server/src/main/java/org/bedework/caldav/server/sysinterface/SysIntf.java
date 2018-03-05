@@ -75,6 +75,7 @@ public interface SysIntf extends WdSysIntf {
    * @param calWs  true if this is a CalWs-SOAP service
    * @param synchWs  true if this is a SynchWs-SOAP service
    * @param notifyWs  true if this is a notification service
+   * @param socketWs  true if this is a service for the websockets proxy
    * @param opaqueData  possibly from headers etc.
    * @return the account which may have changed
    * @throws WebdavException
@@ -85,6 +86,7 @@ public interface SysIntf extends WdSysIntf {
               boolean calWs,
               boolean synchWs,
               boolean notifyWs,
+              boolean socketWs,
               String opaqueData) throws WebdavException;
 
   /** Allows some special handling of some requests - mostly to do with
@@ -109,23 +111,20 @@ public interface SysIntf extends WdSysIntf {
   /** Return CalDAV properties relevant to authentication state.
    *
    * @return CalDAVAuthProperties object - never null.
-   * @throws WebdavException
    */
-  public CalDAVAuthProperties getAuthProperties() throws WebdavException;
+  public CalDAVAuthProperties getAuthProperties();
 
   /** Return CalDAV relevant properties about the system.
    *
    * @return CalDAVSystemProperties object - never null.
-   * @throws WebdavException
    */
-  public CalDAVSystemProperties getSystemProperties() throws WebdavException;
+  public CalDAVSystemProperties getSystemProperties();
 
   /** Return the current principal
    *
    * @return String
-   * @throws WebdavException
    */
-  public AccessPrincipal getPrincipal() throws WebdavException;
+  public AccessPrincipal getPrincipal();
 
   /** Get a property handler
    *
