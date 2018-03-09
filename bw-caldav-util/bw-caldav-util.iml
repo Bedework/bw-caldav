@@ -15,12 +15,11 @@
     <orderEntry type="library" name="Maven: org.bedework:bw-access:4.0.1" level="project" />
     <orderEntry type="library" name="Maven: org.bedework:bw-util-caching:4.0.2" level="project" />
     <orderEntry type="module" module-name="bw-util-xml" />
-    <orderEntry type="module" module-name="bw-xml-tzsvr" />
     <orderEntry type="library" name="Maven: junit:junit:4.8.2" level="project" />
     <orderEntry type="library" name="Maven: log4j:log4j:1.2.15" level="project" />
     <orderEntry type="library" name="Maven: javax.mail:mail:1.4" level="project" />
     <orderEntry type="library" name="Maven: javax.activation:activation:1.1" level="project" />
-    <orderEntry type="module" module-name="bw-util-calendar" />
+    <orderEntry type="module" module-name="bw-util2-calendar" />
     <orderEntry type="module" module-name="bw-xml-icalendar" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.3.1" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.3.1" level="project" />

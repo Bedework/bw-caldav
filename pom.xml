@@ -17,6 +17,7 @@
 		<!-- Bedework Versions -->
 		<bw-access.version>4.0.1</bw-access.version>
 		<bw-util.version>4.0.17-SNAPSHOT</bw-util.version>
+    <bw-util2.version>4.0.0-SNAPSHOT</bw-util2.version>
 		<bw-webdav.version>4.0.2-SNAPSHOT</bw-webdav.version>
 		<bw-xml.version>4.0.5-SNAPSHOT</bw-xml.version>
     <ical4j.groupId>org.bedework.ical4j</ical4j.groupId>
@@ -98,8 +99,8 @@
 			<!-- Bedework: Util -->
 			<dependency>
 				<groupId>org.bedework</groupId>
-				<artifactId>bw-util-calendar</artifactId>
-				<version>${bw-util.version}</version>
+				<artifactId>bw-util2-calendar</artifactId>
+				<version>${bw-util2.version}</version>
 			</dependency>
       <dependency>
         <groupId>org.bedework</groupId>

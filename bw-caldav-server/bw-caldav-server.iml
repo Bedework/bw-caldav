@@ -23,7 +23,7 @@
     <orderEntry type="library" name="Maven: log4j:log4j:1.2.15" level="project" />
     <orderEntry type="library" name="Maven: javax.mail:mail:1.4" level="project" />
     <orderEntry type="library" name="Maven: javax.activation:activation:1.1" level="project" />
-    <orderEntry type="module" module-name="bw-util-calendar" />
+    <orderEntry type="module" module-name="bw-util2-calendar" />
     <orderEntry type="module" module-name="bw-xml-icalendar" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.3.1" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.3.1" level="project" />
@@ -31,7 +31,6 @@
     <orderEntry type="module" module-name="bw-util-config" />
     <orderEntry type="module" module-name="bw-util-misc" />
     <orderEntry type="module" module-name="bw-util-xml" />
-    <orderEntry type="module" module-name="bw-xml-tzsvr" />
     <orderEntry type="module" module-name="bw-webdav" />
     <orderEntry type="module" module-name="bw-util-servlet" />
     <orderEntry type="library" name="Maven: org.bedework.ical4j:ical4j:2.0.3" level="project" />
