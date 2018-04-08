@@ -9,7 +9,7 @@ SysIntf class.
 
 ### Requirements
 
-1. JDK 7
+1. JDK 8
 2. Maven 3
 
 ### Building Locally
