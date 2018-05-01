@@ -149,6 +149,20 @@ public abstract class CalDAVCollection <T extends CalDAVCollection> extends WdCo
    */
   public abstract String getAliasUri() throws WebdavException;
 
+  /** Set the calendar refresh rate
+   *
+   * @param val - seconds
+   * @throws WebdavException on fatal eror
+   */
+  public abstract void setRefreshRate(int val) throws WebdavException;
+
+  /** Get the calendar refresh rate
+   *
+   * @return int seconds
+   * @throws WebdavException on fatal eror
+   */
+  public abstract int getRefreshRate() throws WebdavException;
+
   /** Set the calendar remoteId property
    *
    * @param val

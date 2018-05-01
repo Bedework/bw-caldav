@@ -123,6 +123,7 @@ public class CaldavCalNode extends CaldavBwNode {
     addPropEntry(propertyNames, AppleServerTags.sharedUrl);
     addPropEntry(propertyNames, AppleIcalTags.calendarColor);
     addPropEntry(propertyNames, BedeworkServerTags.aliasUri);
+    addPropEntry(propertyNames, BedeworkServerTags.refreshRate);
     addPropEntry(propertyNames, BedeworkServerTags.remoteId);
     addPropEntry(propertyNames, BedeworkServerTags.remotePw);
 
@@ -713,6 +714,12 @@ public class CaldavCalNode extends CaldavBwNode {
         return true;
       }
 
+      if (XmlUtil.nodeMatches(val, BedeworkServerTags.refreshRate)) {
+        col.setRefreshRate(Integer.valueOf(XmlUtil.getElementContent(val)));
+
+        return true;
+      }
+
       if (XmlUtil.nodeMatches(val, BedeworkServerTags.remoteId)) {
         col.setRemoteId(XmlUtil.getElementContent(val));
 
@@ -1216,34 +1223,40 @@ public class CaldavCalNode extends CaldavBwNode {
       }
 
       if(tag.equals (BedeworkServerTags.aliasUri)) {
-        String alias = col.getAliasUri ();
-        if(alias == null) {
+        String alias = col.getAliasUri();
+        if (alias == null) {
           return false;
         }
 
-        xml.property (tag, alias);
+        xml.property(tag, alias);
+
+        return true;
+      }
+
+      if(tag.equals (BedeworkServerTags.refreshRate)) {
+        xml.property(tag, String.valueOf(col.getRefreshRate()));
 
         return true;
       }
 
       if(tag.equals (BedeworkServerTags.remoteId)) {
-        String id = col.getRemoteId ();
-        if(id == null) {
+        String id = col.getRemoteId();
+        if (id == null) {
           return false;
         }
 
-        xml.property (tag, id);
+        xml.property(tag, id);
 
         return true;
       }
 
       if(tag.equals (BedeworkServerTags.remotePw)) {
-        String pw = col.getRemotePw ();
-        if(pw == null) {
+        String pw = col.getRemotePw();
+        if (pw == null) {
           return false;
         }
 
-        xml.property (tag, pw);
+        xml.property(tag, pw);
 
         return true;
       }
