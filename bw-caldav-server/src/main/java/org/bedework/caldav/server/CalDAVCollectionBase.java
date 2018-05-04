@@ -35,7 +35,7 @@ public abstract class CalDAVCollectionBase <T extends CalDAVCollectionBase> exte
    * contained at any depth. (RFC 4791 Section 4.2) */
   public final static int calTypeResource = 9;
 
-  private boolean freebusyAllowed;
+  private final boolean freebusyAllowed;
 
   private boolean affectsFreeBusy = true;
 
@@ -48,6 +48,8 @@ public abstract class CalDAVCollectionBase <T extends CalDAVCollectionBase> exte
   private String remoteId;
 
   private String remotePw;
+
+  private boolean synchDeleteSuppressed;
 
   /** Constructor
    *
@@ -145,53 +147,48 @@ public abstract class CalDAVCollectionBase <T extends CalDAVCollectionBase> exte
     color = val;
   }
 
-  /* (non-Javadoc)
-   * @see org.bedework.caldav.server.CalDAVCollection#getColor()
-   */
   @Override
   public String getColor() throws WebdavException {
     return color;
   }
 
-  /* (non-Javadoc)
-   * @see org.bedework.caldav.server.CalDAVCollection#setAliasUri(java.lang.String)
-   */
-  public void setAliasUri(String val) throws WebdavException {
+  @Override
+  public void setAliasUri(final String val) throws WebdavException {
     aliasUri = val;
   }
 
-  /* (non-Javadoc)
-   * @see org.bedework.caldav.server.CalDAVCollection#getAliasUri()
-   */
+  @Override
   public String getAliasUri() throws WebdavException {
     return aliasUri;
   }
 
-  /* (non-Javadoc)
-   * @see org.bedework.caldav.server.CalDAVCollection#setRemoteId(java.lang.String)
-   */
-  public void setRemoteId(String val) throws WebdavException {
+  @Override
+  public void setRemoteId(final String val) throws WebdavException {
     remoteId = val;
   }
 
-  /* (non-Javadoc)
-   * @see org.bedework.caldav.server.CalDAVCollection#getRemoteId()
-   */
+  @Override
   public String getRemoteId() throws WebdavException {
     return remoteId;
   }
 
-  /* (non-Javadoc)
-   * @see org.bedework.caldav.server.CalDAVCollection#setRemotePw(java.lang.String)
-   */
-  public void setRemotePw(String val) throws WebdavException {
+  @Override
+  public void setRemotePw(final String val) throws WebdavException {
     remotePw = val;
   }
 
-  /* (non-Javadoc)
-   * @see org.bedework.caldav.server.CalDAVCollection#getRemotePw()
-   */
+  @Override
   public String getRemotePw() throws WebdavException {
     return remotePw;
+  }
+
+  @Override
+  public void setSynchDeleteSuppressed(final boolean val) {
+    synchDeleteSuppressed= val;
+  }
+
+  @Override
+  public boolean getSynchDeleteSuppressed() {
+    return synchDeleteSuppressed;
   }
 }

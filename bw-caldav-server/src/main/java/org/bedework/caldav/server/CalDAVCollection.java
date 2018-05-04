@@ -159,27 +159,43 @@ public abstract class CalDAVCollection <T extends CalDAVCollection> extends WdCo
   /** Get the calendar remoteId property
    *
    * @return String calendar RemoteId
-   * @throws WebdavException
+   * @throws WebdavException on fatal error
    */
   public abstract String getRemoteId() throws WebdavException;
 
   /** Set the calendar remotePw property
    *
-   * @param val
-   * @throws WebdavException
+   * @param val calendar remotePw property
+   * @throws WebdavException on fatal error
    */
   public abstract void setRemotePw(String val) throws WebdavException;
 
   /** Get the calendar remotePw property
    *
    * @return String calendar RemotePw
-   * @throws WebdavException
+   * @throws WebdavException on fatal error
    */
   public abstract String getRemotePw() throws WebdavException;
 
+  /** Set the deletions suppressed flag for synch
+   *
+   * @param val true if we suppress deletions during synch
+   * @throws WebdavException on fatal error
+   */
+  public abstract void setSynchDeleteSuppressed(final boolean val)
+          throws WebdavException;
+
+  /** Get the deletions suppressed flag for synch
+   *
+   * @return boolean on/off
+   * @throws WebdavException on fatal error
+   */
+  public abstract boolean getSynchDeleteSuppressed()
+          throws WebdavException;
+
   /**
    * @param val the supported component names e.g. "VEVENT", "VTODO" etc.
-   * @throws WebdavException
+   * @throws WebdavException on fatal error
    */
   public abstract void setSupportedComponents(List<String> val) throws WebdavException;
 
