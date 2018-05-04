@@ -123,6 +123,7 @@ public class CaldavCalNode extends CaldavBwNode {
     addPropEntry(propertyNames, AppleServerTags.sharedUrl);
     addPropEntry(propertyNames, AppleIcalTags.calendarColor);
     addPropEntry(propertyNames, BedeworkServerTags.aliasUri);
+    addPropEntry(propertyNames, BedeworkServerTags.refreshRate);
     addPropEntry(propertyNames, BedeworkServerTags.remoteId);
     addPropEntry(propertyNames, BedeworkServerTags.remotePw);
     addPropEntry(propertyNames, BedeworkServerTags.deletionSuppressed);
@@ -726,13 +727,6 @@ public class CaldavCalNode extends CaldavBwNode {
         return true;
       }
 
-      if (XmlUtil.nodeMatches(val, BedeworkServerTags.deletionSuppressed)) {
-        col.setSynchDeleteSuppressed(
-                Boolean.valueOf(XmlUtil.getElementContent(val)));
-
-        return true;
-      }
-
       return false;
     } catch (WebdavException wde) {
       throw wde;
@@ -1223,51 +1217,44 @@ public class CaldavCalNode extends CaldavBwNode {
         return true;
       }
 
-      if (tag.equals (BedeworkServerTags.aliasUri)) {
+      if(tag.equals (BedeworkServerTags.aliasUri)) {
         String alias = col.getAliasUri ();
         if(alias == null) {
           return false;
         }
 
-        xml.property(tag, alias);
+        xml.property (tag, alias);
 
         return true;
       }
 
-      if (tag.equals (BedeworkServerTags.remoteId)) {
+      if(tag.equals (BedeworkServerTags.remoteId)) {
         String id = col.getRemoteId ();
-        if (id == null) {
+        if(id == null) {
           return false;
         }
 
-        xml.property(tag, id);
+        xml.property (tag, id);
 
         return true;
       }
 
-      if (tag.equals (BedeworkServerTags.remotePw)) {
-        final String pw = col.getRemotePw ();
-        if (pw == null) {
+      if(tag.equals (BedeworkServerTags.remotePw)) {
+        String pw = col.getRemotePw ();
+        if(pw == null) {
           return false;
         }
 
-        xml.property(tag, pw);
-
-        return true;
-      }
-
-      if (tag.equals (BedeworkServerTags.deletionSuppressed)) {
-        xml.property(tag,
-                     String.valueOf(col.getSynchDeleteSuppressed()));
+        xml.property (tag, pw);
 
         return true;
       }
 
       // Not known - try higher
       return super.generatePropertyValue(tag, intf, allProp);
-    } catch (final WebdavException wde) {
+    } catch (WebdavException wde) {
       throw wde;
-    } catch (final Throwable t) {
+    } catch (Throwable t) {
       throw new WebdavException(t);
     }
   }
