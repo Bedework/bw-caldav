@@ -167,12 +167,12 @@ public abstract class CaldavBwNode extends WebdavNsNode {
       return col;
     }
 
-    return (WdCollection)col.resolveAlias(true); // True to resolve all subaliases
+    return col.resolveAlias(true); // True to resolve all subaliases
   }
 
   @Override
   public WdCollection getImmediateTargetCollection() throws WebdavException {
-    return (WdCollection)col.resolveAlias(false); // False => don't resolve all subaliases
+    return col.resolveAlias(false); // False => don't resolve all subaliases
   }
 
   /**
