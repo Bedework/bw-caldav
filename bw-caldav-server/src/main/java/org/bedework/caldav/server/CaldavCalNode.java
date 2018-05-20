@@ -1250,6 +1250,12 @@ public class CaldavCalNode extends CaldavBwNode {
         return true;
       }
 
+      if(tag.equals (BedeworkServerTags.deletionSuppressed)) {
+        xml.property (tag, String.valueOf(col.getSynchDeleteSuppressed()));
+
+        return true;
+      }
+
       // Not known - try higher
       return super.generatePropertyValue(tag, intf, allProp);
     } catch (WebdavException wde) {

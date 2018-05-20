@@ -18,7 +18,7 @@
 		<bw-access.version>4.0.1</bw-access.version>
 		<bw-util.version>4.0.19-SNAPSHOT</bw-util.version>
     <bw-util2.version>4.0.0</bw-util2.version>
-		<bw-webdav.version>4.0.2</bw-webdav.version>
+		<bw-webdav.version>4.0.3-SNAPSHOT</bw-webdav.version>
 		<bw-xml.version>4.0.5</bw-xml.version>
     <ical4j.groupId>org.bedework.ical4j</ical4j.groupId>
     <ical4j.artifactId>ical4j</ical4j.artifactId>
