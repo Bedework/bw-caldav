@@ -832,7 +832,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       }
 
       if (node.isCollection()) {
-        if ((ctype == null) || (ctype.indexOf("text/html") >= 0)) {
+        if ((ctype == null) || ctype.contains("text/html")) {
           if (getDirectoryBrowsingDisallowed()) {
             throw new WebdavException(HttpServletResponse.SC_FORBIDDEN);
           }
