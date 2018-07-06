@@ -88,13 +88,16 @@ public class CaldavResourceNode extends CaldavBwNode {
     allowsGet = true;
     entityName = cdURI.getEntityName();
 
+    exists = cdURI.getExists();
+
+    /*
     if (resource != null) {
       exists = !resource.isNew();
       //resource.setPrevLastmod(resource.getLastmod());
       //resource.setPrevSeq(resource.getPrevSeq());
     } else {
       exists = false;
-    }
+    }*/
   }
 
   /**
