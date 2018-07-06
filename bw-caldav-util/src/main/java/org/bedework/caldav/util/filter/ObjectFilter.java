@@ -352,6 +352,21 @@ public class ObjectFilter<T> extends PropertyFilter {
   }
   */
 
+  /** Create a String filter for the given index and value
+   *
+   * @param propertyIndex of property
+   * @param val     String
+   * @return ObjectFilter
+   */
+  public static ObjectFilter<String> makeFilter(final PropertyInfoIndex propertyIndex,
+                                        final String val) {
+    ObjectFilter<String> of = new ObjectFilter<String>(null, propertyIndex, null, null);
+
+    of.setEntity(val);
+
+    return of;
+  }
+
   /** Create a timerange filter for the given index and value
    *
    * @param name of filter
