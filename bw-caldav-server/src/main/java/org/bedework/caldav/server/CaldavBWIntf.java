@@ -1073,24 +1073,25 @@ public class CaldavBWIntf extends WebdavNsIntf {
                            final Reader contentRdr,
                            final String contentType,
                            final IfHeaders ifHeaders) throws WebdavException {
-    String ifStag = Headers.ifScheduleTagMatch(req);
-    boolean noInvites = req.getHeader("Bw-NoInvites") != null; // based on header?
+    final String ifStag = Headers.ifScheduleTagMatch(req);
+    final boolean noInvites = req.getHeader("Bw-NoInvites") != null; // based on header?
 
     //BwEvent ev = evinfo.getEvent();
     String entityName = bwnode.getEntityName();
 
-    CalDAVCollection col = (CalDAVCollection)bwnode.getCollection(true);
+    final CalDAVCollection col = (CalDAVCollection)bwnode.getCollection(true);
     boolean created = false;
 
-    SysiIcalendar cal = sysi.fromIcal(col, contentRdr, contentType,
-                                      IcalResultType.OneComponent,
-                                      true); // mergeAttendees
+    final SysiIcalendar cal =
+            sysi.fromIcal(col, contentRdr, contentType,
+                          IcalResultType.OneComponent,
+                          true); // mergeAttendees
     if (cal.getMethod() != null) {
       throw new WebdavForbidden(CaldavTags.validCalendarObjectResource,
                                 "No method on PUT");
     }
 
-    CalDAVEvent ev = (CalDAVEvent)cal.iterator().next();
+    final CalDAVEvent ev = (CalDAVEvent)cal.iterator().next();
 
     ev.setParentPath(col.getPath());
 

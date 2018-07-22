@@ -306,12 +306,12 @@ public class CaldavComponentNode extends CaldavBwNode {
     return super.knownProperty(tag);
   }
 
-@Override
-public boolean generatePropertyValue(final QName tag,
-                                     final WebdavNsIntf intf,
-                                     final boolean allProp) throws WebdavException {
-    PropVal pv = new PropVal();
-    XmlEmit xml = intf.getXmlEmit();
+  @Override
+  public boolean generatePropertyValue(final QName tag,
+                                       final WebdavNsIntf intf,
+                                       final boolean allProp) throws WebdavException {
+    final PropVal pv = new PropVal();
+    final XmlEmit xml = intf.getXmlEmit();
 
     if (propertyNames.get(tag) == null) {
       // Not ours
@@ -323,15 +323,15 @@ public boolean generatePropertyValue(final QName tag,
     }
 
     try {
-      CalDAVEvent ev = checkEv(pv);
+      final CalDAVEvent ev = checkEv(pv);
       if (ev == null) {
         return true;
       }
 
       return ev.generatePropertyValue(tag, xml);
-    } catch (WebdavException wde) {
+    } catch (final WebdavException wde) {
       throw wde;
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }
@@ -503,7 +503,7 @@ public boolean generatePropertyValue(final QName tag,
   public String getPrevStagValue() throws WebdavException {
     init(true);
 
-    CalDAVEvent ev = getEvent();
+    final CalDAVEvent ev = getEvent();
     if (ev == null) {
       return null;
     }
@@ -515,12 +515,12 @@ public boolean generatePropertyValue(final QName tag,
   public String getEtagValue(final boolean strong) throws WebdavException {
     init(true);
 
-    CalDAVEvent ev = getEvent();
+    final CalDAVEvent ev = getEvent();
     if (ev == null) {
       return null;
     }
 
-    String val = ev.getEtag();
+    final String val = ev.getEtag();
 
     if (strong) {
       return val;
@@ -537,12 +537,12 @@ public boolean generatePropertyValue(final QName tag,
   public String getPrevEtagValue(final boolean strong) throws WebdavException {
     init(true);
 
-    CalDAVEvent ev = getEvent();
+    final CalDAVEvent ev = getEvent();
     if (ev == null) {
       return null;
     }
 
-    String val = ev.getPreviousEtag();
+    final String val = ev.getPreviousEtag();
 
     if (strong) {
       return val;
