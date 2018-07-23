@@ -20,6 +20,7 @@ package org.bedework.caldav.server;
 
 import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.util.calendar.XcalUtil;
+import org.bedework.util.misc.ToString;
 import org.bedework.util.xml.tagdefs.CalWSSoapTags;
 import org.bedework.util.xml.tagdefs.CalWSXrdDefs;
 import org.bedework.util.xml.tagdefs.CaldavTags;
@@ -178,7 +179,7 @@ public abstract class CaldavBwNode extends WebdavNsNode {
 
   /**
    * @return boolean if this is a calendar
-   * @throws WebdavException
+   * @throws WebdavException on fatal error
    */
   public boolean isCalendarCollection() throws WebdavException {
     if (!isCollection()) {
@@ -203,7 +204,7 @@ public abstract class CaldavBwNode extends WebdavNsNode {
   /** Return a set of Qname defining reports this node supports.
    *
    * @return Collection of QName
-   * @throws WebdavException
+   * @throws WebdavException on fatal error
    */
   @Override
   public Collection<QName> getSupportedReports() throws WebdavException {
@@ -268,7 +269,7 @@ public abstract class CaldavBwNode extends WebdavNsNode {
    * @param intf
    * @param allProp
    * @return true if property emitted
-   * @throws WebdavException
+   * @throws WebdavException on fatal error
    */
   public boolean generateCalWsProperty(final List<GetPropertiesBasePropertyType> props,
                                        final QName tag,
@@ -336,7 +337,7 @@ public abstract class CaldavBwNode extends WebdavNsNode {
    * @param intf
    * @param allProp
    * @return true if proeprty emitted
-   * @throws WebdavException
+   * @throws WebdavException on fatal error
    */
   public boolean generateXrdProperties(final List<Object> props,
                                        final String name,
@@ -344,7 +345,7 @@ public abstract class CaldavBwNode extends WebdavNsNode {
                                        final boolean allProp) throws WebdavException {
     try {
       if (name.equals(CalWSXrdDefs.created)) {
-        String val = getCreDate();
+        final String val = getCreDate();
         if (val == null) {
           return true;
         }
@@ -354,7 +355,7 @@ public abstract class CaldavBwNode extends WebdavNsNode {
       }
 
       if (name.equals(CalWSXrdDefs.displayname)) {
-        String val = getDisplayname();
+        final String val = getDisplayname();
         if (val == null) {
           return true;
         }
@@ -364,7 +365,7 @@ public abstract class CaldavBwNode extends WebdavNsNode {
       }
 
       if (name.equals(CalWSXrdDefs.lastModified)) {
-        String val = getLastmodDate();
+        final String val = getLastmodDate();
         if (val == null) {
           return true;
         }
@@ -384,9 +385,9 @@ public abstract class CaldavBwNode extends WebdavNsNode {
       }
 
       return false;
-    } catch (WebdavException wde) {
+    } catch (final WebdavException wde) {
       throw wde;
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }
@@ -398,7 +399,7 @@ public abstract class CaldavBwNode extends WebdavNsNode {
   /** Return a set of PropertyTagEntry defining properties this node supports.
    *
    * @return Collection of PropertyTagEntry
-   * @throws WebdavException
+   * @throws WebdavException on fatal error
    */
   public Collection<PropertyTagXrdEntry> getXrdNames() throws WebdavException {
     return xrdNames.values();
@@ -408,7 +409,7 @@ public abstract class CaldavBwNode extends WebdavNsNode {
    * supports.
    *
    * @return Collection of PropertyTagEntry
-   * @throws WebdavException
+   * @throws WebdavException on fatal error
    */
   public Collection<PropertyTagEntry> getCalWSSoapNames() throws WebdavException {
     return calWSSoapNames.values();
@@ -426,8 +427,9 @@ public abstract class CaldavBwNode extends WebdavNsNode {
 
   @SuppressWarnings("unchecked")
   protected JAXBElement<LinkType> xrdLink(final String name,
-                                          final Object val) throws WebdavException {
-    LinkType l = new LinkType();
+                                          final Object val)
+          throws WebdavException {
+    final LinkType l = new LinkType();
     l.setType(name);
     l.getTitleOrPropertyOrAny().add(val);
 
@@ -436,7 +438,7 @@ public abstract class CaldavBwNode extends WebdavNsNode {
 
   @SuppressWarnings("unchecked")
   protected JAXBElement<PropertyType> xrdEmptyProperty(final String name) throws WebdavException {
-    PropertyType p = new PropertyType();
+    final PropertyType p = new PropertyType();
     p.setType(name);
 
     return new JAXBElement(XrdTags.property, PropertyType.class, p);
@@ -444,17 +446,17 @@ public abstract class CaldavBwNode extends WebdavNsNode {
 
   /**
    * @return formatted url value for the node
-   * @throws WebdavException
+   * @throws WebdavException on fatal error
    */
   public String getUrlValue() throws WebdavException {
     return getUrlValue(uri, exists);
   }
 
   /**
-   * @param uri
+   * @param uri the value
    * @param exists - true if we KNOW it exists
    * @return formatted url value
-   * @throws WebdavException
+   * @throws WebdavException on fatal error
    */
   public String getUrlValue(final String uri,
                             final boolean exists) throws WebdavException {
@@ -474,56 +476,64 @@ public abstract class CaldavBwNode extends WebdavNsNode {
       }
 
       return prefixed;
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }
 
   protected static void addCalWSSoapName(final QName tag,
                                          final boolean inAllProp) {
-    PropertyTagEntry pte = new PropertyTagEntry(tag, inAllProp);
+    final PropertyTagEntry pte = new PropertyTagEntry(tag, inAllProp);
     calWSSoapNames.put(tag, pte);
   }
 
-  protected static void addPropEntry(final HashMap<QName, PropertyTagEntry> propertyNames,
-                                     final HashMap<String, PropertyTagXrdEntry> xrdNames,
-                                     final QName tag,
-                                     final String xrdName) {
-    PropertyTagXrdEntry pte = new PropertyTagXrdEntry(tag, xrdName, false,
-                                                      false);
+  protected static void addPropEntry(
+          final HashMap<QName, PropertyTagEntry> propertyNames,
+          final HashMap<String, PropertyTagXrdEntry> xrdNames,
+          final QName tag,
+          final String xrdName) {
+    final PropertyTagXrdEntry pte =
+            new PropertyTagXrdEntry(tag, xrdName, false,
+                                    false);
     propertyNames.put(tag, pte);
     xrdNames.put(xrdName, pte);
   }
 
-  protected static void addPropEntry(final HashMap<QName, PropertyTagEntry> propertyNames,
-                                     final HashMap<String, PropertyTagXrdEntry> xrdNames,
-                                     final QName tag,
-                                     final String xrdName,
-                                     final boolean inAllProp) {
-    PropertyTagXrdEntry pte = new PropertyTagXrdEntry(tag, xrdName, inAllProp,
-                                                      false);
+  protected static void addPropEntry(
+          final HashMap<QName, PropertyTagEntry> propertyNames,
+          final HashMap<String, PropertyTagXrdEntry> xrdNames,
+          final QName tag,
+          final String xrdName,
+          final boolean inAllProp) {
+    final PropertyTagXrdEntry pte =
+            new PropertyTagXrdEntry(tag, xrdName, inAllProp,
+                                    false);
     propertyNames.put(tag, pte);
     xrdNames.put(xrdName, pte);
   }
 
-  protected static void addXrdEntry(final HashMap<String, PropertyTagXrdEntry> xrdNames,
-                                    final String xrdName) {
-    PropertyTagXrdEntry pte = new PropertyTagXrdEntry(null, xrdName, false,
-                                                      false);
+  protected static void addXrdEntry(
+          final HashMap<String, PropertyTagXrdEntry> xrdNames,
+          final String xrdName) {
+    final PropertyTagXrdEntry pte =
+            new PropertyTagXrdEntry(null, xrdName, false,
+                                    false);
     xrdNames.put(xrdName, pte);
   }
 
-  protected static void addXrdEntry(final HashMap<String, PropertyTagXrdEntry> xrdNames,
-                                    final String xrdName,
-                                    final boolean inAllProp,
-                                    final boolean inLink) {
-    PropertyTagXrdEntry pte = new PropertyTagXrdEntry(null, xrdName,
-                                                      inAllProp, inLink);
+  protected static void addXrdEntry(
+          final HashMap<String, PropertyTagXrdEntry> xrdNames,
+          final String xrdName,
+          final boolean inAllProp,
+          final boolean inLink) {
+    final PropertyTagXrdEntry pte =
+            new PropertyTagXrdEntry(null, xrdName,
+                                    inAllProp, inLink);
     xrdNames.put(xrdName, pte);
   }
 
   protected String concatEtoken(final String... val) {
-    StringBuilder sb = new StringBuilder();
+    final StringBuilder sb = new StringBuilder();
 
     for (int i = 0; i < val.length; i++) {
       sb.append(val[i]);
@@ -546,13 +556,10 @@ public abstract class CaldavBwNode extends WebdavNsNode {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder(this.getClass().getName());
+    final ToString ts = new ToString(this);
 
-    sb.append("{");
-    sb.append("path=");
-    sb.append(getPath());
-    sb.append("}");
+    ts.append("path", getPath());
 
-    return sb.toString();
+    return ts.toString();
   }
 }
