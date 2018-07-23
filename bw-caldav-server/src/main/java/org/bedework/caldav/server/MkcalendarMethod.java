@@ -41,14 +41,14 @@ public class MkcalendarMethod extends PropPatchMethod {
 
   @Override
   public void doMethod(final HttpServletRequest req,
-                        final HttpServletResponse resp) throws WebdavException {
+                       final HttpServletResponse resp) throws WebdavException {
     if (debug) {
       debug("MkcalendarMethod: doMethod");
     }
 
-    WebdavNsIntf intf = getNsIntf();
+    final WebdavNsIntf intf = getNsIntf();
 
-    IfHeaders ifHeaders = Headers.processIfHeaders(req);
+    final IfHeaders ifHeaders = Headers.processIfHeaders(req);
     if ((ifHeaders.ifHeader != null) &&
         !intf.syncTokenMatch(ifHeaders.ifHeader)) {
       intf.rollback();
@@ -56,15 +56,16 @@ public class MkcalendarMethod extends PropPatchMethod {
     }
 
     /* Parse any content */
-    Document doc = parseContent(req, resp);
+    final Document doc = parseContent(req, resp);
 
     /* Create the node */
-    String resourceUri = getResourceUri(req);
+    final String resourceUri = getResourceUri(req);
 
-    CaldavCalNode node = (CaldavCalNode)getNsIntf().getNode(resourceUri,
-                                                            WebdavNsIntf.existanceNot,
-                                                            WebdavNsIntf.nodeTypeCollection,
-                                                            false);
+    final CaldavCalNode node =
+            (CaldavCalNode)getNsIntf().getNode(resourceUri,
+                                               WebdavNsIntf.existanceNot,
+                                               WebdavNsIntf.nodeTypeCollection,
+                                               false);
 
     node.setDefaults(CaldavTags.mkcalendar);
 
