@@ -24,6 +24,7 @@ import org.bedework.access.PrivilegeDefs;
 import org.bedework.caldav.server.sysinterface.CalPrincipalInfo;
 import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.caldav.server.sysinterface.SysIntf.MethodEmitted;
+import org.bedework.caldav.util.filter.FilterBase;
 import org.bedework.caldav.util.sharing.InviteType;
 import org.bedework.util.calendar.XcalUtil;
 import org.bedework.util.misc.Util;
@@ -74,6 +75,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.function.Supplier;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBElement;
@@ -302,11 +304,9 @@ public class CaldavCalNode extends CaldavBwNode {
     c.setCalType(CalDAVCollection.calTypeCalendarCollection);
   }
 
-  /* (non-Javadoc)
-   * @see org.bedework.caldav.server.CaldavBwNode#getChildren()
-   */
   @Override
-  public Collection<? extends WdEntity> getChildren() throws WebdavException {
+  public Collection<? extends WdEntity> getChildren(
+          final Supplier<Object> filterGetter) throws WebdavException {
     /* For the moment we're going to do this the inefficient way.
        We really need to have calendar defs that can be expressed as a search
        allowing us to retrieve all the ids of objects within a calendar.
@@ -324,7 +324,7 @@ public class CaldavCalNode extends CaldavBwNode {
           debugMsg("POSSIBLE SEARCH: getChildren for cal " + c.getPath());
         }
 
-        Collection<WdEntity> ch = new ArrayList<WdEntity>();
+        final Collection<WdEntity> ch = new ArrayList<WdEntity>();
         ch.addAll(getSysi().getCollections(c));
         ch.addAll(getSysi().getFiles(c));
 
@@ -340,8 +340,18 @@ public class CaldavCalNode extends CaldavBwNode {
         debugMsg("Get all resources in calendar " + c.getPath());
       }
 
-      return getSysi().getEvents(c, null, null, null);
-    } catch (Throwable t) {
+      final FilterBase filter;
+
+      if (filterGetter == null) {
+        filter = null;
+      } else {
+        filter = (FilterBase)filterGetter.get();
+      }
+
+      return getSysi().getEvents(c,
+                                 filter,
+                                 null, null);
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }
@@ -1277,7 +1287,7 @@ public class CaldavCalNode extends CaldavBwNode {
        */
 
       if (tag.equals(CalWSSoapTags.childCollection)) {
-        for (WebdavNsNode child: intf.getChildren(this)) {
+        for (WebdavNsNode child: intf.getChildren(this, null)) {
           CaldavBwNode cn = (CaldavBwNode)child;
 
           ChildCollectionType cc = new ChildCollectionType();

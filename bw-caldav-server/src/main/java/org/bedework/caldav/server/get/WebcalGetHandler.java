@@ -26,6 +26,8 @@ import org.bedework.caldav.server.sysinterface.CalDAVAuthProperties;
 import org.bedework.caldav.server.sysinterface.SysIntf.MethodEmitted;
 import org.bedework.caldav.util.ParseUtil;
 import org.bedework.caldav.util.TimeRange;
+import org.bedework.caldav.util.filter.EntityTimeRangeFilter;
+import org.bedework.util.calendar.IcalDefs;
 import org.bedework.util.xml.tagdefs.XcalTags;
 import org.bedework.webdav.servlet.shared.WebdavException;
 import org.bedework.webdav.servlet.shared.WebdavNsIntf;
@@ -33,6 +35,7 @@ import org.bedework.webdav.servlet.shared.WebdavNsNode;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.function.Supplier;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -101,7 +104,14 @@ public class WebcalGetHandler extends GetHandler {
 
       final Collection<CalDAVEvent> evs = new ArrayList<>();
 
-      for (final WebdavNsNode child: getChildren(node)) {
+      final EntityTimeRangeFilter etrf =
+              new EntityTimeRangeFilter(null,
+                                        IcalDefs.entityTypeEvent,
+                                        tr);
+
+      final Supplier<Object> filters = () -> etrf;
+
+      for (final WebdavNsNode child: getChildren(node, filters)) {
         if (child instanceof CaldavComponentNode) {
           evs.add(((CaldavComponentNode)child).getEvent());
         }

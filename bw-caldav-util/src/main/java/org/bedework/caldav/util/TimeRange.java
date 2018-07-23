@@ -18,21 +18,23 @@
 */
 package org.bedework.caldav.util;
 
+import org.bedework.util.misc.Logged;
+import org.bedework.util.misc.ToString;
+
 import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.Dur;
 import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.property.DateProperty;
-import org.apache.log4j.Logger;
 
 /** Express the CalDAV time-range element.
  * @author douglm
  *
  */
-public class TimeRange {
+public class TimeRange extends Logged {
   /** UTC */
-  private DateTime start;
+  private final DateTime start;
   /** UTC */
-  private DateTime end;
+  private final DateTime end;
 
   /** start - 1 day */
   private DateTime startExpanded;
@@ -41,14 +43,14 @@ public class TimeRange {
 
   private String tzid;
 
-  private static Dur oneDayForward = new Dur(1, 0, 0, 0);
-  private static Dur oneDayBack = new Dur(-1, 0, 0, 0);
+  private static final Dur oneDayForward = new Dur(1, 0, 0, 0);
+  private static final Dur oneDayBack = new Dur(-1, 0, 0, 0);
 
   /**
-   * @param start
-   * @param end
+   * @param start of range
+   * @param end of range
    */
-  public TimeRange(DateTime start, DateTime end) {
+  public TimeRange(final DateTime start, final DateTime end) {
     this.start = start;
     this.end = end;
 
@@ -61,8 +63,8 @@ public class TimeRange {
     }
   }
 
-  private DateTime inc(DateTime dt, Dur dur) {
-    java.util.Date jdt = dur.getTime(dt);
+  private DateTime inc(final DateTime dt, final Dur dur) {
+    final java.util.Date jdt = dur.getTime(dt);
 
     return new DateTime(jdt);
   }
@@ -98,7 +100,7 @@ public class TimeRange {
   /**
    * @param val - possibly null tzid used to resolve floating times.
    */
-  public void setTzid(String val) {
+  public void setTzid(final String val) {
     tzid = val;
   }
 
@@ -111,10 +113,10 @@ public class TimeRange {
 
   /** Test if the given property falls in the timerange
    *
-   * @param candidate
+   * @param candidate for test
    * @return boolean true if in range
    */
-  public boolean matches(Property candidate) {
+  public boolean matches(final Property candidate) {
     if (!(candidate instanceof DateProperty)) {
       return false;
     }
@@ -123,37 +125,16 @@ public class TimeRange {
     return true;
   }
 
-  /** Debug
-   *
-   * @param log
-   * @param indent
-   */
-  public void dump(Logger log, String indent) {
-    log.debug(indent + toString());
-  }
-
-  protected void toStringSegment(StringBuilder sb) {
-    if (start != null) {
-      sb.append("start=");
-      sb.append(start);
-    }
-
-    if (end != null) {
-      if (start != null) {
-        sb.append(" ");
-      }
-      sb.append("end=");
-      sb.append(end);
-    }
+  protected void toStringSegment(final ToString ts) {
+    ts.append("start", start);
+    ts.append("end", end);
   }
 
   public String toString() {
-    StringBuilder sb = new StringBuilder();
+    final ToString ts = new ToString(this);
 
-    sb.append("<time-range ");
-    toStringSegment(sb);
-    sb.append("/>");
+    toStringSegment(ts);
 
-    return sb.toString();
+    return ts.toString();
   }
 }

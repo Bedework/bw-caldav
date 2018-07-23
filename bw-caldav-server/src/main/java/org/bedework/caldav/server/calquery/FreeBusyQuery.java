@@ -23,22 +23,18 @@ import org.bedework.caldav.server.CalDAVEvent;
 import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.caldav.util.ParseUtil;
 import org.bedework.caldav.util.TimeRange;
+import org.bedework.util.misc.Logged;
 import org.bedework.util.xml.XmlUtil;
 import org.bedework.util.xml.tagdefs.CaldavTags;
 import org.bedework.webdav.servlet.shared.WebdavBadRequest;
 import org.bedework.webdav.servlet.shared.WebdavException;
 
-import org.apache.log4j.Logger;
 import org.w3c.dom.Node;
 
 /**
  * @author Mike Douglass douglm  rpi.edu
  */
-public class FreeBusyQuery {
-  private boolean debug;
-
-  protected transient Logger log;
-
+public class FreeBusyQuery extends Logged {
   private TimeRange timeRange;
 
   /** Constructor
@@ -51,8 +47,8 @@ public class FreeBusyQuery {
   /** The given node is is the free-busy-query time-range element
    * Should have exactly one time-range element.
    *
-   * @param nd
-   * @throws WebdavException
+   * @param nd the node to parse
+   * @throws WebdavException on fatal error
    */
   public void parse(final Node nd) throws WebdavException {
     try {
@@ -67,29 +63,30 @@ public class FreeBusyQuery {
       timeRange = ParseUtil.parseTimeRange(nd, false);
 
       if (debug) {
-        trace("Parsed time range " + timeRange);
+        debug("Parsed time range " + timeRange);
       }
-    } catch (WebdavException wde) {
+    } catch (final WebdavException wde) {
       throw wde;
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavBadRequest();
     }
   }
 
   /**
-   * @param sysi
-   * @param col
-   * @param depth
+   * @param sysi interface
+   * @param col collection
+   * @param depth to go
    * @return BwEvent
-   * @throws WebdavException
+   * @throws WebdavException on fatal error
    */
-  public CalDAVEvent getFreeBusy(final SysIntf sysi, final CalDAVCollection col,
+  public CalDAVEvent getFreeBusy(final SysIntf sysi,
+                                 final CalDAVCollection col,
                                  final int depth) throws WebdavException {
     try {
       return sysi.getFreeBusy(col, depth, timeRange);
-    } catch (WebdavException wde) {
+    } catch (final WebdavException wde) {
       throw wde;
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }
@@ -98,11 +95,11 @@ public class FreeBusyQuery {
    *
    */
   public void dump() {
-    trace("<free-busy-query>");
+    debug("<free-busy-query>");
 
-    timeRange.dump(getLogger(), "  ");
+    debug(timeRange.toString());
 
-    trace("</free-busy-query>");
+    debug("</free-busy-query>");
   }
 
   /*
@@ -118,36 +115,4 @@ public class FreeBusyQuery {
     }
   }
   */
-
-  /** ===================================================================
-   *                   Logging methods
-   *  =================================================================== */
-
-  /**
-   * @return Logger
-   */
-  protected Logger getLogger() {
-    if (log == null) {
-      log = Logger.getLogger(this.getClass());
-    }
-
-    return log;
-  }
-
-  protected void debugMsg(final String msg) {
-    getLogger().debug(msg);
-  }
-
-  protected void error(final Throwable t) {
-    getLogger().error(this, t);
-  }
-
-  protected void logIt(final String msg) {
-    getLogger().info(msg);
-  }
-
-  protected void trace(final String msg) {
-    getLogger().debug(msg);
-  }
 }
-

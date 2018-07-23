@@ -105,6 +105,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.function.Supplier;
 
 import javax.management.ObjectName;
 import javax.servlet.ServletContext;
@@ -694,7 +695,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
         boolean sendSchedulingMessage = true;
 
         if (sysi.testMode()) {
-          String userAgent = getRequest().getHeader("user-agent");
+          final String userAgent = getRequest().getHeader("user-agent");
 
           if ((userAgent != null) &&
                   userAgent.contains("| END_REQUESTS") &&
@@ -704,17 +705,19 @@ public class CaldavBWIntf extends WebdavNsIntf {
         }
         sysi.deleteCollection(col, sendSchedulingMessage);
       }
-    } catch (WebdavException we) {
+    } catch (final WebdavException we) {
       throw we;
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }
 
   @Override
-  public Collection<WebdavNsNode> getChildren(final WebdavNsNode node) throws WebdavException {
+  public Collection<WebdavNsNode> getChildren(
+          final WebdavNsNode node,
+          final Supplier<Object> filterGetter) throws WebdavException {
     try {
-      ArrayList<WebdavNsNode> al = new ArrayList<WebdavNsNode>();
+      final ArrayList<WebdavNsNode> al = new ArrayList<>();
 
       if (!node.isCollection()) {
         // Don't think we should have been called
@@ -725,23 +728,25 @@ public class CaldavBWIntf extends WebdavNsIntf {
         debug("About to get children for " + node.getUri());
       }
 
-      Collection<? extends WdEntity> children = node.getChildren();
+      final Collection<? extends WdEntity> children =
+              node.getChildren(filterGetter);
 
       if (children == null) {
         // Perhaps no access
         return al;
       }
 
-      String uri = node.getUri();
-      CalDAVCollection parent = (CalDAVCollection)node.getCollection(false);  // don't deref
+      final String uri = node.getUri();
+      final CalDAVCollection parent =
+              (CalDAVCollection)node.getCollection(false);  // don't deref
 
-      for (WdEntity wde: children) {
+      for (final WdEntity wde: children) {
         CalDAVCollection col = null;
         CalDAVResource r = null;
         CalDAVEvent ev = null;
 
-        String name = wde.getName();
-        int nodeType;
+        final String name = wde.getName();
+        final int nodeType;
 
         if (wde instanceof CalDAVCollection) {
           col = (CalDAVCollection)wde;
@@ -1407,14 +1412,14 @@ public class CaldavBWIntf extends WebdavNsIntf {
    */
   public XRDType getXRD(final CaldavBwNode node) throws WebdavException {
     try {
-      XRDType xrd = new XRDType();
+      final XRDType xrd = new XRDType();
 
-      AnyURI uri = new AnyURI();
+      final AnyURI uri = new AnyURI();
 
       uri.setValue(node.getUrlValue());
       xrd.setSubject(uri);
 
-      for (PropertyTagXrdEntry pxe: node.getXrdNames()) {
+      for (final PropertyTagXrdEntry pxe: node.getXrdNames()) {
         if (pxe.inPropAll) {
           node.generateXrdProperties(xrd.getAliasOrPropertyOrLink(),
                                      pxe.xrdName, this, true);
@@ -1424,14 +1429,14 @@ public class CaldavBWIntf extends WebdavNsIntf {
       if (node.isCollection()) {
         // Provide link info for each child collection
 
-        for (WebdavNsNode child: getChildren(node)) {
-          CaldavBwNode cn = (CaldavBwNode)child;
+        for (final WebdavNsNode child: getChildren(node, null)) {
+          final CaldavBwNode cn = (CaldavBwNode)child;
 
-          LinkType l = new LinkType();
+          final LinkType l = new LinkType();
           l.setRel(CalWSXrdDefs.childCollection);
           l.setHref(cn.getUrlValue());
 
-          for (PropertyTagXrdEntry pxe: node.getXrdNames()) {
+          for (final PropertyTagXrdEntry pxe: node.getXrdNames()) {
             if (pxe.inLink) {
               cn.generateXrdProperties(l.getTitleOrPropertyOrAny(),
                                        pxe.xrdName, this, true);

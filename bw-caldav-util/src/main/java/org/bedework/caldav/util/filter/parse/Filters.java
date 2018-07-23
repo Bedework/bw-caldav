@@ -135,7 +135,7 @@ public class Filters {
    * @throws WebdavException
    */
   public static EventQuery getQuery(final FilterType f) throws WebdavException {
-    EventQuery eventq = new EventQuery();
+    final EventQuery eventq = new EventQuery();
 
     eventq.filter = getQueryFilter(f.getCompFilter(), eventq, 0);
 
@@ -156,9 +156,9 @@ public class Filters {
     FilterBase filter = null;
     int entityType = IcalDefs.entityTypeEvent;
 
-    boolean isNotDefined = cf.getIsNotDefined() != null;
-    boolean andThem = "allof".equals(cf.getTest());
-    String name = cf.getName().toUpperCase();
+    final boolean isNotDefined = cf.getIsNotDefined() != null;
+    final boolean andThem = "allof".equals(cf.getTest());
+    final String name = cf.getName().toUpperCase();
 
     if (exprDepth == 0) {
       if (!"VCALENDAR".equals(name)) {

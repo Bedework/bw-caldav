@@ -26,6 +26,7 @@ import org.bedework.webdav.servlet.shared.WebdavException;
 import org.bedework.webdav.servlet.shared.WebdavNsNode;
 
 import java.util.Collection;
+import java.util.function.Supplier;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -91,9 +92,11 @@ public abstract class GetHandler {
   * @return Collection      of WebdavNsNode children
   * @throws WebdavException
   */
- public Collection<WebdavNsNode> getChildren(final WebdavNsNode node)
+ public Collection<WebdavNsNode> getChildren(
+         final WebdavNsNode node,
+         final Supplier<Object> filterGetter)
      throws WebdavException {
-    return intf.getChildren(node);
+    return intf.getChildren(node, filterGetter);
   }
 
   /** Retrieves a node by uri, following any links.

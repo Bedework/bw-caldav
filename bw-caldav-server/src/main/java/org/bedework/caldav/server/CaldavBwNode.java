@@ -43,6 +43,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.function.Supplier;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
@@ -228,7 +229,8 @@ public abstract class CaldavBwNode extends WebdavNsNode {
   }
 
   @Override
-  public Collection<? extends WdEntity> getChildren() throws WebdavException {
+  public Collection<? extends WdEntity> getChildren(
+          Supplier<Object> filterGetter) throws WebdavException {
     return null;
   }
 
