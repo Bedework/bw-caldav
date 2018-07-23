@@ -2226,6 +2226,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
           // We'll try as an entity for unknown
         } else {
           if (existance == WebdavNsIntf.existanceNot) {
+            if (debug) {
+              debug("collection already exists - col=\"" +
+                            col.getPath() + "\"");
+            }
             throw new WebdavForbidden(WebdavTags.resourceMustBeNull);
           }
 
@@ -2243,11 +2247,11 @@ public class CaldavBWIntf extends WebdavNsIntf {
       }
 
       // Entity or unknown
-      String parentPath;
+      final String parentPath;
       String entityName = null;
 
       /* Split name into parent path and entity name part */
-      SplitResult split = splitUri(uri);
+      final SplitResult split = splitUri(uri);
 
       if (split.name == null) {
         // No name part
@@ -2271,7 +2275,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       if (nodeType == WebdavNsIntf.nodeTypeCollection) {
         // Trying to create calendar/collection
-        CalDAVCollection newCol = getSysi().newCollectionObject(false,
+        final CalDAVCollection newCol = getSysi().newCollectionObject(false,
                                                                 col.getPath());
         newCol.setName(entityName);
         newCol.setPath(Util.buildPath(false, col.getPath(), "/", newCol.getName()));
@@ -2281,7 +2285,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
         return curi;
       }
 
-      int ctype = col.getCalType();
+      final int ctype = col.getCalType();
       if ((ctype == CalDAVCollection.calTypeCalendarCollection) ||
           (ctype == CalDAVCollection.calTypeInbox) ||
           (ctype == CalDAVCollection.calTypeOutbox)) {
@@ -2315,7 +2319,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
           }
         }
 
-        boolean exists = rsrc != null;
+        final boolean exists = rsrc != null;
 
         if (!exists) {
           rsrc = getSysi().newResourceObject(col.getPath());
@@ -2328,11 +2332,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
       //putUriPath(curi);
 
       return curi;
-    } catch (WebdavNotFound wnf) {
-      throw wnf;
-    } catch (WebdavException wde) {
+    } catch (final WebdavException wde) {
       throw wde;
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }
