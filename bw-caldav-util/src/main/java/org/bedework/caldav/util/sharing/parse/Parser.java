@@ -413,7 +413,11 @@ public class Parser {
         }
 
         if (XmlUtil.nodeMatches(curnode, commonNameTag)) {
-          continue;
+          if (ir.getCommonName() != null) {
+            throw badInviteReply();
+          }
+
+          ir.setCommonName(XmlUtil.getElementContent(curnode));
         }
 
         if (XmlUtil.nodeMatches(curnode, firstNameTag)) {

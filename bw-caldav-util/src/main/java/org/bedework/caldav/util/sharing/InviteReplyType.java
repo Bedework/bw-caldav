@@ -46,6 +46,7 @@ public class InviteReplyType extends BaseNotificationType {
   private String hostUrl;
   private String inReplyTo;
   private String summary;
+  private String commonName;
 
   /**
    * @param val the sharedType
@@ -131,6 +132,20 @@ public class InviteReplyType extends BaseNotificationType {
     return summary;
   }
 
+  /**
+   * @param val the common name
+   */
+  public void setCommonName(final String val) {
+    commonName = val;
+  }
+
+  /**
+   * @return the common name
+   */
+  public String getCommonName() {
+    return commonName;
+  }
+
   /* ====================================================================
    *                   BaseNotificationType methods
    * ==================================================================== */
@@ -197,6 +212,12 @@ public class InviteReplyType extends BaseNotificationType {
       xml.emptyTag(AppleServerTags.inviteDeclined);
     }
 
+    if (getCommonName() == null) {
+      xml.property(AppleServerTags.commonName, getHref());
+    } else {
+      xml.property(AppleServerTags.commonName, getCommonName());
+    }
+
     xml.openTag(AppleServerTags.hosturl);
     xml.property(WebdavTags.href, getHostUrl());
     xml.closeTag(AppleServerTags.hosturl);
@@ -232,6 +253,7 @@ public class InviteReplyType extends BaseNotificationType {
     ts.append("hostUrl", getHostUrl());
     ts.append("inReplyTo", getInReplyTo());
     ts.append("summary", getSummary());
+    ts.append("commonName", getCommonName());
   }
 
   @Override
