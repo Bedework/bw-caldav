@@ -50,9 +50,8 @@ public abstract class CalDAVCollection <T extends CalDAVCollection> extends WdCo
 
   /** Constructor
    *
-   * @throws WebdavException
    */
-  public CalDAVCollection() throws WebdavException {
+  public CalDAVCollection() {
     super();
   }
 
