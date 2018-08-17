@@ -789,6 +789,11 @@ public class CalwsHandler extends SoapHandler {
           er.setError(of.createMismatchedChangeToken(ec));
           uir.setErrorResponse(er);
           uir.setMessage("Token mismatch");
+          if (debug) {
+            debug("Try reindex for " + compNode.getEvent().getUid());
+          }
+          getSysi().reindexEvent(compNode.getEvent());
+
           break updateItem;
         }
 
@@ -798,7 +803,7 @@ public class CalwsHandler extends SoapHandler {
           debug("event: " + ev);
         }
 
-        UpdateResult ur = getIntf().getSysi().updateEvent(ev, ui.getSelect());
+        UpdateResult ur = getSysi().updateEvent(ev, ui.getSelect());
 
         if (ur.getOk()) {
           uir.setStatus(StatusType.OK);

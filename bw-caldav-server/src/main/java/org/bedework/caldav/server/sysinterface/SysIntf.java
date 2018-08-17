@@ -445,6 +445,13 @@ public interface SysIntf extends WdSysIntf {
                                          boolean noInvites,
                                          boolean rollbackOnError) throws WebdavException;
 
+  /** Reindex an event after an error that may be the result of an out
+   * of date index.
+   *
+   * @param event  a CalDAVEvent object
+   */
+  public void reindexEvent(CalDAVEvent event);
+
   /** Update an event/todo/journal.
    *
    * @param event         updated CalDAVEvent object
