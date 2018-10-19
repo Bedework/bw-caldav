@@ -28,7 +28,7 @@
     <orderEntry type="module" module-name="bw-util-http" />
     <orderEntry type="module" module-name="bw-util-config" />
     <orderEntry type="module" module-name="bw-util-jmx" />
-    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.3.1" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.9.6" level="project" />
     <orderEntry type="module" module-name="bw-webdav" />
     <orderEntry type="library" name="Maven: org.bedework:bw-util-servlet:4.0.18" level="project" />
     <orderEntry type="library" name="Maven: org.bedework.ical4j:ical4j:2.0.3" level="project" />

@@ -12,7 +12,7 @@
     <orderEntry type="module" module-name="bw-caldav-util" />
     <orderEntry type="module" module-name="bw-util-timezones" />
     <orderEntry type="module" module-name="bw-util-http" />
-    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.3.1" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.9.6" level="project" />
     <orderEntry type="library" name="Maven: commons-codec:commons-codec:1.5" level="project" />
     <orderEntry type="library" name="Maven: org.bedework:bw-xml-synchws:4.0.5" level="project" />
     <orderEntry type="library" name="Maven: org.bedework:bw-xml-caldav:4.0.5" level="project" />
