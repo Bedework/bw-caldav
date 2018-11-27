@@ -1293,7 +1293,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
    *
    * @param req       HttpServletRequest
    * @param node             node to create
-   * @throws WebdavException
+   * @throws WebdavException on fatal error
    */
   @Override
   public void makeCollection(final HttpServletRequest req,
@@ -1305,7 +1305,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
                                    node.getClass().getName());
       }
 
-      CaldavCalNode bwnode = (CaldavCalNode)node;
+      final CaldavCalNode bwnode = (CaldavCalNode)node;
 
       /* The uri should have an entity name representing the new collection
        * and a collection object representing the parent.
@@ -1313,9 +1313,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
        * A namepart of null means that the path already exists
        */
 
-      CalDAVCollection newCol = (CalDAVCollection)bwnode.getCollection(false); // No deref?
+      final CalDAVCollection newCol = (CalDAVCollection)bwnode.getCollection(false); // No deref?
 
-      CalDAVCollection parent = getSysi().getCollection(newCol.getParentPath());
+      final CalDAVCollection parent =
+              getSysi().getCollection(newCol.getParentPath());
       if (parent.getCalType() == CalDAVCollection.calTypeCalendarCollection) {
         throw new WebdavForbidden(CaldavTags.calendarCollectionLocationOk);
       }
@@ -1325,9 +1326,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
       }
 
       resp.setStatus(sysi.makeCollection(newCol));
-    } catch (WebdavException we) {
+    } catch (final WebdavException we) {
       throw we;
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }

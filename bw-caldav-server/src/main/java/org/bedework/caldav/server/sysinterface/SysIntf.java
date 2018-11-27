@@ -653,7 +653,7 @@ public interface SysIntf extends WdSysIntf {
   /**
    * @param col
    * @param acl
-   * @throws WebdavException
+   * @throws WebdavException on fatal error
    */
   public void updateAccess(CalDAVCollection col,
                            Acl acl) throws WebdavException;
@@ -661,7 +661,7 @@ public interface SysIntf extends WdSysIntf {
   /**
    * @param col   Initialised collection object
    * @return int status
-   * @throws WebdavException
+   * @throws WebdavException on fatal error
    */
   public int makeCollection(CalDAVCollection col) throws WebdavException;
 
@@ -672,7 +672,7 @@ public interface SysIntf extends WdSysIntf {
    * @param to        Destination collection
    * @param copy      true for copying
    * @param overwrite destination exists
-   * @throws WebdavException
+   * @throws WebdavException on fatal error
    */
   public void copyMove(CalDAVCollection from,
                        CalDAVCollection to,
@@ -683,7 +683,7 @@ public interface SysIntf extends WdSysIntf {
    *
    * @param  path     String path of collection
    * @return CalDAVCollection null for unknown collection
-   * @throws WebdavException
+   * @throws WebdavException on fatal error
    */
   public CalDAVCollection getCollection(String path) throws WebdavException;
 
