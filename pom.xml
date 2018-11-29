@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.bedework</groupId>
 	<artifactId>bw-caldav</artifactId>
-	<version>4.0.4</version>
+	<version>4.0.5-SNAPSHOT</version>
 	<name>bw-caldav</name>
 	<packaging>pom</packaging>
   <description>A generic CalDAV server - used by bedework</description>
@@ -53,7 +53,7 @@
 		<connection>scm:git:git@github.com:Bedework/bw-caldav.git</connection>
 		<developerConnection>scm:git:git@github.com:Bedework/bw-caldav.git</developerConnection>
 		<url>https://github.com/Bedework/bw-caldav</url>
-	  <tag>bw-caldav-4.0.4</tag>
+	  <tag>HEAD</tag>
   </scm>
 
 	<issueManagement>
