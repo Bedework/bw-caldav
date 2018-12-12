@@ -21,6 +21,7 @@ package org.bedework.caldav.util.notifications.eventreg;
 import org.bedework.caldav.util.notifications.BaseNotificationType;
 import org.bedework.caldav.util.notifications.parse.BaseNotificationParser;
 import org.bedework.caldav.util.notifications.parse.Parser;
+import org.bedework.util.logging.SLogged;
 import org.bedework.util.xml.XmlUtil;
 import org.bedework.util.xml.tagdefs.AppleServerTags;
 import org.bedework.util.xml.tagdefs.BedeworkServerTags;
@@ -28,7 +29,6 @@ import org.bedework.util.xml.tagdefs.WebdavTags;
 import org.bedework.webdav.servlet.shared.WebdavBadRequest;
 import org.bedework.webdav.servlet.shared.WebdavException;
 
-import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -48,7 +48,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
  *
  * @author Mike Douglass douglm
  */
-public class EventregParsers {
+public class EventregParsers implements SLogged {
   /** */
   public static final QName cancelledTag = BedeworkServerTags.eventregCancelled;
 
@@ -331,16 +331,10 @@ public class EventregParsers {
   }
 
   private static WebdavException parseException(final SAXException e) throws WebdavException {
-    final Logger log = getLog();
-
-    if (log.isDebugEnabled()) {
-      log.error("Parse error:", e);
+    if (SLogged.debug()) {
+      SLogged.error("Parse error:", e);
     }
 
     return new WebdavBadRequest();
-  }
-
-  private static Logger getLog() {
-    return Logger.getLogger(EventregParsers.class);
   }
 }

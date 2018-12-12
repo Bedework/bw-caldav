@@ -29,6 +29,7 @@ import org.bedework.caldav.util.sharing.RemoveType;
 import org.bedework.caldav.util.sharing.SetType;
 import org.bedework.caldav.util.sharing.ShareType;
 import org.bedework.caldav.util.sharing.UserType;
+import org.bedework.util.logging.SLogged;
 import org.bedework.util.xml.XmlUtil;
 import org.bedework.util.xml.tagdefs.AppleServerTags;
 import org.bedework.util.xml.tagdefs.BedeworkServerTags;
@@ -37,7 +38,6 @@ import org.bedework.util.xml.tagdefs.WebdavTags;
 import org.bedework.webdav.servlet.shared.WebdavBadRequest;
 import org.bedework.webdav.servlet.shared.WebdavException;
 
-import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -61,7 +61,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
  *
  * @author Mike Douglass douglm
  */
-public class Parser {
+public class Parser implements SLogged {
   /** */
   public static final QName accessTag = AppleServerTags.access;
 
@@ -984,16 +984,10 @@ public class Parser {
   }
 
   private static WebdavException parseException(final SAXException e) throws WebdavException {
-    Logger log = getLog();
-
-    if (log.isDebugEnabled()) {
-      log.error("Parse error:", e);
+    if (SLogged.debug()) {
+      SLogged.error("Parse error:", e);
     }
 
     return new WebdavBadRequest();
-  }
-
-  private static Logger getLog() {
-    return Logger.getLogger(Parser.class);
   }
 }

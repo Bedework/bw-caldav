@@ -10,6 +10,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="bw-caldav-util" />
+    <orderEntry type="module" module-name="bw-util-logging" />
     <orderEntry type="module" module-name="bw-util-timezones" />
     <orderEntry type="module" module-name="bw-util-http" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.9.6" level="project" />
@@ -19,7 +20,6 @@
     <orderEntry type="library" name="Maven: org.bedework:bw-xml-calws-soap:4.0.6" level="project" />
     <orderEntry type="module" module-name="bw-access" />
     <orderEntry type="module" module-name="bw-util-caching" />
-    <orderEntry type="module" module-name="bw-util-logging" />
     <orderEntry type="library" name="Maven: junit:junit:4.8.2" level="project" />
     <orderEntry type="module" module-name="bw-util2-calendar" />
     <orderEntry type="library" name="Maven: org.bedework:bw-xml-icalendar:4.0.6" level="project" />

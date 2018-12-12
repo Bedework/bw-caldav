@@ -29,10 +29,17 @@
 			<groupId>org.bedework</groupId>
 			<artifactId>bw-access</artifactId>
 		</dependency>
+
     <dependency>
       <groupId>org.bedework</groupId>
       <artifactId>bw-util2-calendar</artifactId>
     </dependency>
+
+    <dependency>
+      <groupId>org.bedework</groupId>
+      <artifactId>bw-util-logging</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>org.bedework</groupId>
       <artifactId>bw-util-misc</artifactId>

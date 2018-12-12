@@ -18,7 +18,7 @@
 */
 package org.bedework.caldav.server;
 
-import org.apache.log4j.Logger;
+import org.bedework.util.logging.Logged;
 
 import java.io.IOException;
 import java.io.LineNumberReader;
@@ -29,9 +29,7 @@ import java.io.Reader;
  * @author douglm
  *
  */
-public class SysIntfReader extends Reader {
-  private transient Logger log;
-
+public class SysIntfReader extends Reader implements Logged {
   // separate out interleaved trace
   private volatile static int objnum;
 
@@ -101,7 +99,7 @@ public class SysIntfReader extends Reader {
       }
 
       if (getLogger().isDebugEnabled()) {
-        trace(ln);
+        debug(ln);
       }
 
       pos = 0;
@@ -130,17 +128,5 @@ public class SysIntfReader extends Reader {
 
   @Override
   public void close() {
-  }
-
-  protected Logger getLogger() {
-    if (log == null) {
-      log = Logger.getLogger(this.getClass());
-    }
-
-    return log;
-  }
-
-  protected void trace(final String msg) {
-    getLogger().debug("[" + objnum + "] " + msg);
   }
 }

@@ -38,6 +38,7 @@ import org.bedework.caldav.util.notifications.PropType;
 import org.bedework.caldav.util.notifications.RecurrenceType;
 import org.bedework.caldav.util.notifications.ResourceChangeType;
 import org.bedework.caldav.util.notifications.UpdatedType;
+import org.bedework.util.logging.SLogged;
 import org.bedework.util.xml.XmlUtil;
 import org.bedework.util.xml.tagdefs.AppleServerTags;
 import org.bedework.util.xml.tagdefs.BedeworkServerTags;
@@ -45,7 +46,6 @@ import org.bedework.util.xml.tagdefs.WebdavTags;
 import org.bedework.webdav.servlet.shared.WebdavBadRequest;
 import org.bedework.webdav.servlet.shared.WebdavException;
 
-import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -74,7 +74,7 @@ import javax.xml.transform.stream.StreamResult;
  *
  * @author Mike Douglass douglm
  */
-public class Parser {
+public class Parser implements SLogged {
   /* Notifications we know about */
   private final static Map<QName, BaseNotificationParser> parsers =
       new HashMap<>();
@@ -256,7 +256,7 @@ public class Parser {
           final BaseNotificationParser bnp = parsers.get(XmlUtil.fromNode(curnode));
           if ((bnp == null) ||
               (n.getNotification() != null)) {
-            error("No parser to handle " + curnode);
+            SLogged.error("No parser to handle " + curnode);
             return  null;
           }
 
@@ -812,9 +812,7 @@ public class Parser {
   }
 
   private static void dumpXml(final Node nd) {
-    Logger log = getLog();
-
-    if (!log.isDebugEnabled()) {
+    if (!SLogged.debug()) {
       return;
     }
 
@@ -833,9 +831,9 @@ public class Parser {
 
       serializer.transform(new DOMSource(nd), new StreamResult(out));
 
-      log.debug(out.toString());
+      SLogged.debug(out.toString());
     } catch (Throwable t) {
-      log.error("Unable to dump XML");
+      SLogged.error("Unable to dump XML");
     }
   }
 
@@ -861,20 +859,10 @@ public class Parser {
   }
 
   private static WebdavException parseException(final SAXException e) throws WebdavException {
-    Logger log = getLog();
-
-    if (log.isDebugEnabled()) {
-      log.error("Parse error:", e);
+    if (SLogged.debug()) {
+      SLogged.error("Parse error:", e);
     }
 
     return new WebdavBadRequest();
-  }
-
-  private static Logger getLog() {
-    return Logger.getLogger(Parser.class);
-  }
-
-  private void error(final String msg) {
-    getLog().error(msg);
   }
 }

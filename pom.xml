@@ -118,6 +118,12 @@
 
       <dependency>
         <groupId>org.bedework</groupId>
+        <artifactId>bw-util-logging</artifactId>
+        <version>${bw-util-logging.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.bedework</groupId>
         <artifactId>bw-util-misc</artifactId>
         <version>${bw-util.version}</version>
       </dependency>
