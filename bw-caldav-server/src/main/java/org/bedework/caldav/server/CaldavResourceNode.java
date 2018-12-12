@@ -19,7 +19,7 @@
 package org.bedework.caldav.server;
 
 import org.bedework.access.AccessPrincipal;
-import org.bedework.access.Acl.CurrentAccess;
+import org.bedework.access.CurrentAccess;
 import org.bedework.access.PrivilegeDefs;
 import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.caldav.util.notifications.BaseNotificationType.AttributeType;

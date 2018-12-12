@@ -217,7 +217,7 @@ public class CalwsHandler extends SoapHandler {
                                                      final HttpServletRequest req,
                                                      final HttpServletResponse resp,
                                                      final RequestPars pars) throws WebdavException {
-    if (debug) {
+    if (debug()) {
       debug("MultiOpType: ");
     }
 
@@ -246,7 +246,7 @@ public class CalwsHandler extends SoapHandler {
   private JAXBElement<GetPropertiesResponseType> doGetProperties(final GetPropertiesType gp,
                                final HttpServletResponse resp,
                                final boolean multi) throws WebdavException {
-    if (debug) {
+    if (debug()) {
       debug("GetProperties: ");
     }
 
@@ -287,7 +287,7 @@ public class CalwsHandler extends SoapHandler {
   private JAXBElement<FreebusyReportResponseType> doFreebusyReport(final FreebusyReportType fr,
                                 final HttpServletResponse resp,
                                 final boolean multi) throws WebdavException {
-    if (debug) {
+    if (debug()) {
       debug("FreebusyReport: ");
     }
 
@@ -441,7 +441,7 @@ public class CalwsHandler extends SoapHandler {
   private JAXBElement<CalendarQueryResponseType> doCalendarMultiget(final CalendarMultigetType cm,
                                final HttpServletResponse resp,
                                final boolean multi) throws WebdavException {
-    if (debug) {
+    if (debug()) {
       debug("CalendarMultiget: ");
     }
 
@@ -502,7 +502,7 @@ public class CalwsHandler extends SoapHandler {
       try {
         marshal(jax, resp.getOutputStream());
       } catch (Throwable t) {
-        if (debug) {
+        if (debug()) {
           error(t);
         }
         throw new WebdavException(t);
@@ -515,7 +515,7 @@ public class CalwsHandler extends SoapHandler {
   private JAXBElement<CalendarQueryResponseType> doCalendarQuery(final CalendarQueryType cq,
                                final HttpServletResponse resp,
                                final boolean multi) throws WebdavException {
-    if (debug) {
+    if (debug()) {
       debug("CalendarQuery: ");
     }
 
@@ -553,7 +553,7 @@ public class CalwsHandler extends SoapHandler {
       try {
         marshal(jax, resp.getOutputStream());
       } catch (Throwable t) {
-        if (debug) {
+        if (debug()) {
           error(t);
         }
         throw new WebdavException(t);
@@ -567,7 +567,7 @@ public class CalwsHandler extends SoapHandler {
                          final HttpServletRequest req,
                          final HttpServletResponse resp,
                          final boolean multi) throws WebdavException {
-    if (debug) {
+    if (debug()) {
       debug("AddItem: cal=" + ai.getHref());
     }
 
@@ -616,7 +616,7 @@ public class CalwsHandler extends SoapHandler {
       } catch (WebdavException we) {
         errorResponse(air, we);
       } catch (Throwable t) {
-        if (debug) {
+        if (debug()) {
           error(t);
         }
         errorResponse(air, new WebdavException(t));
@@ -640,7 +640,7 @@ public class CalwsHandler extends SoapHandler {
                            final HttpServletRequest req,
                            final HttpServletResponse resp,
                            final boolean multi) throws WebdavException {
-    if (debug) {
+    if (debug()) {
       debug("FetchItem:       cal=" + fi.getHref());
     }
 
@@ -668,7 +668,7 @@ public class CalwsHandler extends SoapHandler {
     } catch (WebdavException we) {
       errorResponse(fir, we);
     } catch (Throwable t) {
-      if (debug) {
+      if (debug()) {
         error(t);
       }
       errorResponse(fir, new WebdavException(t));
@@ -691,7 +691,7 @@ public class CalwsHandler extends SoapHandler {
                            final HttpServletRequest req,
                            final HttpServletResponse resp,
                            final boolean multi) throws WebdavException {
-    if (debug) {
+    if (debug()) {
       debug("DeleteItem:       cal=" + di.getHref());
     }
 
@@ -717,7 +717,7 @@ public class CalwsHandler extends SoapHandler {
     } catch (WebdavException we) {
       errorResponse(dir, we);
     } catch (Throwable t) {
-      if (debug) {
+      if (debug()) {
         error(t);
       }
       errorResponse(dir, new WebdavException(t));
@@ -740,7 +740,7 @@ public class CalwsHandler extends SoapHandler {
                             final HttpServletRequest req,
                             final HttpServletResponse resp,
                             final boolean multi) throws WebdavException {
-    if (debug) {
+    if (debug()) {
       debug("UpdateItem:       cal=" + ui.getHref());
     }
 
@@ -789,7 +789,7 @@ public class CalwsHandler extends SoapHandler {
           er.setError(of.createMismatchedChangeToken(ec));
           uir.setErrorResponse(er);
           uir.setMessage("Token mismatch");
-          if (debug) {
+          if (debug()) {
             debug("Try reindex for " + compNode.getEvent().getUid());
           }
           getSysi().reindexEvent(compNode.getEvent());
@@ -799,7 +799,7 @@ public class CalwsHandler extends SoapHandler {
 
         final CalDAVEvent ev = compNode.getEvent();
 
-        if (debug) {
+        if (debug()) {
           debug("event: " + ev);
         }
 
@@ -816,7 +816,7 @@ public class CalwsHandler extends SoapHandler {
     } catch (WebdavException we) {
       errorResponse(uir, we);
     } catch (Throwable t) {
-      if (debug) {
+      if (debug()) {
         error(t);
       }
       errorResponse(uir, new WebdavException(t));

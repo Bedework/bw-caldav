@@ -23,7 +23,7 @@ import org.bedework.caldav.server.CalDAVEvent;
 import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.caldav.util.ParseUtil;
 import org.bedework.caldav.util.TimeRange;
-import org.bedework.util.misc.Logged;
+import org.bedework.util.logging.Logged;
 import org.bedework.util.xml.XmlUtil;
 import org.bedework.util.xml.tagdefs.CaldavTags;
 import org.bedework.webdav.servlet.shared.WebdavBadRequest;
@@ -34,14 +34,13 @@ import org.w3c.dom.Node;
 /**
  * @author Mike Douglass douglm  rpi.edu
  */
-public class FreeBusyQuery extends Logged {
+public class FreeBusyQuery implements Logged {
   private TimeRange timeRange;
 
   /** Constructor
    *
    */
   public FreeBusyQuery() {
-    debug = getLogger().isDebugEnabled();
   }
 
   /** The given node is is the free-busy-query time-range element
@@ -62,7 +61,7 @@ public class FreeBusyQuery extends Logged {
 
       timeRange = ParseUtil.parseTimeRange(nd, false);
 
-      if (debug) {
+      if (debug()) {
         debug("Parsed time range " + timeRange);
       }
     } catch (final WebdavException wde) {
@@ -107,7 +106,7 @@ public class FreeBusyQuery extends Logged {
     try {
       return XmlUtil.getElementsArray(nd);
     } catch (Throwable t) {
-      if (debug) {
+      if (debug()) {
         getLogger().error("<filter>: parse exception: ", t);
       }
 

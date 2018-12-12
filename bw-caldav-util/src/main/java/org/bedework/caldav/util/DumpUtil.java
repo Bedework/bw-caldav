@@ -18,6 +18,8 @@
 */
 package org.bedework.caldav.util;
 
+import org.bedework.util.logging.SLogged;
+
 import ietf.params.xml.ns.caldav.CalendarDataType;
 import ietf.params.xml.ns.caldav.CompFilterType;
 import ietf.params.xml.ns.caldav.CompType;
@@ -27,20 +29,21 @@ import ietf.params.xml.ns.caldav.PropFilterType;
 import ietf.params.xml.ns.caldav.PropType;
 import ietf.params.xml.ns.caldav.TextMatchType;
 import ietf.params.xml.ns.caldav.UTCTimeRangeType;
-import org.apache.log4j.Logger;
 
 /** Various debug dump methods
  *
  *   @author Mike Douglass   douglm  bedework.edu
  */
-public class DumpUtil {
+public class DumpUtil implements SLogged {
+  static {
+    SLogged.setLoggerClass(DumpUtil.class);
+  }
+
   /**
    * @param cd
-   * @param log
    */
-  public static void dumpCalendarData(final CalendarDataType cd,
-                                      final Logger log) {
-    StringBuffer sb = new StringBuffer("  <calendar-data");
+  public static void dumpCalendarData(final CalendarDataType cd) {
+    final StringBuilder sb = new StringBuilder("  <calendar-data");
 
     if (cd.getContentType() != null) {
       sb.append("  content-type=\"");
@@ -49,72 +52,69 @@ public class DumpUtil {
     }
 
     sb.append(">");
-    log.debug(sb.toString());
+    SLogged.debug(sb.toString());
 
     if (cd.getComp() != null) {
-      dumpComp(cd.getComp(), log, "    ");
+      dumpComp(cd.getComp(), "    ");
     }
 
     if (cd.getExpand() != null) {
-      dumpUTCTimeRange(cd.getExpand(), "expand", log, "    ");
+      dumpUTCTimeRange(cd.getExpand(), "expand", "    ");
     }
 
     if (cd.getLimitRecurrenceSet() != null) {
       dumpUTCTimeRange(cd.getLimitRecurrenceSet(),
-                       "limit-recurrence-set", log, "    ");
+                       "limit-recurrence-set", "    ");
     }
 
     if (cd.getLimitFreebusySet() != null) {
       dumpUTCTimeRange(cd.getLimitFreebusySet(),
-                       "limit-freebusy-set", log, "    ");
+                       "limit-freebusy-set", "    ");
     }
 
-    log.debug("  </calendar-data>");
+    SLogged.debug("  </calendar-data>");
   }
 
   /**
    * @param comp
-   * @param log
    * @param indent
    */
   public static void dumpComp(final CompType comp,
-                              final Logger log,
                               final String indent) {
     StringBuffer sb = new StringBuffer(indent);
 
     sb.append("<comp name=");
     sb.append(comp.getName());
     sb.append(">");
-    log.debug(sb.toString());
+    SLogged.debug(sb.toString());
 
     if (comp.getAllcomp() != null) {
-      log.debug(indent + "  <allcomp/>");
+      SLogged.debug(indent + "  <allcomp/>");
     } else {
       for (CompType c: comp.getComp()) {
-        dumpComp(c, log, indent + "  ");
+        dumpComp(c, indent + "  ");
       }
     }
 
     if (comp.getAllprop() != null) {
-      log.debug(indent + "  <allprop/>");
+      SLogged.debug(indent + "  <allprop/>");
     } else {
       for (PropType prop: comp.getProp()) {
-        dumpProp(prop, log, indent + "  ");
+        dumpProp(prop, indent + "  ");
       }
     }
 
-    log.debug(indent + "</comp>");
+    SLogged.debug(indent + "</comp>");
   }
 
   /** Debugging
    *
    * @param prop
-   * @param log
    * @param indent
    */
   public static void dumpProp(final PropType prop,
-                              final Logger log, final String indent) {
-    StringBuffer sb = new StringBuffer(indent);
+                              final String indent) {
+    final StringBuilder sb = new StringBuilder(indent);
 
     sb.append("<calddav:prop name=");
     sb.append(prop.getName());
@@ -122,18 +122,16 @@ public class DumpUtil {
     sb.append(prop.getNovalue());
     sb.append("/>");
 
-    log.debug(sb.toString());
+    SLogged.debug(sb.toString());
   }
 
   /**
    * @param tr
    * @param name
-   * @param log
    * @param indent
    */
   public static void dumpUTCTimeRange(final UTCTimeRangeType tr,
                                       final String name,
-                                      final Logger log,
                                       final String indent) {
     StringBuilder sb = new StringBuilder(indent);
 
@@ -156,124 +154,118 @@ public class DumpUtil {
 
     sb.append("/>");
 
-    log.debug(sb.toString());
+    SLogged.debug(sb.toString());
   }
 
   /**
    * @param f
-   * @param log
    */
-  public static void dumpFilter(final FilterType f,
-                                      final Logger log) {
-    log.debug("<filter>");
-    dumpCompFilter(f.getCompFilter(), log, "  ");
-    log.debug("</filter>");
+  public static void dumpFilter(final FilterType f) {
+    SLogged.debug("<filter>");
+    dumpCompFilter(f.getCompFilter(), "  ");
+    SLogged.debug("</filter>");
   }
 
 
   /** Debug
    *
    * @param cf
-   * @param log
    * @param indent
    */
   public static void dumpCompFilter(final CompFilterType cf,
-                                    final Logger log, final String indent) {
-    StringBuilder sb = new StringBuilder(indent);
+                                    final String indent) {
+    final StringBuilder sb = new StringBuilder(indent);
 
     sb.append("<comp-filter name=\"");
     sb.append(cf.getName());
     sb.append("\">");
-    log.debug(sb.toString());
+    SLogged.debug(sb.toString());
 
     if (cf.getIsNotDefined() != null) {
-      log.debug(indent + "  " + "<is-not-defined/>");
+      SLogged.debug(indent + "  " + "<is-not-defined/>");
     } else if (cf.getTimeRange() != null) {
-      dumpUTCTimeRange(cf.getTimeRange(), "time-range", log,
+      dumpUTCTimeRange(cf.getTimeRange(), "time-range",
                        indent + "  ");
     }
 
     if (cf.getCompFilter() != null) {
       for (CompFilterType subcf: cf.getCompFilter()) {
-        dumpCompFilter(subcf, log, indent + "  ");
+        dumpCompFilter(subcf, indent + "  ");
       }
     }
 
     if (cf.getPropFilter() != null) {
       for (PropFilterType pf: cf.getPropFilter()) {
-        dumpPropFilter(pf, log, indent + "  ");
+        dumpPropFilter(pf, indent + "  ");
       }
     }
 
-    log.debug(indent + "</comp-filter>");
+    SLogged.debug(indent + "</comp-filter>");
   }
 
   /** Debug
    *
    * @param pf
-   * @param log
    * @param indent
    */
   public static void dumpPropFilter(final PropFilterType pf,
-                                    final Logger log, final String indent) {
-    StringBuilder sb = new StringBuilder(indent);
+                                    final String indent) {
+    final StringBuilder sb = new StringBuilder(indent);
 
     sb.append("<prop-filter name=\"");
     sb.append(pf.getName());
     sb.append("\">\n");
-    log.debug(sb.toString());
+    SLogged.debug(sb.toString());
 
     if (pf.getIsNotDefined() != null) {
-      log.debug(indent + "  " + "<is-not-defined/>\n");
+      SLogged.debug(indent + "  " + "<is-not-defined/>\n");
     } else if (pf.getTimeRange() != null) {
-      dumpUTCTimeRange(pf.getTimeRange(), "time-range", log,
+      dumpUTCTimeRange(pf.getTimeRange(), "time-range",
                        indent + "  ");
     } else if (pf.getTextMatch() != null) {
-      dumpTextMatch(pf.getTextMatch(), log, indent + "  ");
+      dumpTextMatch(pf.getTextMatch(), indent + "  ");
     }
 
     if (pf.getParamFilter() != null) {
       for (ParamFilterType parf: pf.getParamFilter()) {
-        dumpParamFilter(parf, log, indent + "  ");
+        dumpParamFilter(parf, indent + "  ");
       }
     }
 
-    log.debug(indent + "</prop-filter>");
+    SLogged.debug(indent + "</prop-filter>");
   }
 
   /** Debug
    *
    * @param pf
-   * @param log
    * @param indent
    */
   public static void dumpParamFilter(final ParamFilterType pf,
-                                     final Logger log, final String indent) {
-    StringBuilder sb = new StringBuilder(indent);
+                                     final String indent) {
+    final StringBuilder sb = new StringBuilder(indent);
 
     sb.append("<param-filter name=\"");
     sb.append(pf.getName());
     sb.append(">\n");
-    log.debug(sb.toString());
+    SLogged.debug(sb.toString());
 
     if (pf.getIsNotDefined() != null) {
-      log.debug(indent + "  " + "<is-not-defined/>\n");
+      SLogged.debug(indent + "  " + "<is-not-defined/>\n");
     } else {
-      dumpTextMatch(pf.getTextMatch(), log, indent + "  ");
+      dumpTextMatch(pf.getTextMatch(), indent + "  ");
     }
 
-    log.debug(indent + "</param-filter>");
+    SLogged.debug(indent + "</param-filter>");
   }
 
   /** Debug
    *
    * @param tm
-   * @param log
    * @param indent
    */
   public static void dumpTextMatch(final TextMatchType tm,
-                                   final Logger log, final String indent) {
-    StringBuilder sb = new StringBuilder(indent);
+                                   final String indent) {
+    final StringBuilder sb = new StringBuilder(indent);
 
     sb.append("<text-match");
     sb.append(" collation=");
@@ -283,11 +275,11 @@ public class DumpUtil {
     sb.append(tm.getNegateCondition());
 
     sb.append(">");
-    log.debug(sb.toString());
+    SLogged.debug(sb.toString());
 
-    log.debug(tm.getValue());
+    SLogged.debug(tm.getValue());
 
-    log.debug(indent + "</text-match>\n");
+    SLogged.debug(indent + "</text-match>\n");
   }
 }
 

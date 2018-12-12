@@ -42,7 +42,7 @@ public class MkcalendarMethod extends PropPatchMethod {
   @Override
   public void doMethod(final HttpServletRequest req,
                        final HttpServletResponse resp) throws WebdavException {
-    if (debug) {
+    if (debug()) {
       debug("MkcalendarMethod: doMethod");
     }
 

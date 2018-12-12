@@ -27,6 +27,7 @@ import org.bedework.caldav.util.filter.FilterUtil;
 import org.bedework.caldav.util.filter.parse.EventQuery;
 import org.bedework.caldav.util.filter.parse.Filters;
 import org.bedework.util.calendar.IcalDefs;
+import org.bedework.util.logging.Logged;
 import org.bedework.webdav.servlet.common.WebdavUtils;
 import org.bedework.webdav.servlet.shared.WebdavBadRequest;
 import org.bedework.webdav.servlet.shared.WebdavException;
@@ -37,7 +38,6 @@ import ietf.params.xml.ns.caldav.CompFilterType;
 import ietf.params.xml.ns.caldav.FilterType;
 import ietf.params.xml.ns.caldav.PropFilterType;
 import net.fortuna.ical4j.model.Component;
-import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -126,15 +126,11 @@ import javax.servlet.http.HttpServletResponse;
  *
  *   @author Mike Douglass   douglm @ rpi.edu
  */
-public class FilterHandler {
+public class FilterHandler implements Logged {
   /* Query we executed */
   private EventQuery eventq;
 
   private FilterType f;
-
-  private boolean debug;
-
-  protected transient Logger log;
 
   /** Constructor
    *
@@ -142,7 +138,6 @@ public class FilterHandler {
    */
   public FilterHandler(final FilterType f) {
     this.f = f;
-    debug = getLogger().isDebugEnabled();
   }
 
   /** Use the given query to return a collection of nodes. An exception will
@@ -161,7 +156,7 @@ public class FilterHandler {
     try {
       eventq = Filters.getQuery(f);
 
-      /*if (debug) {
+      /*if (debug()) {
       if (eventq.trange == null) {
         trace("No time-range specified for uri " + wdnode.getUri());
       } else {
@@ -182,7 +177,7 @@ public class FilterHandler {
                                          retrieveList,
                                          retrieveRecur);
 
-      if (debug) {
+      if (debug()) {
         trace("Query returned " + events.size());
       }
 
@@ -207,7 +202,7 @@ public class FilterHandler {
       return nodes;
     }
 
-    if (debug) {
+    if (debug()) {
       trace("post filtering needed");
     }
 
@@ -254,36 +249,5 @@ public class FilterHandler {
     }
 
     return filtered;
-  }
-
-  /** ===================================================================
-   *                   Logging methods
-   *  =================================================================== */
-
-  /**
-   * @return Logger
-   */
-  protected Logger getLogger() {
-    if (log == null) {
-      log = Logger.getLogger(this.getClass());
-    }
-
-    return log;
-  }
-
-  protected void debugMsg(final String msg) {
-    getLogger().debug(msg);
-  }
-
-  protected void error(final Throwable t) {
-    getLogger().error(this, t);
-  }
-
-  protected void logIt(final String msg) {
-    getLogger().info(msg);
-  }
-
-  protected void trace(final String msg) {
-    getLogger().debug(msg);
   }
 }

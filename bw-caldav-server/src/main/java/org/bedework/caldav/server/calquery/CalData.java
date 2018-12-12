@@ -22,6 +22,7 @@ import org.bedework.caldav.server.CaldavComponentNode;
 import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.caldav.util.DumpUtil;
 import org.bedework.caldav.util.ParseUtil;
+import org.bedework.util.logging.Logged;
 import org.bedework.util.xml.XmlEmit;
 import org.bedework.util.xml.XmlUtil;
 import org.bedework.util.xml.tagdefs.CaldavTags;
@@ -47,7 +48,6 @@ import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.PropertyList;
 import net.fortuna.ical4j.model.component.VEvent;
 
-import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -63,7 +63,7 @@ import javax.xml.namespace.QName;
  *
  *   @author Mike Douglass   douglm  rpi.edu
  */
-public class CalData extends WebdavProperty {
+public class CalData extends WebdavProperty implements Logged {
   /*
       <!ELEMENT calendar-data ((comp?, (expand |
                                            limit-recurrence-set)?,
@@ -143,10 +143,6 @@ public class CalData extends WebdavProperty {
          end value: an iCalendar "date with UTC time"
 
    */
-  private final boolean debug;
-
-  protected transient Logger log;
-
   private CalendarDataType calendarData;
 
   /** Constructor
@@ -155,7 +151,6 @@ public class CalData extends WebdavProperty {
    */
   public CalData(final QName tag) {
     super(tag, null);
-    debug = getLogger().isDebugEnabled();
   }
 
   /**
@@ -213,7 +208,7 @@ public class CalData extends WebdavProperty {
 
     try {
       for (final Element curnode : children) {
-        if (debug) {
+        if (debug()) {
           trace("calendar-data node type: " +
                         curnode.getNodeType() + " name:" +
                         curnode.getNodeName());
@@ -256,8 +251,8 @@ public class CalData extends WebdavProperty {
       throw new WebdavBadRequest();
     }
 
-    if (debug) {
-      DumpUtil.dumpCalendarData(cd, getLogger());
+    if (debug()) {
+      DumpUtil.dumpCalendarData(cd);
     }
   }
 
@@ -391,7 +386,7 @@ public class CalData extends WebdavProperty {
 
       return intf.toIcalString(nical, contentType);
     } catch (final Throwable t) {
-      if (debug) {
+      if (debug()) {
         getLogger().error("transformVevent exception: ", t);
       }
 
@@ -421,7 +416,7 @@ public class CalData extends WebdavProperty {
     boolean hadProps = false;
 
     for (final Element curnode : children) {
-      if (debug) {
+      if (debug()) {
         trace("comp node type: " +
                       curnode.getNodeType() + " name:" +
                       curnode.getNodeName());
@@ -495,7 +490,7 @@ public class CalData extends WebdavProperty {
     try {
       return XmlUtil.getElementsArray(nd);
     } catch (final Throwable t) {
-      if (debug) {
+      if (debug()) {
         getLogger().error("<filter>: parse exception: ", t);
       }
 
@@ -524,30 +519,6 @@ public class CalData extends WebdavProperty {
     }
 
     return res;
-  }
-
-  /* ====================================================================
-   *                   Logging methods
-   * ==================================================================== */
-
-  protected Logger getLogger() {
-    if (log == null) {
-      log = Logger.getLogger(this.getClass());
-    }
-
-    return log;
-  }
-
-  protected void debugMsg(final String msg) {
-    getLogger().debug(msg);
-  }
-
-  protected void logIt(final String msg) {
-    getLogger().info(msg);
-  }
-
-  protected void trace(final String msg) {
-    getLogger().debug(msg);
   }
 }
 

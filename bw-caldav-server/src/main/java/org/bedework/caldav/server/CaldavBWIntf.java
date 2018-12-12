@@ -656,7 +656,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
         final CalDAVEvent ev = cnode.getEvent();
 
         if (ev != null) {
-          if (debug) {
+          if (debug()) {
             debug("About to delete event " + ev);
           }
 
@@ -679,7 +679,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
           sysi.deleteEvent(ev, sendSchedulingMessage);
         } else {
-          if (debug) {
+          if (debug()) {
             debug("No event object available");
           }
         }
@@ -724,7 +724,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
         return al;
       }
 
-      if (debug) {
+      if (debug()) {
         debug("About to get children for " + node.getUri());
       }
 
@@ -752,7 +752,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
           col = (CalDAVCollection)wde;
 
           nodeType = WebdavNsIntf.nodeTypeCollection;
-          if (debug) {
+          if (debug()) {
             debug("Found child " + col);
           }
         } else if (wde instanceof CalDAVResource) {
@@ -1105,7 +1105,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       bwnode.setEntityName(entityName);
     }
 
-    if (debug) {
+    if (debug()) {
       debug("putContent: intf has event with name " + entityName +
                " and summary " + ev.getSummary() +
                " new event = " + ev.isNew());
@@ -1131,7 +1131,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       if ((ifHeaders.ifEtag != null) &&
           (!ifHeaders.ifEtag.equals(bwnode.getPrevEtagValue(true)))) {
-        if (debug) {
+        if (debug()) {
           debug("putContent: etag mismatch if=" + ifHeaders.ifEtag +
                    "prev=" + bwnode.getPrevEtagValue(true));
         }
@@ -1141,7 +1141,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       if ((ifStag != null) &&
           (!ifStag.equals(bwnode.getPrevStagValue()))) {
-        if (debug) {
+        if (debug()) {
           debug("putContent: stag mismatch if=" + ifStag +
                    "prev=" + bwnode.getPrevStagValue());
         }
@@ -1149,7 +1149,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
         throw new WebdavException(HttpServletResponse.SC_PRECONDITION_FAILED);
       }
 
-      if (debug) {
+      if (debug()) {
         debug("putContent: update event " + ev);
       }
       sysi.updateEvent(ev);
@@ -1204,7 +1204,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       bwnode.setEntityName(entityName);
     }
 
-    if (debug) {
+    if (debug()) {
       debug("putContent: intf has event with name " + entityName +
                " and summary " + ev.getSummary() +
                " new event = " + ev.isNew());
@@ -1230,7 +1230,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       if ((ifEtag != null) &&
           (!ifEtag.equals(bwnode.getPrevEtagValue(true)))) {
-        if (debug) {
+        if (debug()) {
           debug("putContent: etag mismatch if=" + ifEtag +
                    "prev=" + bwnode.getPrevEtagValue(true));
         }
@@ -1240,7 +1240,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       if ((ifStag != null) &&
           (!ifStag.equals(bwnode.getPrevStagValue()))) {
-        if (debug) {
+        if (debug()) {
           debug("putContent: stag mismatch if=" + ifStag +
                    "prev=" + bwnode.getPrevStagValue());
         }
@@ -1248,7 +1248,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
         throw new WebdavException(HttpServletResponse.SC_PRECONDITION_FAILED);
       }
 
-      if (debug) {
+      if (debug()) {
         debug("putContent: update event " + ev);
       }
       sysi.updateEvent(ev);
@@ -1797,7 +1797,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       return hrefs;
     } catch (AccessException ae) {
-      if (debug) {
+      if (debug()) {
         error(ae);
       }
       throw new WebdavServerError();
@@ -1882,7 +1882,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
         CalData caldata = (CalData)pr;
 
-        if (debug) {
+        if (debug()) {
           debug("do CalendarData for " + node.getUri());
         }
 
@@ -1915,7 +1915,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
           return true;
         } catch (WebdavException wde) {
           status = wde.getStatusCode();
-          if (debug && (status != HttpServletResponse.SC_NOT_FOUND)) {
+          if (debug() && (status != HttpServletResponse.SC_NOT_FOUND)) {
             error(wde);
           }
           return false;
@@ -2090,7 +2090,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
                                   final CalDAVCollection col,
                                   final CalDAVEvent ev,
                                   final CalDAVResource r) throws WebdavException {
-    if (debug) {
+    if (debug()) {
       debug("About to get node for " + uri);
     }
 
@@ -2207,7 +2207,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
         return curi;
       }
 
-      if (debug) {
+      if (debug()) {
         debug("search for collection uri \"" + uri + "\"");
       }
       CalDAVCollection col = sysi.getCollection(uri);
@@ -2227,14 +2227,14 @@ public class CaldavBWIntf extends WebdavNsIntf {
           // We'll try as an entity for unknown
         } else {
           if (existance == WebdavNsIntf.existanceNot) {
-            if (debug) {
+            if (debug()) {
               debug("collection already exists - col=\"" +
                             col.getPath() + "\"");
             }
             throw new WebdavForbidden(WebdavTags.resourceMustBeNull);
           }
 
-          if (debug) {
+          if (debug()) {
             debug("create collection uri - cal=\"" + col.getPath() + "\"");
           }
 
@@ -2291,7 +2291,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
           (ctype == CalDAVCollection.calTypeInbox) ||
           (ctype == CalDAVCollection.calTypeOutbox)) {
         if (entityName != null) {
-          if (debug) {
+          if (debug()) {
             debug("find event(s) - cal=\"" + col.getPath() + "\" name=\"" +
                      entityName + "\"");
           }
@@ -2307,7 +2307,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
                              entityName == null);
       } else {
         if (entityName != null) {
-          if (debug) {
+          if (debug()) {
             debug("find resource - cal=\"" + col.getPath() + "\" name=\"" +
                      entityName + "\"");
           }

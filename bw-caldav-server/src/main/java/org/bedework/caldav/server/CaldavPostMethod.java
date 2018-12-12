@@ -80,7 +80,7 @@ public class CaldavPostMethod extends PostMethod {
   @Override
   public void doMethod(final HttpServletRequest req,
                        final HttpServletResponse resp) throws WebdavException {
-    if (debug) {
+    if (debug()) {
       debug("PostMethod: doMethod");
     }
 
@@ -331,7 +331,7 @@ public class CaldavPostMethod extends PostMethod {
       pars.setCol((CalDAVCollection)node.getCollection(false));
 
       if (pars.getCol().getCalType() != CalDAVCollection.calTypeOutbox) {
-        if (debug) {
+        if (debug()) {
           debug("Not targetted at Outbox");
         }
         throw new WebdavException(HttpServletResponse.SC_METHOD_NOT_ALLOWED,
@@ -352,7 +352,7 @@ public class CaldavPostMethod extends PostMethod {
       /* (CALDAV:valid-calendar-data) -- checjed in fromIcal */
 
       if (!pars.getIcalendar().validItipMethodType()) {
-        if (debug) {
+        if (debug()) {
           debug("Bad method: " +
                            String.valueOf(pars.getIcalendar().getMethodType()));
         }
@@ -379,7 +379,7 @@ public class CaldavPostMethod extends PostMethod {
         final CalPrincipalInfo organizerInfo =
                 sysi.getCalPrincipalInfo(sysi.caladdrToPrincipal(cn));
 
-        if (debug) {
+        if (debug()) {
           if (organizerInfo == null) {
             debug("organizerInfo for " + cn + " is NULL");
           } else {
@@ -406,7 +406,7 @@ public class CaldavPostMethod extends PostMethod {
       if (pars.getIcalendar().getComponentType() == IcalComponentType.freebusy) {
         handleFreeBusy(sysi, pars, resp);
       } else {
-        if (debug) {
+        if (debug()) {
           debug("Unsupported component type: " +
                            pars.getIcalendar().getComponentType());
         }
@@ -472,7 +472,7 @@ public class CaldavPostMethod extends PostMethod {
       /* (ISCHED:supported-calendar-data) */
       if (!pars.getContentTypePars()[0].equals("text/calendar") &&
           !pars.getContentTypePars()[0].equals(XcalTags.mimetype)) {
-        if (debug) {
+        if (debug()) {
           debug("Bad content type: " + pars.getContentType());
         }
         throw new WebdavForbidden(IscheduleTags.invalidCalendarDataType,
@@ -487,7 +487,7 @@ public class CaldavPostMethod extends PostMethod {
 
       final IscheduleIn isi = pars.getIschedRequest();
       if (isi.getOriginator() == null) {
-        if (debug) {
+        if (debug()) {
           debug("No originator");
         }
         throw new WebdavForbidden(IscheduleTags.originatorMissing,
@@ -496,7 +496,7 @@ public class CaldavPostMethod extends PostMethod {
 
       /* (ISCHED:recipient-specified) */
       if (isi.getRecipients().isEmpty()) {
-        if (debug) {
+        if (debug()) {
           debug("No recipient(s)");
         }
         throw new WebdavForbidden(IscheduleTags.recipientMissing,
@@ -504,7 +504,7 @@ public class CaldavPostMethod extends PostMethod {
       }
 
       if (isi.getIScheduleMessageId() == null) {
-        if (debug) {
+        if (debug()) {
           debug("No message id");
         }
         throw new WebdavForbidden(IscheduleTags.recipientMissing,
@@ -528,7 +528,7 @@ public class CaldavPostMethod extends PostMethod {
       /* (ISCHED:valid-calendar-data) -- checked in fromIcal */
 
       if (!pars.getIcalendar().validItipMethodType()) {
-        if (debug) {
+        if (debug()) {
           debug("Bad method: " +
                            String.valueOf(pars.getIcalendar().getMethodType()));
         }
@@ -546,7 +546,7 @@ public class CaldavPostMethod extends PostMethod {
       } else if (ctype == IcalComponentType.freebusy) {
         handleFreeBusy(sysi, pars, resp);
       } else {
-        if (debug) {
+        if (debug()) {
           debug("Unsupported component type: " + ctype);
         }
         throw new WebdavForbidden("org.bedework.caldav.unsupported.component " +
@@ -586,7 +586,7 @@ public class CaldavPostMethod extends PostMethod {
     } catch (final IOException e) {
       throw new WebdavException(e);
     } catch (final FailException e) {
-      if (debug) {
+      if (debug()) {
         error(e);
       }
       throw new WebdavForbidden(IscheduleTags.verificationFailed);
@@ -704,7 +704,7 @@ public class CaldavPostMethod extends PostMethod {
                         rfb.toIcalString(ScheduleMethods.methodTypeReply,
                                          pars.getContentTypePars()[0]));
         } catch (final Throwable t) {
-          if (debug) {
+          if (debug()) {
             error(t);
           }
           throw new WebdavException(t);

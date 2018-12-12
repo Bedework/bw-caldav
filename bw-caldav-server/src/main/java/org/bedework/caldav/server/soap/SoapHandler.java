@@ -74,8 +74,8 @@ public abstract class SoapHandler extends MethodBase {
       if (jc == null) {
         jc = JAXBContext.newInstance(getJaxbContextPath());
 
-//        if (debug) {
-  //        debugMsg("Created JAXBContext: " + jc);
+//        if (debug()) {
+  //        debug("Created JAXBContext: " + jc);
     //    }
       }
     } catch(Throwable t) {

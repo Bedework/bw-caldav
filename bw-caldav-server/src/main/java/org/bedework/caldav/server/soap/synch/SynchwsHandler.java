@@ -127,7 +127,7 @@ public class SynchwsHandler extends CalwsHandler {
   private void doStartService(final StartServiceNotificationType ssn,
                               final HttpServletResponse resp) throws WebdavException {
     try {
-      if (debug) {
+      if (debug()) {
         debug("StartServiceNotification: url=" + ssn.getSubscribeUrl());
       }
 
@@ -154,7 +154,7 @@ public class SynchwsHandler extends CalwsHandler {
 
   private void doKeepAlive(final KeepAliveNotificationType kan,
                            final HttpServletResponse resp) throws WebdavException {
-    if (debug) {
+    if (debug()) {
       debug("KeepAliveNotification: url=" + kan.getSubscribeUrl() +
             "\n                token=" + kan.getToken());
     }

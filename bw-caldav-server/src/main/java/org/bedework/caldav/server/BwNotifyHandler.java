@@ -22,7 +22,7 @@ import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.caldav.util.notifications.NotificationType;
 import org.bedework.caldav.util.notifications.eventreg.EventregCancelledNotificationType;
 import org.bedework.caldav.util.notifications.eventreg.EventregRegisteredNotificationType;
-import org.bedework.util.misc.Logged;
+import org.bedework.util.logging.Logged;
 import org.bedework.util.xml.XmlUtil;
 import org.bedework.util.xml.tagdefs.AppleServerTags;
 import org.bedework.util.xml.tagdefs.BedeworkServerTags;
@@ -42,7 +42,7 @@ import javax.xml.namespace.QName;
  *
  *   @author Mike Douglass   douglm - rpi.edu
  */
-public class BwNotifyHandler extends Logged {
+public class BwNotifyHandler implements Logged {
   public void doNotify(final CaldavBWIntf intf,
                        final RequestPars pars,
                        final HttpServletResponse resp)
@@ -142,7 +142,7 @@ public class BwNotifyHandler extends Logged {
                              final HttpServletResponse resp)
           throws WebdavException {
     try {
-      if (debug) {
+      if (debug()) {
         debug("enter doEventregReg");
       }
 
@@ -157,7 +157,7 @@ public class BwNotifyHandler extends Logged {
 
       final String href = mustHref(els.get(0), resp);
       if (href == null) {
-        if (debug) {
+        if (debug()) {
           debug("No href");
         }
 
@@ -166,7 +166,7 @@ public class BwNotifyHandler extends Logged {
 
       final String uid = mustUid(els.get(1), resp);
       if (uid == null) {
-        if (debug) {
+        if (debug()) {
           debug("No uid");
         }
 
@@ -182,7 +182,7 @@ public class BwNotifyHandler extends Logged {
                                          BedeworkServerTags.eventregNumTickets,
                                          resp);
       if (numTickets == null) {
-        if (debug) {
+        if (debug()) {
           debug("No num tickets");
         }
 
@@ -192,14 +192,14 @@ public class BwNotifyHandler extends Logged {
       final String principalHref = mustPrincipalHref(els.get(4),
                                                      resp);
       if (principalHref == null) {
-        if (debug) {
+        if (debug()) {
           debug("No principal href");
         }
 
         return;
       }
 
-      if (debug) {
+      if (debug()) {
         debug("principal href=" + principalHref);
       }
 

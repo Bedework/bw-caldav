@@ -19,7 +19,7 @@
 package org.bedework.caldav.server;
 
 import org.bedework.access.AccessPrincipal;
-import org.bedework.access.Acl.CurrentAccess;
+import org.bedework.access.CurrentAccess;
 import org.bedework.access.PrivilegeDefs;
 import org.bedework.caldav.server.sysinterface.CalPrincipalInfo;
 import org.bedework.caldav.server.sysinterface.SysIntf;
@@ -320,8 +320,8 @@ public class CaldavCalNode extends CaldavBwNode {
       }
 
       if (!c.entitiesAllowed()) {
-        if (debug) {
-          debugMsg("POSSIBLE SEARCH: getChildren for cal " + c.getPath());
+        if (debug()) {
+          debug("POSSIBLE SEARCH: getChildren for cal " + c.getPath());
         }
 
         final Collection<WdEntity> ch = new ArrayList<WdEntity>();
@@ -336,8 +336,8 @@ public class CaldavCalNode extends CaldavBwNode {
       /* Note we use the undereferenced version for the fetch */
       c = (CalDAVCollection)getCollection(false); // don't deref
 
-      if (debug) {
-        debugMsg("Get all resources in calendar " + c.getPath());
+      if (debug()) {
+        debug("Get all resources in calendar " + c.getPath());
       }
 
       final FilterBase filter;
@@ -366,7 +366,7 @@ public class CaldavCalNode extends CaldavBwNode {
 
       allowsGet = true;
     } catch (Throwable t) {
-      if (debug) {
+      if (debug()) {
         error(t);
       }
       throw new WebdavException(t);
@@ -800,8 +800,8 @@ public class CaldavCalNode extends CaldavBwNode {
         // dav 13.9
         xml.openTag(tag);
         xml.emptyTag(WebdavTags.collection);
-        if (debug) {
-          debugMsg("generateProp resourcetype for " + col);
+        if (debug()) {
+          debug("generateProp resourcetype for " + col);
         }
 
         //boolean isCollection = cal.getCalendarCollection();
@@ -1750,9 +1750,6 @@ public class CaldavCalNode extends CaldavBwNode {
     return res;
   }
 
-  /* (non-Javadoc)
-   * @see org.bedework.caldav.server.CaldavBwNode#getXrdNames()
-   */
   @Override
   public Collection<PropertyTagXrdEntry> getXrdNames()throws WebdavException {
     Collection<PropertyTagXrdEntry> res = new ArrayList<PropertyTagXrdEntry>();
@@ -1763,9 +1760,6 @@ public class CaldavCalNode extends CaldavBwNode {
     return res;
   }
 
-  /* (non-Javadoc)
-   * @see org.bedework.caldav.server.CaldavBwNode#getSupportedReports()
-   */
   @Override
   public Collection<QName> getSupportedReports() throws WebdavException {
     Collection<QName> res = new ArrayList<QName>();

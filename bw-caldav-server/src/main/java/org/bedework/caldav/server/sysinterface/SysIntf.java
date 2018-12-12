@@ -20,7 +20,7 @@ package org.bedework.caldav.server.sysinterface;
 
 import org.bedework.access.AccessPrincipal;
 import org.bedework.access.Acl;
-import org.bedework.access.Acl.CurrentAccess;
+import org.bedework.access.CurrentAccess;
 import org.bedework.caldav.server.CalDAVCollection;
 import org.bedework.caldav.server.CalDAVEvent;
 import org.bedework.caldav.server.CalDAVResource;

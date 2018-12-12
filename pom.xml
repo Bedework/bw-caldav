@@ -15,10 +15,11 @@
 		<maven.source.plugin.version>2.1.2</maven.source.plugin.version>
 
 		<!-- Bedework Versions -->
-		<bw-access.version>4.0.3</bw-access.version>
-		<bw-util.version>4.0.19</bw-util.version>
-    <bw-util2.version>4.0.1</bw-util2.version>
-		<bw-webdav.version>4.0.4</bw-webdav.version>
+    <bw-access.version>4.0.4-SNAPSHOT</bw-access.version>
+    <bw-util.version>4.0.20-SNAPSHOT</bw-util.version>
+    <bw-util-logging.version>4.0.0-SNAPSHOT</bw-util-logging.version>
+    <bw-util2.version>4.0.2-SNAPSHOT</bw-util2.version>
+		<bw-webdav.version>4.0.5-SNAPSHOT</bw-webdav.version>
 		<bw-xml.version>4.0.6</bw-xml.version>
     <ical4j.groupId>org.bedework.ical4j</ical4j.groupId>
     <ical4j.artifactId>ical4j</ical4j.artifactId>
@@ -33,7 +34,6 @@
 		<!-- Third Party Library Versions -->
     <commons-codec.version>1.5</commons-codec.version>
     <junit.version>4.8.2</junit.version>
-		<log4j.version>1.2.15</log4j.version>
     <servlet-api.version>2.5</servlet-api.version>
 	</properties>
 
@@ -97,26 +97,37 @@
 	<dependencyManagement>
 		<dependencies>
 			<!-- Bedework: Util -->
+
+      <dependency>
+        <groupId>org.bedework</groupId>
+        <artifactId>bw-util-logging</artifactId>
+        <version>${bw-util-logging.version}</version>
+      </dependency>
+
 			<dependency>
 				<groupId>org.bedework</groupId>
 				<artifactId>bw-util2-calendar</artifactId>
 				<version>${bw-util2.version}</version>
 			</dependency>
+
       <dependency>
         <groupId>org.bedework</groupId>
         <artifactId>bw-util-jmx</artifactId>
         <version>${bw-util.version}</version>
       </dependency>
+
       <dependency>
         <groupId>org.bedework</groupId>
         <artifactId>bw-util-misc</artifactId>
         <version>${bw-util.version}</version>
       </dependency>
+
       <dependency>
         <groupId>org.bedework</groupId>
         <artifactId>bw-util-timezones</artifactId>
         <version>${bw-util.version}</version>
       </dependency>
+
       <dependency>
         <groupId>org.bedework</groupId>
         <artifactId>bw-util-xml</artifactId>
@@ -172,25 +183,7 @@
         <artifactId>commons-codec</artifactId>
         <version>${commons-codec.version}</version>
       </dependency>
-			<dependency>
-				<groupId>log4j</groupId>
-				<artifactId>log4j</artifactId>
-				<version>${log4j.version}</version>
-				<exclusions>
-					<exclusion>
-						<artifactId>jmxtools</artifactId>
-						<groupId>com.sun.jdmk</groupId>
-					</exclusion>
-					<exclusion>
-						<artifactId>jms</artifactId>
-						<groupId>javax.jms</groupId>
-					</exclusion>
-					<exclusion>
-						<artifactId>jmxri</artifactId>
-						<groupId>com.sun.jmx</groupId>
-					</exclusion>
-				</exclusions>
-			</dependency>
+
 			<dependency>
 				<groupId>javax.servlet</groupId>
 				<artifactId>servlet-api</artifactId>

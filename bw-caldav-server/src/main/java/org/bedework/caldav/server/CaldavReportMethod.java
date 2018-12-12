@@ -150,7 +150,7 @@ public class CaldavReportMethod extends ReportMethod {
       return -1;
     } catch (Throwable t) {
       System.err.println(t.getMessage());
-      if (debug) {
+      if (debug()) {
         t.printStackTrace();
       }
 
@@ -174,7 +174,7 @@ public class CaldavReportMethod extends ReportMethod {
         /* Expect exactly one time-range */
         freeBusy = new FreeBusyQuery();
         freeBusy.parse(getOnlyChild(root));
-        if (debug) {
+        if (debug()) {
           debug("REPORT: free-busy");
           freeBusy.dump();
         }
@@ -229,9 +229,9 @@ public class CaldavReportMethod extends ReportMethod {
 
         cqpars.filter = Filters.parse(curnode);
 
-        if (debug) {
+        if (debug()) {
           debug("REPORT: query");
-          DumpUtil.dumpFilter(cqpars.filter, getLogger());
+          DumpUtil.dumpFilter(cqpars.filter);
         }
 
         if (chiter.hasNext()) {
@@ -344,7 +344,7 @@ public class CaldavReportMethod extends ReportMethod {
           throw new WebdavBadRequest("Expected href");
         }
 
-        if (debug) {
+        if (debug()) {
           debug("REPORT: multi-get");
 
           for (String href: hrefs) {
@@ -355,7 +355,7 @@ public class CaldavReportMethod extends ReportMethod {
         return;
       }
 
-      if (debug) {
+      if (debug()) {
         debug("REPORT: unexpected element " + curnode.getNodeName() +
               " with type " + curnode.getNodeType());
       }
@@ -414,7 +414,7 @@ public class CaldavReportMethod extends ReportMethod {
     openTag(WebdavTags.multistatus);
 
     if (status != HttpServletResponse.SC_OK) {
-      if (debug) {
+      if (debug()) {
         debug("REPORT status " + status);
       }
       // Entire request failed.
@@ -492,7 +492,7 @@ public class CaldavReportMethod extends ReportMethod {
     CalData caldata = null;
 
     if (preq != null) {
-      if (debug) {
+      if (debug()) {
         debug("REPORT: preq not null");
       }
 
@@ -608,7 +608,7 @@ public class CaldavReportMethod extends ReportMethod {
           final int maxDepth,
           final RetrievalMode rm,
           final List<String> retrieveList) throws WebdavException {
-    if (debug) {
+    if (debug()) {
       debug("doNodeAndChildren: curDepth=" + curDepth +
             " maxDepth=" + maxDepth + " uri=" + node.getUri());
     }
@@ -674,7 +674,7 @@ public class CaldavReportMethod extends ReportMethod {
                                             final RetrievalMode rm,
                                             final List<String> retrieveList)
           throws WebdavException {
-    if (debug) {
+    if (debug()) {
       debug("getNodes: " + node.getUri());
     }
 
@@ -715,7 +715,7 @@ public class CaldavReportMethod extends ReportMethod {
                                      false);
 
     if (!(node instanceof CaldavCalNode)) {
-      if (debug) {
+      if (debug()) {
         debug("Expected CaldavCalNode - got " + node);
       }
       throw new WebdavBadRequest();
@@ -743,16 +743,16 @@ public class CaldavReportMethod extends ReportMethod {
      * /
     Content c = getNsIntf().getContent(req, resp, node);
     if ((c == null) || (c.rdr == null)) {
-      if (debug) {
-        debugMsg("status: " + HttpServletResponse.SC_NO_CONTENT);
+      if (debug()) {
+        debug("status: " + HttpServletResponse.SC_NO_CONTENT);
       }
 
       resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
     } else {
       resp.setContentType(c.contentType);
       resp.setContentLength((int)c.contentLength);
-      if (debug) {
-        debugMsg("send content - length=" + c.contentLength);
+      if (debug()) {
+        debug("send content - length=" + c.contentLength);
       }
 
       writeContent(c.rdr, out);

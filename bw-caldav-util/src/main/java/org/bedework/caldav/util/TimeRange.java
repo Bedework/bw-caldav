@@ -18,7 +18,7 @@
 */
 package org.bedework.caldav.util;
 
-import org.bedework.util.misc.Logged;
+import org.bedework.util.logging.Logged;
 import org.bedework.util.misc.ToString;
 
 import net.fortuna.ical4j.model.DateTime;
@@ -30,7 +30,7 @@ import net.fortuna.ical4j.model.property.DateProperty;
  * @author douglm
  *
  */
-public class TimeRange extends Logged {
+public class TimeRange implements Logged {
   /** UTC */
   private final DateTime start;
   /** UTC */
