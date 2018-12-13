@@ -18,6 +18,7 @@
 */
 package org.bedework.caldav.server;
 
+import org.bedework.util.logging.BwLogger;
 import org.bedework.util.logging.Logged;
 
 import java.io.IOException;
@@ -128,5 +129,20 @@ public class SysIntfReader extends Reader implements Logged {
 
   @Override
   public void close() {
+  }
+
+  /* ====================================================================
+   *                   Logged methods
+   * ==================================================================== */
+
+  private BwLogger logger = new BwLogger();
+
+  @Override
+  public BwLogger getLogger() {
+    if ((logger.getLoggedClass() == null) && (logger.getLoggedName() == null)) {
+      logger.setLoggedClass(getClass());
+    }
+
+    return logger;
   }
 }

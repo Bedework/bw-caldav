@@ -27,6 +27,7 @@ import org.bedework.caldav.util.filter.FilterUtil;
 import org.bedework.caldav.util.filter.parse.EventQuery;
 import org.bedework.caldav.util.filter.parse.Filters;
 import org.bedework.util.calendar.IcalDefs;
+import org.bedework.util.logging.BwLogger;
 import org.bedework.util.logging.Logged;
 import org.bedework.webdav.servlet.common.WebdavUtils;
 import org.bedework.webdav.servlet.shared.WebdavBadRequest;
@@ -249,5 +250,20 @@ public class FilterHandler implements Logged {
     }
 
     return filtered;
+  }
+
+  /* ====================================================================
+   *                   Logged methods
+   * ==================================================================== */
+
+  private BwLogger logger = new BwLogger();
+
+  @Override
+  public BwLogger getLogger() {
+    if ((logger.getLoggedClass() == null) && (logger.getLoggedName() == null)) {
+      logger.setLoggedClass(getClass());
+    }
+
+    return logger;
   }
 }

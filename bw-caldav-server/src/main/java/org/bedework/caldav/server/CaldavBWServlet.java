@@ -18,6 +18,7 @@
 */
 package org.bedework.caldav.server;
 
+import org.bedework.util.logging.BwLogger;
 import org.bedework.webdav.servlet.common.DeleteMethod;
 import org.bedework.webdav.servlet.common.GetMethod;
 import org.bedework.webdav.servlet.common.HeadMethod;
@@ -129,5 +130,20 @@ public class CaldavBWServlet extends WebdavServlet implements
     } catch (final Throwable t) {
       t.printStackTrace();
     }
+  }
+
+  /* ====================================================================
+   *                   Logged methods
+   * ==================================================================== */
+
+  private BwLogger logger = new BwLogger();
+
+  @Override
+  public BwLogger getLogger() {
+    if ((logger.getLoggedClass() == null) && (logger.getLoggedName() == null)) {
+      logger.setLoggedClass(getClass());
+    }
+
+    return logger;
   }
 }

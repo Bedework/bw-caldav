@@ -22,6 +22,7 @@ import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.caldav.util.notifications.NotificationType;
 import org.bedework.caldav.util.notifications.eventreg.EventregCancelledNotificationType;
 import org.bedework.caldav.util.notifications.eventreg.EventregRegisteredNotificationType;
+import org.bedework.util.logging.BwLogger;
 import org.bedework.util.logging.Logged;
 import org.bedework.util.xml.XmlUtil;
 import org.bedework.util.xml.tagdefs.AppleServerTags;
@@ -356,5 +357,20 @@ public class BwNotifyHandler implements Logged {
     } catch (final Throwable t) {
       throw new WebdavException(t);
     }
+  }
+
+  /* ====================================================================
+   *                   Logged methods
+   * ==================================================================== */
+
+  private BwLogger logger = new BwLogger();
+
+  @Override
+  public BwLogger getLogger() {
+    if ((logger.getLoggedClass() == null) && (logger.getLoggedName() == null)) {
+      logger.setLoggedClass(getClass());
+    }
+
+    return logger;
   }
 }

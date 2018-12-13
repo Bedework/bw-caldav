@@ -22,6 +22,7 @@ import org.bedework.caldav.server.CaldavComponentNode;
 import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.caldav.util.DumpUtil;
 import org.bedework.caldav.util.ParseUtil;
+import org.bedework.util.logging.BwLogger;
 import org.bedework.util.logging.Logged;
 import org.bedework.util.xml.XmlEmit;
 import org.bedework.util.xml.XmlUtil;
@@ -47,7 +48,6 @@ import net.fortuna.ical4j.model.ComponentList;
 import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.PropertyList;
 import net.fortuna.ical4j.model.component.VEvent;
-
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -519,6 +519,21 @@ public class CalData extends WebdavProperty implements Logged {
     }
 
     return res;
+  }
+
+  /* ====================================================================
+   *                   Logged methods
+   * ==================================================================== */
+
+  private BwLogger logger = new BwLogger();
+
+  @Override
+  public BwLogger getLogger() {
+    if ((logger.getLoggedClass() == null) && (logger.getLoggedName() == null)) {
+      logger.setLoggedClass(getClass());
+    }
+
+    return logger;
   }
 }
 

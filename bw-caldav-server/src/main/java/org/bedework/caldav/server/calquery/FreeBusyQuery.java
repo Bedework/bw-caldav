@@ -23,6 +23,7 @@ import org.bedework.caldav.server.CalDAVEvent;
 import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.caldav.util.ParseUtil;
 import org.bedework.caldav.util.TimeRange;
+import org.bedework.util.logging.BwLogger;
 import org.bedework.util.logging.Logged;
 import org.bedework.util.xml.XmlUtil;
 import org.bedework.util.xml.tagdefs.CaldavTags;
@@ -114,4 +115,19 @@ public class FreeBusyQuery implements Logged {
     }
   }
   */
+
+  /* ====================================================================
+   *                   Logged methods
+   * ==================================================================== */
+
+  private BwLogger logger = new BwLogger();
+
+  @Override
+  public BwLogger getLogger() {
+    if ((logger.getLoggedClass() == null) && (logger.getLoggedName() == null)) {
+      logger.setLoggedClass(getClass());
+    }
+
+    return logger;
+  }
 }

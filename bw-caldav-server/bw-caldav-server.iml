@@ -20,7 +20,6 @@
     <orderEntry type="module" module-name="bw-xml-calws-soap" />
     <orderEntry type="module" module-name="bw-access" />
     <orderEntry type="module" module-name="bw-util-caching" />
-    <orderEntry type="library" name="Maven: junit:junit:4.8.2" level="project" />
     <orderEntry type="module" module-name="bw-util2-calendar" />
     <orderEntry type="module" module-name="bw-xml-icalendar" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.9.6" level="project" />
@@ -51,6 +50,7 @@
     <orderEntry type="library" name="Maven: org.apache.james:apache-mime4j-dom:0.7" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: log4j:log4j:1.2.16" level="project" />
     <orderEntry type="library" name="Maven: dnsjava:dnsjava:2.1.1" level="project" />
+    <orderEntry type="library" name="Maven: junit:junit:3.8.2" level="project" />
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpclient:4.1.2" level="project" />
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpcore:4.1.2" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: javax.servlet:servlet-api:2.5" level="project" />
