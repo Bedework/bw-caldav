@@ -21,7 +21,6 @@ package org.bedework.caldav.util.notifications.suggest;
 import org.bedework.caldav.util.notifications.BaseNotificationType;
 import org.bedework.caldav.util.notifications.parse.BaseNotificationParser;
 import org.bedework.caldav.util.notifications.parse.Parser;
-import org.bedework.util.logging.SLogged;
 import org.bedework.util.xml.XmlUtil;
 import org.bedework.util.xml.tagdefs.AppleServerTags;
 import org.bedework.util.xml.tagdefs.BedeworkServerTags;
@@ -48,7 +47,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
  *
  * @author Mike Douglass douglm
  */
-public class SuggestParsers implements SLogged {
+public class SuggestParsers {
   /** */
   public static final QName acceptedTag = BedeworkServerTags.accepted;
 
@@ -323,10 +322,6 @@ public class SuggestParsers implements SLogged {
   }
 
   private static WebdavException parseException(final SAXException e) throws WebdavException {
-    if (SLogged.debug()) {
-      SLogged.error("Parse error:", e);
-    }
-
-    return new WebdavBadRequest();
+    return new WebdavBadRequest(e.getMessage());
   }
 }

@@ -18,7 +18,7 @@
 */
 package org.bedework.caldav.util;
 
-import org.bedework.util.logging.SLogged;
+import org.bedework.util.logging.BwLogger;
 
 import ietf.params.xml.ns.caldav.CalendarDataType;
 import ietf.params.xml.ns.caldav.CompFilterType;
@@ -34,10 +34,9 @@ import ietf.params.xml.ns.caldav.UTCTimeRangeType;
  *
  *   @author Mike Douglass   douglm  bedework.edu
  */
-public class DumpUtil implements SLogged {
-  static {
-    SLogged.setLoggerClass(DumpUtil.class);
-  }
+public class DumpUtil {
+  private static BwLogger logger =
+          new BwLogger().setLoggedClass(DumpUtil.class);
 
   /**
    * @param cd
@@ -52,7 +51,7 @@ public class DumpUtil implements SLogged {
     }
 
     sb.append(">");
-    SLogged.debug(sb.toString());
+    logger.debug(sb.toString());
 
     if (cd.getComp() != null) {
       dumpComp(cd.getComp(), "    ");
@@ -72,7 +71,7 @@ public class DumpUtil implements SLogged {
                        "limit-freebusy-set", "    ");
     }
 
-    SLogged.debug("  </calendar-data>");
+    logger.debug("  </calendar-data>");
   }
 
   /**
@@ -86,10 +85,10 @@ public class DumpUtil implements SLogged {
     sb.append("<comp name=");
     sb.append(comp.getName());
     sb.append(">");
-    SLogged.debug(sb.toString());
+    logger.debug(sb.toString());
 
     if (comp.getAllcomp() != null) {
-      SLogged.debug(indent + "  <allcomp/>");
+      logger.debug(indent + "  <allcomp/>");
     } else {
       for (CompType c: comp.getComp()) {
         dumpComp(c, indent + "  ");
@@ -97,14 +96,14 @@ public class DumpUtil implements SLogged {
     }
 
     if (comp.getAllprop() != null) {
-      SLogged.debug(indent + "  <allprop/>");
+      logger.debug(indent + "  <allprop/>");
     } else {
       for (PropType prop: comp.getProp()) {
         dumpProp(prop, indent + "  ");
       }
     }
 
-    SLogged.debug(indent + "</comp>");
+    logger.debug(indent + "</comp>");
   }
 
   /** Debugging
@@ -122,7 +121,7 @@ public class DumpUtil implements SLogged {
     sb.append(prop.getNovalue());
     sb.append("/>");
 
-    SLogged.debug(sb.toString());
+    logger.debug(sb.toString());
   }
 
   /**
@@ -154,16 +153,16 @@ public class DumpUtil implements SLogged {
 
     sb.append("/>");
 
-    SLogged.debug(sb.toString());
+    logger.debug(sb.toString());
   }
 
   /**
    * @param f
    */
   public static void dumpFilter(final FilterType f) {
-    SLogged.debug("<filter>");
+    logger.debug("<filter>");
     dumpCompFilter(f.getCompFilter(), "  ");
-    SLogged.debug("</filter>");
+    logger.debug("</filter>");
   }
 
 
@@ -179,10 +178,10 @@ public class DumpUtil implements SLogged {
     sb.append("<comp-filter name=\"");
     sb.append(cf.getName());
     sb.append("\">");
-    SLogged.debug(sb.toString());
+    logger.debug(sb.toString());
 
     if (cf.getIsNotDefined() != null) {
-      SLogged.debug(indent + "  " + "<is-not-defined/>");
+      logger.debug(indent + "  " + "<is-not-defined/>");
     } else if (cf.getTimeRange() != null) {
       dumpUTCTimeRange(cf.getTimeRange(), "time-range",
                        indent + "  ");
@@ -200,7 +199,7 @@ public class DumpUtil implements SLogged {
       }
     }
 
-    SLogged.debug(indent + "</comp-filter>");
+    logger.debug(indent + "</comp-filter>");
   }
 
   /** Debug
@@ -215,10 +214,10 @@ public class DumpUtil implements SLogged {
     sb.append("<prop-filter name=\"");
     sb.append(pf.getName());
     sb.append("\">\n");
-    SLogged.debug(sb.toString());
+    logger.debug(sb.toString());
 
     if (pf.getIsNotDefined() != null) {
-      SLogged.debug(indent + "  " + "<is-not-defined/>\n");
+      logger.debug(indent + "  " + "<is-not-defined/>\n");
     } else if (pf.getTimeRange() != null) {
       dumpUTCTimeRange(pf.getTimeRange(), "time-range",
                        indent + "  ");
@@ -232,7 +231,7 @@ public class DumpUtil implements SLogged {
       }
     }
 
-    SLogged.debug(indent + "</prop-filter>");
+    logger.debug(indent + "</prop-filter>");
   }
 
   /** Debug
@@ -247,15 +246,15 @@ public class DumpUtil implements SLogged {
     sb.append("<param-filter name=\"");
     sb.append(pf.getName());
     sb.append(">\n");
-    SLogged.debug(sb.toString());
+    logger.debug(sb.toString());
 
     if (pf.getIsNotDefined() != null) {
-      SLogged.debug(indent + "  " + "<is-not-defined/>\n");
+      logger.debug(indent + "  " + "<is-not-defined/>\n");
     } else {
       dumpTextMatch(pf.getTextMatch(), indent + "  ");
     }
 
-    SLogged.debug(indent + "</param-filter>");
+    logger.debug(indent + "</param-filter>");
   }
 
   /** Debug
@@ -275,11 +274,11 @@ public class DumpUtil implements SLogged {
     sb.append(tm.getNegateCondition());
 
     sb.append(">");
-    SLogged.debug(sb.toString());
+    logger.debug(sb.toString());
 
-    SLogged.debug(tm.getValue());
+    logger.debug(tm.getValue());
 
-    SLogged.debug(indent + "</text-match>\n");
+    logger.debug(indent + "</text-match>\n");
   }
 }
 

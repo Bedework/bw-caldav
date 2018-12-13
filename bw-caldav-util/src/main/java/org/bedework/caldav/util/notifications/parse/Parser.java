@@ -38,7 +38,7 @@ import org.bedework.caldav.util.notifications.PropType;
 import org.bedework.caldav.util.notifications.RecurrenceType;
 import org.bedework.caldav.util.notifications.ResourceChangeType;
 import org.bedework.caldav.util.notifications.UpdatedType;
-import org.bedework.util.logging.SLogged;
+import org.bedework.util.logging.BwLogger;
 import org.bedework.util.xml.XmlUtil;
 import org.bedework.util.xml.tagdefs.AppleServerTags;
 import org.bedework.util.xml.tagdefs.BedeworkServerTags;
@@ -74,7 +74,7 @@ import javax.xml.transform.stream.StreamResult;
  *
  * @author Mike Douglass douglm
  */
-public class Parser implements SLogged {
+public class Parser {
   /* Notifications we know about */
   private final static Map<QName, BaseNotificationParser> parsers =
       new HashMap<>();
@@ -256,7 +256,8 @@ public class Parser implements SLogged {
           final BaseNotificationParser bnp = parsers.get(XmlUtil.fromNode(curnode));
           if ((bnp == null) ||
               (n.getNotification() != null)) {
-            SLogged.error("No parser to handle " + curnode);
+            new BwLogger().setLoggedClass(Parser.class).
+                    error("No parser to handle " + curnode);
             return  null;
           }
 
@@ -812,7 +813,10 @@ public class Parser implements SLogged {
   }
 
   private static void dumpXml(final Node nd) {
-    if (!SLogged.debug()) {
+    final BwLogger logger =
+            new BwLogger().setLoggedClass(Parser.class);
+
+    if (!logger.debug()) {
       return;
     }
 
@@ -831,9 +835,9 @@ public class Parser implements SLogged {
 
       serializer.transform(new DOMSource(nd), new StreamResult(out));
 
-      SLogged.debug(out.toString());
+      logger.debug(out.toString());
     } catch (Throwable t) {
-      SLogged.error("Unable to dump XML");
+      logger.error("Unable to dump XML");
     }
   }
 
@@ -859,10 +863,6 @@ public class Parser implements SLogged {
   }
 
   private static WebdavException parseException(final SAXException e) throws WebdavException {
-    if (SLogged.debug()) {
-      SLogged.error("Parse error:", e);
-    }
-
-    return new WebdavBadRequest();
+    return new WebdavBadRequest(e.getMessage());
   }
 }

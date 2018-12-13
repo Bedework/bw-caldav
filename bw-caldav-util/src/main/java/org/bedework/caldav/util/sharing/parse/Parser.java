@@ -29,7 +29,6 @@ import org.bedework.caldav.util.sharing.RemoveType;
 import org.bedework.caldav.util.sharing.SetType;
 import org.bedework.caldav.util.sharing.ShareType;
 import org.bedework.caldav.util.sharing.UserType;
-import org.bedework.util.logging.SLogged;
 import org.bedework.util.xml.XmlUtil;
 import org.bedework.util.xml.tagdefs.AppleServerTags;
 import org.bedework.util.xml.tagdefs.BedeworkServerTags;
@@ -61,7 +60,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
  *
  * @author Mike Douglass douglm
  */
-public class Parser implements SLogged {
+public class Parser {
   /** */
   public static final QName accessTag = AppleServerTags.access;
 
@@ -984,10 +983,6 @@ public class Parser implements SLogged {
   }
 
   private static WebdavException parseException(final SAXException e) throws WebdavException {
-    if (SLogged.debug()) {
-      SLogged.error("Parse error:", e);
-    }
-
     return new WebdavBadRequest();
   }
 }
