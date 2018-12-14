@@ -15,12 +15,13 @@
 		<maven.source.plugin.version>2.1.2</maven.source.plugin.version>
 
 		<!-- Bedework Versions -->
-    <bw-access.version>4.0.4-SNAPSHOT</bw-access.version>
-    <bw-util.version>4.0.20-SNAPSHOT</bw-util.version>
-    <bw-util-logging.version>4.0.0-SNAPSHOT</bw-util-logging.version>
-    <bw-util2.version>4.0.2-SNAPSHOT</bw-util2.version>
-		<bw-webdav.version>4.0.5-SNAPSHOT</bw-webdav.version>
-		<bw-xml.version>4.0.7-SNAPSHOT</bw-xml.version>
+    <bw-access.version>4.0.4</bw-access.version>
+    <bw-util.version>4.0.20</bw-util.version>
+    <bw-util-logging.version>4.0.0</bw-util-logging.version>
+    <bw-util2.version>4.0.2</bw-util2.version>
+		<bw-webdav.version>4.0.5</bw-webdav.version>
+		<bw-xml.version>4.0.7</bw-xml.version>
+
     <ical4j.groupId>org.bedework.ical4j</ical4j.groupId>
     <ical4j.artifactId>ical4j</ical4j.artifactId>
     <ical4j.version>2.0.3</ical4j.version>
