@@ -18,7 +18,7 @@
     <bw-access.version>4.0.5-SNAPSHOT</bw-access.version>
     <bw-util.version>4.0.21-SNAPSHOT</bw-util.version>
     <bw-util-logging.version>4.0.0</bw-util-logging.version>
-    <bw-util2.version>4.0.2</bw-util2.version>
+    <bw-util2.version>4.0.3-SNAPSHOT</bw-util2.version>
 		<bw-webdav.version>4.0.6-SNAPSHOT</bw-webdav.version>
 		<bw-xml.version>4.0.7</bw-xml.version>
 

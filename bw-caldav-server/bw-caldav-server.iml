@@ -20,7 +20,7 @@
     <orderEntry type="library" name="Maven: org.bedework:bw-xml-calws-soap:4.0.7" level="project" />
     <orderEntry type="module" module-name="bw-access" />
     <orderEntry type="module" module-name="bw-util-caching" />
-    <orderEntry type="library" name="Maven: org.bedework:bw-util2-calendar:4.0.2" level="project" />
+    <orderEntry type="module" module-name="bw-util2-calendar" />
     <orderEntry type="library" name="Maven: org.bedework:bw-xml-icalendar:4.0.7" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.9.6" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.9.6" level="project" />
