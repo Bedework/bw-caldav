@@ -328,8 +328,8 @@ public class CalwsHandler extends SoapHandler {
         VfreebusyType vfb = new VfreebusyType();
 
         JAXBElement<VfreebusyType> compel =
-          new JAXBElement<VfreebusyType>(XcalTags.vfreebusy,
-                                         VfreebusyType.class, vfb);
+                new JAXBElement<>(XcalTags.vfreebusy,
+                                  VfreebusyType.class, vfb);
         ArrayOfComponents aoc = new ArrayOfComponents();
 
         vcal.setComponents(aoc);
@@ -355,8 +355,8 @@ public class CalwsHandler extends SoapHandler {
         XcalUtil.initDt(dtstart, tr.getStart().toString(), null);
 
         JAXBElement<DtstartPropType> dtstartProp =
-          new JAXBElement<DtstartPropType>(XcalTags.dtstart,
-                                           DtstartPropType.class, dtstart);
+                new JAXBElement<>(XcalTags.dtstart,
+                                  DtstartPropType.class, dtstart);
 
         aop.getBasePropertyOrTzid().add(dtstartProp);
 
@@ -364,8 +364,8 @@ public class CalwsHandler extends SoapHandler {
         XcalUtil.initDt(dtend, tr.getEnd().toString(), null);
 
         JAXBElement<DtendPropType> dtendProp =
-          new JAXBElement<DtendPropType>(XcalTags.dtend,
-                                           DtendPropType.class, dtend);
+                new JAXBElement<>(XcalTags.dtend,
+                                  DtendPropType.class, dtend);
 
         aop.getBasePropertyOrTzid().add(dtendProp);
 
@@ -375,8 +375,8 @@ public class CalwsHandler extends SoapHandler {
         uid.setText(Util.makeRandomString(30, 35));
 
         JAXBElement<UidPropType> uidProp =
-          new JAXBElement<UidPropType>(XcalTags.uid,
-                                       UidPropType.class, uid);
+                new JAXBElement<>(XcalTags.uid,
+                                  UidPropType.class, uid);
 
         aop.getBasePropertyOrTzid().add(uidProp);
 
@@ -386,8 +386,8 @@ public class CalwsHandler extends SoapHandler {
         org.setCalAddress(cua);
 
         JAXBElement<OrganizerPropType> orgProp =
-          new JAXBElement<OrganizerPropType>(XcalTags.organizer,
-                                             OrganizerPropType.class, org);
+                new JAXBElement<>(XcalTags.organizer,
+                                  OrganizerPropType.class, org);
 
         aop.getBasePropertyOrTzid().add(orgProp);
 
@@ -397,8 +397,8 @@ public class CalwsHandler extends SoapHandler {
         att.setCalAddress(getSysi().principalToCaladdr(getSysi().getPrincipal()));
 
         JAXBElement<AttendeePropType> attProp =
-          new JAXBElement<AttendeePropType>(XcalTags.attendee,
-                                            AttendeePropType.class, att);
+                new JAXBElement<>(XcalTags.attendee,
+                                  AttendeePropType.class, att);
 
         aop.getBasePropertyOrTzid().add(attProp);
 
@@ -407,7 +407,7 @@ public class CalwsHandler extends SoapHandler {
         CalDAVEvent<?> ev = sical.getEvent();
 
         ev.setScheduleMethod(ScheduleMethods.methodTypeRequest);
-        Set<String> recipients = new TreeSet<String>();
+        Set<String> recipients = new TreeSet<>();
         recipients.add(cua);
         ev.setRecipients(recipients);
 
@@ -466,7 +466,7 @@ public class CalwsHandler extends SoapHandler {
 
         Report rpt = new Report(getNsIntf());
 
-        Collection<String> badHrefs = new ArrayList<String>();
+        Collection<String> badHrefs = new ArrayList<>();
 
         buildQueryResponse(cqr,
                            rpt.getMgetNodes(hrefs.getHref(), badHrefs),
@@ -980,7 +980,7 @@ public class CalwsHandler extends SoapHandler {
         InvalidFilterType iv = new InvalidFilterType();
         iv.setDetail(we.getMessage());
         er.setError(of.createInvalidFilter(iv));
-        break setError;
+        //break setError;
       }
     } // setError
 
