@@ -35,7 +35,7 @@
 		<!-- Third Party Library Versions -->
     <commons-codec.version>1.5</commons-codec.version>
     <junit.version>4.8.2</junit.version>
-    <servlet-api.version>2.5</servlet-api.version>
+    <servlet-api.version>4.0.0</servlet-api.version>
 	</properties>
 
 	<organization>
@@ -193,7 +193,7 @@
 
 			<dependency>
 				<groupId>javax.servlet</groupId>
-				<artifactId>servlet-api</artifactId>
+				<artifactId>javax.servlet-api</artifactId>
 				<version>${servlet-api.version}</version>
 				<scope>provided</scope>
 			</dependency>
