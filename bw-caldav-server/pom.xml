@@ -75,12 +75,24 @@
       <groupId>org.bedework</groupId>
       <artifactId>bw-ical4j-vcard</artifactId>
     </dependency>
+
     <dependency>
       <groupId>org.bedework</groupId>
       <artifactId>apache-jdkim-library</artifactId>
     </dependency>
 
 		<!-- Third Party Dependencies -->
+
+    <dependency>
+      <groupId>javax.xml.bind</groupId>
+      <artifactId>jaxb-api</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.xml.soap</groupId>
+      <artifactId>javax.xml.soap-api</artifactId>
+    </dependency>
+
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
