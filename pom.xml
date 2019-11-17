@@ -18,6 +18,7 @@
     <bw-access.version>4.0.7</bw-access.version>
     <bw-util.version>4.0.26</bw-util.version>
     <bw-util-logging.version>4.0.4</bw-util-logging.version>
+    <bw-util-tz.version>4.1.0-SNAPSHOT</bw-util-tz.version>
     <bw-util2.version>4.0.5</bw-util2.version>
 		<bw-webdav.version>4.0.8</bw-webdav.version>
 		<bw-xml.version>4.0.9</bw-xml.version>
@@ -127,8 +128,8 @@
 
       <dependency>
         <groupId>org.bedework</groupId>
-        <artifactId>bw-util-timezones</artifactId>
-        <version>${bw-util.version}</version>
+        <artifactId>bw-util-tz</artifactId>
+        <version>${bw-util-tz.version}</version>
       </dependency>
 
       <dependency>

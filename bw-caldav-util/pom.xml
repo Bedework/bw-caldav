@@ -46,7 +46,7 @@
     </dependency>
     <dependency>
       <groupId>org.bedework</groupId>
-      <artifactId>bw-util-timezones</artifactId>
+      <artifactId>bw-util-tz</artifactId>
     </dependency>
 		<dependency>
 			<groupId>org.bedework</groupId>
