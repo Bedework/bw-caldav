@@ -17,6 +17,7 @@
 		<!-- Bedework Versions -->
     <bw-access.version>4.0.7</bw-access.version>
     <bw-util.version>4.0.26</bw-util.version>
+    <bw-util-conf.version>4.1.0-SNAPSHOT</bw-util-conf.version>
     <bw-util-logging.version>4.0.4</bw-util-logging.version>
     <bw-util-tz.version>4.1.0-SNAPSHOT</bw-util-tz.version>
     <bw-util2.version>4.0.5</bw-util2.version>
@@ -117,7 +118,7 @@
       <dependency>
         <groupId>org.bedework</groupId>
         <artifactId>bw-util-jmx</artifactId>
-        <version>${bw-util.version}</version>
+        <version>${bw-util-conf.version}</version>
       </dependency>
 
       <dependency>
@@ -137,39 +138,49 @@
         <artifactId>bw-util-xml</artifactId>
         <version>${bw-util.version}</version>
       </dependency>
+
 			<!-- Bedework: Access -->
+
 			<dependency>
 				<groupId>org.bedework</groupId>
 				<artifactId>bw-access</artifactId>
 				<version>${bw-access.version}</version>
 			</dependency>
+
 			<!-- Bedework: WebDAV -->
+
 			<dependency>
 				<groupId>org.bedework</groupId>
 				<artifactId>bw-webdav</artifactId>
 				<version>${bw-webdav.version}</version>
 			</dependency>
-			<!-- Bedework: Web Services -->
+
+			<!-- Bedework: XML -->
+
 			<dependency>
 				<groupId>org.bedework</groupId>
 				<artifactId>bw-xml-caldav</artifactId>
 				<version>${bw-xml.version}</version>
 			</dependency>
+
 			<dependency>
 				<groupId>org.bedework</groupId>
 				<artifactId>bw-xml-calws-soap</artifactId>
 				<version>${bw-xml.version}</version>
 			</dependency>
+
 			<dependency>
 				<groupId>org.bedework</groupId>
 				<artifactId>bw-xml-synchws</artifactId>
 				<version>${bw-xml.version}</version>
 			</dependency>
+
       <dependency>
         <groupId>${ical4j.groupId}</groupId>
         <artifactId>${ical4j.artifactId}</artifactId>
         <version>${ical4j.version}</version>
       </dependency>
+
       <dependency>
         <groupId>org.bedework</groupId>
         <artifactId>bw-ical4j-vcard</artifactId>
