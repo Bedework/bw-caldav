@@ -26,7 +26,7 @@
 
     <ical4j.groupId>org.bedework.ical4j</ical4j.groupId>
     <ical4j.artifactId>ical4j</ical4j.artifactId>
-    <ical4j.version>2.0.3</ical4j.version>
+    <ical4j.version>2.0.11</ical4j.version>
     <!--
     <ical4j.groupId>org.bedework.ical4j</ical4j.groupId>
     <ical4j.artifactId>ical4j</ical4j.artifactId>
