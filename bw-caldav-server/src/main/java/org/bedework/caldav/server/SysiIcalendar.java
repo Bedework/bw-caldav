@@ -21,7 +21,6 @@ package org.bedework.caldav.server;
 import org.bedework.util.calendar.IcalDefs.IcalComponentType;
 import org.bedework.util.calendar.ScheduleMethods;
 import org.bedework.webdav.servlet.shared.WdEntity;
-import org.bedework.webdav.servlet.shared.WebdavException;
 
 import net.fortuna.ical4j.model.TimeZone;
 
@@ -98,9 +97,8 @@ public abstract class SysiIcalendar implements ScheduleMethods,
 
   /**
    * @return CalDAVEvent
-   * @throws WebdavException
    */
-  public abstract CalDAVEvent getEvent() throws WebdavException;
+  public abstract CalDAVEvent getEvent();
 
   /**
    * @return Iterator

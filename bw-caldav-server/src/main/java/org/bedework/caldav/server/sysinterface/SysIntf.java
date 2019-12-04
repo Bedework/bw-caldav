@@ -130,9 +130,8 @@ public interface SysIntf extends WdSysIntf {
    *
    * @param ptype
    * @return PropertyHandler
-   * @throws WebdavException
    */
-  public PropertyHandler getPropertyHandler(PropertyType ptype) throws WebdavException;
+  public PropertyHandler getPropertyHandler(PropertyType ptype);
 
   /**
    * @return UrlHandler object to manipulate urls.
@@ -648,7 +647,7 @@ public interface SysIntf extends WdSysIntf {
    * @throws WebdavException
    */
   public CalDAVCollection newCollectionObject(boolean isCalendarCollection,
-                                              String parentPath) throws WebdavException;
+                                              String parentPath);
 
   /**
    * @param col
