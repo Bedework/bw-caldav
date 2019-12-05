@@ -519,7 +519,7 @@ public class CalwsHandler extends SoapHandler {
       debug("CalendarQuery: ");
     }
 
-    resp.setHeader("Content-Type", "application/soap+xml");
+    //resp.setHeader("Content-Type", "application/soap+xml");
 
     CalendarQueryResponseType cqr = new CalendarQueryResponseType();
     JAXBElement<CalendarQueryResponseType> jax = of.createCalendarQueryResponse(cqr);

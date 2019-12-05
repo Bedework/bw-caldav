@@ -92,8 +92,7 @@ public abstract class SoapHandler extends MethodBase {
   public void init() {
   }
 
-  protected void initResponse(final HttpServletResponse resp)
-        throws WebdavException {
+  protected void initResponse(final HttpServletResponse resp) {
     resp.setCharacterEncoding("UTF-8");
     resp.setStatus(HttpServletResponse.SC_OK);
     resp.setContentType("text/xml;charset=utf-8");
