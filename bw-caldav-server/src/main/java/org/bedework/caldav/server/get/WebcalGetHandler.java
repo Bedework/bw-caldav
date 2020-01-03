@@ -102,7 +102,7 @@ public class WebcalGetHandler extends GetHandler {
         return;
       }
 
-      final Collection<CalDAVEvent> evs = new ArrayList<>();
+      final Collection<CalDAVEvent<?>> evs = new ArrayList<>();
 
       final EntityTimeRangeFilter etrf =
               new EntityTimeRangeFilter(null,

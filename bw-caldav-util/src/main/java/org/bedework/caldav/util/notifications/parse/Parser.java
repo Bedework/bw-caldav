@@ -317,7 +317,7 @@ public class Parser {
     return pt;
   }
 
-  ProcessorType parseProcessor(final Element nd) throws Throwable {
+  ProcessorType parseProcessor(final Element nd) {
     final ProcessorType pt = new ProcessorType();
 
     final Element[] els = XmlUtil.getElementsArray(nd);
@@ -577,10 +577,10 @@ public class Parser {
     return cc;
   }
 
-  private int getIntContent(final Element nd) throws Throwable {
+  private int getIntContent(final Element nd) {
     String val = XmlUtil.getElementContent(nd);
 
-    return Integer.valueOf(val);
+    return Integer.parseInt(val);
   }
 
   private DeletedDetailsType parseDeletedDetails(final Element nd) throws Throwable {
@@ -640,7 +640,7 @@ public class Parser {
     return dd;
   }
 
-  private PropType parseProps(final Element nd) throws Throwable {
+  private PropType parseProps(final Element nd) {
     PropType p = new PropType();
 
     for (Element curnode: XmlUtil.getElementsArray(nd)) {
@@ -862,7 +862,7 @@ public class Parser {
     return new WebdavBadRequest("Unexpected element " + curnode);
   }
 
-  private static WebdavException parseException(final SAXException e) throws WebdavException {
+  private static WebdavException parseException(final SAXException e)  {
     return new WebdavBadRequest(e.getMessage());
   }
 }

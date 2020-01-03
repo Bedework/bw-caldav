@@ -33,9 +33,8 @@ import java.io.InputStream;
 public abstract class CalDAVResource <T> extends WdEntity<T> {
   /** Constructor
    *
-   * @throws WebdavException
    */
-  public CalDAVResource() throws WebdavException {
+  public CalDAVResource() {
     super();
   }
 

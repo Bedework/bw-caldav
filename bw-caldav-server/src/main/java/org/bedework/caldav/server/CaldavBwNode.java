@@ -58,7 +58,7 @@ public abstract class CaldavBwNode extends WebdavNsNode {
 
   protected boolean rootNode;
 
-  protected CalDAVCollection col;
+  protected CalDAVCollection<?> col;
 
   private final static HashMap<QName, PropertyTagEntry> propertyNames =
     new HashMap<>();
@@ -164,7 +164,7 @@ public abstract class CaldavBwNode extends WebdavNsNode {
   }
 
   @Override
-  public WdCollection getCollection(final boolean deref) throws WebdavException {
+  public WdCollection<?> getCollection(final boolean deref) throws WebdavException {
     if (!deref) {
       return col;
     }
@@ -173,7 +173,7 @@ public abstract class CaldavBwNode extends WebdavNsNode {
   }
 
   @Override
-  public WdCollection getImmediateTargetCollection() throws WebdavException {
+  public WdCollection<?> getImmediateTargetCollection() throws WebdavException {
     return col.resolveAlias(false); // False => don't resolve all subaliases
   }
 
@@ -186,7 +186,7 @@ public abstract class CaldavBwNode extends WebdavNsNode {
       return false;
     }
 
-    CalDAVCollection c = (CalDAVCollection)getCollection(true);
+    CalDAVCollection<?> c = (CalDAVCollection<?>)getCollection(true);
     if (c == null) {
       return false;
     }
@@ -230,7 +230,7 @@ public abstract class CaldavBwNode extends WebdavNsNode {
   }
 
   @Override
-  public Collection<? extends WdEntity> getChildren(
+  public Collection<? extends WdEntity<?>> getChildren(
           Supplier<Object> filterGetter) throws WebdavException {
     return null;
   }
@@ -415,33 +415,29 @@ public abstract class CaldavBwNode extends WebdavNsNode {
     return calWSSoapNames.values();
   }
 
-  @SuppressWarnings("unchecked")
   protected JAXBElement<PropertyType> xrdProperty(final String name,
-                                     final String val) throws WebdavException {
+                                     final String val) {
     PropertyType p = new PropertyType();
     p.setType(name);
     p.setValue(val);
 
-    return new JAXBElement(XrdTags.property, PropertyType.class, p);
+    return new JAXBElement<>(XrdTags.property, PropertyType.class, p);
   }
 
-  @SuppressWarnings("unchecked")
   protected JAXBElement<LinkType> xrdLink(final String name,
-                                          final Object val)
-          throws WebdavException {
+                                          final Object val) {
     final LinkType l = new LinkType();
     l.setType(name);
     l.getTitleOrPropertyOrAny().add(val);
 
-    return new JAXBElement(XrdTags.link, LinkType.class, l);
+    return new JAXBElement<>(XrdTags.link, LinkType.class, l);
   }
 
-  @SuppressWarnings("unchecked")
-  protected JAXBElement<PropertyType> xrdEmptyProperty(final String name) throws WebdavException {
+  protected JAXBElement<PropertyType> xrdEmptyProperty(final String name) {
     final PropertyType p = new PropertyType();
     p.setType(name);
 
-    return new JAXBElement(XrdTags.property, PropertyType.class, p);
+    return new JAXBElement<>(XrdTags.property, PropertyType.class, p);
   }
 
   /**

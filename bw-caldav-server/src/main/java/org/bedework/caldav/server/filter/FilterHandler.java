@@ -135,7 +135,7 @@ public class FilterHandler implements Logged {
 
   /** Constructor
    *
-   * @param f
+   * @param f a filter
    */
   public FilterHandler(final FilterType f) {
     this.f = f;
@@ -151,9 +151,9 @@ public class FilterHandler implements Logged {
    * @return Collection of event objects (null or empty for no result)
    * @throws WebdavException
    */
-  public Collection<CalDAVEvent> query(final CaldavBwNode wdnode,
-                                       final List<String> retrieveList,
-                                       final RetrievalMode retrieveRecur) throws WebdavException {
+  public Collection<CalDAVEvent<?>> query(final CaldavBwNode wdnode,
+                                          final List<String> retrieveList,
+                                          final RetrievalMode retrieveRecur) throws WebdavException {
     try {
       eventq = Filters.getQuery(f);
 
@@ -167,12 +167,13 @@ public class FilterHandler implements Logged {
       }
     }*/
 
-      final CalDAVCollection c = (CalDAVCollection)wdnode.getCollection(false);
+      final CalDAVCollection<?> c =
+              (CalDAVCollection<?>)wdnode.getCollection(false);
       if (c == null) {
         return null;
       }
 
-      final Collection<CalDAVEvent> events = 
+      final Collection<CalDAVEvent<?>> events =
               wdnode.getSysi().getEvents(c,
                                          eventq.filter,
                                          retrieveList,
@@ -211,39 +212,40 @@ public class FilterHandler implements Logged {
 
     // Currently only handle VCALENDAR for top level.
     if (!"VCALENDAR".equals(cfltr.getName())) {
-      return new ArrayList<WebdavNsNode>();
+      return new ArrayList<>();
     }
 
-    ArrayList<WebdavNsNode> filtered = new ArrayList<WebdavNsNode>();
+    ArrayList<WebdavNsNode> filtered = new ArrayList<>();
 
     for (WebdavNsNode node: nodes) {
-      CaldavComponentNode curnode = null;
+      CaldavComponentNode curnode;
 
       if (!(node instanceof CaldavComponentNode)) {
         // Cannot match to anything - don't pass it?
-      } else {
-        curnode = (CaldavComponentNode)node;
+        continue;
+      }
 
-        int entityType = curnode.getEvent().getEntityType();
+      curnode = (CaldavComponentNode)node;
 
-        Collection<PropFilterType> pfs = null;
+      int entityType = curnode.getEvent().getEntityType();
 
-        if (entityType == IcalDefs.entityTypeEvent) {
-          pfs = eventq.eventFilters;
-        } else if (entityType == IcalDefs.entityTypeTodo) {
-          pfs = eventq.todoFilters;
-        } else if (entityType == IcalDefs.entityTypeJournal) {
-          pfs = eventq.journalFilters;
-        }
+      Collection<PropFilterType> pfs = null;
 
-        if (!WebdavUtils.emptyCollection(pfs)) {
-          Component comp = curnode.getComponent();
+      if (entityType == IcalDefs.entityTypeEvent) {
+        pfs = eventq.eventFilters;
+      } else if (entityType == IcalDefs.entityTypeTodo) {
+        pfs = eventq.todoFilters;
+      } else if (entityType == IcalDefs.entityTypeJournal) {
+        pfs = eventq.journalFilters;
+      }
 
-          for (PropFilterType pf: pfs) {
-            if (FilterUtil.filter(pf, comp)) {
-              filtered.add(curnode);
-              break;
-            }
+      if (!WebdavUtils.emptyCollection(pfs)) {
+        Component comp = curnode.getComponent();
+
+        for (PropFilterType pf: pfs) {
+          if (FilterUtil.filter(pf, comp)) {
+            filtered.add(curnode);
+            break;
           }
         }
       }

@@ -230,7 +230,7 @@ public class CaldavCalNode extends CaldavBwNode {
   @Override
   public String getEtagValue(final boolean strong) throws WebdavException {
     /* We need the etag of the target if this is an alias */
-    CalDAVCollection c = (CalDAVCollection)getCollection(true); // deref
+    CalDAVCollection<?> c = (CalDAVCollection<?>)getCollection(true); // deref
 
     if (c == null) {
       return null;
@@ -245,9 +245,6 @@ public class CaldavCalNode extends CaldavBwNode {
     return "W/" + val;
   }
 
-  /* (non-Javadoc)
-   * @see org.bedework.caldav.server.CaldavBwNode#getEtokenValue()
-   */
   @Override
   public String getEtokenValue() throws WebdavException {
     return concatEtoken(getEtagValue(true), "");
@@ -259,7 +256,8 @@ public class CaldavCalNode extends CaldavBwNode {
    */
   public boolean getSchedulingAllowed() throws WebdavException {
     /* It's the alias target that matters */
-    CalDAVCollection c = (CalDAVCollection)getCollection(true); // deref
+    CalDAVCollection<?> c =
+            (CalDAVCollection<?>)getCollection(true); // deref
 
     if (c == null) {
       return false;
@@ -299,13 +297,14 @@ public class CaldavCalNode extends CaldavBwNode {
       return;
     }
 
-    CalDAVCollection c = (CalDAVCollection)getCollection(false); // Don't deref
+    CalDAVCollection<?> c =
+            (CalDAVCollection<?>)getCollection(false); // Don't deref
 
     c.setCalType(CalDAVCollection.calTypeCalendarCollection);
   }
 
   @Override
-  public Collection<? extends WdEntity> getChildren(
+  public Collection<? extends WdEntity<?>> getChildren(
           final Supplier<Object> filterGetter) throws WebdavException {
     /* For the moment we're going to do this the inefficient way.
        We really need to have calendar defs that can be expressed as a search
@@ -313,7 +312,8 @@ public class CaldavCalNode extends CaldavBwNode {
        */
 
     try {
-      CalDAVCollection c = (CalDAVCollection)getCollection(true); // deref
+      CalDAVCollection<?> c =
+              (CalDAVCollection<?>)getCollection(true); // deref
 
       if (c == null) { // no access?
         return null;
@@ -324,7 +324,7 @@ public class CaldavCalNode extends CaldavBwNode {
           debug("POSSIBLE SEARCH: getChildren for cal " + c.getPath());
         }
 
-        final Collection<WdEntity> ch = new ArrayList<WdEntity>();
+        final Collection<WdEntity<?>> ch = new ArrayList<>();
         ch.addAll(getSysi().getCollections(c));
         ch.addAll(getSysi().getFiles(c));
 
@@ -334,7 +334,7 @@ public class CaldavCalNode extends CaldavBwNode {
       /* Otherwise, return the events in this calendar */
 
       /* Note we use the undereferenced version for the fetch */
-      c = (CalDAVCollection)getCollection(false); // don't deref
+      c = (CalDAVCollection<?>)getCollection(false); // don't deref
 
       if (debug()) {
         debug("Get all resources in calendar " + c.getPath());
@@ -360,7 +360,7 @@ public class CaldavCalNode extends CaldavBwNode {
    * @param fbcal
    * @throws WebdavException
    */
-  public void setFreeBusy(final CalDAVEvent fbcal) throws WebdavException {
+  public void setFreeBusy(final CalDAVEvent<?> fbcal) throws WebdavException {
     try {
       ical = fbcal;
 
@@ -378,7 +378,7 @@ public class CaldavCalNode extends CaldavBwNode {
                              final Writer wtr,
                              final String contentType) throws WebdavException {
     try {
-      Collection<CalDAVEvent> evs = new ArrayList<CalDAVEvent>();
+      Collection<CalDAVEvent<?>> evs = new ArrayList<>();
 
       evs.add(ical);
 
@@ -418,7 +418,7 @@ public class CaldavCalNode extends CaldavBwNode {
    * ==================================================================== */
 
   @Override
-  public String getContentLang() throws WebdavException {
+  public String getContentLang() {
     return "en";
   }
 
@@ -434,7 +434,7 @@ public class CaldavCalNode extends CaldavBwNode {
   }
 
   @Override
-  public String getContentType() throws WebdavException {
+  public String getContentType() {
     if (ical != null) {
       return "text/calendar;charset=utf-8";
     }
@@ -443,12 +443,12 @@ public class CaldavCalNode extends CaldavBwNode {
   }
 
   @Override
-  public String getCreDate() throws WebdavException {
+  public String getCreDate() {
     return null;
   }
 
   @Override
-  public String getDisplayname() throws WebdavException {
+  public String getDisplayname()  {
     if (col == null) {
       return null;
     }
@@ -477,7 +477,7 @@ public class CaldavCalNode extends CaldavBwNode {
 
   @Override
   public boolean getDeleted() throws WebdavException {
-    return col.getDeleted() | ((CalDAVCollection)getCollection(true)).getDeleted();
+    return col.getDeleted() | ((CalDAVCollection<?>)getCollection(true)).getDeleted();
   }
 
   @Override
@@ -495,7 +495,7 @@ public class CaldavCalNode extends CaldavBwNode {
       return currentAccess;
     }
 
-    CalDAVCollection c = (CalDAVCollection)getCollection(true); // We want access of underlying object?
+    CalDAVCollection<?> c = (CalDAVCollection<?>)getCollection(true); // We want access of underlying object?
 
     if (c == null) {
       return null;
@@ -551,8 +551,6 @@ public class CaldavCalNode extends CaldavBwNode {
       }
 
       return false;
-    } catch (WebdavException wde) {
-      throw wde;
     } catch (Throwable t) {
       throw new WebdavException(t);
     }
@@ -606,7 +604,8 @@ public class CaldavCalNode extends CaldavBwNode {
 
           if (XmlUtil.nodeMatches(pval, CaldavTags.calendar)) {
             // A change is only valid for mkcalendar or an (extended) mkcol
-            final CalDAVCollection c = (CalDAVCollection)getCollection(false); // Don't deref
+            final CalDAVCollection<?> c =
+                    (CalDAVCollection<?>)getCollection(false); // Don't deref
 
             if (WebdavTags.mkcol.equals(spr.rootElement) ||
                     CaldavTags.mkcalendar.equals(spr.rootElement)) {
@@ -763,9 +762,9 @@ public class CaldavCalNode extends CaldavBwNode {
 
     try {
       int calType;
-      CalDAVCollection c = (CalDAVCollection)getCollection(true); // deref this
-      CalDAVCollection cundereffed =
-          (CalDAVCollection)getCollection(false); // don't deref this
+      CalDAVCollection<?> c = (CalDAVCollection<?>)getCollection(true); // deref this
+      CalDAVCollection<?> cundereffed =
+          (CalDAVCollection<?>)getCollection(false); // don't deref this
       if (c == null) {
         // Probably no access -- fake it up as a collection
         calType = CalDAVCollection.calTypeCollection;
@@ -817,7 +816,7 @@ public class CaldavCalNode extends CaldavBwNode {
         }
 
         String s = cundereffed.getProperty(AppleServerTags.shared);
-        if ((s != null) && Boolean.valueOf(s)) {
+        if ((s != null) && Boolean.parseBoolean(s)) {
           AccessPrincipal owner;
           if (c == null) {
             // probably lost access to the target
@@ -837,8 +836,8 @@ public class CaldavCalNode extends CaldavBwNode {
       }
 
       if (tag.equals(AppleServerTags.invite)) {
-        final CalDAVCollection imm =
-                (CalDAVCollection)getImmediateTargetCollection();
+        final CalDAVCollection<?> imm =
+                (CalDAVCollection<?>)getImmediateTargetCollection();
         final InviteType inv = getSysi().getInviteStatus(imm);
 
         if (inv == null) {
@@ -1053,7 +1052,6 @@ public class CaldavCalNode extends CaldavBwNode {
          *            <C:comp name="VTODO"/>
          *         </C:supported-calendar-component-set>
          */
-        @SuppressWarnings("unchecked")
         List<String> comps = c.getSupportedComponents();
 
         if (Util.isEmpty(comps)) {
@@ -1208,7 +1206,6 @@ public class CaldavCalNode extends CaldavBwNode {
       }
 
       if (tag.equals(CaldavTags.vpollSupportedComponentSet)) {
-        @SuppressWarnings("unchecked")
         List<String> comps = c.getVpollSupportedComponents();
 
         if (Util.isEmpty(comps)) {
@@ -1440,7 +1437,8 @@ public class CaldavCalNode extends CaldavBwNode {
         ResourceTypeType rt = new ResourceTypeType();
 
         int calType;
-        CalDAVCollection c = (CalDAVCollection)getCollection(true); // deref this
+        CalDAVCollection<?> c =
+                (CalDAVCollection<?>)getCollection(true); // deref this
         if (c == null) {
           // Probably no access -- fake it up as a collection
           calType = CalDAVCollection.calTypeCollection;
@@ -1478,8 +1476,8 @@ public class CaldavCalNode extends CaldavBwNode {
       if (tag.equals(CalWSSoapTags.supportedCalendarComponentSet)) {
         SupportedCalendarComponentSetType sccs = new SupportedCalendarComponentSetType();
 
-        CalDAVCollection c = (CalDAVCollection)getCollection(true); // deref this
-        @SuppressWarnings("unchecked")
+        CalDAVCollection<?> c =
+                (CalDAVCollection<?>)getCollection(true); // deref this
         List<String> comps = c.getSupportedComponents();
 
         if (Util.isEmpty(comps)) {
@@ -1490,13 +1488,17 @@ public class CaldavCalNode extends CaldavBwNode {
 
         for (String s: comps) {
           JAXBElement<? extends BaseComponentType> el = null;
-          if (s.equals("VEVENT")) {
-            el = of.createVevent(new VeventType());
-          } else if (s.equals("VTODO")) {
-            el = of.createVtodo(new VtodoType());
-          } else if (s.equals("VAVAILABILITY")) {
-            el = of.createVavailability(new VavailabilityType());
-          };
+          switch (s) {
+            case "VEVENT":
+              el = of.createVevent(new VeventType());
+              break;
+            case "VTODO":
+              el = of.createVtodo(new VtodoType());
+              break;
+            case "VAVAILABILITY":
+              el = of.createVavailability(new VavailabilityType());
+              break;
+          }
 
           if (el != null) {
             sccs.getBaseComponent().add(el);
@@ -1536,7 +1538,8 @@ public class CaldavCalNode extends CaldavBwNode {
                                        final boolean allProp) throws WebdavException {
     try {
       int calType;
-      CalDAVCollection c = (CalDAVCollection)getCollection(true); // deref this
+      CalDAVCollection<?> c =
+              (CalDAVCollection<?>)getCollection(true); // deref this
       if (c == null) {
         // Probably no access -- fake it up as a collection
         calType = CalDAVCollection.calTypeCollection;
@@ -1688,7 +1691,6 @@ public class CaldavCalNode extends CaldavBwNode {
       if (name.equals(CalWSXrdDefs.supportedCalendarComponentSet)) {
         SupportedCalendarComponentSetType sccs = new SupportedCalendarComponentSetType();
 
-        @SuppressWarnings("unchecked")
         List<String> comps = c.getSupportedComponents();
 
         if (Util.isEmpty(comps)) {
@@ -1699,13 +1701,17 @@ public class CaldavCalNode extends CaldavBwNode {
 
         for (String s: comps) {
           JAXBElement<? extends BaseComponentType> el = null;
-          if (s.equals("VEVENT")) {
-            el = of.createVevent(new VeventType());
-          } else if (s.equals("VTODO")) {
-            el = of.createVtodo(new VtodoType());
-          } else if (s.equals("VAVAILABILITY")) {
-            el = of.createVavailability(new VavailabilityType());
-          };
+          switch (s) {
+            case "VEVENT":
+              el = of.createVevent(new VeventType());
+              break;
+            case "VTODO":
+              el = of.createVtodo(new VtodoType());
+              break;
+            case "VAVAILABILITY":
+              el = of.createVavailability(new VavailabilityType());
+              break;
+          }
 
           if (el != null) {
             sccs.getBaseComponent().add(el);
@@ -1713,7 +1719,7 @@ public class CaldavCalNode extends CaldavBwNode {
         }
 
         JAXBElement<SupportedCalendarComponentSetType> el =
-              new JAXBElement<SupportedCalendarComponentSetType>(CalWSSoapTags.supportedCalendarComponentSet,
+              new JAXBElement<>(CalWSSoapTags.supportedCalendarComponentSet,
                                          SupportedCalendarComponentSetType.class,
                                          sccs);
         props.add(el);
@@ -1732,7 +1738,7 @@ public class CaldavCalNode extends CaldavBwNode {
 
   @Override
   public Collection<PropertyTagEntry> getPropertyNames()throws WebdavException {
-    Collection<PropertyTagEntry> res = new ArrayList<PropertyTagEntry>();
+    Collection<PropertyTagEntry> res = new ArrayList<>();
 
     res.addAll(super.getPropertyNames());
     res.addAll(propertyNames.values());
@@ -1742,7 +1748,7 @@ public class CaldavCalNode extends CaldavBwNode {
 
   @Override
   public Collection<PropertyTagEntry> getCalWSSoapNames() throws WebdavException {
-    Collection<PropertyTagEntry> res = new ArrayList<PropertyTagEntry>();
+    Collection<PropertyTagEntry> res = new ArrayList<>();
 
     res.addAll(super.getCalWSSoapNames());
     res.addAll(calWSSoapNames.values());
@@ -1752,7 +1758,7 @@ public class CaldavCalNode extends CaldavBwNode {
 
   @Override
   public Collection<PropertyTagXrdEntry> getXrdNames()throws WebdavException {
-    Collection<PropertyTagXrdEntry> res = new ArrayList<PropertyTagXrdEntry>();
+    Collection<PropertyTagXrdEntry> res = new ArrayList<>();
 
     res.addAll(super.getXrdNames());
     res.addAll(xrdNames.values());
@@ -1762,8 +1768,9 @@ public class CaldavCalNode extends CaldavBwNode {
 
   @Override
   public Collection<QName> getSupportedReports() throws WebdavException {
-    Collection<QName> res = new ArrayList<QName>();
-    CalDAVCollection c = (CalDAVCollection)getCollection(true); // deref
+    Collection<QName> res = new ArrayList<>();
+    CalDAVCollection<?> c =
+            (CalDAVCollection<?>)getCollection(true); // deref
 
     if (c == null) {
       return res;
@@ -1794,7 +1801,7 @@ public class CaldavCalNode extends CaldavBwNode {
     try {
       sb.append(isCalendarCollection());
     } catch (Throwable t) {
-      sb.append("exception(" + t.getMessage() + ")");
+      sb.append("exception(").append(t.getMessage()).append(")");
     }
     sb.append("}");
 

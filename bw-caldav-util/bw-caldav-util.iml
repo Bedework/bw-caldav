@@ -26,13 +26,13 @@
     <orderEntry type="library" name="Maven: org.bedework:bw-xml-calws-soap:4.0.9" level="project" />
     <orderEntry type="library" name="Maven: org.bedework:bw-access:4.0.7" level="project" />
     <orderEntry type="library" name="Maven: org.bedework:bw-util-caching:4.0.25" level="project" />
-    <orderEntry type="library" name="Maven: org.bedework:bw-util-xml:4.0.26" level="project" />
+    <orderEntry type="module" module-name="bw-util-xml" />
     <orderEntry type="library" name="Maven: org.bedework:bw-util2-calendar:4.0.5" level="project" />
     <orderEntry type="library" name="Maven: org.bedework:bw-xml-icalendar:4.0.9" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.9.6" level="project" />
     <orderEntry type="library" name="Maven: org.bedework:bw-util-logging:4.0.4" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.9.8" level="project" />
-    <orderEntry type="library" name="Maven: org.bedework:bw-util-misc:4.0.26" level="project" />
+    <orderEntry type="module" module-name="bw-util-misc" />
     <orderEntry type="module" module-name="bw-util-tz" />
     <orderEntry type="module" module-name="bw-util-http" />
     <orderEntry type="module" module-name="bw-util-config" />

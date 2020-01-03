@@ -29,7 +29,6 @@ import org.bedework.caldav.util.sharing.RemoveType;
 import org.bedework.caldav.util.sharing.SetType;
 import org.bedework.caldav.util.sharing.ShareType;
 import org.bedework.caldav.util.sharing.UserType;
-import org.bedework.util.xml.XmlUtil;
 import org.bedework.util.xml.tagdefs.AppleServerTags;
 import org.bedework.util.xml.tagdefs.BedeworkServerTags;
 import org.bedework.util.xml.tagdefs.CaldavTags;
@@ -54,6 +53,11 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+
+import static org.bedework.util.xml.XmlUtil.getAttrVal;
+import static org.bedework.util.xml.XmlUtil.getElementContent;
+import static org.bedework.util.xml.XmlUtil.getElementsArray;
+import static org.bedework.util.xml.XmlUtil.nodeMatches;
 
 /** Class to parse properties and requests related to CalDAV sharing
  * (as defined by Apple).
@@ -147,10 +151,10 @@ public class Parser {
   public static final QName userTag = AppleServerTags.user;
 
   private static Map<String, QName> statusToInviteStatus =
-      new HashMap<String, QName>();
+      new HashMap<>();
 
   private static Map<QName, String> inviteStatusToStatus =
-      new HashMap<QName, String>();
+      new HashMap<>();
 
   static {
     setStatusMaps(inviteAcceptedTag);
@@ -314,20 +318,20 @@ public class Parser {
    */
   public InviteType parseInvite(final Node nd) throws WebdavException {
     try {
-      if (!XmlUtil.nodeMatches(nd, inviteTag)) {
+      if (!nodeMatches(nd, inviteTag)) {
         throw new WebdavBadRequest("Expected " + inviteTag);
       }
 
       InviteType in = new InviteType();
-      Element[] shareEls = XmlUtil.getElementsArray(nd);
+      Element[] shareEls = getElementsArray(nd);
 
       for (final Element curnode: shareEls) {
-        if (XmlUtil.nodeMatches(curnode, organizerTag)) {
+        if (nodeMatches(curnode, organizerTag)) {
           in.setOrganizer(parseOrganizer(curnode));
           continue;
         }
 
-        if (XmlUtil.nodeMatches(curnode, userTag)) {
+        if (nodeMatches(curnode, userTag)) {
           in.getUsers().add(parseUser(curnode));
           continue;
         }
@@ -352,20 +356,20 @@ public class Parser {
    */
   public ShareType parseShare(final Node nd) throws WebdavException {
     try {
-      if (!XmlUtil.nodeMatches(nd, shareTag)) {
+      if (!nodeMatches(nd, shareTag)) {
         throw new WebdavBadRequest("Expected " + shareTag);
       }
 
       ShareType sh = new ShareType();
-      Element[] shareEls = XmlUtil.getElementsArray(nd);
+      Element[] shareEls = getElementsArray(nd);
 
       for (Element curnode: shareEls) {
-        if (XmlUtil.nodeMatches(curnode, setTag)) {
+        if (nodeMatches(curnode, setTag)) {
           sh.getSet().add(parseSet(curnode));
           continue;
         }
 
-        if (XmlUtil.nodeMatches(curnode, removeTag)) {
+        if (nodeMatches(curnode, removeTag)) {
           sh.getRemove().add(parseRemove(curnode));
           continue;
         }
@@ -396,47 +400,47 @@ public class Parser {
    */
   public InviteReplyType parseInviteReply(final Element nd) throws WebdavException {
     try {
-      if (!XmlUtil.nodeMatches(nd, inviteReplyTag)) {
+      if (!nodeMatches(nd, inviteReplyTag)) {
         throw new WebdavBadRequest("Expected " + inviteReplyTag);
       }
 
       final InviteReplyType ir = new InviteReplyType();
-      ir.setSharedType(XmlUtil.getAttrVal(nd, "shared-type"));
+      ir.setSharedType(getAttrVal(nd, "shared-type"));
       
-      final Element[] shareEls = XmlUtil.getElementsArray(nd);
+      final Element[] shareEls = getElementsArray(nd);
 
       for (final Element curnode: shareEls) {
-        if (XmlUtil.nodeMatches(curnode, bwnameTag)) {
-          ir.setName(XmlUtil.getElementContent(curnode));
+        if (nodeMatches(curnode, bwnameTag)) {
+          ir.setName(getElementContent(curnode));
           continue;
         }
 
-        if (XmlUtil.nodeMatches(curnode, commonNameTag)) {
+        if (nodeMatches(curnode, commonNameTag)) {
           if (ir.getCommonName() != null) {
             throw badInviteReply();
           }
 
-          ir.setCommonName(XmlUtil.getElementContent(curnode));
+          ir.setCommonName(getElementContent(curnode));
         }
 
-        if (XmlUtil.nodeMatches(curnode, firstNameTag)) {
+        if (nodeMatches(curnode, firstNameTag)) {
           continue;
         }
 
-        if (XmlUtil.nodeMatches(curnode, lastNameTag)) {
+        if (nodeMatches(curnode, lastNameTag)) {
           continue;
         }
 
-        if (XmlUtil.nodeMatches(curnode, hrefTag)) {
+        if (nodeMatches(curnode, hrefTag)) {
           if (ir.getHref() != null) {
             throw badInviteReply();
           }
 
-          ir.setHref(XmlUtil.getElementContent(curnode));
+          ir.setHref(getElementContent(curnode));
           continue;
         }
 
-        if (XmlUtil.nodeMatches(curnode, inviteAcceptedTag)) {
+        if (nodeMatches(curnode, inviteAcceptedTag)) {
           if (ir.getAccepted() != null) {
             throw badInviteReply();
           }
@@ -445,7 +449,7 @@ public class Parser {
           continue;
         }
 
-        if (XmlUtil.nodeMatches(curnode, inviteDeclinedTag)) {
+        if (nodeMatches(curnode, inviteDeclinedTag)) {
           if (ir.getAccepted() != null) {
             throw badInviteReply();
           }
@@ -454,7 +458,7 @@ public class Parser {
           continue;
         }
 
-        if (XmlUtil.nodeMatches(curnode, hosturlTag)) {
+        if (nodeMatches(curnode, hosturlTag)) {
           if (ir.getHostUrl() != null) {
             throw badInviteReply();
           }
@@ -463,21 +467,21 @@ public class Parser {
           continue;
         }
 
-        if (XmlUtil.nodeMatches(curnode, inReplyToTag)) {
+        if (nodeMatches(curnode, inReplyToTag)) {
           if (ir.getInReplyTo() != null) {
             throw badInviteReply();
           }
 
-          ir.setInReplyTo(XmlUtil.getElementContent(curnode));
+          ir.setInReplyTo(getElementContent(curnode));
           continue;
         }
 
-        if (XmlUtil.nodeMatches(curnode, summaryTag)) {
+        if (nodeMatches(curnode, summaryTag)) {
           if (ir.getSummary() != null) {
             throw badInviteReply();
           }
 
-          ir.setSummary(XmlUtil.getElementContent(curnode));
+          ir.setSummary(getElementContent(curnode));
           continue;
         }
 
@@ -492,8 +496,6 @@ public class Parser {
       }
 
       return ir;
-    } catch (SAXException e) {
-      throw parseException(e);
     } catch (WebdavException wde) {
       throw wde;
     } catch (Throwable t) {
@@ -508,43 +510,43 @@ public class Parser {
    */
   public InviteNotificationType parseInviteNotification(final Element nd) throws WebdavException {
     try {
-      if (!XmlUtil.nodeMatches(nd, inviteNotificationTag)) {
+      if (!nodeMatches(nd, inviteNotificationTag)) {
         throw new WebdavBadRequest("Expected " + inviteNotificationTag);
       }
 
       final InviteNotificationType in = new InviteNotificationType();
-      in.setSharedType(XmlUtil.getAttrVal(nd, "shared-type"));
+      in.setSharedType(getAttrVal(nd, "shared-type"));
 
-      final Element[] els = XmlUtil.getElementsArray(nd);
+      final Element[] els = getElementsArray(nd);
 
       for (Element curnode: els) {
-        if (XmlUtil.nodeMatches(curnode, bwnameTag)) {
-          in.setName(XmlUtil.getElementContent(curnode));
+        if (nodeMatches(curnode, bwnameTag)) {
+          in.setName(getElementContent(curnode));
           continue;
         }
 
-        if (XmlUtil.nodeMatches(curnode, uidTag)) {
+        if (nodeMatches(curnode, uidTag)) {
           if (in.getUid() != null) {
             throw badInviteNotification();
           }
 
-          in.setUid(XmlUtil.getElementContent(curnode));
+          in.setUid(getElementContent(curnode));
           continue;
         }
 
-        if (XmlUtil.nodeMatches(curnode, hrefTag)) {
+        if (nodeMatches(curnode, hrefTag)) {
           if (in.getHref() != null) {
             throw badInviteNotification();
           }
 
-          in.setHref(XmlUtil.getElementContent(curnode));
+          in.setHref(getElementContent(curnode));
           continue;
         }
 
-        if (XmlUtil.nodeMatches(curnode, inviteAcceptedTag) ||
-            XmlUtil.nodeMatches(curnode, inviteDeclinedTag) ||
-            XmlUtil.nodeMatches(curnode, inviteNoresponseTag) ||
-            XmlUtil.nodeMatches(curnode, inviteDeletedTag)) {
+        if (nodeMatches(curnode, inviteAcceptedTag) ||
+            nodeMatches(curnode, inviteDeclinedTag) ||
+            nodeMatches(curnode, inviteNoresponseTag) ||
+            nodeMatches(curnode, inviteDeletedTag)) {
           if (in.getInviteStatus() != null) {
             throw badAccess();
           }
@@ -555,7 +557,7 @@ public class Parser {
           continue;
         }
 
-        if (XmlUtil.nodeMatches(curnode, accessTag)) {
+        if (nodeMatches(curnode, accessTag)) {
           if (in.getAccess() != null) {
             throw badInviteNotification();
           }
@@ -564,7 +566,7 @@ public class Parser {
           continue;
         }
 
-        if (XmlUtil.nodeMatches(curnode, hosturlTag)) {
+        if (nodeMatches(curnode, hosturlTag)) {
           if (in.getHostUrl() != null) {
             throw badInviteNotification();
           }
@@ -573,7 +575,7 @@ public class Parser {
           continue;
         }
 
-        if (XmlUtil.nodeMatches(curnode, organizerTag)) {
+        if (nodeMatches(curnode, organizerTag)) {
           if (in.getOrganizer() != null) {
             throw badInviteNotification();
           }
@@ -582,16 +584,16 @@ public class Parser {
           continue;
         }
 
-        if (XmlUtil.nodeMatches(curnode, summaryTag)) {
+        if (nodeMatches(curnode, summaryTag)) {
           if (in.getSummary() != null) {
             throw badInviteNotification();
           }
 
-          in.setSummary(XmlUtil.getElementContent(curnode));
+          in.setSummary(getElementContent(curnode));
           continue;
         }
 
-        if (XmlUtil.nodeMatches(curnode, supportedComponentsTag)) {
+        if (nodeMatches(curnode, supportedComponentsTag)) {
           if (!in.getSupportedComponents().isEmpty()) {
             throw badInviteNotification();
           }
@@ -632,37 +634,37 @@ public class Parser {
    */
   public UserType parseUser(final Node nd) throws WebdavException {
     try {
-      if (!XmlUtil.nodeMatches(nd, userTag)) {
+      if (!nodeMatches(nd, userTag)) {
         throw new WebdavBadRequest("Expected " + userTag);
       }
 
       final UserType u = new UserType();
-      final Element[] shareEls = XmlUtil.getElementsArray(nd);
+      final Element[] shareEls = getElementsArray(nd);
       boolean parsedExternalElement = false;
 
       for (final Element curnode: shareEls) {
-        if (XmlUtil.nodeMatches(curnode, hrefTag)) {
+        if (nodeMatches(curnode, hrefTag)) {
           if (u.getHref() != null) {
             throw badUser();
           }
 
-          u.setHref(XmlUtil.getElementContent(curnode));
+          u.setHref(getElementContent(curnode));
           continue;
         }
 
-        if (XmlUtil.nodeMatches(curnode, commonNameTag)) {
+        if (nodeMatches(curnode, commonNameTag)) {
           if (u.getCommonName() != null) {
             throw badUser();
           }
 
-          u.setCommonName(XmlUtil.getElementContent(curnode));
+          u.setCommonName(getElementContent(curnode));
           continue;
         }
 
-        if (XmlUtil.nodeMatches(curnode, inviteAcceptedTag) ||
-            XmlUtil.nodeMatches(curnode, inviteDeclinedTag) ||
-            XmlUtil.nodeMatches(curnode, inviteNoresponseTag) ||
-            XmlUtil.nodeMatches(curnode, inviteDeletedTag)) {
+        if (nodeMatches(curnode, inviteAcceptedTag) ||
+            nodeMatches(curnode, inviteDeclinedTag) ||
+            nodeMatches(curnode, inviteNoresponseTag) ||
+            nodeMatches(curnode, inviteDeletedTag)) {
           if (u.getInviteStatus() != null) {
             throw badAccess();
           }
@@ -674,7 +676,7 @@ public class Parser {
           continue;
         }
 
-        if (XmlUtil.nodeMatches(curnode, accessTag)) {
+        if (nodeMatches(curnode, accessTag)) {
           if (u.getAccess() != null) {
             throw badUser();
           }
@@ -683,22 +685,22 @@ public class Parser {
           continue;
         }
 
-        if (XmlUtil.nodeMatches(curnode, summaryTag)) {
+        if (nodeMatches(curnode, summaryTag)) {
           if (u.getSummary() != null) {
             throw badUser();
           }
 
-          u.setSummary(XmlUtil.getElementContent(curnode));
+          u.setSummary(getElementContent(curnode));
           continue;
         }
 
-        if (XmlUtil.nodeMatches(curnode, externalUserTag)) {
+        if (nodeMatches(curnode, externalUserTag)) {
           if (parsedExternalElement) {
             throw badUser();
           }
 
           parsedExternalElement = true;
-          u.setExternalUser(Boolean.valueOf(XmlUtil.getElementContent(curnode)));
+          u.setExternalUser(Boolean.parseBoolean(getElementContent(curnode)));
           continue;
         }
 
@@ -723,28 +725,28 @@ public class Parser {
 
   private void parseSupportedComponents(final Node nd,
                                         final List<String> comps) throws Throwable {
-    for (Element curnode: XmlUtil.getElementsArray(nd)) {
-      if (!XmlUtil.nodeMatches(curnode, compTag)) {
+    for (Element curnode: getElementsArray(nd)) {
+      if (!nodeMatches(curnode, compTag)) {
         throw badComps();
       }
 
-      comps.add(XmlUtil.getAttrVal(curnode, "name"));
+      comps.add(getAttrVal(curnode, "name"));
     }
   }
 
   private AccessType parseAccess(final Node nd) throws Throwable {
     AccessType a = new AccessType();
 
-    Element[] els = XmlUtil.getElementsArray(nd);
+    Element[] els = getElementsArray(nd);
 
     for (Element curnode: els) {
-      if (XmlUtil.nodeMatches(curnode, readTag) ||
-          XmlUtil.nodeMatches(curnode, readWriteTag)) {
+      if (nodeMatches(curnode, readTag) ||
+          nodeMatches(curnode, readWriteTag)) {
         if ((a.getRead() != null) || (a.getReadWrite() != null)) {
           throw badAccess();
         }
 
-        if (XmlUtil.nodeMatches(curnode, readTag)) {
+        if (nodeMatches(curnode, readTag)) {
           a.setRead(true);
         } else {
           a.setReadWrite(true);
@@ -766,45 +768,45 @@ public class Parser {
   private SetType parseSet(final Node nd) throws Throwable {
     SetType s = new SetType();
 
-    Element[] els = XmlUtil.getElementsArray(nd);
+    Element[] els = getElementsArray(nd);
 
     for (Element curnode: els) {
-      if (XmlUtil.nodeMatches(curnode, hrefTag)) {
+      if (nodeMatches(curnode, hrefTag)) {
         if (s.getHref() != null) {
           throw badSet();
         }
 
-        s.setHref(XmlUtil.getElementContent(curnode));
+        s.setHref(getElementContent(curnode));
         continue;
       }
 
-      if (XmlUtil.nodeMatches(curnode, commonNameTag)) {
+      if (nodeMatches(curnode, commonNameTag)) {
         if (s.getCommonName() != null) {
           throw badSet();
         }
 
-        s.setCommonName(XmlUtil.getElementContent(curnode));
+        s.setCommonName(getElementContent(curnode));
         continue;
       }
 
-      if (XmlUtil.nodeMatches(curnode, summaryTag)) {
+      if (nodeMatches(curnode, summaryTag)) {
         if (s.getSummary() != null) {
           throw badSet();
         }
 
-        s.setSummary(XmlUtil.getElementContent(curnode));
+        s.setSummary(getElementContent(curnode));
         continue;
       }
 
-      if (XmlUtil.nodeMatches(curnode, readTag) ||
-          XmlUtil.nodeMatches(curnode, readWriteTag)) {
+      if (nodeMatches(curnode, readTag) ||
+          nodeMatches(curnode, readWriteTag)) {
         if (s.getAccess() != null) {
           throw badSet();
         }
 
         AccessType a = new AccessType();
 
-        if (XmlUtil.nodeMatches(curnode, readTag)) {
+        if (nodeMatches(curnode, readTag)) {
           a.setRead(true);
         } else {
           a.setReadWrite(true);
@@ -831,15 +833,15 @@ public class Parser {
   private RemoveType parseRemove(final Node nd) throws Throwable {
     RemoveType r = new RemoveType();
 
-    Element[] els = XmlUtil.getElementsArray(nd);
+    Element[] els = getElementsArray(nd);
 
     for (Element curnode: els) {
-      if (XmlUtil.nodeMatches(curnode, hrefTag)) {
+      if (nodeMatches(curnode, hrefTag)) {
         if (r.getHref() != null) {
           throw badRemove();
         }
 
-        r.setHref(XmlUtil.getElementContent(curnode));
+        r.setHref(getElementContent(curnode));
         continue;
       }
 
@@ -856,24 +858,24 @@ public class Parser {
   private OrganizerType parseOrganizer(final Node nd) throws Throwable {
     OrganizerType o = new OrganizerType();
 
-    Element[] els = XmlUtil.getElementsArray(nd);
+    Element[] els = getElementsArray(nd);
 
     for (Element curnode: els) {
-      if (XmlUtil.nodeMatches(curnode, hrefTag)) {
+      if (nodeMatches(curnode, hrefTag)) {
         if (o.getHref() != null) {
           throw badOrganizer();
         }
 
-        o.setHref(XmlUtil.getElementContent(curnode));
+        o.setHref(getElementContent(curnode));
         continue;
       }
 
-      if (XmlUtil.nodeMatches(curnode, commonNameTag)) {
+      if (nodeMatches(curnode, commonNameTag)) {
         if (o.getCommonName() != null) {
           throw badOrganizer();
         }
 
-        o.setCommonName(XmlUtil.getElementContent(curnode));
+        o.setCommonName(getElementContent(curnode));
         continue;
       }
 
@@ -885,20 +887,20 @@ public class Parser {
 
   private String parseHostUrl(final Node nd) throws WebdavException {
     try {
-      if (!XmlUtil.nodeMatches(nd, hosturlTag)) {
+      if (!nodeMatches(nd, hosturlTag)) {
         throw new WebdavBadRequest("Expected " + hosturlTag);
       }
 
       String href = null;
-      Element[] els = XmlUtil.getElementsArray(nd);
+      Element[] els = getElementsArray(nd);
 
       for (Element curnode: els) {
-        if (XmlUtil.nodeMatches(curnode, hrefTag)) {
+        if (nodeMatches(curnode, hrefTag)) {
           if (href != null) {
             throw badHostUrl();
           }
 
-          href = XmlUtil.getElementContent(curnode);
+          href = getElementContent(curnode);
           continue;
         }
 
@@ -910,8 +912,6 @@ public class Parser {
       }
 
       return href;
-    } catch (SAXException e) {
-      throw parseException(e);
     } catch (WebdavException wde) {
       throw wde;
     } catch (Throwable t) {
@@ -982,7 +982,7 @@ public class Parser {
         ", " + summaryTag + "(optional)");
   }
 
-  private static WebdavException parseException(final SAXException e) throws WebdavException {
+  private static WebdavException parseException(final SAXException e) {
     return new WebdavBadRequest();
   }
 }

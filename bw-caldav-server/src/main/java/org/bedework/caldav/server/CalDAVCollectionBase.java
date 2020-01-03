@@ -18,8 +18,6 @@
 */
 package org.bedework.caldav.server;
 
-import org.bedework.webdav.servlet.shared.WebdavException;
-
 /** Simple implementation of class to represent a collection in CalDAV, used
  * by the simpler interfaces.
  *
@@ -27,7 +25,7 @@ import org.bedework.webdav.servlet.shared.WebdavException;
  *
  * @param <T>
  */
-public abstract class CalDAVCollectionBase <T extends CalDAVCollectionBase> extends CalDAVCollection<T> {
+public abstract class CalDAVCollectionBase <T extends CalDAVCollectionBase<?>> extends CalDAVCollection<T> {
   private int calType;
 
   /** Resource collection. According to the CalDAV spec a collection may exist
@@ -53,12 +51,11 @@ public abstract class CalDAVCollectionBase <T extends CalDAVCollectionBase> exte
 
   /** Constructor
    *
-   * @param calType
-   * @param freebusyAllowed
-   * @throws WebdavException
+   * @param calType collection type
+   * @param freebusyAllowed true if freeebusy allowed on the collection
    */
   public CalDAVCollectionBase(final int calType,
-                              final boolean freebusyAllowed) throws WebdavException {
+                              final boolean freebusyAllowed) {
     super();
 
     this.calType = calType;
@@ -70,12 +67,12 @@ public abstract class CalDAVCollectionBase <T extends CalDAVCollectionBase> exte
    * ==================================================================== */
 
   @Override
-  public boolean isAlias() throws WebdavException {
+  public boolean isAlias() {
     return false;
   }
 
   @Override
-  public T resolveAlias(final boolean resolveSubAlias) throws WebdavException {
+  public T resolveAlias(final boolean resolveSubAlias) {
     return null;
   }
 
@@ -83,17 +80,17 @@ public abstract class CalDAVCollectionBase <T extends CalDAVCollectionBase> exte
    * @see org.bedework.caldav.server.CalDAVCollection#setCalType(int)
    */
   @Override
-  public void setCalType(final int val) throws WebdavException {
+  public void setCalType(final int val) {
     calType = val;
   }
 
   @Override
-  public int getCalType() throws WebdavException {
+  public int getCalType() {
     return calType;
   }
 
   @Override
-  public boolean freebusyAllowed() throws WebdavException {
+  public boolean freebusyAllowed() {
     return freebusyAllowed;
   }
 
@@ -101,7 +98,7 @@ public abstract class CalDAVCollectionBase <T extends CalDAVCollectionBase> exte
    * @see org.bedework.caldav.server.CalDAVCollection#entitiesAllowed()
    */
   @Override
-  public boolean entitiesAllowed() throws WebdavException {
+  public boolean entitiesAllowed() {
     return (calType == calTypeCalendarCollection) ||
            (calType == calTypeInbox) ||
            (calType == calTypeOutbox);
@@ -111,7 +108,7 @@ public abstract class CalDAVCollectionBase <T extends CalDAVCollectionBase> exte
    * @see org.bedework.caldav.server.CalDAVCollection#setAffectsFreeBusy(boolean)
    */
   @Override
-  public void setAffectsFreeBusy(final boolean val) throws WebdavException {
+  public void setAffectsFreeBusy(final boolean val) {
     affectsFreeBusy = val;
   }
 
@@ -119,7 +116,7 @@ public abstract class CalDAVCollectionBase <T extends CalDAVCollectionBase> exte
    * @see org.bedework.caldav.server.CalDAVCollection#getAffectsFreeBusy()
    */
   @Override
-  public boolean getAffectsFreeBusy() throws WebdavException {
+  public boolean getAffectsFreeBusy() {
     return affectsFreeBusy;
   }
 
@@ -127,7 +124,7 @@ public abstract class CalDAVCollectionBase <T extends CalDAVCollectionBase> exte
    * @see org.bedework.caldav.server.CalDAVCollection#setTimezone(java.lang.String)
    */
   @Override
-  public void setTimezone(final String val) throws WebdavException {
+  public void setTimezone(final String val) {
     timezone = val;
   }
 
@@ -135,7 +132,7 @@ public abstract class CalDAVCollectionBase <T extends CalDAVCollectionBase> exte
    * @see org.bedework.caldav.server.CalDAVCollection#getTimezone()
    */
   @Override
-  public String getTimezone() throws WebdavException {
+  public String getTimezone() {
     return timezone;
   }
 
@@ -143,42 +140,42 @@ public abstract class CalDAVCollectionBase <T extends CalDAVCollectionBase> exte
    * @see org.bedework.caldav.server.CalDAVCollection#setColor(java.lang.String)
    */
   @Override
-  public void setColor(final String val) throws WebdavException {
+  public void setColor(final String val) {
     color = val;
   }
 
   @Override
-  public String getColor() throws WebdavException {
+  public String getColor() {
     return color;
   }
 
   @Override
-  public void setAliasUri(final String val) throws WebdavException {
+  public void setAliasUri(final String val) {
     aliasUri = val;
   }
 
   @Override
-  public String getAliasUri() throws WebdavException {
+  public String getAliasUri() {
     return aliasUri;
   }
 
   @Override
-  public void setRemoteId(final String val) throws WebdavException {
+  public void setRemoteId(final String val) {
     remoteId = val;
   }
 
   @Override
-  public String getRemoteId() throws WebdavException {
+  public String getRemoteId() {
     return remoteId;
   }
 
   @Override
-  public void setRemotePw(final String val) throws WebdavException {
+  public void setRemotePw(final String val) {
     remotePw = val;
   }
 
   @Override
-  public String getRemotePw() throws WebdavException {
+  public String getRemotePw() {
     return remotePw;
   }
 

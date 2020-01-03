@@ -63,7 +63,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 public class Filters {
   /** Convenience method
    *
-   * @param cf
+   * @param cf comp filter
    * @return boolean true if this element matches all of the
    *                  named component types.
    */
@@ -75,7 +75,7 @@ public class Filters {
 
   /** Convenience method
    *
-   * @param tm
+   * @param tm text match
    * @return boolean true if this element matches all of the
    *                  named component types.
    */
@@ -85,7 +85,7 @@ public class Filters {
 
   /** Given a caldav like xml filter parse it
    *
-   * @param xmlStr
+   * @param xmlStr xml filter
    * @return Filter
    * @throws WebdavException
    */
@@ -108,7 +108,7 @@ public class Filters {
 
   /** The given node must be the Filter element
    *
-   * @param nd
+   * @param nd node
    * @return Filter
    * @throws WebdavException
    */
@@ -117,7 +117,7 @@ public class Filters {
       JAXBContext jc = JAXBContext.newInstance("ietf.params.xml.ns.caldav");
       Unmarshaller u = jc.createUnmarshaller();
 
-      JAXBElement jel = (JAXBElement)u.unmarshal(nd);
+      JAXBElement<?> jel = (JAXBElement<?>)u.unmarshal(nd);
       if (jel == null) {
         return null;
       }
@@ -130,7 +130,7 @@ public class Filters {
 
   /** Return an object encapsulating the filter query.
    *
-   * @param f
+   * @param f filter
    * @return EventQuery
    * @throws WebdavException
    */
@@ -144,7 +144,7 @@ public class Filters {
 
   /** Returns a subtree of the filter used in querying
    *
-   * @param cf
+   * @param cf comp filter
    * @param eq - so we can update time range
    * @param exprDepth - allows us to do validity checks
    * @return Filter - null for no filtering
@@ -319,7 +319,7 @@ public class Filters {
         // XXX This is wrong - if we postfilter we have to postfilter everything
         // XXX because it's an OR
 
-        /** Add the propfilter to the post filter collection
+        /* Add the propfilter to the post filter collection
          */
         if (entityType == IcalDefs.entityTypeEvent) {
           eq.eventFilters = addPropFilter(eq.eventFilters, pf);
@@ -426,7 +426,7 @@ public class Filters {
   private static List<PropFilterType> addPropFilter(List<PropFilterType> pfs,
                                          final PropFilterType val) {
     if (pfs == null) {
-      pfs = new ArrayList<PropFilterType>();
+      pfs = new ArrayList<>();
     }
 
     pfs.add(val);

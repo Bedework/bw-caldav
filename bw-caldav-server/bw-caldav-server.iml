@@ -37,8 +37,8 @@
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.9.6" level="project" />
     <orderEntry type="module" module-name="bw-util-jmx" />
     <orderEntry type="module" module-name="bw-util-config" />
-    <orderEntry type="library" name="Maven: org.bedework:bw-util-misc:4.0.26" level="project" />
-    <orderEntry type="library" name="Maven: org.bedework:bw-util-xml:4.0.26" level="project" />
+    <orderEntry type="module" module-name="bw-util-misc" />
+    <orderEntry type="module" module-name="bw-util-xml" />
     <orderEntry type="module" module-name="bw-webdav" />
     <orderEntry type="module" module-name="bw-util-servlet" />
     <orderEntry type="library" name="Maven: org.bedework.ical4j:ical4j:2.0.12" level="project" />

@@ -20,7 +20,6 @@ package org.bedework.caldav.server;
 
 import org.bedework.access.AccessPrincipal;
 import org.bedework.util.misc.Util;
-import org.bedework.webdav.servlet.shared.WebdavException;
 
 /** We map uris onto an object which may be a calendar or an
  * entity contained within that calendar.
@@ -39,11 +38,11 @@ public class CaldavURI {
 
   /* For a resource or an entity, this is the containing collection
    */
-  CalDAVCollection col;
+  CalDAVCollection<?> col;
 
-  CalDAVResource resource;
+  CalDAVResource<?> resource;
 
-  CalDAVEvent entity;
+  CalDAVEvent<?> entity;
 
   AccessPrincipal principal;
 
@@ -55,42 +54,42 @@ public class CaldavURI {
 
   /** Reference to a collection
    *
-   * @param col
+   * @param col collection
    * @param exists        true if the referenced object exists
    */
-  CaldavURI(final CalDAVCollection col, final boolean exists) {
+  CaldavURI(final CalDAVCollection<?> col, final boolean exists) {
     init(col, null, null, null, exists, false);
   }
 
   /** Reference to a contained entity
    *
-   * @param col
-   * @param entity
-   * @param entityName
+   * @param col collection
+   * @param entity contained entity
+   * @param entityName and name
    * @param exists        true if the referenced object exists
    * @param nameless      true if doesn't exist and we have no name yet
    */
-  CaldavURI(final CalDAVCollection col, final CalDAVEvent entity, final String entityName,
+  CaldavURI(final CalDAVCollection<?> col,
+            final CalDAVEvent<?> entity, final String entityName,
             final boolean exists, final boolean nameless) {
     init(col, null, entity, entityName, exists, nameless);
   }
 
   /** Reference to a contained resource
    *
-   * @param col
-   * @param res
+   * @param col collection
+   * @param res resource
    * @param exists        true if the referenced object exists
-   * @throws WebdavException
    */
-  CaldavURI(final CalDAVCollection col,
-            final CalDAVResource res,
-            final boolean exists) throws WebdavException {
+  CaldavURI(final CalDAVCollection<?> col,
+            final CalDAVResource<?> res,
+            final boolean exists)  {
     init(col, res, null, res.getName(), exists, false);
     resourceUri = true;
   }
 
   /**
-   * @param pi
+   * @param pi access principal
    */
   CaldavURI(final AccessPrincipal pi) {
     principal = pi;
@@ -100,8 +99,9 @@ public class CaldavURI {
     path = pi.getPrincipalRef();
   }
 
-  private void init(final CalDAVCollection col, final CalDAVResource res,
-                    final CalDAVEvent entity, final String entityName,
+  private void init(final CalDAVCollection<?> col,
+                    final CalDAVResource<?> res,
+                    final CalDAVEvent<?> entity, final String entityName,
                     final boolean exists, final boolean nameless) {
     this.col = col;
     resource = res;
@@ -121,21 +121,21 @@ public class CaldavURI {
   /**
    * @return CalDAVCollection
    */
-  public CalDAVCollection getCol() {
+  public CalDAVCollection<?> getCol() {
     return col;
   }
 
   /**
    * @return CalDAVResource
    */
-  public CalDAVResource getResource() {
+  public CalDAVResource<?> getResource() {
     return resource;
   }
 
   /**
    * @return CalDAVEvent
    */
-  public CalDAVEvent getEntity() {
+  public CalDAVEvent<?> getEntity() {
     return entity;
   }
 
@@ -154,18 +154,13 @@ public class CaldavURI {
       return path;
     }
 
-    try {
-      return col.getPath();
-    } catch (WebdavException wde) {
-      throw new RuntimeException(wde);
-    }
+    return col.getPath();
   }
 
   /**
    * @return String
-   * @throws WebdavException
    */
-  public String getUri() throws WebdavException {
+  public String getUri() {
     if ((entityName == null) ||
         (principal != null)) {
       return getPath();
@@ -199,7 +194,7 @@ public class CaldavURI {
   }
 
   /**
-   * @param entityName
+   * @param entityName to check
    * @return true if has same name
    */
   public boolean sameName(final String entityName) {
@@ -225,7 +220,7 @@ public class CaldavURI {
       sb.append(t.getMessage());
     }
     sb.append(", entityName=");
-    sb.append(String.valueOf(entityName));
+    sb.append(entityName);
     sb.append("}");
 
     return sb.toString();

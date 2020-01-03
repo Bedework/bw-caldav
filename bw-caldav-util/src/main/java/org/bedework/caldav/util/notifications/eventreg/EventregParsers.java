@@ -225,8 +225,6 @@ public class EventregParsers {
       }
 
       return note;
-    } catch (final SAXException e) {
-      throw parseException(e);
     } catch (final WebdavException wde) {
       throw wde;
     } catch (final Throwable t) {
@@ -256,13 +254,13 @@ public class EventregParsers {
 
         if (XmlUtil.nodeMatches(curnode, numTicketsRequestedTag)) {
           note.setNumTicketsRequested(
-                  Integer.valueOf(XmlUtil.getElementContent(curnode)));
+                  Integer.parseInt(XmlUtil.getElementContent(curnode)));
           continue;
         }
 
         if (XmlUtil.nodeMatches(curnode, numTicketsTag)) {
           note.setNumTickets(
-                  Integer.valueOf(XmlUtil.getElementContent(curnode)));
+                  Integer.parseInt(XmlUtil.getElementContent(curnode)));
           continue;
         }
 
@@ -270,8 +268,6 @@ public class EventregParsers {
       }
 
       return note;
-    } catch (final SAXException e) {
-      throw parseException(e);
     } catch (final WebdavException wde) {
       throw wde;
     } catch (final Throwable t) {
@@ -320,8 +316,6 @@ public class EventregParsers {
       }
 
       return false;
-    } catch (final SAXException e) {
-      throw parseException(e);
     } catch (final WebdavException wde) {
       throw wde;
     } catch (final Throwable t) {

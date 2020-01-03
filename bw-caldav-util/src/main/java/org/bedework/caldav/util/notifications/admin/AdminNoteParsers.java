@@ -228,8 +228,6 @@ public class AdminNoteParsers {
       }
 
       return note;
-    } catch (final SAXException e) {
-      throw parseException(e);
     } catch (final WebdavException wde) {
       throw wde;
     } catch (final Throwable t) {
@@ -267,8 +265,6 @@ public class AdminNoteParsers {
       }
 
       return note;
-    } catch (final SAXException e) {
-      throw parseException(e);
     } catch (final WebdavException wde) {
       throw wde;
     } catch (final Throwable t) {
@@ -327,8 +323,6 @@ public class AdminNoteParsers {
       }
 
       return false;
-    } catch (final SAXException e) {
-      throw parseException(e);
     } catch (final WebdavException wde) {
       throw wde;
     } catch (final Throwable t) {
@@ -336,7 +330,7 @@ public class AdminNoteParsers {
     }
   }
 
-  private static WebdavException parseException(final SAXException e) throws WebdavException {
+  private static WebdavException parseException(final SAXException e) {
     return new WebdavBadRequest(e.getMessage());
   }
 }

@@ -747,9 +747,9 @@ public interface SysIntf extends WdSysIntf {
    * object
    *
    * @param  val CalDAVResource
-   * @throws WebdavException
+   * @throws RuntimeException on fatal error
    */
-  public void getFileContent(CalDAVResource<?> val) throws WebdavException;
+  public void getFileContent(CalDAVResource<?> val);
 
   /** Get the files in a collection.
    *

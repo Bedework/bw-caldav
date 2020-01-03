@@ -23,6 +23,7 @@ import org.bedework.access.CurrentAccess;
 import org.bedework.access.PrivilegeDefs;
 import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.caldav.server.sysinterface.SysIntf.MethodEmitted;
+import org.bedework.util.misc.ToString;
 import org.bedework.util.timezones.DateTimeUtil;
 import org.bedework.util.xml.XmlEmit;
 import org.bedework.util.xml.tagdefs.AppleServerTags;
@@ -34,7 +35,6 @@ import org.bedework.webdav.servlet.shared.WebdavNsIntf;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
 import net.fortuna.ical4j.model.ComponentList;
-
 import org.w3c.dom.Element;
 
 import java.io.Writer;
@@ -50,7 +50,7 @@ import javax.xml.namespace.QName;
  */
 public class CaldavComponentNode extends CaldavBwNode {
   /* The event if this component is an event */
-  private CalDAVEvent event;
+  private CalDAVEvent<?> event;
 
   private AccessPrincipal owner;
 
@@ -72,7 +72,7 @@ public class CaldavComponentNode extends CaldavBwNode {
   private String compString;
 
   private final static HashMap<QName, PropertyTagEntry> propertyNames =
-    new HashMap<QName, PropertyTagEntry>();
+    new HashMap<>();
 
   static {
     addPropEntry(propertyNames, CaldavTags.calendarData);
@@ -169,8 +169,8 @@ public class CaldavComponentNode extends CaldavBwNode {
    * @param sysi
    * @throws WebdavException
    */
-  public CaldavComponentNode(final CalDAVEvent event,
-                             final SysIntf sysi) throws WebdavException {
+  public CaldavComponentNode(final CalDAVEvent<?> event,
+                             final SysIntf sysi) {
     super(sysi, event.getParentPath(), false, event.getPath());
 
     allowsGet = true;
@@ -198,7 +198,7 @@ public class CaldavComponentNode extends CaldavBwNode {
   }
 
   @Override
-  public AccessPrincipal getOwner() throws WebdavException {
+  public AccessPrincipal getOwner() {
     if (owner == null) {
       if (event == null) {
         return null;
@@ -212,7 +212,7 @@ public class CaldavComponentNode extends CaldavBwNode {
 
   @Override
   public boolean removeProperty(final Element val,
-                                final SetPropertyResult spr) throws WebdavException {
+                                final SetPropertyResult spr) {
     warn("Unimplemented - removeProperty");
 
     return false;
@@ -244,7 +244,7 @@ public class CaldavComponentNode extends CaldavBwNode {
                                       (col.getCalType() == CalDAVCollection.calTypeInbox) ||
                                       (col.getCalType() == CalDAVCollection.calTypeOutbox));
         }
-        ComponentList cl = ical.getComponents();
+        ComponentList<?> cl = ical.getComponents();
 
         if ((cl == null) || (cl.isEmpty())) {
           return null;
@@ -323,7 +323,7 @@ public class CaldavComponentNode extends CaldavBwNode {
     }
 
     try {
-      final CalDAVEvent ev = checkEv(pv);
+      final CalDAVEvent<?> ev = checkEv(pv);
       if (ev == null) {
         return true;
       }
@@ -349,7 +349,7 @@ public class CaldavComponentNode extends CaldavBwNode {
   /**
    * @param val
    */
-  public void setEvent(final CalDAVEvent val) {
+  public void setEvent(final CalDAVEvent<?> val) {
     event = val;
   }
 
@@ -358,7 +358,7 @@ public class CaldavComponentNode extends CaldavBwNode {
    * @return CalDAVEvent
    * @throws WebdavException
    */
-  public CalDAVEvent getEvent() throws WebdavException {
+  public CalDAVEvent<?> getEvent() throws WebdavException {
     init(true);
 
     return event;
@@ -428,7 +428,7 @@ public class CaldavComponentNode extends CaldavBwNode {
                              final Writer wtr,
                              final String contentType) throws WebdavException {
     try {
-      Collection<CalDAVEvent> evs = new ArrayList<CalDAVEvent>();
+      Collection<CalDAVEvent<?>> evs = new ArrayList<>();
 
       evs.add(event);
 
@@ -488,7 +488,7 @@ public class CaldavComponentNode extends CaldavBwNode {
   public String getStagValue() throws WebdavException {
     init(true);
 
-    CalDAVEvent ev = getEvent();
+    CalDAVEvent<?> ev = getEvent();
     if (ev == null) {
       return null;
     }
@@ -503,7 +503,7 @@ public class CaldavComponentNode extends CaldavBwNode {
   public String getPrevStagValue() throws WebdavException {
     init(true);
 
-    final CalDAVEvent ev = getEvent();
+    final CalDAVEvent<?> ev = getEvent();
     if (ev == null) {
       return null;
     }
@@ -515,7 +515,7 @@ public class CaldavComponentNode extends CaldavBwNode {
   public String getEtagValue(final boolean strong) throws WebdavException {
     init(true);
 
-    final CalDAVEvent ev = getEvent();
+    final CalDAVEvent<?> ev = getEvent();
     if (ev == null) {
       return null;
     }
@@ -537,7 +537,7 @@ public class CaldavComponentNode extends CaldavBwNode {
   public String getPrevEtagValue(final boolean strong) throws WebdavException {
     init(true);
 
-    final CalDAVEvent ev = getEvent();
+    final CalDAVEvent<?> ev = getEvent();
     if (ev == null) {
       return null;
     }
@@ -561,16 +561,12 @@ public class CaldavComponentNode extends CaldavBwNode {
 
   @Override
   public String toString() {
-    StringBuffer sb = new StringBuffer();
+    final ToString ts = new ToString(this);
 
-    sb.append("CaldavComponentNode{");
-    sb.append("path=");
-    sb.append(getPath());
-    sb.append(", entityName=");
-    sb.append(String.valueOf(entityName));
-    sb.append("}");
+    ts.append("path", getPath());
+    ts.append("entityName", entityName);
 
-    return sb.toString();
+    return ts.toString();
   }
 
   /* ====================================================================
@@ -578,7 +574,7 @@ public class CaldavComponentNode extends CaldavBwNode {
    * ==================================================================== */
 
   @Override
-  public String getContentLang() throws WebdavException {
+  public String getContentLang() {
     return "en";
   }
 
@@ -588,14 +584,14 @@ public class CaldavComponentNode extends CaldavBwNode {
   }
 
   @Override
-  public String getContentType() throws WebdavException {
+  public String getContentType() {
     return "text/calendar;charset=utf-8";
   }
 
   @Override
   public String getCreDate() throws WebdavException {
     init(false);
-    CalDAVEvent ev = getEvent();
+    CalDAVEvent<?> ev = getEvent();
     if (ev == null) {
       return null;
     }
@@ -604,14 +600,14 @@ public class CaldavComponentNode extends CaldavBwNode {
   }
 
   @Override
-  public String getDisplayname() throws WebdavException {
+  public String getDisplayname() {
     return getEntityName();
   }
 
   @Override
   public String getLastmodDate() throws WebdavException {
     init(false);
-    CalDAVEvent ev = getEvent();
+    CalDAVEvent<?> ev = getEvent();
     if (ev == null) {
       return null;
     }
@@ -624,7 +620,7 @@ public class CaldavComponentNode extends CaldavBwNode {
   }
 
   @Override
-  public boolean allowsSyncReport() throws WebdavException {
+  public boolean allowsSyncReport() {
     return false;
   }
 
@@ -657,7 +653,7 @@ public class CaldavComponentNode extends CaldavBwNode {
 
   private boolean generateTZPropertyValue(final QName tag,
                                           final WebdavNsIntf intf,
-                                          final boolean allProp) throws WebdavException {
+                                          final boolean allProp) {
     if (tag.equals(ICalTags.tzid)) {
       // PROPTODO
       return true;
@@ -686,8 +682,8 @@ public class CaldavComponentNode extends CaldavBwNode {
     return false;
   }
 
-  private CalDAVEvent checkEv(final PropVal pv) throws WebdavException {
-    CalDAVEvent ev = getEvent();
+  private CalDAVEvent<?> checkEv(final PropVal pv) throws WebdavException {
+    CalDAVEvent<?> ev = getEvent();
 
     if (ev == null) {
       pv.notFound = true;

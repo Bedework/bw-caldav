@@ -19,7 +19,6 @@
 package org.bedework.caldav.server;
 
 import org.bedework.webdav.servlet.shared.WdCollection;
-import org.bedework.webdav.servlet.shared.WebdavException;
 
 import java.util.List;
 
@@ -29,7 +28,8 @@ import java.util.List;
  *
  * @param <T>
  */
-public abstract class CalDAVCollection <T extends CalDAVCollection> extends WdCollection<T> {
+public abstract class CalDAVCollection <T extends CalDAVCollection<?>>
+        extends WdCollection<T> {
   /** Indicate unknown type */
   public final static int calTypeUnknown = -1;
 
@@ -60,167 +60,143 @@ public abstract class CalDAVCollection <T extends CalDAVCollection> extends WdCo
    * ==================================================================== */
 
   @Override
-  public abstract T resolveAlias(final boolean resolveSubAlias) throws WebdavException;
+  public abstract T resolveAlias(final boolean resolveSubAlias);
 
   /**
    *  @param val type
-   * @throws WebdavException
    */
-  public abstract void setCalType(int val) throws WebdavException;
+  public abstract void setCalType(int val);
 
   /**
    * @return int
-   * @throws WebdavException
    */
-  public abstract int getCalType() throws WebdavException;
+  public abstract int getCalType();
 
   /**
    * @return true if freebusy reports are allowed
-   * @throws WebdavException
    */
-  public abstract boolean freebusyAllowed() throws WebdavException;
+  public abstract boolean freebusyAllowed();
 
   /**
    * @return true if this represents a deleted collection.
-   * @throws WebdavException
    */
-  public abstract boolean getDeleted() throws WebdavException;
+  public abstract boolean getDeleted();
 
   /**
    * @return true if entities can be stored
-   * @throws WebdavException
    */
-  public abstract boolean entitiesAllowed() throws WebdavException;
+  public abstract boolean entitiesAllowed();
 
   /**
    *
    *  @param val    true if the calendar takes part in free/busy calculations
-   * @throws WebdavException
    */
-  public abstract void setAffectsFreeBusy(boolean val) throws WebdavException;
+  public abstract void setAffectsFreeBusy(boolean val);
 
   /**
    *
    *  @return boolean    true if the calendar takes part in free/busy calculations
-   * @throws WebdavException
    */
-  public abstract boolean getAffectsFreeBusy() throws WebdavException;
+  public abstract boolean getAffectsFreeBusy();
 
   /** Set the collection timezone property
    *
    * @param val the tzid
-   * @throws WebdavException
    */
-  public abstract void setTimezone(String val) throws WebdavException;
+  public abstract void setTimezone(String val);
 
   /** Get the collection timezone property
    *
    * @return String vtimezone spec
-   * @throws WebdavException
    */
-  public abstract String getTimezone() throws WebdavException;
+  public abstract String getTimezone();
 
   /** Set the calendar color property
    *
    * @param val the color
-   * @throws WebdavException
    */
-  public abstract void setColor(String val) throws WebdavException;
+  public abstract void setColor(String val);
 
   /** Get the calendar color property
    *
    * @return String calendar color
-   * @throws WebdavException
    */
-  public abstract String getColor() throws WebdavException;
+  public abstract String getColor();
 
   /** Set the calendar aliasUri property
    *
-   * @param val
-   * @throws WebdavException
+   * @param val alias uri
    */
-  public abstract void setAliasUri(String val) throws WebdavException;
+  public abstract void setAliasUri(String val);
 
   /** Get the calendar aliasUri property
    *
    * @return String calendar AliasUri
-   * @throws WebdavException
    */
-  public abstract String getAliasUri() throws WebdavException;
+  public abstract String getAliasUri();
 
   /** Set the calendar refresh rate
    *
    * @param val - seconds
-   * @throws WebdavException on fatal eror
    */
-  public abstract void setRefreshRate(int val) throws WebdavException;
+  public abstract void setRefreshRate(int val);
 
   /** Get the calendar refresh rate
    *
    * @return int seconds
-   * @throws WebdavException on fatal eror
    */
-  public abstract int getRefreshRate() throws WebdavException;
+  public abstract int getRefreshRate();
 
   /** Set the calendar remoteId property
    *
-   * @param val
-   * @throws WebdavException
+   * @param val remote id
    */
-  public abstract void setRemoteId(String val) throws WebdavException;
+  public abstract void setRemoteId(String val);
 
   /** Get the calendar remoteId property
    *
    * @return String calendar RemoteId
-   * @throws WebdavException on fatal error
    */
-  public abstract String getRemoteId() throws WebdavException;
+  public abstract String getRemoteId();
 
   /** Set the calendar remotePw property
    *
    * @param val calendar remotePw property
-   * @throws WebdavException on fatal error
    */
-  public abstract void setRemotePw(String val) throws WebdavException;
+  public abstract void setRemotePw(String val);
 
   /** Get the calendar remotePw property
    *
    * @return String calendar RemotePw
-   * @throws WebdavException on fatal error
    */
-  public abstract String getRemotePw() throws WebdavException;
+  public abstract String getRemotePw();
 
   /** Set the deletions suppressed flag for synch
    *
    * @param val true if we suppress deletions during synch
-   * @throws WebdavException on fatal error
    */
   public abstract void setSynchDeleteSuppressed(final boolean val)
-          throws WebdavException;
+         ;
 
   /** Get the deletions suppressed flag for synch
    *
    * @return boolean on/off
-   * @throws WebdavException on fatal error
    */
   public abstract boolean getSynchDeleteSuppressed()
-          throws WebdavException;
+         ;
 
   /**
    * @param val the supported component names e.g. "VEVENT", "VTODO" etc.
-   * @throws WebdavException on fatal error
    */
-  public abstract void setSupportedComponents(List<String> val) throws WebdavException;
+  public abstract void setSupportedComponents(List<String> val);
 
   /**
    * @return the supported component names e.g. "VEVENT", "VTODO" etc.
-   * @throws WebdavException
    */
-  public abstract List<String> getSupportedComponents() throws WebdavException;
+  public abstract List<String> getSupportedComponents();
 
   /**
    * @return the vpoll supported component names e.g. "VEVENT", "VTODO" etc.
-   * @throws WebdavException
    */
-  public abstract List<String> getVpollSupportedComponents() throws WebdavException;
+  public abstract List<String> getVpollSupportedComponents();
 }
