@@ -341,7 +341,7 @@ public interface SysIntf extends WdSysIntf {
    * @return list of ok and !ok sharees
    * @throws WebdavException
    */
-  public ShareResultType share(final CalDAVCollection col,
+  public ShareResultType share(final CalDAVCollection<?> col,
                                final ShareType share) throws WebdavException;
 
   /** Handle a reply to a sharing notification.
@@ -353,7 +353,7 @@ public interface SysIntf extends WdSysIntf {
    *                   new alias in the sharees calendar home.
    * @throws WebdavException
    */
-  public String sharingReply(CalDAVCollection col,
+  public String sharingReply(CalDAVCollection<?> col,
                              InviteReplyType reply) throws WebdavException;
 
   /**
@@ -361,7 +361,7 @@ public interface SysIntf extends WdSysIntf {
    * @return current invitations
    * @throws WebdavException
    */
-  InviteType getInviteStatus(final CalDAVCollection col) throws WebdavException;
+  InviteType getInviteStatus(final CalDAVCollection<?> col) throws WebdavException;
 
   /* ====================================================================
    *                   Scheduling
@@ -384,7 +384,7 @@ public interface SysIntf extends WdSysIntf {
     public int status = scheduleUnprocessed;
 
     /** Set if this is the result of a freebusy request. */
-    public CalDAVEvent freeBusy;
+    public CalDAVEvent<?> freeBusy;
 
     @Override
     public String toString() {
@@ -423,7 +423,7 @@ public interface SysIntf extends WdSysIntf {
    * @return ScheduleResult
    * @throws WebdavException
    */
-  public Collection<SchedRecipientResult> schedule(CalDAVEvent ev)
+  public Collection<SchedRecipientResult> schedule(CalDAVEvent<?> ev)
                 throws WebdavException;
 
   /* ====================================================================
@@ -440,23 +440,23 @@ public interface SysIntf extends WdSysIntf {
    * @return Collection of overrides which did not match or null if all matched
    * @throws WebdavException
    */
- public Collection<CalDAVEvent> addEvent(CalDAVEvent ev,
-                                         boolean noInvites,
-                                         boolean rollbackOnError) throws WebdavException;
+  public Collection<CalDAVEvent<?>> addEvent(CalDAVEvent<?> ev,
+                                             boolean noInvites,
+                                             boolean rollbackOnError) throws WebdavException;
 
   /** Reindex an event after an error that may be the result of an out
    * of date index.
    *
    * @param event  a CalDAVEvent object
    */
-  public void reindexEvent(CalDAVEvent event);
+  public void reindexEvent(CalDAVEvent<?> event);
 
   /** Update an event/todo/journal.
    *
    * @param event         updated CalDAVEvent object
    * @throws WebdavException
    */
-  public void updateEvent(CalDAVEvent event) throws WebdavException;
+  public void updateEvent(CalDAVEvent<?> event) throws WebdavException;
 
   /** Show the outcome of an update
    * @author douglm
@@ -482,7 +482,7 @@ public interface SysIntf extends WdSysIntf {
     }
 
     /**
-     * @param reason
+     * @param reason for failure
      */
     public UpdateResult(final String reason) {
       this.reason = reason;
@@ -510,7 +510,7 @@ public interface SysIntf extends WdSysIntf {
    * @return UpdateResult
    * @throws WebdavException
    */
-  public UpdateResult updateEvent(CalDAVEvent event,
+  public UpdateResult updateEvent(CalDAVEvent<?> event,
                                   List<ComponentSelectionType> updates) throws WebdavException;
 
   /** Return the events for the current user in the given collection using the
@@ -527,10 +527,10 @@ public interface SysIntf extends WdSysIntf {
    * @return Collection  populated event value objects
    * @throws WebdavException
    */
-  public Collection<CalDAVEvent> getEvents(CalDAVCollection col,
-                                           FilterBase filter,
-                                           List<String> retrieveList,
-                                           RetrievalMode recurRetrieval)
+  public Collection<CalDAVEvent<?>> getEvents(CalDAVCollection<?> col,
+                                              FilterBase filter,
+                                              List<String> retrieveList,
+                                              RetrievalMode recurRetrieval)
           throws WebdavException;
 
   /** Get events given the collection and String name. Return null for not
@@ -542,7 +542,7 @@ public interface SysIntf extends WdSysIntf {
    * @return CalDAVEvent or null
    * @throws WebdavException
    */
-  public CalDAVEvent getEvent(CalDAVCollection col,
+  public CalDAVEvent<?> getEvent(CalDAVCollection<?> col,
                               String val)
           throws WebdavException;
 
@@ -551,7 +551,7 @@ public interface SysIntf extends WdSysIntf {
    * @param scheduleReply - true if we want a schduling reply posted
    * @throws WebdavException
    */
-  public void deleteEvent(CalDAVEvent ev,
+  public void deleteEvent(CalDAVEvent<?> ev,
                           boolean scheduleReply) throws WebdavException;
 
   /** Get the free busy for one or more principals based on the given VFREEBUSY
@@ -563,7 +563,7 @@ public interface SysIntf extends WdSysIntf {
    * @return ScheduleResult
    * @throws WebdavException
    */
-  public Collection<SchedRecipientResult> requestFreeBusy(CalDAVEvent val,
+  public Collection<SchedRecipientResult> requestFreeBusy(CalDAVEvent<?> val,
                                                           boolean iSchedule)
           throws WebdavException;
 
@@ -591,9 +591,9 @@ public interface SysIntf extends WdSysIntf {
    * @return CalDAVEvent - as a freebusy entity
    * @throws WebdavException
    */
-  public CalDAVEvent getFreeBusy(final CalDAVCollection col,
-                                 final int depth,
-                                 final TimeRange timeRange) throws WebdavException;
+  public CalDAVEvent<?> getFreeBusy(final CalDAVCollection<?> col,
+                                    final int depth,
+                                    final TimeRange timeRange) throws WebdavException;
 
   /** Check the access for the given entity. Returns the current access
    * or null or optionally throws a no access exception.
@@ -604,7 +604,7 @@ public interface SysIntf extends WdSysIntf {
    * @return CurrentAccess
    * @throws WebdavException if returnResult false and no access
    */
-  public CurrentAccess checkAccess(WdEntity ent,
+  public CurrentAccess checkAccess(WdEntity<?> ent,
                                    int desiredAccess,
                                    boolean returnResult)
           throws WebdavException;
@@ -614,7 +614,7 @@ public interface SysIntf extends WdSysIntf {
    * @param acl
    * @throws WebdavException
    */
-  public void updateAccess(CalDAVEvent ev,
+  public void updateAccess(CalDAVEvent<?> ev,
                            Acl acl) throws WebdavException;
 
   /** Copy or move the given entity to the destination collection with the given name.
@@ -628,8 +628,8 @@ public interface SysIntf extends WdSysIntf {
    * @return true if destination created (i.e. not updated)
    * @throws WebdavException
    */
-  public boolean copyMove(CalDAVEvent from,
-                          CalDAVCollection to,
+  public boolean copyMove(CalDAVEvent<?> from,
+                          CalDAVCollection<?> to,
                           String name,
                           boolean copy,
                           boolean overwrite) throws WebdavException;
@@ -646,15 +646,15 @@ public interface SysIntf extends WdSysIntf {
    * @return CalDAVCollection
    * @throws WebdavException
    */
-  public CalDAVCollection newCollectionObject(boolean isCalendarCollection,
-                                              String parentPath);
+  public CalDAVCollection<?> newCollectionObject(boolean isCalendarCollection,
+                                                 String parentPath);
 
   /**
    * @param col
    * @param acl
    * @throws WebdavException on fatal error
    */
-  public void updateAccess(CalDAVCollection col,
+  public void updateAccess(CalDAVCollection<?> col,
                            Acl acl) throws WebdavException;
 
   /**
@@ -662,7 +662,7 @@ public interface SysIntf extends WdSysIntf {
    * @return int status
    * @throws WebdavException on fatal error
    */
-  public int makeCollection(CalDAVCollection col) throws WebdavException;
+  public int makeCollection(CalDAVCollection<?> col) throws WebdavException;
 
   /** Copy or move the collection to another location.
    * Status is set on return
@@ -673,8 +673,8 @@ public interface SysIntf extends WdSysIntf {
    * @param overwrite destination exists
    * @throws WebdavException on fatal error
    */
-  public void copyMove(CalDAVCollection from,
-                       CalDAVCollection to,
+  public void copyMove(CalDAVCollection<?> from,
+                       CalDAVCollection<?> to,
                        boolean copy,
                        boolean overwrite) throws WebdavException;
 
@@ -684,21 +684,21 @@ public interface SysIntf extends WdSysIntf {
    * @return CalDAVCollection null for unknown collection
    * @throws WebdavException on fatal error
    */
-  public CalDAVCollection getCollection(String path) throws WebdavException;
+  public CalDAVCollection<?> getCollection(String path) throws WebdavException;
 
   /** Update a collection.
    *
    * @param val           updated CalDAVCollection object
    * @throws WebdavException
    */
-  public void updateCollection(CalDAVCollection val) throws WebdavException;
+  public void updateCollection(CalDAVCollection<?> val) throws WebdavException;
 
   /**
    * @param col to delete
    * @param sendSchedulingMessage  true if we should send cancels
    * @throws WebdavException
    */
-  public void deleteCollection(CalDAVCollection col,
+  public void deleteCollection(CalDAVCollection<?> col,
                                boolean sendSchedulingMessage) throws WebdavException;
 
   /** Returns children of the given collection to which the current user has
@@ -708,7 +708,7 @@ public interface SysIntf extends WdSysIntf {
    * @return Collection   of CalDAVCollection
    * @throws WebdavException
    */
-  public Collection<CalDAVCollection> getCollections(CalDAVCollection col)
+  public Collection<CalDAVCollection<?>> getCollections(CalDAVCollection<?> col)
           throws WebdavException;
 
   /* ====================================================================
@@ -722,7 +722,7 @@ public interface SysIntf extends WdSysIntf {
    * @return CalDAVResource
    * @throws WebdavException
    */
-  public CalDAVResource newResourceObject(String parentPath) throws WebdavException;
+  public CalDAVResource<?> newResourceObject(String parentPath) throws WebdavException;
 
   /** PUT a file.
    *
@@ -730,8 +730,8 @@ public interface SysIntf extends WdSysIntf {
    * @param val          CalDAVResource
    * @throws WebdavException
    */
-  public void putFile(CalDAVCollection coll,
-                      CalDAVResource val) throws WebdavException;
+  public void putFile(CalDAVCollection<?> coll,
+                      CalDAVResource<?> val) throws WebdavException;
 
   /** GET a file.
    *
@@ -740,8 +740,8 @@ public interface SysIntf extends WdSysIntf {
    * @return CalDAVResource
    * @throws WebdavException
    */
-  public CalDAVResource getFile(CalDAVCollection coll,
-                            String name) throws WebdavException;
+  public CalDAVResource<?> getFile(CalDAVCollection<?> coll,
+                                   String name) throws WebdavException;
 
   /** Get resource content given the resource. It will be set in the resource
    * object
@@ -749,7 +749,7 @@ public interface SysIntf extends WdSysIntf {
    * @param  val CalDAVResource
    * @throws WebdavException
    */
-  public void getFileContent(CalDAVResource val) throws WebdavException;
+  public void getFileContent(CalDAVResource<?> val) throws WebdavException;
 
   /** Get the files in a collection.
    *
@@ -757,7 +757,7 @@ public interface SysIntf extends WdSysIntf {
    * @return Collection of CalDAVResource
    * @throws WebdavException
    */
-  public Collection<CalDAVResource> getFiles(CalDAVCollection coll) throws WebdavException;
+  public Collection<CalDAVResource<?>> getFiles(CalDAVCollection<?> coll) throws WebdavException;
 
   /** Update a file.
    *
@@ -765,7 +765,7 @@ public interface SysIntf extends WdSysIntf {
    * @param updateContent if true we also update the content
    * @throws WebdavException
    */
-  public void updateFile(CalDAVResource val,
+  public void updateFile(CalDAVResource<?> val,
                          boolean updateContent) throws WebdavException;
 
   /** Delete a file.
@@ -773,7 +773,7 @@ public interface SysIntf extends WdSysIntf {
    * @param val          CalDAVResource
    * @throws WebdavException
    */
-  public void deleteFile(CalDAVResource val) throws WebdavException;
+  public void deleteFile(CalDAVResource<?> val) throws WebdavException;
 
   /** Copy or move the given file to the destination collection with the given name.
    * Status is set on return
@@ -786,7 +786,7 @@ public interface SysIntf extends WdSysIntf {
    * @return true if destination created (i.e. not updated)
    * @throws WebdavException
    */
-  public boolean copyMoveFile(CalDAVResource from,
+  public boolean copyMoveFile(CalDAVResource<?> from,
                               String toPath,
                               String name,
                               boolean copy,
@@ -815,12 +815,12 @@ public interface SysIntf extends WdSysIntf {
       private String token;
 
       /** Non-null if this is for a calendar entity */
-      private CalDAVEvent entity;
+      private CalDAVEvent<?> entity;
 
       /** Non-null if this is for a resource - will not have its content */
-      private CalDAVResource resource;
+      private CalDAVResource<?> resource;
 
-      private CalDAVCollection col;
+      private CalDAVCollection<?> col;
 
       private String vpath;
 
@@ -834,7 +834,7 @@ public interface SysIntf extends WdSysIntf {
        * @throws WebdavException
        */
       public SynchReportDataItem(final String vpath,
-                                 final CalDAVEvent entity,
+                                 final CalDAVEvent<?> entity,
                                  final String token) throws WebdavException {
         this.vpath = vpath;
         this.entity = entity;
@@ -848,7 +848,7 @@ public interface SysIntf extends WdSysIntf {
        * @throws WebdavException
        */
       public SynchReportDataItem(final String vpath,
-                                 final CalDAVResource resource,
+                                 final CalDAVResource<?> resource,
                                  final String token) throws WebdavException {
         this.vpath = vpath;
         this.resource = resource;
@@ -863,7 +863,7 @@ public interface SysIntf extends WdSysIntf {
        * @throws WebdavException
        */
       public SynchReportDataItem(final String vpath,
-                                 final CalDAVCollection col,
+                                 final CalDAVCollection<?> col,
                                  final String token,
                                  final boolean canSync) throws WebdavException {
         this.vpath = vpath;
@@ -884,7 +884,7 @@ public interface SysIntf extends WdSysIntf {
        *
        * @return event or null
        */
-      public CalDAVEvent getEntity() {
+      public CalDAVEvent<?> getEntity() {
         return entity;
       }
 
@@ -892,7 +892,7 @@ public interface SysIntf extends WdSysIntf {
        *
        * @return resource or null
        */
-      public CalDAVResource getResource() {
+      public CalDAVResource<?> getResource() {
         return resource;
       }
 
@@ -900,7 +900,7 @@ public interface SysIntf extends WdSysIntf {
        *
        * @return collection or null
        */
-      public CalDAVCollection getCol() {
+      public CalDAVCollection<?> getCol() {
         return col;
       }
 
@@ -968,7 +968,7 @@ public interface SysIntf extends WdSysIntf {
    * @return A sync-token which must be a URI.
    * @throws WebdavException
    */
-  public String getSyncToken(CalDAVCollection col) throws WebdavException;
+  public String getSyncToken(CalDAVCollection<?> col) throws WebdavException;
 
   /**
    * @param path
@@ -994,7 +994,7 @@ public interface SysIntf extends WdSysIntf {
    * @return Calendar
    * @throws WebdavException
    */
-  public Calendar toCalendar(CalDAVEvent ev,
+  public Calendar toCalendar(CalDAVEvent<?> ev,
                              boolean incSchedMethod) throws WebdavException;
 
   /** Make an XML IcalendarType from an event.
@@ -1005,7 +1005,7 @@ public interface SysIntf extends WdSysIntf {
    * @return IcalendarType
    * @throws WebdavException
    */
-  public IcalendarType toIcalendar(CalDAVEvent ev,
+  public IcalendarType toIcalendar(CalDAVEvent<?> ev,
                                    boolean incSchedMethod,
                                    IcalendarType pattern) throws WebdavException;
 
@@ -1017,7 +1017,7 @@ public interface SysIntf extends WdSysIntf {
    * @return String jcal representation
    * @throws WebdavException
    */
-  public String toJcal(CalDAVEvent ev,
+  public String toJcal(CalDAVEvent<?> ev,
                        boolean incSchedMethod,
                        IcalendarType pattern) throws WebdavException;
 
@@ -1053,7 +1053,7 @@ public interface SysIntf extends WdSysIntf {
    * @return actual contentType written
    * @throws WebdavException
    */
-  public String writeCalendar(Collection<CalDAVEvent> evs,
+  public String writeCalendar(Collection<CalDAVEvent<?>> evs,
                               MethodEmitted method,
                               XmlEmit xml,
                               Writer wtr,
@@ -1078,7 +1078,7 @@ public interface SysIntf extends WdSysIntf {
    * @return SysiIcalendar
    * @throws WebdavException
    */
-  public SysiIcalendar fromIcal(CalDAVCollection col,
+  public SysiIcalendar fromIcal(CalDAVCollection<?> col,
                                 Reader rdr,
                                 String contentType,
                                 IcalResultType rtype,
@@ -1092,7 +1092,7 @@ public interface SysIntf extends WdSysIntf {
    * @return SysiIcalendar
    * @throws WebdavException
    */
-  public SysiIcalendar fromIcal(CalDAVCollection col,
+  public SysiIcalendar fromIcal(CalDAVCollection<?> col,
                                 final IcalendarType ical,
                                 IcalResultType rtype) throws WebdavException;
 

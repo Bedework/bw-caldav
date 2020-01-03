@@ -34,10 +34,8 @@ import javax.xml.namespace.QName;
  */
 public abstract class CalDAVEvent <T> extends WdEntity<T> {
   /** Constructor
-   *
-   * @throws WebdavException
    */
-  public CalDAVEvent() throws WebdavException {
+  public CalDAVEvent() {
     super();
   }
 

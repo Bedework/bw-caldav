@@ -20,6 +20,7 @@ package org.bedework.caldav.server;
 
 import org.bedework.util.calendar.IcalDefs.IcalComponentType;
 import org.bedework.util.calendar.ScheduleMethods;
+import org.bedework.util.misc.ToString;
 import org.bedework.webdav.servlet.shared.WdEntity;
 
 import net.fortuna.ical4j.model.TimeZone;
@@ -98,7 +99,7 @@ public abstract class SysiIcalendar implements ScheduleMethods,
   /**
    * @return CalDAVEvent
    */
-  public abstract CalDAVEvent getEvent();
+  public abstract CalDAVEvent<?> getEvent();
 
   /**
    * @return Iterator
@@ -151,20 +152,17 @@ public abstract class SysiIcalendar implements ScheduleMethods,
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder("SysiIcalendar{prodid=");
-    sb.append(getProdid());
-    sb.append(", version=");
-    sb.append(getVersion());
+    final ToString ts = new ToString(this);
+    ts.append("prodid", getProdid());
+    ts.append("version", getVersion());
 
-    sb.append("\n, method=");
-    sb.append(String.valueOf(getMethod()));
-    sb.append(", methodType=");
-    sb.append(getMethodType());
-    sb.append(", componentType=");
-    sb.append(getComponentType());
+    ts.newLine();
+    ts.append("method", String.valueOf(getMethod()));
+    ts.append("methodType", getMethodType());
+    ts.append("componentType", getComponentType());
 
-    sb.append("}");
+    ts.append("}");
 
-    return sb.toString();
+    return ts.toString();
   }
 }
