@@ -71,10 +71,10 @@ import org.bedework.webdav.servlet.shared.PrincipalPropertySearch;
 import org.bedework.webdav.servlet.shared.WdEntity;
 import org.bedework.webdav.servlet.shared.WdSynchReport;
 import org.bedework.webdav.servlet.shared.WdSynchReport.WdSynchReportItem;
+import org.bedework.webdav.servlet.shared.WdSysIntf;
 import org.bedework.webdav.servlet.shared.WebdavBadRequest;
 import org.bedework.webdav.servlet.shared.WebdavException;
 import org.bedework.webdav.servlet.shared.WebdavForbidden;
-import org.bedework.webdav.servlet.shared.WebdavNotFound;
 import org.bedework.webdav.servlet.shared.WebdavNsIntf;
 import org.bedework.webdav.servlet.shared.WebdavNsNode;
 import org.bedework.webdav.servlet.shared.WebdavNsNode.PropertyTagEntry;
@@ -118,7 +118,8 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
 
-import static org.bedework.util.misc.response.Response.Status.*;
+import static org.bedework.util.misc.response.Response.Status.forbidden;
+import static org.bedework.util.misc.response.Response.Status.notFound;
 
 /** This class implements a namespace interface for the webdav abstract
  * servlet. One of these interfaces is associated with each current session.
@@ -579,6 +580,11 @@ public class CaldavBWIntf extends WebdavNsIntf {
   @Override
   public void close() throws WebdavException {
     sysi.close();
+  }
+
+  @Override
+  public WdSysIntf getSysIntf() {
+    return sysi;
   }
 
   /**
@@ -2125,11 +2131,18 @@ public class CaldavBWIntf extends WebdavNsIntf {
       }
 
       if (ger.getStatus() == notFound) {
-        throw new WebdavNotFound(ger.getMessage());
+        return null;
       }
 
       if (!ger.isOk()) {
-        throw new WebdavException(ger.getMessage());
+        final int scode;
+        if (ger.getStatus() == forbidden) {
+          scode = HttpServletResponse.SC_FORBIDDEN;
+        } else {
+          scode = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+        }
+        throw new WebdavException(scode, ger.getErrorTag(),
+                                  ger.getMessage());
       }
 
       var wi = ger.getEntity();

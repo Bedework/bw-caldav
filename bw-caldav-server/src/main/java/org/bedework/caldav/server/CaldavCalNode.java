@@ -658,7 +658,7 @@ public class CaldavCalNode extends CaldavBwNode {
         if (XmlUtil.nodeMatches(cval, CaldavTags.opaque)) {
           col.setAffectsFreeBusy(true);
         } else if (XmlUtil.nodeMatches(cval, CaldavTags.transparent)) {
-          col.setAffectsFreeBusy(true);
+          col.setAffectsFreeBusy(false);
         } else {
           throw new WebdavBadRequest();
         }
