@@ -52,6 +52,7 @@ import org.w3c.dom.Element;
 
 import java.io.StringReader;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -127,7 +128,7 @@ public class CaldavReportMethod extends ReportMethod {
 
   /** See if we recognize this report type and return an index.
    *
-   * @param doc
+   * @param doc parsed document
    * @return index or <0 for unknown.
    * @throws WebdavException
    */
@@ -316,7 +317,8 @@ public class CaldavReportMethod extends ReportMethod {
           if (href != null) {
             String decoded;
             try {
-              decoded = URLDecoder.decode(href, "UTF8");
+              decoded = URLDecoder.decode(href,
+                                          StandardCharsets.UTF_8);
             } catch (Throwable t) {
               throw new WebdavBadRequest("bad href: " + href);
             }
@@ -329,7 +331,7 @@ public class CaldavReportMethod extends ReportMethod {
           }
 
           if (hrefs == null) {
-            hrefs = new ArrayList<String>();
+            hrefs = new ArrayList<>();
           }
 
           hrefs.add(href);
@@ -370,9 +372,9 @@ public class CaldavReportMethod extends ReportMethod {
   }
 
   /**
-   * @param req
-   * @param resp
-   * @param depth
+   * @param req http request
+   * @param resp http response
+   * @param depth from depth header
    * @throws WebdavException
    */
   public void processResp(final HttpServletRequest req,
@@ -442,14 +444,14 @@ public class CaldavReportMethod extends ReportMethod {
 
   /** Return collection of nodes specified by list of hrefs.
    *
-   * @param hrefs
-   * @param badHrefs
+   * @param hrefs hrefs to find
+   * @param badHrefs list of unsatisfied hrefs
    * @return Collection of nodes
    * @throws WebdavException
    */
   public Collection<WebdavNsNode> getMgetNodes(final Collection<String> hrefs,
                                                final Collection<String> badHrefs) throws WebdavException {
-    Collection<WebdavNsNode> nodes = new ArrayList<WebdavNsNode>();
+    Collection<WebdavNsNode> nodes = new ArrayList<>();
     CaldavBWIntf intf = (CaldavBWIntf)getNsIntf();
 
     if (hrefs == null) {
@@ -457,7 +459,7 @@ public class CaldavReportMethod extends ReportMethod {
     }
 
     for (String hr: hrefs) {
-      WebdavNsNode n = null;
+      WebdavNsNode n;
       try {
         n = intf.getNode(intf.getUri(hr),
                          WebdavNsIntf.existanceMust,
@@ -500,7 +502,7 @@ public class CaldavReportMethod extends ReportMethod {
         // Look for a calendar-data property
         for (final WebdavProperty prop: preq.props) {
           if (retrieveList == null) {
-            retrieveList = new ArrayList<String>();
+            retrieveList = new ArrayList<>();
           }
 
           if (prop instanceof CalData) {
@@ -556,7 +558,7 @@ public class CaldavReportMethod extends ReportMethod {
             }
 
             if (retrieveList == null) {
-              retrieveList = new ArrayList<String>();
+              retrieveList = new ArrayList<>();
             }
 
             for (PropType p: calcomp.getProp()) {
@@ -695,9 +697,9 @@ public class CaldavReportMethod extends ReportMethod {
 
   /** Handle free/busy response
    *
-   * @param req
-   * @param resp
-   * @param depth
+   * @param req http request
+   * @param resp http response
+   * @param depth from depth header
    * @throws WebdavException
    */
   public void processFbResp(final HttpServletRequest req,
@@ -762,7 +764,7 @@ public class CaldavReportMethod extends ReportMethod {
 
   // XXX Make the following part of the interface.
 
-  /** size of buffer used for copying content to response.
+  /* size of buffer used for copying content to response.
    * /
   private static final int bufferSize = 4096;
 
