@@ -232,9 +232,8 @@ public class NotificationType {
   /**
    * @param withBedeworkElements true if we should emit any extra elements.
    * @return XML version of notification
-   * @throws Throwable
    */
-  public String toXml(final boolean withBedeworkElements) throws Throwable {
+  public String toXml(final boolean withBedeworkElements) {
     final StringWriter str = new StringWriter();
     final XmlEmit xml = new XmlEmit();
 
@@ -242,16 +241,26 @@ public class NotificationType {
       xml.setProperty("withBedeworkElements", "true");
     }
 
-    xml.addNs(new NameSpace(WebdavTags.namespace, "DAV"), false);
-    xml.addNs(new NameSpace(CaldavDefs.caldavNamespace, "C"), false);
-    xml.addNs(new NameSpace(AppleServerTags.appleCaldavNamespace, "CSS"), false);
-    xml.addNs(new NameSpace(BedeworkServerTags.bedeworkCaldavNamespace, "BW"), false);
-    xml.addNs(new NameSpace(BedeworkServerTags.bedeworkSystemNamespace, "BSS"), false);
+    try {
+      xml.addNs(new NameSpace(WebdavTags.namespace, "DAV"), false);
+      xml.addNs(new NameSpace(CaldavDefs.caldavNamespace, "C"),
+                false);
+      xml.addNs(new NameSpace(AppleServerTags.appleCaldavNamespace,
+                              "CSS"), false);
+      xml.addNs(new NameSpace(
+                        BedeworkServerTags.bedeworkCaldavNamespace, "BW"),
+                false);
+      xml.addNs(new NameSpace(
+                        BedeworkServerTags.bedeworkSystemNamespace, "BSS"),
+                false);
 
-    xml.startEmit(str);
-    toXml(xml);
+      xml.startEmit(str);
+      toXml(xml);
 
-    return str.toString();
+      return str.toString();
+    } catch (final Throwable t) {
+      throw new RuntimeException(t);
+    }
   }
 
   /**
