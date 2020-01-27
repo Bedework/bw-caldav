@@ -180,20 +180,15 @@ public class CaldavComponentNode extends CaldavBwNode {
   }
 
   @Override
-  public void init(final boolean content) throws WebdavException {
+  public void init(final boolean content) {
     if (!content) {
       return;
     }
 
-    try {
-      if ((event == null) && exists) {
-        if (entityName == null) {
-          exists = false;
-          return;
-        }
+    if ((event == null) && exists) {
+      if (entityName == null) {
+        exists = false;
       }
-    } catch (Throwable t) {
-      throw new WebdavException(t);
     }
   }
 
