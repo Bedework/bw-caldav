@@ -421,6 +421,7 @@ public class Parser {
           }
 
           ir.setCommonName(getElementContent(curnode));
+          continue;
         }
 
         if (nodeMatches(curnode, firstNameTag)) {
