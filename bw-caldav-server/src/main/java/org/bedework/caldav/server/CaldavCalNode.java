@@ -221,10 +221,10 @@ public class CaldavCalNode extends CaldavBwNode {
   }
 
   @Override
-  public void init(final boolean content) throws WebdavException {
-    if (!content) {
-      return;
-    }
+  public void init(final boolean content) {
+    //if (!content) {
+    //  return;
+    //}
   }
 
   @Override
