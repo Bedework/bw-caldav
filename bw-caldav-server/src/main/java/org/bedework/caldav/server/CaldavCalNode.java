@@ -594,9 +594,7 @@ public class CaldavCalNode extends CaldavBwNode {
       }
 
       if (XmlUtil.nodeMatches(val, WebdavTags.resourcetype)) {
-        Collection<Element> propVals = XmlUtil.getElements(val);
-
-        for (Element pval: propVals) {
+        for (final var pval: XmlUtil.getElements(val)) {
           if (XmlUtil.nodeMatches(pval, WebdavTags.collection)) {
             // Fine
             continue;
@@ -635,11 +633,9 @@ public class CaldavCalNode extends CaldavBwNode {
           throw new WebdavForbidden();
         }
 
-        Collection<Element> propVals = XmlUtil.getElements(val);
-
         List<String> comps = new ArrayList<>();
 
-        for (Element pval: XmlUtil.getElements(val)) {
+        for (final Element pval: XmlUtil.getElements(val)) {
           if (!XmlUtil.nodeMatches(pval, CaldavTags.comp)) {
             throw new WebdavBadRequest("Only comp allowed");
           }
