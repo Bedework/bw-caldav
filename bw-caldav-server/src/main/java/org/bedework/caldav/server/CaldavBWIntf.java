@@ -866,15 +866,13 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       /* ===================  Try for XRD fetch ======================= */
 
-      if (calWs && (ctype != null) &&
-          "application/xrd+xml".equals(ctype)) {
+      if (calWs && "application/xrd+xml".equals(ctype)) {
         return doXrd(req, resp, (CaldavBwNode)node);
       }
 
       /* ===================  Try for calendar fetch ======================= */
 
-      if (node.isCollection() && (ctype != null) &&
-          "text/calendar".equals(ctype)) {
+      if (node.isCollection() && "text/calendar".equals(ctype)) {
         final GetHandler handler = new WebcalGetHandler(this);
         final RequestPars pars = new RequestPars(req, this, getResourceUri(req));
 
@@ -898,9 +896,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
       }
 
       if ((ctype == null) ||
-          (!ctype.equals("text/calendar") &&
-           !ctype.equals("application/calendar+json") &
-           !ctype.equals(XcalTags.mimetype))) {
+          (!"text/calendar".equals(ctype) &&
+           !"application/calendar+json".equals(ctype) &&
+           !"application/jscalendar+json".equals(ctype) &&
+           !XcalTags.mimetype.equals(ctype))) {
         ctype = sysi.getDefaultContentType();
       }
 

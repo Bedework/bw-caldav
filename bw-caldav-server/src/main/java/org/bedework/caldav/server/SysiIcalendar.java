@@ -65,7 +65,7 @@ public abstract class SysiIcalendar implements ScheduleMethods,
   /**
    * @return Collection
    */
-  public abstract Collection<Object> getComponents();
+  public abstract Collection<?> getComponents();
 
   /**
    * @return ComponentType
