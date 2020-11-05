@@ -1728,9 +1728,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
   public Collection<WebdavPrincipalNode> getPrincipals(final String resourceUri,
                                                 final PrincipalPropertySearch pps)
           throws WebdavException {
-    ArrayList<WebdavPrincipalNode> pnodes = new ArrayList<WebdavPrincipalNode>();
+    final ArrayList<WebdavPrincipalNode> pnodes = new ArrayList<>();
 
-    for (CalPrincipalInfo cui: sysi.getPrincipals(resourceUri, pps)) {
+    for (final CalPrincipalInfo cui: sysi.getPrincipals(resourceUri, pps)) {
       pnodes.add(new CaldavUserNode(new CaldavURI(cui.principal),
                                     getSysi(), cui));
     }

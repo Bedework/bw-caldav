@@ -202,9 +202,8 @@ public interface SysIntf extends WdSysIntf {
    * @param id
    * @param whoType - from WhoDefs
    * @return String href
-   * @throws WebdavException
    */
-  public String makeHref(String id, int whoType) throws WebdavException;
+  public String makeHref(String id, int whoType);
 
   /** The urls should be principal urls. principalUrl can null for the current user.
    * The result is a collection of principal urls of which the given url is a
@@ -232,9 +231,8 @@ public interface SysIntf extends WdSysIntf {
    *
    * @param caladdr      calendar address
    * @return AccessPrincipal or null if not caladdr for this system
-   * @throws WebdavException  for errors
    */
-  public AccessPrincipal caladdrToPrincipal(String caladdr) throws WebdavException;
+  public AccessPrincipal caladdrToPrincipal(String caladdr);
 
   /** The inverse of caladdrToPrincipal
    *
@@ -249,9 +247,9 @@ public interface SysIntf extends WdSysIntf {
    *
    * @param principal     valid AccessPrincipal
    * @return CalUserInfo or null if not caladdr for this system
-   * @throws WebdavException  for errors
+   * @throws RuntimeException  for errors
    */
-  public CalPrincipalInfo getCalPrincipalInfo(AccessPrincipal principal) throws WebdavException;
+  public CalPrincipalInfo getCalPrincipalInfo(AccessPrincipal principal);
 
   /** Given a uri returns a Collection of uris that allow search operations on
    * principals for that resource.
@@ -268,7 +266,7 @@ public interface SysIntf extends WdSysIntf {
    * @param resourceUri
    * @param pps Collection of PrincipalPropertySearch
    * @return Collection of CalUserInfo
-   * @throws WebdavException
+   * @throws WebdavException on fatal error
    */
   public Collection<CalPrincipalInfo> getPrincipals(String resourceUri,
                                   PrincipalPropertySearch pps)

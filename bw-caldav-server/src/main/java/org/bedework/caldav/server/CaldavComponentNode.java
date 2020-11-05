@@ -317,18 +317,12 @@ public class CaldavComponentNode extends CaldavBwNode {
       return generateTZPropertyValue(tag, intf, allProp);
     }
 
-    try {
-      final CalDAVEvent<?> ev = checkEv(pv);
-      if (ev == null) {
-        return true;
-      }
-
-      return ev.generatePropertyValue(tag, xml);
-    } catch (final WebdavException wde) {
-      throw wde;
-    } catch (final Throwable t) {
-      throw new WebdavException(t);
+    final CalDAVEvent<?> ev = checkEv(pv);
+    if (ev == null) {
+      return true;
     }
+
+    return ev.generatePropertyValue(tag, xml);
   }
 
   @Override
