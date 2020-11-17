@@ -373,7 +373,7 @@ public class CalData extends WebdavProperty implements Logged {
           nvpl.clear();
           
           for (final PropType pr: props) {
-            final Property p = vpl.getProperty(pr.getName());
+            final Property p = (Property)vpl.getProperty(pr.getName());
 
             if (p != null) {
               nvpl.add(p);

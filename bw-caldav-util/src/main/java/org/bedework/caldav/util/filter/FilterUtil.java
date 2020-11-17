@@ -38,30 +38,30 @@ public class FilterUtil {
    *
    * NOTE *********** Not handling params yet
    *
-   * @param pf
-   * @param c
+   * @param pf - property filter
+   * @param c component
    * @return boolean true if the given component matches the property filter
    */
   public static boolean filter(final PropFilterType pf,
                                final Component c) {
-    PropertyList pl = c.getProperties();
+    final PropertyList<Property> pl = c.getProperties();
 
     if (pl == null) {
       return false;
     }
 
-    Property prop = pl.getProperty(pf.getName());
+    final Property prop = pl.getProperty(pf.getName());
 
     if (prop == null) {
       return pf.getIsNotDefined() != null;
     }
 
-    TextMatchType match = pf.getTextMatch();
+    final TextMatchType match = pf.getTextMatch();
     if (match != null) {
       return matches(match, prop.getValue());
     }
 
-    UTCTimeRangeType tr = pf.getTimeRange();
+    final UTCTimeRangeType tr = pf.getTimeRange();
     if (tr == null) {
       // invalid state?
       return true;
@@ -71,8 +71,8 @@ public class FilterUtil {
   }
 
   /**
-   * @param tm
-   * @param candidate
+   * @param tm text match type
+   * @param candidate String
    * @return boolean true if matches
    */
   public static boolean matches(final TextMatchType tm,
@@ -81,9 +81,9 @@ public class FilterUtil {
       return false;
     }
 
-    boolean isThere;
+    final boolean isThere;
 
-    boolean upperMatch = tm.getCollation().equals("i;ascii-casemap");
+    final boolean upperMatch = tm.getCollation().equals("i;ascii-casemap");
 
     if (!upperMatch) {
       isThere = candidate.contains(tm.getValue());
@@ -100,8 +100,8 @@ public class FilterUtil {
 
   /** Test if the given property falls in the timerange
    *
-   * @param tr
-   * @param candidate
+   * @param tr UTC timerange
+   * @param candidate property
    * @return boolean true if in range
    */
   public static boolean matches(final UTCTimeRangeType tr,
