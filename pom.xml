@@ -35,7 +35,7 @@
     <ical4j-vcard.version>1.0.4</ical4j-vcard.version>
 
 		<!-- Third Party Library Versions -->
-    <commons-codec.version>1.5</commons-codec.version>
+    <commons-codec.version>1.15</commons-codec.version>
     <java.jaxb.api.version>2.3.0</java.jaxb.api.version>
     <javax.xml.soap-api.version>1.4.0</javax.xml.soap-api.version>
     <junit.version>4.8.2</junit.version>
