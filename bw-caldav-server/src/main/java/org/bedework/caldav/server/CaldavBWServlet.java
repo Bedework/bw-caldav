@@ -114,6 +114,7 @@ public class CaldavBWServlet extends WebdavServlet implements
     wi.init(this, req, methods, dumpContent);
     return wi;
   }
+
   @Override
   public void contextInitialized(final ServletContextEvent sce) {
     try {
@@ -136,7 +137,7 @@ public class CaldavBWServlet extends WebdavServlet implements
    *                   Logged methods
    * ==================================================================== */
 
-  private BwLogger logger = new BwLogger();
+  private final BwLogger logger = new BwLogger();
 
   @Override
   public BwLogger getLogger() {

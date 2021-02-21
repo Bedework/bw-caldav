@@ -25,8 +25,6 @@ import org.bedework.util.misc.Util;
 import org.bedework.util.xml.tagdefs.IscheduleTags;
 import org.bedework.webdav.servlet.shared.WebdavException;
 
-import org.apache.commons.codec.binary.Base64;
-
 import java.io.Writer;
 
 import javax.servlet.http.HttpServletRequest;
@@ -101,7 +99,7 @@ public class IscheduleGetHandler extends GetHandler {
       final Writer wtr = resp.getWriter();
 
       wtr.write("v=DKIM1;p=");
-      wtr.write(new String(new Base64().encode(key)));
+      wtr.write(Util.toBase64UrlVal(key));
       wtr.close();
     } catch (final Throwable t) {
       throw new WebdavException(t);

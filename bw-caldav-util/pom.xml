@@ -30,47 +30,42 @@
 			<artifactId>bw-access</artifactId>
 		</dependency>
 
-    <dependency>
-      <groupId>org.bedework</groupId>
-      <artifactId>bw-util2-calendar</artifactId>
-    </dependency>
+		<dependency>
+			<groupId>org.bedework</groupId>
+			<artifactId>bw-util2-calendar</artifactId>
+		</dependency>
 
-    <dependency>
-      <groupId>org.bedework</groupId>
-      <artifactId>bw-util-logging</artifactId>
-    </dependency>
+		<dependency>
+			<groupId>org.bedework</groupId>
+			<artifactId>bw-util-logging</artifactId>
+		</dependency>
 
-    <dependency>
-      <groupId>org.bedework</groupId>
-      <artifactId>bw-util-misc</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.bedework</groupId>
-      <artifactId>bw-util-tz</artifactId>
-    </dependency>
+		<dependency>
+			<groupId>org.bedework</groupId>
+			<artifactId>bw-util-misc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.bedework</groupId>
+			<artifactId>bw-util-tz</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.bedework</groupId>
 			<artifactId>bw-webdav</artifactId>
 		</dependency>
-    <dependency>
-      <groupId>${ical4j.groupId}</groupId>
-      <artifactId>${ical4j.artifactId}</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.bedework</groupId>
-      <artifactId>apache-jdkim-library</artifactId>
-    </dependency>
+		<dependency>
+			<groupId>${ical4j.groupId}</groupId>
+			<artifactId>${ical4j.artifactId}</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.bedework</groupId>
+			<artifactId>apache-jdkim-library</artifactId>
+		</dependency>
 
 		<!-- Third Party Dependencies -->
-    <dependency>
-      <groupId>commons-codec</groupId>
-      <artifactId>commons-codec</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>javax.xml.bind</groupId>
-      <artifactId>jaxb-api</artifactId>
-    </dependency>
+		<dependency>
+			<groupId>javax.xml.bind</groupId>
+			<artifactId>jaxb-api</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>javax.servlet</groupId>
@@ -78,4 +73,70 @@
 		</dependency>
 	</dependencies>
 
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.bedework</groupId>
+				<artifactId>bw-util-maven-deploy-wfmodule</artifactId>
+				<version>${bw-util-deploy.version}</version>
+				<executions>
+					<execution>
+						<phase>install</phase>
+						<goals>
+							<goal>bw-deploy-wfmodule</goal>
+						</goals>
+					</execution>
+				</executions>
+
+				<configuration>
+					<moduleName>org.bedework.caldav.util</moduleName>
+
+					<moduleDependencies>
+						<moduleDependency>
+							<name>org.bedework.webdav</name>
+						</moduleDependency>
+
+						<moduleDependency>
+							<name>org.bedework.logging</name>
+						</moduleDependency>
+
+						<moduleDependency>
+							<name>org.bedework.util.misc</name>
+						</moduleDependency>
+						<moduleDependency>
+							<name>org.bedework.util.tz</name>
+						</moduleDependency>
+						<moduleDependency>
+							<name>org.bedework.util.xml</name>
+						</moduleDependency>
+
+						<moduleDependency>
+							<name>org.bedework.util2.calendar</name>
+						</moduleDependency>
+
+						<moduleDependency>
+							<name>org.bedework.xml</name>
+						</moduleDependency>
+
+						<!-- ============== generated elsewhere ========== -->
+						<moduleDependency>
+							<name>org.bedework.ical4j</name>
+						</moduleDependency>
+
+						<moduleDependency>
+							<name>org.bedework.ical4j-vcard</name>
+						</moduleDependency>
+
+						<moduleDependency>
+							<name>org.bedework.org.apache.jdkim.library</name>
+						</moduleDependency>
+
+						<moduleDependency>
+							<name>wildflyee.api</name>
+						</moduleDependency>
+					</moduleDependencies>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>

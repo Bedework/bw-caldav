@@ -1,28 +1,29 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.bedework</groupId>
-	<artifactId>bw-caldav</artifactId>
-	<version>4.0.10-SNAPSHOT</version>
-	<name>bw-caldav</name>
-	<packaging>pom</packaging>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.bedework</groupId>
+  <artifactId>bw-caldav</artifactId>
+  <version>4.0.10-SNAPSHOT</version>
+  <name>bw-caldav</name>
+  <packaging>pom</packaging>
   <description>A generic CalDAV server - used by bedework</description>
   <url>https://github.com/Bedework/bw-caldav</url>
 
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<!-- Maven Plugin Versions -->
-		<maven.compiler.plugin.version>2.3.2</maven.compiler.plugin.version>
-		<maven.source.plugin.version>2.1.2</maven.source.plugin.version>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <!-- Maven Plugin Versions -->
+    <maven.compiler.plugin.version>2.3.2</maven.compiler.plugin.version>
+    <maven.source.plugin.version>2.1.2</maven.source.plugin.version>
 
-		<!-- Bedework Versions -->
+    <!-- Bedework Versions -->
     <bw-access.version>4.0.8</bw-access.version>
-    <bw-util.version>4.0.27</bw-util.version>
+    <bw-util.version>4.0.28-SNAPSHOT</bw-util.version>
     <bw-util-conf.version>4.1.0</bw-util-conf.version>
     <bw-util-logging.version>4.0.5</bw-util-logging.version>
     <bw-util-tz.version>4.1.0</bw-util-tz.version>
     <bw-util2.version>4.0.6</bw-util2.version>
-		<bw-webdav.version>4.0.9</bw-webdav.version>
-		<bw-xml.version>4.0.10</bw-xml.version>
+    <bw-webdav.version>4.0.9</bw-webdav.version>
+    <bw-xml.version>4.0.10</bw-xml.version>
+    <bw-util-deploy.version>4.0.28-SNAPSHOT</bw-util-deploy.version>
 
     <ical4j.groupId>org.bedework.ical4j</ical4j.groupId>
     <ical4j.artifactId>ical4j</ical4j.artifactId>
@@ -34,42 +35,41 @@
     -->
     <ical4j-vcard.version>1.0.4</ical4j-vcard.version>
 
-		<!-- Third Party Library Versions -->
-    <commons-codec.version>1.15</commons-codec.version>
+    <!-- Third Party Library Versions -->
     <java.jaxb.api.version>2.3.0</java.jaxb.api.version>
     <javax.xml.soap-api.version>1.4.0</javax.xml.soap-api.version>
     <junit.version>4.8.2</junit.version>
     <servlet-api.version>4.0.0</servlet-api.version>
-	</properties>
+  </properties>
 
-	<organization>
-		<name>Bedework</name>
-		<url>https://github.com/Bedework</url>
-	</organization>
+  <organization>
+    <name>Bedework</name>
+    <url>https://github.com/Bedework</url>
+  </organization>
 
-	<licenses>
-		<license>
-			<name>Apache License Version 2.0</name>
-			<url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
-		</license>
-	</licenses>
+  <licenses>
+    <license>
+      <name>Apache License Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+    </license>
+  </licenses>
 
-	<scm>
-		<connection>scm:git:git@github.com:Bedework/bw-caldav.git</connection>
-		<developerConnection>scm:git:git@github.com:Bedework/bw-caldav.git</developerConnection>
-		<url>https://github.com/Bedework/bw-caldav</url>
-	  <tag>HEAD</tag>
+  <scm>
+    <connection>scm:git:git@github.com:Bedework/bw-caldav.git</connection>
+    <developerConnection>scm:git:git@github.com:Bedework/bw-caldav.git</developerConnection>
+    <url>https://github.com/Bedework/bw-caldav</url>
+    <tag>HEAD</tag>
   </scm>
 
-	<issueManagement>
-		<system>github</system>
-		<url>https://github.com/Bedework/bw-caldav/issues</url>
-	</issueManagement>
+  <issueManagement>
+    <system>github</system>
+    <url>https://github.com/Bedework/bw-caldav/issues</url>
+  </issueManagement>
 
-	<modules>
-		<module>bw-caldav-util</module>
-		<module>bw-caldav-server</module>
-	</modules>
+  <modules>
+    <module>bw-caldav-util</module>
+    <module>bw-caldav-server</module>
+  </modules>
 
   <developers>
     <developer>
@@ -99,9 +99,9 @@
     </repository>
   </distributionManagement>
 
-	<dependencyManagement>
-		<dependencies>
-			<!-- Bedework: Util -->
+  <dependencyManagement>
+    <dependencies>
+      <!-- Bedework: Util -->
 
       <dependency>
         <groupId>org.bedework</groupId>
@@ -109,11 +109,11 @@
         <version>${bw-util-logging.version}</version>
       </dependency>
 
-			<dependency>
-				<groupId>org.bedework</groupId>
-				<artifactId>bw-util2-calendar</artifactId>
-				<version>${bw-util2.version}</version>
-			</dependency>
+      <dependency>
+        <groupId>org.bedework</groupId>
+        <artifactId>bw-util2-calendar</artifactId>
+        <version>${bw-util2.version}</version>
+      </dependency>
 
       <dependency>
         <groupId>org.bedework</groupId>
@@ -139,41 +139,41 @@
         <version>${bw-util.version}</version>
       </dependency>
 
-			<!-- Bedework: Access -->
+      <!-- Bedework: Access -->
 
-			<dependency>
-				<groupId>org.bedework</groupId>
-				<artifactId>bw-access</artifactId>
-				<version>${bw-access.version}</version>
-			</dependency>
+      <dependency>
+        <groupId>org.bedework</groupId>
+        <artifactId>bw-access</artifactId>
+        <version>${bw-access.version}</version>
+      </dependency>
 
-			<!-- Bedework: WebDAV -->
+      <!-- Bedework: WebDAV -->
 
-			<dependency>
-				<groupId>org.bedework</groupId>
-				<artifactId>bw-webdav</artifactId>
-				<version>${bw-webdav.version}</version>
-			</dependency>
+      <dependency>
+        <groupId>org.bedework</groupId>
+        <artifactId>bw-webdav</artifactId>
+        <version>${bw-webdav.version}</version>
+      </dependency>
 
-			<!-- Bedework: XML -->
+      <!-- Bedework: XML -->
 
-			<dependency>
-				<groupId>org.bedework</groupId>
-				<artifactId>bw-xml-caldav</artifactId>
-				<version>${bw-xml.version}</version>
-			</dependency>
+      <dependency>
+        <groupId>org.bedework</groupId>
+        <artifactId>bw-xml-caldav</artifactId>
+        <version>${bw-xml.version}</version>
+      </dependency>
 
-			<dependency>
-				<groupId>org.bedework</groupId>
-				<artifactId>bw-xml-calws-soap</artifactId>
-				<version>${bw-xml.version}</version>
-			</dependency>
+      <dependency>
+        <groupId>org.bedework</groupId>
+        <artifactId>bw-xml-calws-soap</artifactId>
+        <version>${bw-xml.version}</version>
+      </dependency>
 
-			<dependency>
-				<groupId>org.bedework</groupId>
-				<artifactId>bw-xml-synchws</artifactId>
-				<version>${bw-xml.version}</version>
-			</dependency>
+      <dependency>
+        <groupId>org.bedework</groupId>
+        <artifactId>bw-xml-synchws</artifactId>
+        <version>${bw-xml.version}</version>
+      </dependency>
 
       <dependency>
         <groupId>${ical4j.groupId}</groupId>
@@ -192,13 +192,7 @@
         <version>0.4</version>
       </dependency>
 
-			<!-- Third Party Dependencies -->
-      <dependency>
-        <groupId>commons-codec</groupId>
-        <artifactId>commons-codec</artifactId>
-        <version>${commons-codec.version}</version>
-      </dependency>
-
+      <!-- Third Party Dependencies -->
       <dependency>
         <groupId>javax.xml.bind</groupId>
         <artifactId>jaxb-api</artifactId>
@@ -211,73 +205,92 @@
         <version>${javax.xml.soap-api.version}</version>
       </dependency>
 
-			<dependency>
-				<groupId>javax.servlet</groupId>
-				<artifactId>javax.servlet-api</artifactId>
-				<version>${servlet-api.version}</version>
-				<scope>provided</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
+      <dependency>
+        <groupId>javax.servlet</groupId>
+        <artifactId>javax.servlet-api</artifactId>
+        <version>${servlet-api.version}</version>
+        <scope>provided</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
-	<build>
-		<extensions>
-			<extension>
-				<groupId>org.apache.maven.wagon</groupId>
-				<artifactId>wagon-ssh</artifactId>
-				<version>2.9</version>
-			</extension>
-		</extensions>
-		<plugins>
-			<!-- Specify the compiler options and settings -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>${maven.compiler.plugin.version}</version>
-				<configuration>
-					<showDeprecation>false</showDeprecation>
-					<showWarnings>false</showWarnings>
-				</configuration>
-			</plugin>
-			<!-- Produce source jars during the 'verify' phase -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<version>${maven.source.plugin.version}</version>
-				<executions>
-					<execution>
-						<id>attach-sources</id>
-						<phase>verify</phase>
-						<goals>
-							<goal>jar</goal>
-							<goal>test-jar</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
+  <build>
+    <extensions>
+      <extension>
+        <groupId>org.apache.maven.wagon</groupId>
+        <artifactId>wagon-ssh</artifactId>
+        <version>2.9</version>
+      </extension>
+    </extensions>
 
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-release-plugin</artifactId>
-        <version>2.5</version>
-        <configuration>
-          <autoVersionSubmodules>true</autoVersionSubmodules>
-          <useReleaseProfile>false</useReleaseProfile>
-          <releaseProfiles>release</releaseProfiles>
-        </configuration>
-      </plugin>
+    <pluginManagement>
+      <plugins>
+        <!-- Specify the compiler options and settings -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>${maven.compiler.plugin.version}</version>
+          <configuration>
+            <showDeprecation>false</showDeprecation>
+            <showWarnings>false</showWarnings>
+          </configuration>
+        </plugin>
 
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.1.1</version>
-        <configuration>
-          <additionalJOption>-Xdoclint:none</additionalJOption>
-          <failOnError>false</failOnError>
-        </configuration>
-      </plugin>
-		</plugins>
-	</build>
+        <!-- Produce source jars during the 'verify' phase -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-source-plugin</artifactId>
+          <version>${maven.source.plugin.version}</version>
+          <executions>
+            <execution>
+              <id>attach-sources</id>
+              <phase>verify</phase>
+              <goals>
+                <goal>jar</goal>
+                <goal>test-jar</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-release-plugin</artifactId>
+          <version>2.5</version>
+          <configuration>
+            <autoVersionSubmodules>true</autoVersionSubmodules>
+            <useReleaseProfile>false</useReleaseProfile>
+            <releaseProfiles>release</releaseProfiles>
+          </configuration>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>3.1.1</version>
+          <configuration>
+            <additionalJOption>-Xdoclint:none</additionalJOption>
+            <failOnError>false</failOnError>
+          </configuration>
+        </plugin>
+
+        <plugin>
+          <groupId>org.bedework</groupId>
+          <artifactId>bw-util-maven-deploy-wfmodule</artifactId>
+          <version>${bw-util-deploy.version}</version>
+
+          <executions>
+            <execution>
+              <phase>install</phase>
+              <goals>
+                <goal>bw-deploy-wfmodule</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
 
   <profiles>
     <profile>

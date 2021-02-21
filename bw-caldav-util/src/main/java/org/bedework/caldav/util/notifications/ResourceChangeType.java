@@ -25,8 +25,6 @@ import org.bedework.util.xml.tagdefs.AppleServerTags;
 import org.bedework.webdav.servlet.shared.UrlPrefixer;
 import org.bedework.webdav.servlet.shared.UrlUnprefixer;
 
-import org.apache.commons.codec.binary.Base64;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -365,13 +363,13 @@ public class ResourceChangeType extends BaseNotificationType {
    * ==================================================================== */
   
   public boolean sameHref(final String val) {
-    final String bval = Base64.encodeBase64String(val.getBytes());
+    final String bval = Util.toBase64UrlVal(val);
 
     return bval.equals(getEncoding());
   }
 
   public void setHref(final String val) {
-    final String bval = Base64.encodeBase64String(val.getBytes());
+    final String bval = Util.toBase64UrlVal(val);
 
     setEncoding(bval);
   }
@@ -455,7 +453,7 @@ public class ResourceChangeType extends BaseNotificationType {
    * ==================================================================== */
 
   private void checkName(final String val) {
-    final String bval = Base64.encodeBase64String(val.getBytes());
+    final String bval = Util.toBase64UrlVal(val);
 
     if (getEncoding() == null) {
       setEncoding(bval);

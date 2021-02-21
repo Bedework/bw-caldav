@@ -2070,9 +2070,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       cnode.setFreeBusy(freeBusy.getFreeBusy(sysi, c,
                                              depth));
-    } catch (WebdavException we) {
+    } catch (final WebdavException we) {
       throw we;
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }
@@ -2081,25 +2081,28 @@ public class CaldavBWIntf extends WebdavNsIntf {
    *                         Private methods
    * ==================================================================== */
 
-  private SysIntf getSysi(final String className) throws WebdavException {
+  private SysIntf getSysi(final String className) {
     try {
-      Object o = Class.forName(className).newInstance();
+      final ClassLoader loader = Thread.currentThread().getContextClassLoader();
+      final Class<?> cl = loader.loadClass(className);
 
-      if (o == null) {
-        throw new WebdavException("Class " + className + " not found");
+      if (cl == null) {
+        throw new RuntimeException("Class " + className + " not found");
       }
 
-      if (!SysIntf.class.isInstance(o)) {
-        throw new WebdavException("Class " + className +
+      final Object o = cl.getDeclaredConstructor().newInstance();
+
+      if (!(o instanceof SysIntf)) {
+        throw new RuntimeException("Class " + className +
                                   " is not a subclass of " +
                                   SysIntf.class.getName());
       }
 
       return (SysIntf)o;
-    } catch (WebdavException we) {
-      throw we;
-    } catch (Throwable t) {
-      throw new WebdavException(t);
+    } catch (final RuntimeException re) {
+      throw re;
+    } catch (final Throwable t) {
+      throw new RuntimeException(t);
     }
   }
 
