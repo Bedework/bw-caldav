@@ -146,10 +146,6 @@
             </moduleDependency>
 
             <moduleDependency>
-              <name>org.bedework.ical4j-vcard</name>
-            </moduleDependency>
-
-            <moduleDependency>
               <name>org.bedework.org.apache.jdkim.library</name>
             </moduleDependency>
 
