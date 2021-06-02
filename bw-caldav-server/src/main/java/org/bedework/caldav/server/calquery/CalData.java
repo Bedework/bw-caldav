@@ -52,7 +52,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -286,7 +285,7 @@ public class CalData extends WebdavProperty implements Logged {
     }
 
     // Top level must be VCALENDAR at this point?
-    if (!"VCALENDAR".equals(comp.getName().toUpperCase())) {
+    if (!"VCALENDAR".equalsIgnoreCase(comp.getName())) {
       throw new WebdavBadRequest();
     }
 
@@ -310,20 +309,17 @@ public class CalData extends WebdavProperty implements Logged {
           return;
         }
 
-        try {
-          if ((contentType != null) &&
-                  contentType.equals(XcalTags.mimetype)) {
-            // XXX Just return the whole lot for the moment
-            node.writeContent(xml, null, contentType);
-          } else {
-            xml.cdataValue(transformVevent(node.getIntf(),
-                                           node.getIcal(),
-                                           subcomp.getProp(),
-                                           contentType));
-          }
-        } catch (final IOException ioe) {
-          throw new WebdavException(ioe);
+        if ((contentType != null) &&
+                contentType.equals(XcalTags.mimetype)) {
+          // XXX Just return the whole lot for the moment
+          node.writeContent(xml, null, contentType);
+        } else {
+          xml.cdataValue(transformVevent(node.getIntf(),
+                                         node.getIcal(),
+                                         subcomp.getProp(),
+                                         contentType));
         }
+
         return;
       }
     }
@@ -525,7 +521,7 @@ public class CalData extends WebdavProperty implements Logged {
    *                   Logged methods
    * ==================================================================== */
 
-  private BwLogger logger = new BwLogger();
+  private final BwLogger logger = new BwLogger();
 
   @Override
   public BwLogger getLogger() {

@@ -15,25 +15,20 @@
     <maven.source.plugin.version>2.1.2</maven.source.plugin.version>
 
     <!-- Bedework Versions -->
-    <bw-access.version>4.0.8</bw-access.version>
-    <bw-util.version>4.0.28-SNAPSHOT</bw-util.version>
-    <bw-util-conf.version>4.1.0</bw-util-conf.version>
-    <bw-util-logging.version>4.0.5</bw-util-logging.version>
+    <bw-access.version>4.0.9</bw-access.version>
+    <bw-util.version>4.0.28</bw-util.version>
+    <bw-util-conf.version>4.1.1</bw-util-conf.version>
+    <bw-util-logging.version>5.0.0</bw-util-logging.version>
     <bw-util-tz.version>4.1.0</bw-util-tz.version>
-    <bw-util2.version>4.0.6</bw-util2.version>
-    <bw-webdav.version>4.0.9</bw-webdav.version>
+    <bw-util2.version>4.0.7</bw-util2.version>
+    <bw-webdav.version>4.0.10</bw-webdav.version>
     <bw-xml.version>4.0.10</bw-xml.version>
-    <bw-util-deploy.version>4.0.28-SNAPSHOT</bw-util-deploy.version>
 
     <ical4j.groupId>org.bedework.ical4j</ical4j.groupId>
     <ical4j.artifactId>ical4j</ical4j.artifactId>
-    <ical4j.version>3.0.13-SNAPSHOT</ical4j.version>
-    <!--
-    <ical4j.groupId>org.bedework.ical4j</ical4j.groupId>
-    <ical4j.artifactId>ical4j</ical4j.artifactId>
-    <ical4j.version>1.1.4</ical4j.version>
-    -->
-    <ical4j-vcard.version>1.0.4</ical4j-vcard.version>
+    <ical4j.version>3.0.13</ical4j.version>
+
+    <ical4j-vcard.version>1.0.7</ical4j-vcard.version>
 
     <!-- Third Party Library Versions -->
     <java.jaxb.api.version>2.3.0</java.jaxb.api.version>
@@ -75,9 +70,9 @@
     <developer>
       <name>Mike Douglass</name>
       <organization>
-        Spherical Cow Group
+        Bedework Commercial Services
       </organization>
-      <organizationUrl>http://sphericalcowgroup.com/</organizationUrl>
+      <organizationUrl>https://bedework.com/</organizationUrl>
     </developer>
     <developer>
       <name>Arlen Johnson</name>
@@ -272,21 +267,6 @@
             <additionalJOption>-Xdoclint:none</additionalJOption>
             <failOnError>false</failOnError>
           </configuration>
-        </plugin>
-
-        <plugin>
-          <groupId>org.bedework</groupId>
-          <artifactId>bw-util-maven-deploy-wfmodule</artifactId>
-          <version>${bw-util-deploy.version}</version>
-
-          <executions>
-            <execution>
-              <phase>install</phase>
-              <goals>
-                <goal>bw-deploy-wfmodule</goal>
-              </goals>
-            </execution>
-          </executions>
         </plugin>
       </plugins>
     </pluginManagement>

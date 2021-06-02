@@ -186,7 +186,7 @@ public abstract class CaldavBwNode extends WebdavNsNode {
       return false;
     }
 
-    CalDAVCollection<?> c = (CalDAVCollection<?>)getCollection(true);
+    final CalDAVCollection<?> c = (CalDAVCollection<?>)getCollection(true);
     if (c == null) {
       return false;
     }
@@ -208,7 +208,7 @@ public abstract class CaldavBwNode extends WebdavNsNode {
    */
   @Override
   public Collection<QName> getSupportedReports() throws WebdavException {
-    Collection<QName> res = new ArrayList<QName>();
+    final Collection<QName> res = new ArrayList<>();
     res.addAll(super.getSupportedReports());
     res.addAll(supportedReports);
 
@@ -231,7 +231,7 @@ public abstract class CaldavBwNode extends WebdavNsNode {
 
   @Override
   public Collection<? extends WdEntity<?>> getChildren(
-          Supplier<Object> filterGetter) throws WebdavException {
+          final Supplier<Object> filterGetter) throws WebdavException {
     return null;
   }
 
@@ -256,9 +256,9 @@ public abstract class CaldavBwNode extends WebdavNsNode {
     try {
       // Not known - try higher
       return super.generatePropertyValue(tag, intf, allProp);
-    } catch (WebdavException wde) {
+    } catch (final WebdavException wde) {
       throw wde;
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }
@@ -277,31 +277,31 @@ public abstract class CaldavBwNode extends WebdavNsNode {
                                        final boolean allProp) throws WebdavException {
     try {
       if (tag.equals(CalWSSoapTags.creationDateTime)) {
-        String val = getCreDate();
+        final String val = getCreDate();
         if (val == null) {
           return true;
         }
 
-        CreationDateTimeType cdt = new CreationDateTimeType();
+        final CreationDateTimeType cdt = new CreationDateTimeType();
         cdt.setDateTime(XcalUtil.fromDtval(val));
         props.add(cdt);
         return true;
       }
 
       if (tag.equals(CalWSSoapTags.displayName)) {
-        String val = getDisplayname();
+        final String val = getDisplayname();
         if (val == null) {
           return true;
         }
 
-        DisplayNameType dn = new DisplayNameType();
+        final DisplayNameType dn = new DisplayNameType();
         dn.setString(val);
         props.add(dn);
         return true;
       }
 
       if (tag.equals(CalWSSoapTags.supportedFeatures)) {
-        SupportedFeaturesType sf = new SupportedFeaturesType();
+        final SupportedFeaturesType sf = new SupportedFeaturesType();
 
         sf.getCalendarAccessFeature().add(new CalendarAccessFeatureType());
 
@@ -315,7 +315,7 @@ public abstract class CaldavBwNode extends WebdavNsNode {
           href += "/";
         }
 
-        ResourceOwnerType ro = new ResourceOwnerType();
+        final ResourceOwnerType ro = new ResourceOwnerType();
 
         ro.setString(href);
         props.add(ro);
@@ -324,9 +324,9 @@ public abstract class CaldavBwNode extends WebdavNsNode {
       }
 
       return false;
-    } catch (WebdavException wde) {
+    } catch (final WebdavException wde) {
       throw wde;
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }
@@ -417,7 +417,7 @@ public abstract class CaldavBwNode extends WebdavNsNode {
 
   protected JAXBElement<PropertyType> xrdProperty(final String name,
                                      final String val) {
-    PropertyType p = new PropertyType();
+    final PropertyType p = new PropertyType();
     p.setType(name);
     p.setValue(val);
 
