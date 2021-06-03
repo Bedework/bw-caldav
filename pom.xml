@@ -181,10 +181,11 @@
         <artifactId>bw-ical4j-vcard</artifactId>
         <version>${ical4j-vcard.version}</version>
       </dependency>
+
       <dependency>
         <groupId>org.bedework</groupId>
         <artifactId>apache-jdkim-library</artifactId>
-        <version>0.4</version>
+        <version>0.5</version>
       </dependency>
 
       <!-- Third Party Dependencies -->
