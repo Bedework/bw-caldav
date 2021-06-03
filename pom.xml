@@ -185,7 +185,7 @@
       <dependency>
         <groupId>org.bedework</groupId>
         <artifactId>apache-jdkim-library</artifactId>
-        <version>0.5</version>
+        <version>0.6</version>
       </dependency>
 
       <!-- Third Party Dependencies -->
