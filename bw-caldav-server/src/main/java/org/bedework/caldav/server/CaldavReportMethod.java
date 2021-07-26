@@ -26,6 +26,7 @@ import org.bedework.caldav.util.DumpUtil;
 import org.bedework.caldav.util.filter.parse.EventQuery;
 import org.bedework.caldav.util.filter.parse.Filters;
 import org.bedework.util.misc.Util;
+import org.bedework.util.misc.response.GetEntityResponse;
 import org.bedework.util.timezones.Timezones;
 import org.bedework.util.xml.XmlUtil;
 import org.bedework.util.xml.tagdefs.CaldavTags;
@@ -130,11 +131,11 @@ public class CaldavReportMethod extends ReportMethod {
    *
    * @param doc parsed document
    * @return index or <0 for unknown.
-   * @throws WebdavException
+   * @throws WebdavException on fatal error
    */
   protected int getCaldavReportType(final Document doc) throws WebdavException {
     try {
-      Element root = doc.getDocumentElement();
+      final Element root = doc.getDocumentElement();
 
       if (XmlUtil.nodeMatches(root, CaldavTags.calendarQuery)) {
         return reportTypeQuery;
@@ -149,7 +150,7 @@ public class CaldavReportMethod extends ReportMethod {
       }
 
       return -1;
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       System.err.println(t.getMessage());
       if (debug()) {
         t.printStackTrace();
@@ -167,14 +168,20 @@ public class CaldavReportMethod extends ReportMethod {
    */
   protected void processDoc(final Document doc) throws WebdavException {
     try {
-      CaldavBWIntf intf = (CaldavBWIntf)getNsIntf();
+      final CaldavBWIntf intf = (CaldavBWIntf)getNsIntf();
 
-      Element root = doc.getDocumentElement();
+      final Element root = doc.getDocumentElement();
 
       if (reportType == reportTypeFreeBusy) {
         /* Expect exactly one time-range */
+
+        final GetEntityResponse<Element> childResp =
+                getOnlyChild(root);
+        if (!childResp.isOk()) {
+          throw new WebdavBadRequest(childResp.getMessage());
+        }
         freeBusy = new FreeBusyQuery();
-        freeBusy.parse(getOnlyChild(root));
+        freeBusy.parse(childResp.getEntity());
         if (debug()) {
           debug("REPORT: free-busy");
           freeBusy.dump();
@@ -183,7 +190,7 @@ public class CaldavReportMethod extends ReportMethod {
         return;
       }
 
-      Collection<Element> children = getChildren(root);
+      final Collection<Element> children = getChildren(root);
 
       /* Two possibilities:
                <!ELEMENT calendar-multiget ((DAV:allprop |
@@ -205,7 +212,7 @@ public class CaldavReportMethod extends ReportMethod {
         throw new WebdavBadRequest();
       }
 
-      Iterator<Element> chiter = children.iterator();
+      final Iterator<Element> chiter = children.iterator();
 
       Element curnode = chiter.next();
 
@@ -315,11 +322,11 @@ public class CaldavReportMethod extends ReportMethod {
           String href = XmlUtil.getElementContent(curnode);
 
           if (href != null) {
-            String decoded;
+            final String decoded;
             try {
               decoded = URLDecoder.decode(href,
                                           StandardCharsets.UTF_8);
-            } catch (Throwable t) {
+            } catch (final Throwable t) {
               throw new WebdavBadRequest("bad href: " + href);
             }
 
@@ -349,7 +356,7 @@ public class CaldavReportMethod extends ReportMethod {
         if (debug()) {
           debug("REPORT: multi-get");
 
-          for (String href: hrefs) {
+          for (final String href: hrefs) {
             debug("    <DAV:href>" + href + "</DAV:href>");
           }
         }
@@ -363,9 +370,9 @@ public class CaldavReportMethod extends ReportMethod {
       }
       throw new WebdavBadRequest("REPORT: unexpected element " + curnode.getNodeName() +
                                  " with type " + curnode.getNodeType());
-    } catch (WebdavException wde) {
+    } catch (final WebdavException wde) {
       throw wde;
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       error(t);
       throw new WebdavException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
     }
@@ -375,7 +382,7 @@ public class CaldavReportMethod extends ReportMethod {
    * @param req http request
    * @param resp http response
    * @param depth from depth header
-   * @throws WebdavException
+   * @throws WebdavException on fatal error
    */
   public void processResp(final HttpServletRequest req,
                           final HttpServletResponse resp,
@@ -385,7 +392,7 @@ public class CaldavReportMethod extends ReportMethod {
 
     startEmit(resp);
 
-    String resourceUri = getResourceUri(req);
+    final String resourceUri = getResourceUri(req);
 
     if (reportType == reportTypeQuery) {
       cqpars.depth = depth;
@@ -402,7 +409,7 @@ public class CaldavReportMethod extends ReportMethod {
                                            WebdavNsIntf.nodeTypeUnknown,
                                            false);
 
-    int status = HttpServletResponse.SC_OK;
+    final int status = HttpServletResponse.SC_OK;
 
     Collection<WebdavNsNode> nodes = null;
     final Collection<String> badHrefs = new ArrayList<>();
@@ -447,25 +454,25 @@ public class CaldavReportMethod extends ReportMethod {
    * @param hrefs hrefs to find
    * @param badHrefs list of unsatisfied hrefs
    * @return Collection of nodes
-   * @throws WebdavException
+   * @throws WebdavException on fatal error
    */
   public Collection<WebdavNsNode> getMgetNodes(final Collection<String> hrefs,
                                                final Collection<String> badHrefs) throws WebdavException {
-    Collection<WebdavNsNode> nodes = new ArrayList<>();
-    CaldavBWIntf intf = (CaldavBWIntf)getNsIntf();
+    final Collection<WebdavNsNode> nodes = new ArrayList<>();
+    final CaldavBWIntf intf = (CaldavBWIntf)getNsIntf();
 
     if (hrefs == null) {
       return nodes;
     }
 
-    for (String hr: hrefs) {
+    for (final String hr: hrefs) {
       WebdavNsNode n;
       try {
         n = intf.getNode(intf.getUri(hr),
                          WebdavNsIntf.existanceMust,
                          WebdavNsIntf.nodeTypeUnknown,
                          false);
-      } catch (WebdavException we) {
+      } catch (final WebdavException we) {
         if (hr.endsWith("/")) {
           n = new CaldavCalNode(intf.getSysi(),
                                 we.getStatusCode(),
@@ -521,7 +528,7 @@ public class CaldavReportMethod extends ReportMethod {
     LimitRecurrenceSetType lrs = null;
 
     if (caldata != null) {
-      CalendarDataType cd = caldata.getCalendarData();
+      final CalendarDataType cd = caldata.getCalendarData();
       comp = cd.getComp();
 
       expand = cd.getExpand();
@@ -539,14 +546,14 @@ public class CaldavReportMethod extends ReportMethod {
     } else if (comp.getAllcomp() != null) {
       // Retrieve everything
       retrieveList = null;
-    } else if (comp.getName().toUpperCase().equals("VCALENDAR")) {
+    } else if (comp.getName().equalsIgnoreCase("VCALENDAR")) {
       // Should have "VACALENDAR" as outer
 
       if (comp.getComp().isEmpty()) {
         retrieveList = null;
       } else {
-        for (CompType calcomp: comp.getComp()) {
-          String nm = calcomp.getName().toUpperCase();
+        for (final CompType calcomp: comp.getComp()) {
+          final String nm = calcomp.getName().toUpperCase();
           if (nm.equals("VEVENT") ||
               nm.equals("VTODO") ||
               nm.equals("VJOURNAL") ||
@@ -561,7 +568,7 @@ public class CaldavReportMethod extends ReportMethod {
               retrieveList = new ArrayList<>();
             }
 
-            for (PropType p: calcomp.getProp()) {
+            for (final PropType p: calcomp.getProp()) {
               if (!retrieveList.contains(p.getName())) {
                 retrieveList.add(p.getName());
               }
@@ -671,16 +678,17 @@ public class CaldavReportMethod extends ReportMethod {
     return nodes;
   }
 
-  private Collection<WebdavNsNode> getNodes(final CalendarQueryPars cqp,
-                                            final WebdavNsNode node,
-                                            final RetrievalMode rm,
-                                            final List<String> retrieveList)
+  private Collection<WebdavNsNode> getNodes(
+          final CalendarQueryPars cqp,
+          final WebdavNsNode node,
+          final RetrievalMode rm,
+          final List<String> retrieveList)
           throws WebdavException {
     if (debug()) {
       debug("getNodes: " + node.getUri());
     }
 
-    CaldavBWIntf intf = (CaldavBWIntf)getNsIntf();
+    final CaldavBWIntf intf = (CaldavBWIntf)getNsIntf();
 
     return intf.query(node, retrieveList, rm, cqp.filter);
   }
@@ -700,7 +708,7 @@ public class CaldavReportMethod extends ReportMethod {
    * @param req http request
    * @param resp http response
    * @param depth from depth header
-   * @throws WebdavException
+   * @throws WebdavException on fatal error
    */
   public void processFbResp(final HttpServletRequest req,
                             final HttpServletResponse resp,
@@ -708,13 +716,14 @@ public class CaldavReportMethod extends ReportMethod {
     resp.setStatus(HttpServletResponse.SC_OK);
     resp.setContentType("text/calendar;charset=utf-8");
 
-    String resourceUri = getResourceUri(req);
+    final String resourceUri = getResourceUri(req);
 
-    CaldavBWIntf intf = (CaldavBWIntf)getNsIntf();
-    WebdavNsNode node = intf.getNode(resourceUri,
-                                     WebdavNsIntf.existanceMust,
-                                     WebdavNsIntf.nodeTypeCollection,
-                                     false);
+    final CaldavBWIntf intf = (CaldavBWIntf)getNsIntf();
+    final WebdavNsNode node =
+            intf.getNode(resourceUri,
+                         WebdavNsIntf.existanceMust,
+                         WebdavNsIntf.nodeTypeCollection,
+                         false);
 
     if (!(node instanceof CaldavCalNode)) {
       if (debug()) {
@@ -723,13 +732,13 @@ public class CaldavReportMethod extends ReportMethod {
       throw new WebdavBadRequest();
     }
 
-    CaldavCalNode cnode = (CaldavCalNode)node;
+    final CaldavCalNode cnode = (CaldavCalNode)node;
     intf.getFreeBusy(cnode, freeBusy, defaultDepth(depth, 0));
     resp.setContentLength(-1);
 
     try {
       cnode.writeContent(null, resp.getWriter(), "text/calendar");
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
 

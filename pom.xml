@@ -21,7 +21,7 @@
     <bw-util-logging.version>5.0.0</bw-util-logging.version>
     <bw-util-tz.version>4.1.2</bw-util-tz.version>
     <bw-util2.version>4.0.8</bw-util2.version>
-    <bw-webdav.version>4.0.11</bw-webdav.version>
+    <bw-webdav.version>4.0.12-SNAPSHOT</bw-webdav.version>
     <bw-xml.version>4.0.10</bw-xml.version>
 
     <ical4j.groupId>org.bedework.ical4j</ical4j.groupId>
