@@ -131,7 +131,7 @@ public class FilterHandler implements Logged {
   /* Query we executed */
   private EventQuery eventq;
 
-  private FilterType f;
+  private final FilterType f;
 
   /** Constructor
    *
@@ -149,7 +149,7 @@ public class FilterHandler implements Logged {
    * @param retrieveList   If non-null limit required fields.
    * @param retrieveRecur  How we retrieve recurring events
    * @return Collection of event objects (null or empty for no result)
-   * @throws WebdavException
+   * @throws WebdavException on error
    */
   public Collection<CalDAVEvent<?>> query(final CaldavBwNode wdnode,
                                           final List<String> retrieveList,
@@ -187,7 +187,6 @@ public class FilterHandler implements Logged {
     } catch (final WebdavBadRequest | WebdavForbidden wd) {
       throw wd;
     } catch (final Throwable t) {
-      error(t);
       throw new WebdavException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
     }
   }
@@ -196,7 +195,7 @@ public class FilterHandler implements Logged {
    *
    * @param nodes     Collection of initialised CaldavBwNode
    * @return Collection of filtered nodes (empty for no result)
-   * @throws WebdavException
+   * @throws WebdavException on error
    */
   public Collection<WebdavNsNode> postFilter(
                    final Collection<WebdavNsNode> nodes) throws WebdavException {
@@ -208,17 +207,17 @@ public class FilterHandler implements Logged {
       trace("post filtering needed");
     }
 
-    CompFilterType cfltr = f.getCompFilter();
+    final CompFilterType cfltr = f.getCompFilter();
 
     // Currently only handle VCALENDAR for top level.
     if (!"VCALENDAR".equals(cfltr.getName())) {
       return new ArrayList<>();
     }
 
-    ArrayList<WebdavNsNode> filtered = new ArrayList<>();
+    final ArrayList<WebdavNsNode> filtered = new ArrayList<>();
 
-    for (WebdavNsNode node: nodes) {
-      CaldavComponentNode curnode;
+    for (final WebdavNsNode node: nodes) {
+      final CaldavComponentNode curnode;
 
       if (!(node instanceof CaldavComponentNode)) {
         // Cannot match to anything - don't pass it?
@@ -227,7 +226,7 @@ public class FilterHandler implements Logged {
 
       curnode = (CaldavComponentNode)node;
 
-      int entityType = curnode.getEvent().getEntityType();
+      final int entityType = curnode.getEvent().getEntityType();
 
       Collection<PropFilterType> pfs = null;
 
@@ -240,9 +239,9 @@ public class FilterHandler implements Logged {
       }
 
       if (!WebdavUtils.emptyCollection(pfs)) {
-        Component comp = curnode.getComponent();
+        final Component comp = curnode.getComponent();
 
-        for (PropFilterType pf: pfs) {
+        for (final PropFilterType pf: pfs) {
           if (FilterUtil.filter(pf, comp)) {
             filtered.add(curnode);
             break;
@@ -258,7 +257,7 @@ public class FilterHandler implements Logged {
    *                   Logged methods
    * ==================================================================== */
 
-  private BwLogger logger = new BwLogger();
+  private final BwLogger logger = new BwLogger();
 
   @Override
   public BwLogger getLogger() {
