@@ -16,12 +16,12 @@
 
     <!-- Bedework Versions -->
     <bw-access.version>4.0.9</bw-access.version>
-    <bw-util.version>4.0.30</bw-util.version>
+    <bw-util.version>4.0.31</bw-util.version>
     <bw-util-conf.version>4.1.3</bw-util-conf.version>
     <bw-util-logging.version>5.0.0</bw-util-logging.version>
     <bw-util-tz.version>4.1.2</bw-util-tz.version>
-    <bw-util2.version>4.0.8</bw-util2.version>
-    <bw-webdav.version>4.0.12-SNAPSHOT</bw-webdav.version>
+    <bw-util2.version>4.0.9</bw-util2.version>
+    <bw-webdav.version>4.0.12</bw-webdav.version>
     <bw-xml.version>4.0.10</bw-xml.version>
 
     <ical4j.groupId>org.bedework.ical4j</ical4j.groupId>
