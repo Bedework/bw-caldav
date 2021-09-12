@@ -34,7 +34,6 @@ import org.bedework.webdav.servlet.shared.WebdavNsIntf;
 
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
-import net.fortuna.ical4j.model.ComponentList;
 import org.w3c.dom.Element;
 
 import java.io.Writer;
@@ -149,7 +148,7 @@ public class CaldavComponentNode extends CaldavBwNode {
    *
    * @param cdURI
    * @param sysi
-   * @throws WebdavException
+   * @throws WebdavException on fatal error
    */
   public CaldavComponentNode(final CaldavURI cdURI,
                              final SysIntf sysi) throws WebdavException {
@@ -167,7 +166,7 @@ public class CaldavComponentNode extends CaldavBwNode {
    *
    * @param event
    * @param sysi
-   * @throws WebdavException
+   * @throws WebdavException on fatal error
    */
   public CaldavComponentNode(final CalDAVEvent<?> event,
                              final SysIntf sysi) {
@@ -227,7 +226,7 @@ public class CaldavComponentNode extends CaldavBwNode {
    * filters.
    *
    * @return Component
-   * @throws WebdavException
+   * @throws WebdavException on fatal error
    */
   public Component getComponent() throws WebdavException {
     init(true);
@@ -239,16 +238,17 @@ public class CaldavComponentNode extends CaldavBwNode {
                                       (col.getCalType() == CalDAVCollection.calTypeInbox) ||
                                       (col.getCalType() == CalDAVCollection.calTypeOutbox));
         }
-        ComponentList<?> cl = ical.getComponents();
+
+        final var cl = ical.getComponents();
 
         if ((cl == null) || (cl.isEmpty())) {
           return null;
         }
 
         // XXX Wrong - should just use the BwEvent + overrides?
-        comp = (Component)cl.get(0);
+        comp = cl.get(0);
       }
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
 
@@ -264,11 +264,11 @@ public class CaldavComponentNode extends CaldavBwNode {
 
   /**
    * @param val String name
-   * @throws WebdavException
+   * @throws RuntimeException on fatal error
    */
-  public void setEntityName(final String val) throws WebdavException {
+  public void setEntityName(final String val) {
     if (entityName != null) {
-      throw new WebdavException("Cannot change entity name");
+      throw new RuntimeException("Cannot change entity name");
     }
 
     entityName = val;
