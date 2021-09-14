@@ -19,21 +19,21 @@
     <bw-util.version>4.0.31</bw-util.version>
     <bw-util-conf.version>4.1.4</bw-util-conf.version>
     <bw-util-logging.version>5.0.0</bw-util-logging.version>
-    <bw-util-tz.version>4.1.3</bw-util-tz.version>
-    <bw-util2.version>4.0.10</bw-util2.version>
+    <bw-util-tz.version>4.1.4</bw-util-tz.version>
+    <bw-util2.version>4.0.11</bw-util2.version>
     <bw-webdav.version>4.0.13</bw-webdav.version>
     <bw-xml.version>4.0.10</bw-xml.version>
 
     <ical4j.groupId>org.bedework.ical4j</ical4j.groupId>
     <ical4j.artifactId>ical4j</ical4j.artifactId>
-    <ical4j.version>3.0.15</ical4j.version>
+    <ical4j.version>3.0.16</ical4j.version>
 
     <ical4j-vcard.version>1.0.8</ical4j-vcard.version>
 
     <!-- Third Party Library Versions -->
     <java.jaxb.api.version>2.3.0</java.jaxb.api.version>
     <javax.xml.soap-api.version>1.4.0</javax.xml.soap-api.version>
-    <junit.version>4.8.2</junit.version>
+    <junit.version>4.13.1</junit.version>
     <servlet-api.version>4.0.0</servlet-api.version>
   </properties>
 
