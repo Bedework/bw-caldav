@@ -27,7 +27,7 @@
     <orderEntry type="library" name="Maven: org.bedework:bw-access:4.0.10" level="project" />
     <orderEntry type="library" name="Maven: org.bedework:bw-util-caching:4.0.31" level="project" />
     <orderEntry type="library" name="Maven: org.bedework:bw-util-xml:4.0.31" level="project" />
-    <orderEntry type="library" name="Maven: org.bedework:bw-util2-calendar:4.0.11" level="project" />
+    <orderEntry type="library" name="Maven: org.bedework:bw-util2-calendar:4.0.12" level="project" />
     <orderEntry type="library" name="Maven: org.bedework:bw-xml-icalendar:4.0.10" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.11.0" level="project" />
     <orderEntry type="library" name="Maven: org.bedework:bw-util-logging:5.0.0" level="project" />
