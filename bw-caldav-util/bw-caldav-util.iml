@@ -28,8 +28,8 @@
     <orderEntry type="library" name="Maven: org.apache.commons:commons-text:1.7" level="project" />
     <orderEntry type="module" module-name="bw-util-tz" />
     <orderEntry type="module" module-name="bw-util-http" />
-    <orderEntry type="module" module-name="bw-util-config" />
-    <orderEntry type="module" module-name="bw-util-jmx" />
+    <orderEntry type="library" name="Maven: org.bedework:bw-util-config:5.0.2-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: org.bedework:bw-util-jmx:5.0.2-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: org.apache.commons:commons-lang3:3.9" level="project" />
     <orderEntry type="library" name="Maven: com.sun.mail:javax.mail:1.6.2" level="project" />
     <orderEntry type="library" name="Maven: javax.activation:activation:1.1" level="project" />
