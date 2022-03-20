@@ -993,7 +993,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
       if ((contentTypePars != null) && (contentTypePars.length > 0)) {
         calContent = contentTypePars[0].equals("text/calendar") ||
                      contentTypePars[0].equals("application/calendar+xml") ||
-                     contentTypePars[0].equals("application/calendar+json");
+                     contentTypePars[0].equals("application/calendar+json") ||
+                     contentTypePars[0].equals("application/jscalendar+json");
       }
 
       if ((col.getCalType() != CalDAVCollection.calTypeCalendarCollection) ||

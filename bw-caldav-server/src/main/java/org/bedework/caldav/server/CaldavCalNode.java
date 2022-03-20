@@ -1095,6 +1095,11 @@ public class CaldavCalNode extends CaldavBwNode {
         xml.endEmptyTag();
         xml.newline();
 
+        xml.startTag(CaldavTags.calendarData);
+        xml.attribute("content-type", "application/jscalendar+json");
+        xml.endEmptyTag();
+        xml.newline();
+
         xml.closeTag(tag);
         return true;
       }
