@@ -39,8 +39,8 @@ import java.util.Map;
  */
 public class SynchConnections extends ConfBase
         implements SynchConnectionsMBean {
-  /* Name of the property holding the location of the config data */
-  public static final String confuriPname = "org.bedework.caldav.confuri";
+  /* Name of the directory holding the config data */
+  private static final String confDirName = "caldav";
 
   /* A map indexed by the url which identifies 'open' connections */
   static Map<String, SynchConnection> activeConnections =
@@ -51,11 +51,7 @@ public class SynchConnections extends ConfBase
       new HashMap<>();
 
   public SynchConnections() {
-    super(serviceName);
-
-    setConfigName(configName);
-
-    setConfigPname(confuriPname);
+    super(serviceName, confDirName, configName);
   }
 
   @Override
