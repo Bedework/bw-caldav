@@ -956,6 +956,10 @@ public interface SysIntf extends WdSysIntf {
      */
     public boolean truncated;
 
+    /** True if the token is valid.
+     */
+    public boolean tokenValid;
+
     /** Token for next time.
      */
     public String token;

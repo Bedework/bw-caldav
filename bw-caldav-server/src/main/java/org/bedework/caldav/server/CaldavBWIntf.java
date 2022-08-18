@@ -1607,6 +1607,12 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
     final WdSynchReport wsr = new WdSynchReport();
 
+    wsr.tokenValid = srd.tokenValid;;
+
+    if (!srd.tokenValid) {
+      return wsr;
+    }
+
     wsr.token = srd.token;
     wsr.truncated = srd.truncated;
     wsr.items = new ArrayList<>();
