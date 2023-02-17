@@ -33,6 +33,8 @@ import org.bedework.webdav.servlet.shared.WebdavException;
 import org.bedework.webdav.servlet.shared.WebdavNsIntf;
 import org.bedework.webdav.servlet.shared.WebdavNsNode;
 
+import org.apache.commons.text.StringEscapeUtils;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.function.Supplier;
@@ -135,7 +137,8 @@ public class WebcalGetHandler extends GetHandler {
 
       resp.setHeader("Content-Disposition",
                      "Attachment; Filename=\"" +
-                     node.getDisplayname() + suffix + "\"");
+                             StringEscapeUtils.escapeJava(node.getDisplayname()) +
+                             suffix + "\"");
 
       getSysi().writeCalendar(evs, MethodEmitted.publish,
                               null,
