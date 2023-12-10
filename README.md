@@ -38,6 +38,43 @@ For full details, see [Sonatype's documentation for using Maven to publish relea
 
 ## Release Notes
 ### 4.0.9
-    * Remove errant content-type header from calws.
-    * Missing continue. Caused parse failure in invite-reply
+* Remove errant content-type header from calws.
+* Missing continue. Caused parse failure in invite-reply
+
+#### 4.0.10
+* Update library versions
+* Look for jscalendar content in ACCEPT
+
+#### 4.0.11
+* Update library versions
+
+#### 4.0.12
+* Update library versions
+
+#### 4.0.13
+* Update library versions
+
+#### 4.0.14
+* Update library versions
+
+#### 4.0.15
+* Update library versions
+
+#### 4.0.16
+* Update library versions
+
+#### 4.0.17
+* Update library versions
+
+#### 4.0.18
+* Update library versions
+
+#### 5.0.0
+* Use bedework-parent for builds
+*  Upgrade library versions
+
+#### 5.0.1
+*  Upgrade library versions
+* Process put with jscalendar content
+* Add a limit to how long the sync token is valid. Will allow flushing of old tombstoned data
     
