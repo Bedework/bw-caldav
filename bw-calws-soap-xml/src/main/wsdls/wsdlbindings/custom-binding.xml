@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bindings xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+          wsdlLocation="../wssvc.wsdl"
+          xmlns="http://java.sun.com/xml/ns/jaxws">
+  <!-- Disable default wrapper style -->
+  <enableWrapperStyle>false</enableWrapperStyle>
+</bindings>

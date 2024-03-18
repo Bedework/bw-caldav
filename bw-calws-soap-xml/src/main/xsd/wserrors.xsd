@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE schema >
+<schema xmlns="http://www.w3.org/2001/XMLSchema" 
+        xmlns:tns="http://docs.oasis-open.org/ws-calendar/ns/soap" 
+        xmlns:xcal="urn:ietf:params:xml:ns:icalendar-2.0"
+        xmlns:xrd="http://docs.oasis-open.org/ns/xri/xrd-1.0"
+        targetNamespace="http://docs.oasis-open.org/ws-calendar/ns/soap" 
+        elementFormDefault="qualified">
+  <annotation>
+    <documentation xml:lang="en">
+      This schema fragment defines the error codes and types for use by the 
+      CalWS SOAP web service.
+    </documentation>
+  </annotation>
+
+  <complexType name="ErrorCodeType" >
+  </complexType>
+
+  <element name="error" type="tns:ErrorCodeType" />
+  
+  <complexType name="ErrorResponseType">
+    <annotation>
+      <documentation xml:lang="en">
+           Message from service indicating an error.
+      </documentation>
+    </annotation>
+    <sequence >
+      <element ref="tns:error" />
+      <element name="description" type="string" minOccurs="0" />
+    </sequence>
+  </complexType>
+  
+  <!-- Error codes -->
+
+  <complexType name="ForbiddenType">
+    <annotation>
+      <documentation xml:lang="en">
+        Attempted to carry out a forbidden operation.
+      </documentation>
+    </annotation>
+    <complexContent mixed="false">
+      <extension base="tns:ErrorCodeType">
+      </extension>
+    </complexContent>
+  </complexType>
+  
+  <element name="forbidden" type="tns:ForbiddenType"
+           substitutionGroup="tns:error" />
+
+  <complexType name="TargetExistsType" >
+    <annotation>
+      <documentation xml:lang="en">
+        This may not be possible...
+      </documentation>
+    </annotation>
+    <complexContent mixed="false">
+      <extension base="tns:ErrorCodeType">
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <element name="targetExists" type="tns:TargetExistsType"
+              substitutionGroup="tns:error" />
+
+  <complexType name="TargetDoesNotExistType" >
+    <annotation>
+      <documentation xml:lang="en">
+        The supplied href does not reference an existing resource.
+      </documentation>
+    </annotation>
+    <complexContent mixed="false">
+      <extension base="tns:ErrorCodeType">
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <element name="targetDoesNotExist" type="tns:TargetDoesNotExistType"
+              substitutionGroup="tns:error" />
+
+  <complexType name="TargetNotEntityType">
+    <annotation>
+      <documentation xml:lang="en">
+        The supplied href does not target an entity. For example a fetch item 
+        was attempted against a collection.
+      </documentation>
+    </annotation>
+    <complexContent mixed="false">
+      <extension base="tns:ErrorCodeType">
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <element name="targetNotEntity" type="tns:TargetNotEntityType"
+              substitutionGroup="tns:error" />
+
+  <complexType name="NotCalendarDataType" >
+    <annotation>
+      <documentation xml:lang="en">
+        The supplied entity is not calendar data.
+      </documentation>
+    </annotation>
+    <complexContent mixed="false">
+      <extension base="tns:ErrorCodeType">
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <element name="notCalendarData" type="tns:NotCalendarDataType" 
+              substitutionGroup="tns:error" />
+
+  <complexType name="InvalidCalendarDataType">
+    <annotation>
+      <documentation xml:lang="en">
+         The supplied entity does not represent valid calendar data.
+      </documentation>
+    </annotation>
+    <complexContent mixed="false">
+      <extension base="tns:ErrorCodeType">
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <element name="invalidCalendarData" type="tns:InvalidCalendarDataType"
+              substitutionGroup="tns:error" />
+              
+  <complexType name="InvalidCalendarObjectResourceType">
+    <annotation>
+      <documentation xml:lang="en">
+         The supplied entity does not represent valid calendar data.
+      </documentation>
+    </annotation>
+    <complexContent mixed="false">
+      <extension base="tns:ErrorCodeType">
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <element name="invalidCalendarObjectResource" 
+           type="tns:InvalidCalendarObjectResourceType"
+           substitutionGroup="tns:error" />
+              
+  <complexType name="UnsupportedCalendarComponentType" >
+    <annotation>
+      <documentation xml:lang="en">
+         Indicates that the calendar collection does not accept components of the
+         type the client is attempting to store. The accepted component types can 
+         be determined by examining the calendar collection properties.
+      </documentation>
+    </annotation>
+    <complexContent mixed="false">
+      <extension base="tns:ErrorCodeType">
+      </extension>
+    </complexContent>
+  </complexType>
+              
+  <element name="unsupportedCalendarComponent" 
+           type="tns:UnsupportedCalendarComponentType"
+           substitutionGroup="tns:error" />
+
+  <complexType name="InvalidCalendarCollectionLocationType" >
+    <annotation>
+      <documentation xml:lang="en">
+         Error indicating at least one of two conditions:
+          1) the server does not allow the creation of calendar collections
+             at the given location in its namespace, or 
+          2) the parent collection of the Request-URI exists but cannot accept members;
+      </documentation>
+    </annotation>
+    <complexContent mixed="false">
+      <extension base="tns:ErrorCodeType">
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <element name="invalidCalendarCollectionLocation" 
+           type="tns:InvalidCalendarCollectionLocationType"
+           substitutionGroup="tns:error" />
+              
+  <complexType name="ExceedsMaxResourceSizeType">
+    <annotation>
+      <documentation xml:lang="en">
+           Error indicating that the total size of the event or task is too large.
+           The maximum date is set by the target system and can be determined
+           from the properties.
+      </documentation>
+    </annotation>
+    <complexContent mixed="false">
+      <extension base="tns:ErrorCodeType">
+      </extension>
+    </complexContent>
+  </complexType>
+              
+  <element name="exceedsMaxResourceSize" type="tns:ExceedsMaxResourceSizeType"
+              substitutionGroup="tns:error" />
+
+  <complexType name="BeforeMinDateTimeType" >
+    <annotation>
+      <documentation xml:lang="en">
+           Error indicating that the start or end of an event or task is too
+           far into the past.
+           The minimum date is set by the target system and can be determined
+           from the properties.
+      </documentation>
+    </annotation>
+    <complexContent mixed="false">
+      <extension base="tns:ErrorCodeType">
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <element name="beforeMinDateTime" type="tns:BeforeMinDateTimeType"
+              substitutionGroup="tns:error" />
+              
+  <complexType name="AfterMaxDateTimeType" >
+    <annotation>
+      <documentation xml:lang="en">
+           Error indicating that the start or end of an event or task is too
+           far into the future.
+           The maximum date is set by the target system and can be determined
+           from the properties.
+      </documentation>
+    </annotation>
+    <complexContent mixed="false">
+      <extension base="tns:ErrorCodeType">
+      </extension>
+    </complexContent>
+  </complexType>
+              
+  <element name="afterMaxDateTime" type="tns:AfterMaxDateTimeType"
+              substitutionGroup="tns:error" />
+  
+  <complexType name="TooManyInstancesType" >
+    <annotation>
+      <documentation xml:lang="en">
+           Error indicating that a recurring event has too many instances.
+           The maximum number is set by the target system and can be determined
+           from the properties.
+      </documentation>
+    </annotation>
+    <complexContent mixed="false">
+      <extension base="tns:ErrorCodeType">
+      </extension>
+    </complexContent>
+  </complexType>
+  
+  <element name="tooManyInstances" type="tns:TooManyInstancesType"
+              substitutionGroup="tns:error" />
+              
+  <complexType name="TooManyAttendeesPerInstanceType" >
+    <annotation>
+      <documentation xml:lang="en">
+           Error indicating that a scheduling message has too many attendees.
+           The maximum number is set by the target system and can be determined
+           from the properties.
+      </documentation>
+    </annotation>
+    <complexContent mixed="false">
+      <extension base="tns:ErrorCodeType">
+      </extension>
+    </complexContent>
+  </complexType>
+              
+  <element name="tooManyAttendeesPerInstance" 
+           type="tns:TooManyAttendeesPerInstanceType"
+           substitutionGroup="tns:error" />
+              
+  <complexType name="PartialSuccessType" >
+    <annotation>
+      <documentation xml:lang="en">
+         Indicates that a MultiOpType operation was partially successful. Returned
+         when the operation is marked as non-atomic and one or more sub-operations
+         failed. The entire response needs to be examined to determine which 
+         operations failed.
+      </documentation>
+    </annotation>
+    <complexContent mixed="false">
+      <extension base="tns:ErrorCodeType">
+      </extension>
+    </complexContent>
+  </complexType>
+              
+  <element name="partialSuccess" type="tns:PartialSuccessType"
+           substitutionGroup="tns:error" />
+  
+  <complexType name="MissingChangeTokenType" >
+    <annotation>
+      <documentation xml:lang="en">
+        An operation was attempted which required a change token but none was
+        supplied.
+        
+        Note that it appears that the marshalling or demarshalling should handle 
+        this as the token is required. It doesn't. 
+      </documentation>
+    </annotation>
+    <complexContent mixed="false">
+      <extension base="tns:ErrorCodeType">
+      </extension>
+    </complexContent>
+  </complexType>
+  
+  <element name="missingChangeToken" type="tns:MissingChangeTokenType"
+           substitutionGroup="tns:error" />
+  
+  <complexType name="MismatchedChangeTokenType" >
+    <annotation>
+      <documentation xml:lang="en">
+        An update operation was attempted with a change token value which does not 
+        match that held by the service. The client must refetch the entity to
+        refresh its cached value and token.
+        
+        Note that matching of tokens is a server responsibility. The token is
+        opaque to the client but probably structured to the server. Certain 
+        non-conflicting updates may be allowed even if the token has changed. 
+      </documentation>
+    </annotation>
+    <complexContent mixed="false">
+      <extension base="tns:ErrorCodeType">
+      </extension>
+    </complexContent>
+  </complexType>
+  
+  <element name="mismatchedChangeToken" type="tns:MismatchedChangeTokenType"
+           substitutionGroup="tns:error" />
+
+  <complexType name="InvalidFilterType" >
+    <complexContent mixed="false">
+      <extension base="tns:ErrorCodeType">
+        <sequence> 
+          <element name="detail" type="string" />
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <element name="invalidFilter" type="tns:InvalidFilterType"
+              substitutionGroup="tns:error" />
+
+  <complexType name="UidConflictType" >
+    <complexContent mixed="false">
+      <extension base="tns:ErrorCodeType">
+        <sequence> 
+          <element name="href" type="string" />
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <element name="uidConflict" type="tns:UidConflictType"
+              substitutionGroup="tns:error" >
+    <annotation>
+      <documentation xml:lang="en">
+        An attempt was made to store an entity which would result in more than 
+        one entity having equal uids. The entity uid must be unique within a 
+        collection. Recurring event or tasks overrides have the same uid and are 
+        considered part of a single entity.
+      </documentation>
+    </annotation>
+  </element>
+
+</schema>

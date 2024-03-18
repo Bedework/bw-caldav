@@ -1,0 +1,459 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" 
+        xmlns:tns="http://docs.oasis-open.org/ws-calendar/ns/soap" 
+        xmlns:xcal="urn:ietf:params:xml:ns:icalendar-2.0"
+        targetNamespace="http://docs.oasis-open.org/ws-calendar/ns/soap" 
+        elementFormDefault="qualified">
+  <!-- =============================================================
+       This query is functionally equivalent to the CalDAV XML query.
+       
+       It differs in that date/time and boolean attributes must all be XML 
+       schema types.
+       ============================================================= -->
+        
+  <import schemaLocation="iCalendar.xsd"
+          namespace="urn:ietf:params:xml:ns:icalendar-2.0" />
+  
+  <simpleType name="AnyofAllofType">
+    <annotation>
+      <documentation xml:lang="en">
+        A CALDAV spec extension to allow AND/OR in filters
+      </documentation>
+    </annotation>
+    <restriction base="string">
+      <pattern value="anyof|allof"/>
+    </restriction>
+  </simpleType>
+  
+  <complexType name="AllcompType">
+    <annotation>
+      <documentation xml:lang="en">
+        The allcomp XML element can be used when the
+        client wants all types of components returned by a calendaring
+        REPORT request.
+      </documentation>
+    </annotation>
+  </complexType>
+  
+  <element name="allcomp" type="tns:AllcompType" />
+
+  <complexType name="ExpandType">
+    <annotation>
+      <documentation xml:lang="en">
+        The expand XML element specifies that for a
+        given calendaring REPORT request, the server MUST expand the
+        recurrence set into calendar components that define exactly one
+        recurrence instance, and MUST return only those whose scheduled
+        time intersect a specified time range.
+  
+        The "start" attribute specifies the inclusive start of the time
+        range, and the "end" attribute specifies the non-inclusive end of
+        the time range.  Both attributes are specified as date with UTC
+        time value.  The value of the "end" attribute MUST be greater than
+        the value of the "start" attribute.
+  
+        The server MUST use the same logic as defined for timeRange 
+        to determine if a recurrence instance intersects the
+        specified time range.
+  
+        Recurring components, other than the initial instance, MUST
+        include a RECURRENCE-ID property indicating which instance they
+        refer to.
+  
+        The returned calendar components MUST NOT use recurrence
+        properties (i.e., EXDATE, EXRULE, RDATE, and RRULE) and MUST NOT
+        have reference to or include VTIMEZONE components.  Date and local
+        time with reference to time zone information MUST be converted
+        into date with UTC time.
+      </documentation>
+    </annotation>
+    <complexContent mixed="false">
+      <extension base="tns:UTCTimeRangeType"/>
+    </complexContent>
+  </complexType>
+  
+  <element name="expand" type="tns:ExpandType" />
+  
+  <complexType name="LimitRecurrenceSetType">
+    <annotation>
+      <documentation xml:lang="en">
+        The limit-recurrence-set XML element specifies
+        that for a given calendaring REPORT request, the server MUST
+        return, in addition to the "master component", only the
+        "overridden components" that impact a specified time range.  An
+        overridden component impacts a time range if its current start and
+        end times overlap the time range, or if the original start and end
+        times - the ones that would have been used if the instance were
+        not overridden - overlap the time range.
+  
+        The "start" attribute specifies the inclusive start of the time
+        range, and the "end" attribute specifies the non-inclusive end of
+        the time range.  Both attributes are specified as date with UTC
+        time value.  The value of the "end" attribute MUST be greater than
+        the value of the "start" attribute.
+  
+        The server MUST use the same logic as defined for timeRange 
+        to determine if the current or original scheduled time of an
+        "overridden" recurrence instance intersects the specified time
+        range.
+  
+        Overridden components that have a RANGE parameter on their
+        RECURRENCE-ID property may specify one or more instances in the
+        recurrence set, and some of those instances may fall within the
+        specified time range or may have originally fallen within the
+        specified time range prior to being overridden.  If that is the
+        case, the overridden component MUST be included in the results, as
+        it has a direct impact on the interpretation of instances within
+        the specified time range.
+      </documentation>
+    </annotation>
+    <complexContent mixed="false">
+      <extension base="tns:UTCTimeRangeType"/>
+    </complexContent>
+  </complexType>
+  
+  <element name="limit-recurrence-set" type="tns:LimitRecurrenceSetType" />
+  
+  <complexType name="LimitFreebusySetType">
+    <annotation>
+      <documentation xml:lang="en">
+        The limit-freebusy-set XML element specifies
+        that for a given calendaring REPORT request, the server MUST only
+        return the FREEBUSY property values of a VFREEBUSY component that
+        intersects a specified time range.
+  
+        The "start" attribute specifies the inclusive start of the time
+        range, and the "end" attribute specifies the non-inclusive end of
+        the time range.  Both attributes are specified as "date with UTC
+        time" value.  The value of the "end" attribute MUST be greater
+        than the value of the "start" attribute.
+  
+        The server MUST use the same logic as defined for timeRange 
+        to determine if a FREEBUSY property value intersects the
+        specified time range.
+      </documentation>
+    </annotation>
+    <complexContent mixed="false">
+      <extension base="tns:UTCTimeRangeType"/>
+    </complexContent>
+  </complexType>
+  
+  <element name="limit-freebusy-set" type="tns:LimitFreebusySetType" />
+  
+  <group name="ExpandOrLimitType">
+    <sequence>
+      <choice minOccurs="0">
+        <element ref="tns:expand" />
+        <element ref="tns:limit-recurrence-set" />
+      </choice>
+    </sequence> 
+  </group>
+  
+  <complexType name="TextMatchType">
+    <annotation>
+      <documentation xml:lang="en">
+        The textMatch XML element specifies text used
+        for a substring match against the property or parameter value
+        specified in a calendaring REPORT request.
+  
+        The "collation" attribute is used to select the collation that the
+        server MUST use for character string matching.  In the absence of
+        this attribute, the server MUST use the "i;ascii-casemap"
+        collation.
+  
+        The "negate-condition" attribute is used to indicate that this
+        test returns a match if the text matches when the attribute value
+        is set to "no", or return a match if the text does not match, if
+        the attribute value is set to "yes".  For example, this can be
+        used to match components with a STATUS property not set to
+        CANCELLED.
+      </documentation>
+    </annotation>
+    <simpleContent>
+      <extension base="string">
+        <attribute name="collation" type="string" default="i;ascii-casemap" />
+        <attribute name="negate-condition" type="boolean" default="false" />
+      </extension>
+    </simpleContent>
+  </complexType>
+  
+  <element name="textMatch" type="tns:TextMatchType" />
+  
+  <complexType name="IsNotDefinedType">
+    <annotation>
+      <documentation xml:lang="en">
+        The is-not-defined XML element specifies that a
+        match occurs if the enclosing component, property, or parameter
+        value specified in a calendaring REPORT request does not exist in
+        the calendar data being tested.
+      </documentation>
+    </annotation>
+  </complexType>
+  
+  <element name="is-not-defined" type="tns:IsNotDefinedType" />
+  
+  <complexType name="TimezoneType">
+    <annotation>
+      <documentation xml:lang="en">
+        The timezone XML element specifies that for a
+        given calendaring REPORT request, the server MUST rely on the
+        specified VTIMEZONE component instead of the calendar-timezone 
+        property of the calendar collection, in which the
+        calendar object resource is contained to resolve "date" values and
+        "date with local time" values (i.e., floating time) to "date with
+        UTC time" values.  The server will require this information to
+        determine if a calendar component scheduled with "date" values or
+        "date with local time" values intersects a timeRange
+        specified in a calendar-query REPORT.
+  
+        Note:  The iCalendar data embedded within the timezone XML
+        element MUST follow the standard XML character data encoding
+        rules, including use of &lt;, &gt;, &amp; etc. entity encoding or
+        the use of a <![CDATA[ ... ]]> construct.  In the later case, the
+        iCalendar data cannot contain the character sequence ']' + ']' + '>', 
+        which is the end delimiter for the CDATA section.
+      </documentation>
+    </annotation>
+    <simpleContent>
+      <extension base="string">
+      </extension>
+    </simpleContent>
+  </complexType>  
+  
+  <element name="timezone" type="tns:TimezoneType" />
+  
+  <complexType name="TimezoneIdType">
+    <annotation>
+      <documentation xml:lang="en">
+        The timezone-id XML element specifies that for a
+        given calendaring REPORT request, the server MUST rely on the
+        specified timezone instead of the calendar-timezone
+        property of the calendar collection, in which the
+        calendar object resource is contained to resolve "date" values and
+        "date with local time" values (i.e., floating time) to "date with
+        UTC time" values.  The server will require this information to
+        determine if a calendar component scheduled with "date" values or
+        "date with local time" values intersects a timeRange
+        specified in a calendar-query REPORT.
+      </documentation>
+    </annotation>
+    <simpleContent>
+      <extension base="string">
+      </extension>
+    </simpleContent>
+  </complexType>  
+  
+  <element name="timezone-id" type="tns:TimezoneIdType" />
+  
+  <element name="timeRange" type="tns:UTCTimeRangeType" >
+    <annotation>
+      <documentation xml:lang="en">
+        The timeRange XML element specifies that for a
+        given calendaring REPORT request, the server MUST only return the
+        calendar object resources that, depending on the context, have a
+        component or property whose value intersects a specified time
+        range.
+  
+        The "start" attribute specifies the inclusive start of the time
+        range, and the "end" attribute specifies the non-inclusive end of
+        the time range.  Both attributes MUST be specified as "date with
+        UTC time" value.  Time ranges open at one end can be specified by
+        including only one attribute; however, at least one attribute MUST
+        always be present in the timeRange element.  If either the
+        "start" or "end" attribute is not specified in the timeRange 
+        XML element, assume "-infinity" and "+infinity" as their
+        value, respectively.  If both "start" and "end" are present, the
+        value of the "end" attribute MUST be greater than the value of the
+        "start" attribute.
+      </documentation>
+    </annotation>
+  </element>  
+  
+  <complexType name="ParamFilterType">
+    <annotation>
+      <documentation xml:lang="en">
+        The paramFilter XML element specifies a query
+        targeted at a specific calendar property parameter (e.g.,
+        PARTSTAT) in the scope of the calendar property on which it is
+        defined.  A calendar property parameter is said to match a 
+        paramFilter if:
+  
+        *  The paramFilter XML element is empty and a parameter of
+           the type specified by the "name" attribute exists on the
+           calendar property being examined;
+  
+        or:
+  
+        *  The paramFilter XML element contains a is-not-defined 
+           XML element and no parameter of the type specified by
+           the "name" attribute exists on the calendar property being
+           examined;
+      </documentation>
+    </annotation>
+    <sequence> 
+      <element ref="xcal:baseParameter" />
+      <choice minOccurs="0">
+        <element ref="tns:is-not-defined" />
+        <element ref="tns:textMatch" />
+      </choice>
+    </sequence>
+      <!--
+    <attribute name="name" type="string" use="required" />
+      -->
+  </complexType>  
+  
+  <element name="paramFilter" type="tns:ParamFilterType" />
+  
+  <complexType name="PropFilterType">
+    <annotation>
+      <documentation xml:lang="en">
+        The propFilter XML element specifies a query
+        targeted at a specific calendar property (e.g., CATEGORIES) in the
+        scope of the enclosing calendar component.  A calendar property is
+        said to match a propFilter if:
+  
+        *  The propFilter XML element is empty and a property of
+           the type specified by the "name" attribute exists in the
+           enclosing calendar component;
+  
+        or:
+  
+        *  The propFilter XML element contains a is-not-defined 
+           XML element and no property of the type specified by
+           the "name" attribute exists in the enclosing calendar
+           component;
+  
+        or:
+  
+        *  The propFilter XML element contains a timeRange
+           XML element and the property value overlaps the specified time
+           range, and all specified paramFilter child XML elements
+           also match the targeted property;
+  
+        or:
+  
+        *  The propFilter XML element contains a textMatch
+           XML element and the property value matches it, and all
+           specified paramFilter child XML elements also match the
+           targeted property;
+      </documentation>
+    </annotation>
+    <sequence> 
+      <element ref="xcal:baseProperty" />
+      <choice minOccurs="0">
+        <element ref="tns:is-not-defined" />
+        <sequence> 
+          <choice>
+            <element ref="tns:timeRange" />
+            <element ref="tns:textMatch" />
+          </choice>
+      
+          <element ref="tns:paramFilter" minOccurs="0" maxOccurs="unbounded" />
+        </sequence>
+      </choice>
+    </sequence>
+    <!-- 
+    <attribute name="name" type="string" use="required" />
+     -->
+    <attribute name="test" type="tns:AnyofAllofType" default="anyof" />
+  </complexType>  
+  
+  <element name="propFilter" type="tns:PropFilterType" />
+  
+  <complexType name="AnyCompType">
+    <annotation>
+      <documentation xml:lang="en">
+        Allows a CompFilterType to indicate that any component should match.
+      </documentation>
+    </annotation>
+    <sequence> 
+    </sequence>
+  </complexType>  
+  
+  <element name="anyComp" type="tns:AnyCompType" />
+  
+  <complexType name="CompFilterType">
+    <annotation>
+      <documentation xml:lang="en">
+        The compFilter XML element specifies a query
+        targeted at the calendar object (i.e., VCALENDAR) or at a specific
+        calendar component type (e.g., VEVENT).  The scope of the
+        compFilter XML element is the calendar object when used as
+        a child of the filter XML element.  The scope of the
+        compFilter XML element is the enclosing calendar component
+        when used as a child of another compFilter XML element.  A
+        compFilter is said to match if:
+  
+        *  The compFilter XML element is empty and the calendar
+           object or calendar component type specified by the "name"
+           attribute exists in the current scope;
+  
+        or:
+  
+        *  The compFilter XML element contains a is-not-defined 
+           XML element and the calendar object or calendar
+           component type specified by the "name" attribute does not exist
+           in the current scope;
+  
+        or:
+  
+        *  The compFilter XML element contains a timeRange
+           XML element and at least one recurrence instance in the
+           targeted calendar component is scheduled to overlap the
+           specified time range, and all specified propFilter and
+           compFilter child XML elements also match the targeted
+           calendar component;
+  
+        or:
+  
+        *  The compFilter XML element only contains propFilter 
+           and compFilter child XML elements that all match
+           the targeted calendar component.
+      </documentation>
+    </annotation>
+    <sequence> 
+      <choice>
+        <element ref="tns:anyComp" />
+        <element ref="xcal:vcalendar" />
+        <element ref="xcal:baseComponent" />
+      </choice>
+      <choice minOccurs="0">
+        <element ref="tns:is-not-defined" />
+        <sequence> 
+          <element ref="tns:timeRange" minOccurs="0" />
+          <element ref="tns:propFilter" minOccurs="0" maxOccurs="unbounded" />
+          <element ref="tns:compFilter" minOccurs="0" maxOccurs="unbounded" />
+        </sequence>
+      </choice>
+    </sequence>
+      <!--
+    <attribute name="name" type="string" use="required" />
+      -->
+    <attribute name="test" type="tns:AnyofAllofType" default="anyof" />
+  </complexType>  
+  
+  <element name="compFilter" type="tns:CompFilterType" />
+  
+  <complexType name="FilterType">
+    <annotation>
+      <documentation xml:lang="en">
+        The filter XML element specifies the search
+        filter used to limit the calendar components returned by a
+        calendaring REPORT request.
+      </documentation>
+    </annotation>
+    <sequence> 
+      <element ref="tns:compFilter" />
+    </sequence>
+  </complexType>  
+  
+  <element name="filter" type="tns:FilterType" />
+  
+  <!-- 
+         <!ELEMENT calendar-query ((DAV:allprop |
+                                    DAV:propname |
+                                    DAV:prop)?, filter, timezone?, timezone-id?)>
+   -->
+
+</schema>
+

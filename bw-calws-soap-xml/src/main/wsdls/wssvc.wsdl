@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:tns="http://docs.oasis-open.org/ws-calendar/ns/soap" 
+                  xmlns:s="http://www.w3.org/2001/XMLSchema" 
+                  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
+                  targetNamespace="http://docs.oasis-open.org/ws-calendar/ns/soap" 
+                  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema>
+      <s:import schemaLocation="../xsd/wsmessages.xsd"
+                namespace="http://docs.oasis-open.org/ws-calendar/ns/soap" />
+    </s:schema>
+  </wsdl:types> 
+
+  <!-- =========================== getProperties =========================== -->  
+
+  <wsdl:message name="GetPropertiesIn">
+    <wsdl:part name="request" element="tns:getProperties" />
+  </wsdl:message>
+  
+  <wsdl:message name="GetPropertiesOut">
+    <wsdl:part name="response" element="tns:getPropertiesResponse" />
+  </wsdl:message>
+
+  <!-- =========================== freebusyQuery =========================== -->
+
+  <wsdl:message name="FreebusyReportIn">
+    <wsdl:part name="request" element="tns:freebusyReport" />
+  </wsdl:message>
+  
+  <wsdl:message name="FreebusyReportOut">
+    <wsdl:part name="response" element="tns:freebusyReportResponse" />
+  </wsdl:message>
+
+  <!-- =========================== calendarQuery =========================== -->
+
+  <wsdl:message name="CalendarQueryIn">
+    <wsdl:part name="request" element="tns:calendarQuery" />
+  </wsdl:message>
+  
+  <wsdl:message name="CalendarQueryOut">
+    <wsdl:part name="response" element="tns:calendarQueryResponse"/>
+  </wsdl:message>
+
+  <!-- ========================= calendarMultiget ========================== -->
+
+  <wsdl:message name="CalendarMultigetIn">
+    <wsdl:part name="request" element="tns:calendarMultiget" />
+  </wsdl:message>
+  
+  <wsdl:message name="CalendarMultigetOut">
+    <wsdl:part name="response" element="tns:calendarQueryResponse"/>
+  </wsdl:message>
+
+  <!-- ============================= addItem =============================== -->  
+
+  <wsdl:message name="AddItemIn">
+    <wsdl:part name="request" element="tns:addItem" />
+  </wsdl:message>
+  
+  <wsdl:message name="AddItemOut">
+    <wsdl:part name="response" element="tns:addItemResponse" />
+  </wsdl:message>
+
+  <!-- ============================= fetchItem =============================== -->  
+
+  <wsdl:message name="FetchItemIn">
+    <wsdl:part name="request" element="tns:fetchItem" />
+  </wsdl:message>
+  
+  <wsdl:message name="FetchItemOut">
+    <wsdl:part name="response" element="tns:fetchItemResponse" />
+  </wsdl:message>
+
+  <!-- ============================= deleteItem =============================== -->  
+
+  <wsdl:message name="DeleteItemIn">
+    <wsdl:part name="request" element="tns:deleteItem" />
+  </wsdl:message>
+  
+  <wsdl:message name="DeleteItemOut">
+    <wsdl:part name="response" element="tns:deleteItemResponse" />
+  </wsdl:message>
+
+  <!-- ============================= UpdateItem =============================== -->  
+
+  <wsdl:message name="UpdateItemIn">
+    <wsdl:part name="request" element="tns:updateItem" />
+  </wsdl:message>
+  
+  <wsdl:message name="UpdateItemOut">
+    <wsdl:part name="response" element="tns:updateItemResponse" />
+  </wsdl:message>
+
+  <!-- ============================== port ================================= -->  
+  
+  <wsdl:portType name="CalWsServicePortType">
+    <wsdl:operation name="GetProperties">
+      <wsdl:input message="tns:GetPropertiesIn" />
+      <wsdl:output message="tns:GetPropertiesOut" />
+    </wsdl:operation>
+    
+    <wsdl:operation name="FreebusyReport">
+      <wsdl:input message="tns:FreebusyReportIn" />
+      <wsdl:output message="tns:FreebusyReportOut" />
+    </wsdl:operation>
+    
+    <wsdl:operation name="CalendarQuery">
+      <wsdl:input message="tns:CalendarQueryIn" />
+      <wsdl:output message="tns:CalendarQueryOut" />
+    </wsdl:operation>
+    
+    <wsdl:operation name="CalendarMultiget">
+      <wsdl:input message="tns:CalendarMultigetIn" />
+      <wsdl:output message="tns:CalendarMultigetOut" />
+    </wsdl:operation>
+    
+    <wsdl:operation name="AddItem">
+      <wsdl:input message="tns:AddItemIn" />
+      <wsdl:output message="tns:AddItemOut" />
+    </wsdl:operation>
+    
+    <wsdl:operation name="FetchItem">
+      <wsdl:input message="tns:FetchItemIn" />
+      <wsdl:output message="tns:FetchItemOut" />
+    </wsdl:operation>
+    
+    <wsdl:operation name="DeleteItem">
+      <wsdl:input message="tns:DeleteItemIn" />
+      <wsdl:output message="tns:DeleteItemOut" />
+    </wsdl:operation>
+    
+    <wsdl:operation name="UpdateItem">
+      <wsdl:input message="tns:UpdateItemIn" />
+      <wsdl:output message="tns:UpdateItemOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  
+  <!-- ============================ binding ================================ -->  
+  
+  <wsdl:binding name="CalWsServiceBinding" 
+                type="tns:CalWsServicePortType">
+    <wsdl:documentation>
+      <wsi:Claim conformsTo="http://ws-i.org/profiles/basic/1.0" 
+                 xmlns:wsi="http://ws-i.org/schemas/conformanceClaim/" />
+    </wsdl:documentation>
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    
+    <wsdl:operation name="GetProperties">
+      <soap:operation soapAction="http://docs.oasis-open.org/ws-calendar/ns/soap/getProperties" />
+      <wsdl:input>
+        <soap:body use="literal" parts="request" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" parts="response" />
+      </wsdl:output>
+    </wsdl:operation>
+    
+    <wsdl:operation name="FreebusyReport">
+      <soap:operation soapAction="http://docs.oasis-open.org/ws-calendar/ns/soap/FreebusyReport" />
+      <wsdl:input>
+        <soap:body use="literal" parts="request" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" parts="response" />
+      </wsdl:output>
+    </wsdl:operation>
+    
+    <wsdl:operation name="CalendarQuery">
+      <soap:operation soapAction="http://docs.oasis-open.org/ws-calendar/ns/soap/CalendarQuery" />
+      <wsdl:input>
+        <soap:body use="literal" parts="request" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" parts="response" />
+      </wsdl:output>
+    </wsdl:operation>
+    
+    <wsdl:operation name="CalendarMultiget">
+      <soap:operation soapAction="http://docs.oasis-open.org/ws-calendar/ns/soap/CalendarMultiget" />
+      <wsdl:input>
+        <soap:body use="literal" parts="request" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" parts="response" />
+      </wsdl:output>
+    </wsdl:operation>
+    
+    <wsdl:operation name="AddItem">
+      <soap:operation soapAction="http://docs.oasis-open.org/ws-calendar/ns/soap/addItem" />
+      <wsdl:input>
+        <soap:body use="literal" parts="request" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" parts="response" />
+      </wsdl:output>
+    </wsdl:operation>
+    
+    <wsdl:operation name="FetchItem">
+      <soap:operation soapAction="http://docs.oasis-open.org/ws-calendar/ns/soap/fetchItem" />
+      <wsdl:input>
+        <soap:body use="literal" parts="request" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" parts="response" />
+      </wsdl:output>
+    </wsdl:operation>
+    
+    <wsdl:operation name="DeleteItem">
+      <soap:operation soapAction="http://docs.oasis-open.org/ws-calendar/ns/soap/deleteItem" />
+      <wsdl:input>
+        <soap:body use="literal" parts="request" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" parts="response" />
+      </wsdl:output>
+    </wsdl:operation>
+    
+    <wsdl:operation name="UpdateItem">
+      <soap:operation soapAction="http://docs.oasis-open.org/ws-calendar/ns/soap/updateItem" />
+      <wsdl:input>
+        <soap:body use="literal" parts="request" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" parts="response" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+
+  <wsdl:service name="CalWsService">
+    <wsdl:port name="CalWsPort" binding="tns:CalWsServiceBinding">
+       <!--<soap:address location="${org.bedework.global.calws.service.location}"></soap:address>-->
+       <soap:address location="http://localhost:8080/ucaldav/calws-soap/"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>  
