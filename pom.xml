@@ -24,6 +24,7 @@
   <modules>
     <module>bw-caldav-util</module>
     <module>bw-caldav-server</module>
+    <module>bw-caldav-xml</module>
     <module>bw-calws-soap-xml</module>
   </modules>
 </project>

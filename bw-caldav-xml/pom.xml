@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.bedework</groupId>
+    <artifactId>bw-caldav</artifactId>
+    <version>5.0.2-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>bw-caldav-xml</artifactId>
+
+  <properties>
+    <xsdDir>${project.build.directory}/xsd</xsdDir>
+
+    <schema.directory>${project.basedir}/src/main/xsd</schema.directory>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.bedework</groupId>
+      <artifactId>bw-icalendar-xml</artifactId>
+      <type>zip</type>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <!-- First copy the source xsd -->
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-xsd-resources</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${xsdDir}</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${schema.directory}</directory>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- Now copy in the dependencies -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+
+        <executions>
+          <execution>
+            <id>copy-and-unpack-icalendar</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>unpack-dependencies</goal>
+            </goals>
+            <configuration>
+              <includeGroupIds>org.bedework</includeGroupIds>
+              <includeArtifactIds>bw-icalendar-xml</includeArtifactIds>
+              <includeTypes>zip</includeTypes>
+
+              <outputDirectory>${xsdDir}</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>jaxb2-maven-plugin</artifactId>
+        <configuration>
+          <!-- Set the package of the generated code
+          <packageName>com.example.myschema</packageName>
+ -->
+          <failOnNoSchemas>true</failOnNoSchemas>
+
+          <sources>
+            <source>${xsdDir}</source>
+          </sources>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>add-source</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>add-source</goal>
+            </goals>
+            <configuration>
+              <sources>
+                <source>${project.build.directory}/generated-sources/jaxb</source>
+              </sources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <exclude>**/icalendar_2/**</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

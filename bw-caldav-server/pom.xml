@@ -17,20 +17,22 @@
 			<version>${project.version}</version>
 		</dependency>
 
+		<dependency>
+			<groupId>org.bedework</groupId>
+			<artifactId>bw-caldav-xml</artifactId>
+      <version>${project.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.bedework</groupId>
+			<artifactId>bw-calws-soap-xml</artifactId>
+      <version>${project.version}</version>
+		</dependency>
+
 		<!-- Bedework: XML Dependencies -->
 		<dependency>
-			<groupId>org.bedework</groupId>
-			<artifactId>bw-xml-synchws</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.bedework</groupId>
-			<artifactId>bw-xml-caldav</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.bedework</groupId>
-			<artifactId>bw-xml-calws-soap</artifactId>
+			<groupId>org.bedework.bw-synch</groupId>
+			<artifactId>bw-synch-ws-xml</artifactId>
 		</dependency>
 
 		<!-- Bedework Project Dependencies -->
