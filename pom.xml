@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.bedework</groupId>
     <artifactId>bedework-parent</artifactId>
-    <version>38-SNAPSHOT</version>
+    <version>40-SNAPSHOT</version>
   </parent>
 
   <artifactId>bw-caldav</artifactId>
@@ -25,6 +25,5 @@
     <module>bw-caldav-util</module>
     <module>bw-caldav-server</module>
     <module>bw-caldav-xml</module>
-    <module>bw-calws-soap-xml</module>
   </modules>
 </project>

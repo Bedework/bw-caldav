@@ -9,7 +9,7 @@ SysIntf class.
 
 ## Requirements
 
-1. JDK 11
+1. JDK 17
 2. Maven 3
 
 ## Building Locally
@@ -25,14 +25,11 @@ To create a release, you must have:
 1. Permissions to publish to the `org.bedework` groupId.
 2. `gpg` installed with a published key (release artifacts are signed).
 
-To perform a new release:
+To perform a new release use the release script:
 
-> mvn -P bedework-dev release:clean release:prepare
+> ./bedework/build/quickstart/linux/util-scripts/release.sh <module-name> "<release-version>" "<new-version>-SNAPSHOT"
 
-When prompted, select the desired version; accept the defaults for scm tag and next development version.
-When the build completes, and the changes are committed and pushed successfully, execute:
-
-> mvn -P bedework-dev release:perform
+When prompted, indicate all updates are committed
 
 For full details, see [Sonatype's documentation for using Maven to publish releases](http://central.sonatype.org/pages/apache-maven.html).
 
@@ -77,4 +74,9 @@ For full details, see [Sonatype's documentation for using Maven to publish relea
 *  Upgrade library versions
 * Process put with jscalendar content
 * Add a limit to how long the sync token is valid. Will allow flushing of old tombstoned data
+
+#### 5.0.1
+*  Upgrade library versions
+* Add bw-calws-soap-xml module
+* Add bw-caldav-xml module
     

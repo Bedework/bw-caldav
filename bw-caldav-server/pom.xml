@@ -23,13 +23,12 @@
       <version>${project.version}</version>
 		</dependency>
 
+		<!-- Bedework: XML Dependencies -->
 		<dependency>
 			<groupId>org.bedework</groupId>
 			<artifactId>bw-calws-soap-xml</artifactId>
-      <version>${project.version}</version>
 		</dependency>
 
-		<!-- Bedework: XML Dependencies -->
 		<dependency>
 			<groupId>org.bedework.bw-synch</groupId>
 			<artifactId>bw-synch-ws-xml</artifactId>
