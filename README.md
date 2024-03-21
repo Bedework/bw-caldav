@@ -75,8 +75,8 @@ For full details, see [Sonatype's documentation for using Maven to publish relea
 * Process put with jscalendar content
 * Add a limit to how long the sync token is valid. Will allow flushing of old tombstoned data
 
-#### 5.0.1
-*  Upgrade library versions
-* Add bw-calws-soap-xml module
+#### 5.0.2
+* Upgrade library versions
+* Fix dependency on bw-calws-soap-xml module
 * Add bw-caldav-xml module
     
