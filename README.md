@@ -79,4 +79,7 @@ For full details, see [Sonatype's documentation for using Maven to publish relea
 * Upgrade library versions
 * Fix dependency on bw-calws-soap-xml module
 * Add bw-caldav-xml module
+
+#### 5.0.3
+* Release 5.0.2 failed because of missing name. Redo.
     

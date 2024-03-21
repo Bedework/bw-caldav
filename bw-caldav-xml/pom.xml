@@ -6,10 +6,11 @@
   <parent>
     <groupId>org.bedework</groupId>
     <artifactId>bw-caldav</artifactId>
-    <version>5.0.2</version>
+    <version>5.0.3-SNAPSHOT</version>
   </parent>
 
   <artifactId>bw-caldav-xml</artifactId>
+  <name>Bedework: CalDAV XSD for some of the protocol</name>
 
   <properties>
     <xsdDir>${project.build.directory}/xsd</xsdDir>
