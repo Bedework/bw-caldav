@@ -4,7 +4,7 @@
   <parent>
 		<groupId>org.bedework</groupId>
 		<artifactId>bw-caldav</artifactId>
-		<version>5.0.4-SNAPSHOT</version>
+		<version>5.0.4</version>
 	</parent>
 	<artifactId>bw-caldav-server</artifactId>
   <name>Bedework: CalDAV generic server implementation</name>
