@@ -83,5 +83,5 @@ For full details, see [Sonatype's documentation for using Maven to publish relea
 #### 5.0.3
 * Release 5.0.2 failed because of missing name. Redo.
 
-#### 5.0.3
+#### 5.0.4
 * Updated version of bw-calws-soap    
