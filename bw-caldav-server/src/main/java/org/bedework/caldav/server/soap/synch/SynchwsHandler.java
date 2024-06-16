@@ -93,7 +93,7 @@ public class SynchwsHandler extends CalwsHandler {
       if ((ur.hdrs != null) && (ur.hdrs.length == 1)) {
         o = ur.hdrs[0];
         if (o instanceof JAXBElement) {
-          o = ((JAXBElement)o).getValue();
+          o = ((JAXBElement<?>)o).getValue();
         }
         if (o instanceof SynchIdTokenType) {
           idToken = (SynchIdTokenType)o;
