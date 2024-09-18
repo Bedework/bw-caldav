@@ -6,6 +6,7 @@
 		<artifactId>bw-caldav</artifactId>
 		<version>5.0.4-SNAPSHOT</version>
 	</parent>
+
 	<artifactId>bw-caldav-server</artifactId>
   <name>Bedework: CalDAV generic server implementation</name>
 

@@ -4,7 +4,6 @@
 		<groupId>org.bedework</groupId>
 		<artifactId>bw-caldav</artifactId>
 		<version>5.0.4-SNAPSHOT</version>
-		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<artifactId>bw-caldav-util</artifactId>
