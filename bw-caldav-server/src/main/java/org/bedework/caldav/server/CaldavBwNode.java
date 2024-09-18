@@ -118,7 +118,7 @@ public abstract class CaldavBwNode extends WebdavNsNode {
   private SysIntf sysi;
 
   CaldavBwNode(final CaldavURI cdURI,
-               final SysIntf sysi) throws WebdavException {
+               final SysIntf sysi) {
     this(sysi, cdURI.getPath(), cdURI.isCollection(),
           cdURI.getUri());
   }
@@ -148,9 +148,8 @@ public abstract class CaldavBwNode extends WebdavNsNode {
   /** Returns a string value suitable for the web service token
    *
    * @return String token
-   * @throws WebdavException
    */
-  public abstract String getEtokenValue() throws WebdavException;
+  public abstract String getEtokenValue();
 
   /* ====================================================================
    *                         Public methods
@@ -164,7 +163,7 @@ public abstract class CaldavBwNode extends WebdavNsNode {
   }
 
   @Override
-  public WdCollection<?> getCollection(final boolean deref) throws WebdavException {
+  public WdCollection<?> getCollection(final boolean deref) {
     if (!deref) {
       return col;
     }
@@ -173,15 +172,14 @@ public abstract class CaldavBwNode extends WebdavNsNode {
   }
 
   @Override
-  public WdCollection<?> getImmediateTargetCollection() throws WebdavException {
+  public WdCollection<?> getImmediateTargetCollection() {
     return col.resolveAlias(false); // False => don't resolve all subaliases
   }
 
   /**
    * @return boolean if this is a calendar
-   * @throws WebdavException on fatal error
    */
-  public boolean isCalendarCollection() throws WebdavException {
+  public boolean isCalendarCollection() {
     if (!isCollection()) {
       return false;
     }
@@ -204,10 +202,9 @@ public abstract class CaldavBwNode extends WebdavNsNode {
   /** Return a set of Qname defining reports this node supports.
    *
    * @return Collection of QName
-   * @throws WebdavException on fatal error
    */
   @Override
-  public Collection<QName> getSupportedReports() throws WebdavException {
+  public Collection<QName> getSupportedReports() {
     final Collection<QName> res = new ArrayList<>();
     res.addAll(super.getSupportedReports());
     res.addAll(supportedReports);
@@ -216,7 +213,7 @@ public abstract class CaldavBwNode extends WebdavNsNode {
   }
 
   @Override
-  public String getSyncToken() throws WebdavException {
+  public String getSyncToken() {
     return null;
   }
 
@@ -225,13 +222,13 @@ public abstract class CaldavBwNode extends WebdavNsNode {
    * ==================================================================== */
 
   @Override
-  public boolean getContentBinary() throws WebdavException {
+  public boolean getContentBinary() {
     return false;
   }
 
   @Override
   public Collection<? extends WdEntity<?>> getChildren(
-          final Supplier<Object> filterGetter) throws WebdavException {
+          final Supplier<Object> filterGetter) {
     return null;
   }
 
@@ -252,7 +249,7 @@ public abstract class CaldavBwNode extends WebdavNsNode {
   @Override
   public boolean generatePropertyValue(final QName tag,
                                        final WebdavNsIntf intf,
-                                       final boolean allProp) throws WebdavException {
+                                       final boolean allProp) {
     try {
       // Not known - try higher
       return super.generatePropertyValue(tag, intf, allProp);
@@ -269,12 +266,11 @@ public abstract class CaldavBwNode extends WebdavNsNode {
    * @param intf
    * @param allProp
    * @return true if property emitted
-   * @throws WebdavException on fatal error
    */
   public boolean generateCalWsProperty(final List<GetPropertiesBasePropertyType> props,
                                        final QName tag,
                                        final WebdavNsIntf intf,
-                                       final boolean allProp) throws WebdavException {
+                                       final boolean allProp) {
     try {
       if (tag.equals(CalWSSoapTags.creationDateTime)) {
         final String val = getCreDate();
@@ -337,12 +333,11 @@ public abstract class CaldavBwNode extends WebdavNsNode {
    * @param intf
    * @param allProp
    * @return true if proeprty emitted
-   * @throws WebdavException on fatal error
    */
   public boolean generateXrdProperties(final List<Object> props,
                                        final String name,
                                        final WebdavNsIntf intf,
-                                       final boolean allProp) throws WebdavException {
+                                       final boolean allProp) {
     try {
       if (name.equals(CalWSXrdDefs.created)) {
         final String val = getCreDate();
@@ -399,9 +394,8 @@ public abstract class CaldavBwNode extends WebdavNsNode {
   /** Return a set of PropertyTagEntry defining properties this node supports.
    *
    * @return Collection of PropertyTagEntry
-   * @throws WebdavException on fatal error
    */
-  public Collection<PropertyTagXrdEntry> getXrdNames() throws WebdavException {
+  public Collection<PropertyTagXrdEntry> getXrdNames() {
     return xrdNames.values();
   }
 
@@ -409,9 +403,8 @@ public abstract class CaldavBwNode extends WebdavNsNode {
    * supports.
    *
    * @return Collection of PropertyTagEntry
-   * @throws WebdavException on fatal error
    */
-  public Collection<PropertyTagEntry> getCalWSSoapNames() throws WebdavException {
+  public Collection<PropertyTagEntry> getCalWSSoapNames() {
     return calWSSoapNames.values();
   }
 
@@ -442,9 +435,8 @@ public abstract class CaldavBwNode extends WebdavNsNode {
 
   /**
    * @return formatted url value for the node
-   * @throws WebdavException on fatal error
    */
-  public String getUrlValue() throws WebdavException {
+  public String getUrlValue() {
     return getUrlValue(uri, exists);
   }
 
@@ -452,10 +444,9 @@ public abstract class CaldavBwNode extends WebdavNsNode {
    * @param uri the value
    * @param exists - true if we KNOW it exists
    * @return formatted url value
-   * @throws WebdavException on fatal error
    */
   public String getUrlValue(final String uri,
-                            final boolean exists) throws WebdavException {
+                            final boolean exists) {
     try {
       String prefixed = urlHandler.prefix(uri);
 

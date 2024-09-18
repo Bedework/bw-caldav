@@ -104,13 +104,12 @@ public class CaldavReportMethod extends ReportMethod {
   /* We process the parsed document and produce a response
    *
    * @param doc
-   * @throws WebdavException
    */
   @Override
   protected void process(final Document doc,
                          final int depth,
                          final HttpServletRequest req,
-                         final HttpServletResponse resp) throws WebdavException {
+                         final HttpServletResponse resp) {
     reportType = getCaldavReportType(doc);
 
     if (reportType < 0) {
@@ -131,9 +130,8 @@ public class CaldavReportMethod extends ReportMethod {
    *
    * @param doc parsed document
    * @return index or <0 for unknown.
-   * @throws WebdavException on fatal error
    */
-  protected int getCaldavReportType(final Document doc) throws WebdavException {
+  protected int getCaldavReportType(final Document doc) {
     try {
       final Element root = doc.getDocumentElement();
 
@@ -164,9 +162,8 @@ public class CaldavReportMethod extends ReportMethod {
    * objects to process.
    *
    * @param doc
-   * @throws WebdavException
    */
-  protected void processDoc(final Document doc) throws WebdavException {
+  protected void processDoc(final Document doc) {
     try {
       final CaldavBWIntf intf = (CaldavBWIntf)getNsIntf();
 
@@ -382,11 +379,10 @@ public class CaldavReportMethod extends ReportMethod {
    * @param req http request
    * @param resp http response
    * @param depth from depth header
-   * @throws WebdavException on fatal error
    */
   public void processResp(final HttpServletRequest req,
                           final HttpServletResponse resp,
-                          final int depth) throws WebdavException {
+                          final int depth) {
     resp.setStatus(WebdavStatusCode.SC_MULTI_STATUS);
     resp.setContentType("text/xml;charset=utf-8");
 
@@ -402,7 +398,7 @@ public class CaldavReportMethod extends ReportMethod {
   }
 
   protected void process(final CalendarQueryPars cqp,
-                         final String resourceUri) throws WebdavException {
+                         final String resourceUri) {
     final CaldavBWIntf intf = (CaldavBWIntf)getNsIntf();
     final WebdavNsNode node = intf.getNode(resourceUri,
                                            WebdavNsIntf.existanceMust,
@@ -454,10 +450,9 @@ public class CaldavReportMethod extends ReportMethod {
    * @param hrefs hrefs to find
    * @param badHrefs list of unsatisfied hrefs
    * @return Collection of nodes
-   * @throws WebdavException on fatal error
    */
   public Collection<WebdavNsNode> getMgetNodes(final Collection<String> hrefs,
-                                               final Collection<String> badHrefs) throws WebdavException {
+                                               final Collection<String> badHrefs) {
     final Collection<WebdavNsNode> nodes = new ArrayList<>();
     final CaldavBWIntf intf = (CaldavBWIntf)getNsIntf();
 
@@ -496,7 +491,7 @@ public class CaldavReportMethod extends ReportMethod {
 
   protected Collection<WebdavNsNode> doNodeAndChildren(
           final CalendarQueryPars cqp,
-          final WebdavNsNode node) throws WebdavException {
+          final WebdavNsNode node) {
     List<String> retrieveList = null;
     CalData caldata = null;
 
@@ -589,7 +584,7 @@ public class CaldavReportMethod extends ReportMethod {
                                     final WebdavNsNode node,
                                     final ExpandType expand,
                                     final LimitRecurrenceSetType lrs,
-                                    final List<String> retrieveList) throws WebdavException {
+                                    final List<String> retrieveList) {
     RetrievalMode rm = null;
 
     if (expand != null) {
@@ -616,7 +611,7 @@ public class CaldavReportMethod extends ReportMethod {
           int curDepth,
           final int maxDepth,
           final RetrievalMode rm,
-          final List<String> retrieveList) throws WebdavException {
+          final List<String> retrieveList) {
     if (debug()) {
       debug("doNodeAndChildren: curDepth=" + curDepth +
             " maxDepth=" + maxDepth + " uri=" + node.getUri());
@@ -682,8 +677,7 @@ public class CaldavReportMethod extends ReportMethod {
           final CalendarQueryPars cqp,
           final WebdavNsNode node,
           final RetrievalMode rm,
-          final List<String> retrieveList)
-          throws WebdavException {
+          final List<String> retrieveList) {
     if (debug()) {
       debug("getNodes: " + node.getUri());
     }
@@ -708,11 +702,10 @@ public class CaldavReportMethod extends ReportMethod {
    * @param req http request
    * @param resp http response
    * @param depth from depth header
-   * @throws WebdavException on fatal error
    */
   public void processFbResp(final HttpServletRequest req,
                             final HttpServletResponse resp,
-                            final int depth) throws WebdavException {
+                            final int depth) {
     resp.setStatus(HttpServletResponse.SC_OK);
     resp.setContentType("text/calendar;charset=utf-8");
 
@@ -777,8 +770,7 @@ public class CaldavReportMethod extends ReportMethod {
    * /
   private static final int bufferSize = 4096;
 
-  private void writeContent(final Reader in, final Writer out)
-      throws WebdavException {
+  private void writeContent(final Reader in, final Writer out) {
     try {
       char[] buff = new char[bufferSize];
       int len;

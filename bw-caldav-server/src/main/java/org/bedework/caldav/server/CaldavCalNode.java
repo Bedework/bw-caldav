@@ -179,10 +179,9 @@ public class CaldavCalNode extends CaldavBwNode {
   /**
    * @param cdURI
    * @param sysi
-   * @throws WebdavException
    */
   public CaldavCalNode(final CaldavURI cdURI,
-                       final SysIntf sysi) throws WebdavException {
+                       final SysIntf sysi) {
     super(cdURI, sysi);
 
     col = cdURI.getCol();
@@ -195,10 +194,9 @@ public class CaldavCalNode extends CaldavBwNode {
   /* *
    * @param col
    * @param sysi
-   * @throws WebdavException
    * /
   public CaldavCalNode(final CalDAVCollection col,
-                       final SysIntf sysi) throws WebdavException {
+                       final SysIntf sysi) {
     super(sysi, col.getParentPath(), true, col.getPath());
 
     allowsGet = false;
@@ -208,7 +206,7 @@ public class CaldavCalNode extends CaldavBwNode {
   }*/
 
   @Override
-  public AccessPrincipal getOwner() throws WebdavException {
+  public AccessPrincipal getOwner() {
     if (owner == null) {
       if (col == null) {
         return null;
@@ -228,7 +226,7 @@ public class CaldavCalNode extends CaldavBwNode {
   }
 
   @Override
-  public String getEtagValue(final boolean strong) throws WebdavException {
+  public String getEtagValue(final boolean strong) {
     /* We need the etag of the target if this is an alias */
     CalDAVCollection<?> c = (CalDAVCollection<?>)getCollection(true); // deref
 
@@ -246,15 +244,14 @@ public class CaldavCalNode extends CaldavBwNode {
   }
 
   @Override
-  public String getEtokenValue() throws WebdavException {
+  public String getEtokenValue() {
     return concatEtoken(getEtagValue(true), "");
   }
 
   /**
    * @return true if scheduling allowed
-   * @throws WebdavException
    */
-  public boolean getSchedulingAllowed() throws WebdavException {
+  public boolean getSchedulingAllowed() {
     /* It's the alias target that matters */
     CalDAVCollection<?> c =
             (CalDAVCollection<?>)getCollection(true); // deref
@@ -281,18 +278,16 @@ public class CaldavCalNode extends CaldavBwNode {
 
   /**
    * @return sharing status or null if none.
-   * @throws WebdavException
    */
-  public String getSharingStatus() throws WebdavException {
+  public String getSharingStatus() {
     return getCollection(false).getProperty(AppleServerTags.invite);
   }
 
   /**
    * @param methodTag - acts as a flag for the method type
-   * @throws WebdavException
    */
   @Override
-  public void setDefaults(final QName methodTag) throws WebdavException {
+  public void setDefaults(final QName methodTag) {
     if (!CaldavTags.mkcalendar.equals(methodTag)) {
       return;
     }
@@ -305,7 +300,7 @@ public class CaldavCalNode extends CaldavBwNode {
 
   @Override
   public Collection<? extends WdEntity<?>> getChildren(
-          final Supplier<Object> filterGetter) throws WebdavException {
+          final Supplier<Object> filterGetter) {
     /* For the moment we're going to do this the inefficient way.
        We really need to have calendar defs that can be expressed as a search
        allowing us to retrieve all the ids of objects within a calendar.
@@ -358,9 +353,8 @@ public class CaldavCalNode extends CaldavBwNode {
 
   /**
    * @param fbcal
-   * @throws WebdavException
    */
-  public void setFreeBusy(final CalDAVEvent<?> fbcal) throws WebdavException {
+  public void setFreeBusy(final CalDAVEvent<?> fbcal) {
     try {
       ical = fbcal;
 
@@ -376,7 +370,7 @@ public class CaldavCalNode extends CaldavBwNode {
   @Override
   public String writeContent(final XmlEmit xml,
                              final Writer wtr,
-                             final String contentType) throws WebdavException {
+                             final String contentType) {
     try {
       Collection<CalDAVEvent<?>> evs = new ArrayList<>();
 
@@ -395,7 +389,7 @@ public class CaldavCalNode extends CaldavBwNode {
   }
 
   @Override
-  public String getContentString(final String contentType) throws WebdavException {
+  public String getContentString(final String contentType) {
     init(true);
 
     if (ical == null) {
@@ -406,7 +400,7 @@ public class CaldavCalNode extends CaldavBwNode {
   }
 
   @Override
-  public void update() throws WebdavException {
+  public void update() {
     // ALIAS probably not unaliasing here
     if (col != null) {
       getSysi().updateCollection(col);
@@ -423,7 +417,7 @@ public class CaldavCalNode extends CaldavBwNode {
   }
 
   @Override
-  public long getContentLen() throws WebdavException {
+  public long getContentLen() {
     String s = getContentString(getContentType());
 
     if (s == null) {
@@ -457,7 +451,7 @@ public class CaldavCalNode extends CaldavBwNode {
   }
 
   @Override
-  public String getLastmodDate() throws WebdavException {
+  public String getLastmodDate() {
     init(false);
     if (col == null) {
       return null;
@@ -471,17 +465,17 @@ public class CaldavCalNode extends CaldavBwNode {
   }
 
   @Override
-  public boolean allowsSyncReport() throws WebdavException {
+  public boolean allowsSyncReport() {
     return getSysi().allowsSyncReport(col);
   }
 
   @Override
-  public boolean getDeleted() throws WebdavException {
+  public boolean getDeleted() {
     return col.getDeleted() | ((CalDAVCollection<?>)getCollection(true)).getDeleted();
   }
 
   @Override
-  public String getSyncToken() throws WebdavException {
+  public String getSyncToken() {
     return getSysi().getSyncToken(col);
   }
 
@@ -490,7 +484,7 @@ public class CaldavCalNode extends CaldavBwNode {
    * ==================================================================== */
 
   @Override
-  public CurrentAccess getCurrentAccess() throws WebdavException {
+  public CurrentAccess getCurrentAccess() {
     if (currentAccess != null) {
       return currentAccess;
     }
@@ -521,7 +515,7 @@ public class CaldavCalNode extends CaldavBwNode {
 
   @Override
   public boolean removeProperty(final Element val,
-                                final SetPropertyResult spr) throws WebdavException {
+                                final SetPropertyResult spr) {
     if (super.removeProperty(val, spr)) {
       return true;
     }
@@ -558,7 +552,7 @@ public class CaldavCalNode extends CaldavBwNode {
 
   @Override
   public boolean setProperty(final Element val,
-                             final SetPropertyResult spr) throws WebdavException {
+                             final SetPropertyResult spr) {
     if (super.setProperty(val, spr)) {
       return true;
     }
@@ -753,7 +747,7 @@ public class CaldavCalNode extends CaldavBwNode {
   @Override
   public boolean generatePropertyValue(final QName tag,
                                        final WebdavNsIntf intf,
-                                       final boolean allProp) throws WebdavException {
+                                       final boolean allProp) {
     XmlEmit xml = intf.getXmlEmit();
 
     try {
@@ -1277,7 +1271,7 @@ public class CaldavCalNode extends CaldavBwNode {
   public boolean generateCalWsProperty(final List<GetPropertiesBasePropertyType> props,
                                        final QName tag,
                                        final WebdavNsIntf intf,
-                                       final boolean allProp) throws WebdavException {
+                                       final boolean allProp) {
     try {
       /*
 
@@ -1536,7 +1530,7 @@ public class CaldavCalNode extends CaldavBwNode {
   public boolean generateXrdProperties(final List<Object> props,
                                        final String name,
                                        final WebdavNsIntf intf,
-                                       final boolean allProp) throws WebdavException {
+                                       final boolean allProp) {
     try {
       int calType;
       CalDAVCollection<?> c =
@@ -1748,7 +1742,7 @@ public class CaldavCalNode extends CaldavBwNode {
   }
 
   @Override
-  public Collection<PropertyTagEntry> getCalWSSoapNames() throws WebdavException {
+  public Collection<PropertyTagEntry> getCalWSSoapNames() {
     Collection<PropertyTagEntry> res = new ArrayList<>();
 
     res.addAll(super.getCalWSSoapNames());
@@ -1768,7 +1762,7 @@ public class CaldavCalNode extends CaldavBwNode {
   }
 
   @Override
-  public Collection<QName> getSupportedReports() throws WebdavException {
+  public Collection<QName> getSupportedReports() {
     Collection<QName> res = new ArrayList<>();
     CalDAVCollection<?> c =
             (CalDAVCollection<?>)getCollection(true); // deref

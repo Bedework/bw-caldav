@@ -59,10 +59,9 @@ public class ReportBase extends CaldavReportMethod {
    * @param qstring - query string
    * @param resourceUri
    * @return Document
-   * @throws WebdavException
    */
   public Document query(final String qstring,
-                        final String resourceUri) throws WebdavException {
+                        final String resourceUri) {
     pm = new PropFindMethod();
     pm.init(getNsIntf(), true);
 
@@ -93,10 +92,9 @@ public class ReportBase extends CaldavReportMethod {
    * @param resourceUri
    * @param cq
    * @return collection of nodes
-   * @throws WebdavException
    */
   public Collection<WebdavNsNode> query(final String resourceUri,
-                                        final CalendarQueryType cq) throws WebdavException {
+                                        final CalendarQueryType cq) {
     WebdavNsNode node = getNsIntf().getNode(resourceUri,
                                             WebdavNsIntf.existanceMust,
                                             WebdavNsIntf.nodeTypeUnknown,
@@ -114,7 +112,7 @@ public class ReportBase extends CaldavReportMethod {
   }
 
   IcalendarType fetch(final String resourceUri,
-                      final String uid) throws WebdavException {
+                      final String uid) {
     // Build a report query and execute it.
 
     StringBuilder sb = new StringBuilder();

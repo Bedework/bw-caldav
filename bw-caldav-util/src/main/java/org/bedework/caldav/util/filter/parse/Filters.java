@@ -87,9 +87,8 @@ public class Filters {
    *
    * @param xmlStr xml filter
    * @return Filter
-   * @throws WebdavException
    */
-  public static FilterType parse(final String xmlStr) throws WebdavException {
+  public static FilterType parse(final String xmlStr) {
     try {
       DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
       factory.setNamespaceAware(true);
@@ -110,9 +109,8 @@ public class Filters {
    *
    * @param nd node
    * @return Filter
-   * @throws WebdavException
    */
-  public static FilterType parse(final Node nd) throws WebdavException {
+  public static FilterType parse(final Node nd) {
     try {
       JAXBContext jc = JAXBContext.newInstance("ietf.params.xml.ns.caldav");
       Unmarshaller u = jc.createUnmarshaller();
@@ -132,9 +130,8 @@ public class Filters {
    *
    * @param f filter
    * @return EventQuery
-   * @throws WebdavException
    */
-  public static EventQuery getQuery(final FilterType f) throws WebdavException {
+  public static EventQuery getQuery(final FilterType f) {
     final EventQuery eventq = new EventQuery();
 
     eventq.filter = getQueryFilter(f.getCompFilter(), eventq, 0);
@@ -148,11 +145,10 @@ public class Filters {
    * @param eq - so we can update time range
    * @param exprDepth - allows us to do validity checks
    * @return Filter - null for no filtering
-   * @throws WebdavException
    */
   public static FilterBase getQueryFilter(final CompFilterType cf,
                                           final EventQuery eq,
-                                          final int exprDepth) throws WebdavException {
+                                          final int exprDepth) {
     FilterBase filter = null;
     int entityType = IcalDefs.entityTypeEvent;
 
@@ -242,7 +238,7 @@ public class Filters {
     return filter;
   }
 
-  private static TimeRange makeTimeRange(final UTCTimeRangeType utr) throws WebdavException {
+  private static TimeRange makeTimeRange(final UTCTimeRangeType utr) {
     if (utr == null) {
       return null;
     }
@@ -281,7 +277,7 @@ public class Filters {
 
   private static FilterBase processPropFilters(final CompFilterType cf,
                                     final EventQuery eq,
-                                    final int entityType) throws WebdavException {
+                                    final int entityType) {
     if (Util.isEmpty(cf.getPropFilter())) {
       return null;
     }
@@ -343,7 +339,7 @@ public class Filters {
                                        final TimeRange timeRange,
                                        final TextMatchType match,
                                        final boolean andParamFilters,
-                            final Collection<ParamFilterType> paramFilters) throws WebdavException {
+                            final Collection<ParamFilterType> paramFilters) {
     FilterBase filter = null;
 
     PropertyInfoIndex pi = PropertyInfoIndex.fromName(pname);
@@ -395,7 +391,7 @@ public class Filters {
 
   private static FilterBase processParamFilters(final PropertyInfoIndex parentIndex,
                                                 final boolean andThem,
-                                     final Collection<ParamFilterType> paramFilters) throws WebdavException {
+                                     final Collection<ParamFilterType> paramFilters) {
     FilterBase parfilters = null;
 
     for (ParamFilterType pf: paramFilters) {

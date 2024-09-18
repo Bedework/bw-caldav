@@ -49,10 +49,9 @@ public class ParseUtil {
    * @param nd
    * @param required - if true start and end MUST be present
    * @return TimeRange
-   * @throws WebdavException
    */
   public static TimeRange parseTimeRange(final Node nd,
-                                         final boolean required) throws WebdavException {
+                                         final boolean required) {
     DateTime start = null;
     DateTime end = null;
 
@@ -126,11 +125,10 @@ public class ParseUtil {
    * @param nd
    * @param required - if true start and end MUST be present
    * @return TimeRange
-   * @throws WebdavException
    */
   public static UTCTimeRangeType parseUTCTimeRange(final UTCTimeRangeType val,
                                                    final Node nd,
-                                                final boolean required) throws WebdavException {
+                                                final boolean required) {
     String st = null;
     String et = null;
 
@@ -212,12 +210,11 @@ public class ParseUtil {
    * @param maxField
    * @param maxVal - 0 for no max
    * @return TimeRange or null for bad request
-   * @throws WebdavException
    */
   public static TimeRange getPeriod(final String start, final String end,
                                     final int defaultField, final int defaultVal,
                                     final int maxField,
-                                    final int maxVal) throws WebdavException {
+                                    final int maxVal) {
     Calendar startCal = Calendar.getInstance();
     startCal.set(Calendar.HOUR_OF_DAY, 0);
     startCal.set(Calendar.MINUTE, 0);

@@ -162,9 +162,8 @@ public class CalData extends WebdavProperty implements Logged {
   /** The given node must be the Filter element
    *
    * @param nd XML node
-   * @throws WebdavException on error
    */
-  public void parse(final Node nd) throws WebdavException {
+  public void parse(final Node nd) {
     /* Either empty - show everything or
               comp + optional (expand-recurrence-set or
                                limit-recurrence-set)
@@ -260,11 +259,10 @@ public class CalData extends WebdavProperty implements Logged {
    * @param wdnode the node
    * @param xml output
    * @param contentType - first element from content type or null
-   * @throws WebdavException on error
    */
   public void process(final WebdavNsNode wdnode,
                       final XmlEmit xml,
-                      final String contentType) throws WebdavException {
+                      final String contentType) {
     if (!(wdnode instanceof CaldavComponentNode)) {
       return;
     }
@@ -335,7 +333,7 @@ public class CalData extends WebdavProperty implements Logged {
   private String transformVevent(final SysIntf intf,
                                  final Calendar ical,
                                  final Collection<PropType> props,
-                                 final String contentType)  throws WebdavException {
+                                 final String contentType) {
     try {
       final Calendar nical = new Calendar();
       final PropertyList pl = ical.getProperties();
@@ -394,7 +392,7 @@ public class CalData extends WebdavProperty implements Logged {
    *                   Private parsing methods
    * ==================================================================== */
 
-  private CompType parseComp(final Node nd) throws WebdavException {
+  private CompType parseComp(final Node nd) {
     /* Either allcomp + (either allprop or 0 or more prop) or
               0 or more comp + (either allprop or 0 or more prop)
      */
@@ -452,7 +450,7 @@ public class CalData extends WebdavProperty implements Logged {
     return c;
   }
 
-  private PropType parseProp(final Node nd) throws WebdavException {
+  private PropType parseProp(final Node nd) {
     final NamedNodeMap nnm = nd.getAttributes();
 
     if ((nnm == null) || (nnm.getLength() == 0)) {
@@ -482,7 +480,7 @@ public class CalData extends WebdavProperty implements Logged {
     return pr;
   }
 
-  private Element[] getChildren(final Node nd) throws WebdavException {
+  private Element[] getChildren(final Node nd) {
     try {
       return XmlUtil.getElementsArray(nd);
     } catch (final Throwable t) {
@@ -499,10 +497,9 @@ public class CalData extends WebdavProperty implements Logged {
    * @param nd XML node
    * @param name of attribute
    * @return String
-   * @throws WebdavException on error
    */
   private String getOnlyAttrVal(final Node nd, 
-                                final String name) throws WebdavException {
+                                final String name) {
     final NamedNodeMap nnm = nd.getAttributes();
 
     if ((nnm == null) || (nnm.getLength() != 1)) {

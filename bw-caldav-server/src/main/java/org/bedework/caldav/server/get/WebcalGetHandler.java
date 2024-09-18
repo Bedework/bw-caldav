@@ -60,7 +60,7 @@ public class WebcalGetHandler extends GetHandler {
   @Override
   public void process(final HttpServletRequest req,
                       final HttpServletResponse resp,
-                      final RequestPars pars) throws WebdavException {
+                      final RequestPars pars) {
     try {
       final CalDAVAuthProperties authp = getSysi().getAuthProperties();
 

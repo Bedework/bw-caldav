@@ -48,9 +48,8 @@ public class SynchwsHandler extends CalwsHandler {
 
   /**
    * @param intf caldav interface
-   * @throws WebdavException
    */
-  public SynchwsHandler(final CaldavBWIntf intf) throws WebdavException {
+  public SynchwsHandler(final CaldavBWIntf intf) {
     super(intf);
   }
 
@@ -63,12 +62,11 @@ public class SynchwsHandler extends CalwsHandler {
    * @param req http request
    * @param resp http response
    * @param pars processed request parameters
-   * @throws WebdavException
    */
   @Override
   public void processPost(final HttpServletRequest req,
                           final HttpServletResponse resp,
-                          final RequestPars pars) throws WebdavException {
+                          final RequestPars pars) {
     try {
       initResponse(resp);
       final UnmarshalResult ur = unmarshal(req);
@@ -125,7 +123,7 @@ public class SynchwsHandler extends CalwsHandler {
    * ==================================================================== */
 
   private void doStartService(final StartServiceNotificationType ssn,
-                              final HttpServletResponse resp) throws WebdavException {
+                              final HttpServletResponse resp) {
     try {
       if (debug()) {
         debug("StartServiceNotification: url=" + ssn.getSubscribeUrl());
@@ -153,7 +151,7 @@ public class SynchwsHandler extends CalwsHandler {
   }
 
   private void doKeepAlive(final KeepAliveNotificationType kan,
-                           final HttpServletResponse resp) throws WebdavException {
+                           final HttpServletResponse resp) {
     if (debug()) {
       debug("KeepAliveNotification: url=" + kan.getSubscribeUrl() +
             "\n                token=" + kan.getToken());
@@ -187,7 +185,7 @@ public class SynchwsHandler extends CalwsHandler {
   }
 
   private void handleIdToken(final HttpServletRequest req,
-                             final SynchIdTokenType idToken) throws WebdavException {
+                             final SynchIdTokenType idToken) {
     try {
       if (idToken.getPrincipalHref() != null) {
         getIntf().reAuth(req, idToken.getPrincipalHref(),
@@ -213,7 +211,7 @@ public class SynchwsHandler extends CalwsHandler {
 
   private void startServiceResponse(final HttpServletResponse resp,
                                     final SynchConnection sc,
-                                    final boolean ok) throws WebdavException {
+                                    final boolean ok) {
     try {
       final StartServiceResponseType ssr = of.createStartServiceResponseType();
 

@@ -41,136 +41,116 @@ public abstract class CalDAVEvent <T> extends WdEntity<T> {
 
   /**
    * @return String schedule-tag (unquoted)
-   * @throws WebdavException
    */
-  public abstract String getScheduleTag() throws WebdavException;
+  public abstract String getScheduleTag();
 
   /** True if this is a valid organizer scheduling object. (See CalDAV
    * scheduling specification).
    *
    * @return boolean
-   * @throws WebdavException
    */
-  public abstract boolean getOrganizerSchedulingObject() throws WebdavException;
+  public abstract boolean getOrganizerSchedulingObject();
 
   /** True if this is a valid attendee scheduling object.
    * (See CalDAV scheduling specification)
    *
    * @return boolean
-   * @throws WebdavException
    */
-  public abstract boolean getAttendeeSchedulingObject() throws WebdavException;
+  public abstract boolean getAttendeeSchedulingObject();
 
   /**
    * @return String schedule-tag (unquoted)
-   * @throws WebdavException
    */
-  public abstract String getPrevScheduleTag() throws WebdavException;
+  public abstract String getPrevScheduleTag();
 
   /**
    * @return String summary
-   * @throws WebdavException
    */
-  public abstract String getSummary() throws WebdavException;
+  public abstract String getSummary();
 
   /**
    * @return boolean true if this will be created as a result of a Put
-   * @throws WebdavException
    */
-  public abstract boolean isNew() throws WebdavException;
+  public abstract boolean isNew();
 
   /**
    * @return true if this represents a deleted event.
-   * @throws WebdavException
    */
-  public abstract boolean getDeleted() throws WebdavException;
+  public abstract boolean getDeleted();
 
   /**
    * @return entity type defined in org.bedework.util.calendar.IcalDefs
-   * @throws WebdavException
    */
-  public abstract int getEntityType() throws WebdavException;
+  public abstract int getEntityType();
 
   /**
    * @param val Organizer
-   * @throws WebdavException
    */
-  public abstract void setOrganizer(Organizer val) throws WebdavException;
+  public abstract void setOrganizer(Organizer val);
 
   /**
    * @return an  organizer if one is present.
-   * @throws WebdavException
    */
-  public abstract Organizer getOrganizer() throws WebdavException;
+  public abstract Organizer getOrganizer();
 
   /** Set the event's originator
    *
    * @param val    String event's originator
-   * @throws WebdavException
    */
-  public abstract void setOriginator(String val) throws WebdavException;
+  public abstract void setOriginator(String val);
 
   /**
    * @param val
-   * @throws WebdavException
    */
-  public abstract void setRecipients(Set<String> val) throws WebdavException;
+  public abstract void setRecipients(Set<String> val);
 
   /**
    * @return recipients
-   * @throws WebdavException
    */
-  public abstract Set<String> getRecipients() throws WebdavException;
+  public abstract Set<String> getRecipients();
 
   /**
    * @param val
-   * @throws WebdavException
    */
-  public abstract void addRecipient(String val) throws WebdavException;
+  public abstract void addRecipient(String val);
 
   /**
    * @return attendee uris
-   * @throws WebdavException
    */
-  public abstract Set<String> getAttendeeUris() throws WebdavException;
+  public abstract Set<String> getAttendeeUris();
 
   /** Set the scheduleMethod for this event. Takes methodType values defined
    * in Icalendar
    *
    * @param val    scheduleMethod
-   * @throws WebdavException
    */
-  public abstract void setScheduleMethod(int val) throws WebdavException;
+  public abstract void setScheduleMethod(int val);
 
   /** Get the scheduleMethod for this event. Takes methodType values defined
    * in Icalendar
    *
    * @return the method
-   * @throws WebdavException
    */
-  public abstract int getScheduleMethod() throws WebdavException;
+  public abstract int getScheduleMethod();
 
   /**
    * @return String uid
-   * @throws WebdavException
    */
-  public abstract String getUid() throws WebdavException;
+  public abstract String getUid();
 
   /**
    * @param tag
    * @param xml
    * @return boolean true if value emitted.
-   * @throws WebdavException
    */
   public abstract boolean generatePropertyValue(QName tag,
-                                                XmlEmit xml) throws WebdavException;
+                                                XmlEmit xml);
 
   /** Return a complete representation of the event
    *
    * @param methodType
    * @return String ical representation
-   * @throws WebdavException
    */
   public abstract String toIcalString(int methodType,
-                                      String contentType) throws WebdavException;
+                                      String contentType);
 }

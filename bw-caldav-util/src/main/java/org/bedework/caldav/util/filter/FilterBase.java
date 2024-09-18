@@ -220,7 +220,7 @@ public class FilterBase implements Serializable {
    * @throws WebdavException - on matching errors
    */
   public boolean match(final Object o,
-                       final String userHref) throws WebdavException {
+                       final String userHref) {
     return false;
   }
 

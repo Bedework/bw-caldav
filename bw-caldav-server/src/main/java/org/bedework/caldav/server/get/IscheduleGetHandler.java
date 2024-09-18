@@ -50,7 +50,7 @@ public class IscheduleGetHandler extends GetHandler {
   @Override
   public void process(final HttpServletRequest req,
                       final HttpServletResponse resp,
-                      final RequestPars pars) throws WebdavException {
+                      final RequestPars pars) {
     try {
       if (pars.getNoPrefixResourceUri().length() == 0) {
         final String query = req.getParameter("action");
@@ -86,7 +86,7 @@ public class IscheduleGetHandler extends GetHandler {
 
   private void makeDomainKey(final HttpServletResponse resp,
                              final String domain,
-                             final String service) throws WebdavException {
+                             final String service) {
     try {
       final byte[] key = intf.getSysi().getPublicKey(domain, service);
 
@@ -110,9 +110,8 @@ public class IscheduleGetHandler extends GetHandler {
   /** Generate an ischedule capabilities response
    *
    * @param resp the response
-   * @throws WebdavException
    */
-  private void doCapabilities(final HttpServletResponse resp) throws WebdavException {
+  private void doCapabilities(final HttpServletResponse resp) {
     try {
       startEmit(resp);
 
@@ -207,7 +206,7 @@ public class IscheduleGetHandler extends GetHandler {
   }
 
   private void prop(final QName tag,
-                    final Object val) throws WebdavException {
+                    final Object val) {
     if (val == null) {
       return;
     }
@@ -215,7 +214,7 @@ public class IscheduleGetHandler extends GetHandler {
     property(tag, String.valueOf(val));
   }
 
-  private void supportedMethod(final String val) throws WebdavException {
+  private void supportedMethod(final String val) {
     try {
       attrTag(IscheduleTags.method, "name", val);
     } catch (final Throwable t) {
@@ -224,7 +223,7 @@ public class IscheduleGetHandler extends GetHandler {
   }
 
   private void attrTag(final QName tag, final String attrName,
-                       final String attrVal) throws WebdavException {
+                       final String attrVal) {
     try {
       xml.startTag(tag);
       xml.attribute(attrName, attrVal);
@@ -235,7 +234,7 @@ public class IscheduleGetHandler extends GetHandler {
   }
 
   private void attrTag(final QName tag, final String[] attrNames,
-                       final String[] attrVals) throws WebdavException {
+                       final String[] attrVals) {
     try {
       xml.startTag(tag);
       for (int i = 0; i < attrNames.length; i++) {

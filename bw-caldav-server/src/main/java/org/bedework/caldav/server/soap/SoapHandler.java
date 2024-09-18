@@ -63,7 +63,7 @@ public abstract class SoapHandler extends MethodBase {
    * @param intf
    * @throws WebdavException on soap error
    */
-  public SoapHandler(final CaldavBWIntf intf) throws WebdavException {
+  public SoapHandler(final CaldavBWIntf intf) {
     nsIntf = intf;
 
     try {
@@ -100,8 +100,7 @@ public abstract class SoapHandler extends MethodBase {
 
   @Override
   public void doMethod(final HttpServletRequest req,
-                       final HttpServletResponse resp)
-        throws WebdavException {
+                       final HttpServletResponse resp) {
 
   }
 
@@ -114,7 +113,7 @@ public abstract class SoapHandler extends MethodBase {
     public Object body;
   }
 
-  protected UnmarshalResult unmarshal(final HttpServletRequest req) throws WebdavException {
+  protected UnmarshalResult unmarshal(final HttpServletRequest req) {
     try {
       UnmarshalResult res = new UnmarshalResult();
 
@@ -159,7 +158,7 @@ public abstract class SoapHandler extends MethodBase {
   }
 
   protected Document makeDoc(final QName name,
-                             final Object o) throws WebdavException {
+                             final Object o) {
     try {
       Marshaller marshaller = jc.createMarshaller();
       marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
@@ -181,7 +180,7 @@ public abstract class SoapHandler extends MethodBase {
   }
 
   protected void marshal(final Object o,
-                         final OutputStream out) throws WebdavException {
+                         final OutputStream out) {
     try {
       Marshaller marshaller = jc.createMarshaller();
       marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
@@ -209,7 +208,7 @@ public abstract class SoapHandler extends MethodBase {
     return new JAXBElement(name, cl, o);
   }
 
-  protected void removeNode(final Node nd) throws WebdavException {
+  protected void removeNode(final Node nd) {
     Node parent = nd.getParentNode();
 
     parent.removeChild(nd);

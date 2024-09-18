@@ -165,7 +165,7 @@ public class Parser {
     }
 
     @Override
-    public BaseNotificationType parse(final Element nd) throws WebdavException {
+    public BaseNotificationType parse(final Element nd) {
       try {
         return getParser().parseResourceChangeNotification(nd);
       } finally {
@@ -177,9 +177,8 @@ public class Parser {
   /**
    * @param val
    * @return parsed notification or null
-   * @throws WebdavException
    */
-  public static NotificationType fromXml(final String val) throws WebdavException {
+  public static NotificationType fromXml(final String val) {
     ByteArrayInputStream bais = new ByteArrayInputStream(val.getBytes());
 
     return fromXml(bais);
@@ -188,7 +187,6 @@ public class Parser {
   /**
    * @param is stream
    * @return parsed notification or null
-   * @throws WebdavException
    */
   public static NotificationType fromXml(final InputStream is) throws WebdavException{
     final Document doc = parseXmlString(is);
@@ -210,7 +208,6 @@ public class Parser {
   /**
    * @param is
    * @return parsed Document
-   * @throws WebdavException
    */
   public static Document parseXmlString(final InputStream is) throws WebdavException{
     if (is == null) {
@@ -234,9 +231,8 @@ public class Parser {
   /**
    * @param nd MUST be the notification xml element
    * @return populated ShareType object
-   * @throws WebdavException
    */
-  public NotificationType parseNotification(final Node nd) throws WebdavException {
+  public NotificationType parseNotification(final Node nd) {
     try {
       if (!XmlUtil.nodeMatches(nd, notificationTag)) {
         throw new WebdavBadRequest("Expected " + notificationTag);
@@ -281,7 +277,6 @@ public class Parser {
    *
    * @param note the notification
    * @param nd   the node
-   * @throws WebdavException
    * @return number of elements parsed
    */
   public int parseCommonElements(final NotificationType note,
@@ -349,9 +344,8 @@ public class Parser {
   /**
    * @param nd MUST be the resource-change xml element
    * @return populated ResourceChangeType object
-   * @throws WebdavException
    */
-  public ResourceChangeType parseResourceChangeNotification(final Element nd) throws WebdavException {
+  public ResourceChangeType parseResourceChangeNotification(final Element nd) {
     try {
       if (!XmlUtil.nodeMatches(nd, AppleServerTags.resourceChange)) {
         throw new WebdavBadRequest("Expected " + AppleServerTags.resourceChange);

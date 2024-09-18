@@ -46,8 +46,7 @@ import javax.xml.namespace.QName;
 public class BwNotifyHandler implements Logged {
   public void doNotify(final CaldavBWIntf intf,
                        final RequestPars pars,
-                       final HttpServletResponse resp)
-          throws WebdavException {
+                       final HttpServletResponse resp) {
     if (!pars.processXml()) {
       resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
       return;
@@ -84,8 +83,7 @@ public class BwNotifyHandler implements Logged {
 
   private void doEventregCancel(final Node root,
                                 final SysIntf sysi,
-                                final HttpServletResponse resp)
-          throws WebdavException {
+                                final HttpServletResponse resp) {
     try {
       final List<Element> els = XmlUtil.getElements(root);
 
@@ -140,8 +138,7 @@ public class BwNotifyHandler implements Logged {
 
   private void doEventregReg(final Node root,
                              final SysIntf sysi,
-                             final HttpServletResponse resp)
-          throws WebdavException {
+                             final HttpServletResponse resp) {
     try {
       if (debug()) {
         debug("enter doEventregReg");
@@ -227,8 +224,7 @@ public class BwNotifyHandler implements Logged {
 
   private void doNotifySubscribe(final Node root,
                                  final SysIntf sysi,
-                                 final HttpServletResponse resp)
-          throws WebdavException {
+                                 final HttpServletResponse resp) {
     try {
       final List<Element> els = XmlUtil.getElements(root);
 
@@ -283,21 +279,18 @@ public class BwNotifyHandler implements Logged {
   }
 
   private String mustHref(final Element el,
-                          final HttpServletResponse resp)
-          throws WebdavException {
+                          final HttpServletResponse resp) {
     return must(el, WebdavTags.href, resp);
   }
 
   private String mustUid(final Element el,
-                         final HttpServletResponse resp)
-          throws WebdavException {
+                         final HttpServletResponse resp) {
     return must(el, AppleServerTags.uid, resp);
   }
 
   private String must(final Element el,
                       final QName tag,
-                      final HttpServletResponse resp)
-          throws WebdavException {
+                      final HttpServletResponse resp) {
     try {
       if (!isElement(el, tag, resp)) {
         return null;
@@ -311,8 +304,7 @@ public class BwNotifyHandler implements Logged {
 
   private Integer mustInt(final Element el,
                       final QName tag,
-                      final HttpServletResponse resp)
-          throws WebdavException {
+                      final HttpServletResponse resp) {
     final String val = must(el, tag, resp);
 
     if (val == null) {
@@ -324,8 +316,7 @@ public class BwNotifyHandler implements Logged {
 
   private boolean isElement(final Element el,
                             final QName tag,
-                            final HttpServletResponse resp)
-          throws WebdavException {
+                            final HttpServletResponse resp) {
     try {
       if (!XmlUtil.nodeMatches(el, tag)) {
         resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -339,8 +330,7 @@ public class BwNotifyHandler implements Logged {
   }
 
   private String mustPrincipalHref(final Element el,
-                                   final HttpServletResponse resp)
-          throws WebdavException {
+                                   final HttpServletResponse resp) {
     try {
       if (!XmlUtil.nodeMatches(el, WebdavTags.principalURL)) {
         resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);

@@ -47,7 +47,7 @@ public class FreeBusyGetHandler extends GetHandler {
   @Override
   public void process(final HttpServletRequest req,
                       final HttpServletResponse resp,
-                      final RequestPars pars) throws WebdavException {
+                      final RequestPars pars) {
     try {
       String originator = null;
 

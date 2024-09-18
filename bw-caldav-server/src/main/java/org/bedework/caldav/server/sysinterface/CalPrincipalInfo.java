@@ -117,9 +117,8 @@ public class CalPrincipalInfo implements Serializable {
 
   /**
    * @return displayname of entoty represented by this info
-   * @throws WebdavException
    */
-  public String getDisplayname() throws WebdavException {
+  public String getDisplayname() {
     if (card == null) {
       return null;
     }

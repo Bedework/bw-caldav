@@ -79,7 +79,7 @@ public class CaldavPostMethod extends PostMethod {
 
   @Override
   public void doMethod(final HttpServletRequest req,
-                       final HttpServletResponse resp) throws WebdavException {
+                       final HttpServletResponse resp) {
     if (debug()) {
       debug("PostMethod: doMethod");
     }
@@ -140,7 +140,7 @@ public class CaldavPostMethod extends PostMethod {
 
   private void doWsQuery(final CaldavBWIntf intf,
                          final RequestPars pars,
-                         final HttpServletResponse resp) throws WebdavException {
+                         final HttpServletResponse resp) {
     if (!pars.getContentTypePars()[0].equals("text/xml")) {
       resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
       return;
@@ -157,7 +157,7 @@ public class CaldavPostMethod extends PostMethod {
 
   private void doCalDav(final CaldavBWIntf intf,
                         final RequestPars pars,
-                        final HttpServletResponse resp) throws WebdavException {
+                        final HttpServletResponse resp) {
     if (!pars.isAppXml()) {
       // Assume scheduling
 
@@ -271,11 +271,10 @@ public class CaldavPostMethod extends PostMethod {
    * @param intf the interface
    * @param pars POST parameters
    * @param resp response
-   * @throws WebdavException
    */
   public void doSchedule(final CaldavBWIntf intf,
                          final RequestPars pars,
-                         final HttpServletResponse resp) throws WebdavException {
+                         final HttpServletResponse resp) {
     final SysIntf sysi = intf.getSysi();
 
     final WebdavNsNode node = intf.getNode(pars.getResourceUri(),
@@ -427,11 +426,10 @@ public class CaldavPostMethod extends PostMethod {
    * @param intf the interface
    * @param pars POST parameters
    * @param resp response
-   * @throws WebdavException
    */
   public void doISchedule(final CaldavBWIntf intf,
                           final RequestPars pars,
-                          final HttpServletResponse resp) throws WebdavException {
+                          final HttpServletResponse resp) {
     final SysIntf sysi = intf.getSysi();
 
     try {
@@ -562,7 +560,7 @@ public class CaldavPostMethod extends PostMethod {
   }
 
   private void validateHost(final RequestPars pars,
-                            final InputStream content) throws WebdavException {
+                            final InputStream content) {
     final IscheduleIn isi = pars.getIschedRequest();
     final SignatureRecord sig = isi.getDkimSignature();
 
@@ -598,11 +596,10 @@ public class CaldavPostMethod extends PostMethod {
    * @param intf the interface
    * @param pars POST parameters
    * @param resp response
-   * @throws WebdavException
    */
   private void handleEvent(final SysIntf intf,
                            final RequestPars pars,
-                           final HttpServletResponse resp) throws WebdavException {
+                           final HttpServletResponse resp) {
     final CalDAVEvent ev = pars.getIcalendar().getEvent();
 
     if (pars.getIschedRequest().getRecipients() != null) {
@@ -639,7 +636,7 @@ public class CaldavPostMethod extends PostMethod {
 
   private void handleFreeBusy(final SysIntf intf,
                               final RequestPars pars,
-                              final HttpServletResponse resp) throws WebdavException {
+                              final HttpServletResponse resp) {
     final CalDAVEvent<?> ev = pars.getIcalendar().getEvent();
 
     if (pars.isiSchedule()) {
@@ -733,10 +730,9 @@ public class CaldavPostMethod extends PostMethod {
    +----------------+----------------------------------+
    * @param pars for request
    * @param ev object to be validated
-   * @throws WebdavException
    */
   private void validateOriginator(final RequestPars pars,
-                                  final CalDAVEvent ev) throws WebdavException {
+                                  final CalDAVEvent ev) {
     final int meth = ev.getScheduleMethod();
 
     if (meth == ScheduleMethods.methodTypePublish) {
@@ -794,7 +790,7 @@ public class CaldavPostMethod extends PostMethod {
   }
 
   private void setReqstat(final int status,
-                          final boolean iSchedule) throws WebdavException {
+                          final boolean iSchedule) {
     final String reqstat;
 
     if (status == SchedRecipientResult.scheduleDeferred) {

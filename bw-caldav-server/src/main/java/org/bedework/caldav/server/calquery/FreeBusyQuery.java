@@ -48,9 +48,8 @@ public class FreeBusyQuery implements Logged {
    * Should have exactly one time-range element.
    *
    * @param nd the node to parse
-   * @throws WebdavException on fatal error
    */
-  public void parse(final Node nd) throws WebdavException {
+  public void parse(final Node nd) {
     try {
       if (timeRange != null) {
         throw new WebdavBadRequest();
@@ -77,11 +76,10 @@ public class FreeBusyQuery implements Logged {
    * @param col collection
    * @param depth to go
    * @return BwEvent
-   * @throws WebdavException on fatal error
    */
   public CalDAVEvent getFreeBusy(final SysIntf sysi,
                                  final CalDAVCollection col,
-                                 final int depth) throws WebdavException {
+                                 final int depth) {
     try {
       return sysi.getFreeBusy(col, depth, timeRange);
     } catch (final WebdavException wde) {
@@ -103,7 +101,7 @@ public class FreeBusyQuery implements Logged {
   }
 
   /*
-  private Element[] getChildren(Node nd) throws WebdavException {
+  private Element[] getChildren(Node nd) {
     try {
       return XmlUtil.getElementsArray(nd);
     } catch (Throwable t) {

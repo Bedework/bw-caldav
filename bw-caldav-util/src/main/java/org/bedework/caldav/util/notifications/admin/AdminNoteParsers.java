@@ -86,9 +86,8 @@ public class AdminNoteParsers {
   /**
    * @param val the XML
    * @return parsed Document
-   * @throws WebdavException
    */
-  public static Document parseXmlString(final String val) throws WebdavException {
+  public static Document parseXmlString(final String val) {
     if ((val == null) || (val.length() == 0)) {
       return null;
     }
@@ -99,7 +98,6 @@ public class AdminNoteParsers {
   /**
    * @param val a reader
    * @return parsed Document
-   * @throws WebdavException
    */
   public static Document parseXml(final Reader val) throws WebdavException{
     try {
@@ -169,7 +167,7 @@ public class AdminNoteParsers {
     }
 
     @Override
-    public BaseNotificationType parse(final Element nd) throws WebdavException {
+    public BaseNotificationType parse(final Element nd) {
       try {
         return getParser().parseAwaitingApproval(nd);
       } finally {
@@ -184,7 +182,7 @@ public class AdminNoteParsers {
     }
 
     @Override
-    public BaseNotificationType parse(final Element nd) throws WebdavException {
+    public BaseNotificationType parse(final Element nd) {
       try {
         return getParser().parseApprovalResponse(nd);
       } finally {
@@ -196,9 +194,8 @@ public class AdminNoteParsers {
   /**
    * @param val XML representation
    * @return populated EventregCancelledNotificationType object
-   * @throws WebdavException
    */
-  public AwaitingApprovalNotificationType parseparseAwaitingApproval(final String val) throws WebdavException {
+  public AwaitingApprovalNotificationType parseparseAwaitingApproval(final String val) {
     final Document d = parseXmlString(val);
 
     return parseAwaitingApproval(d.getDocumentElement());
@@ -207,9 +204,8 @@ public class AdminNoteParsers {
   /**
    * @param nd MUST be the cancelled xml element
    * @return populated AwaitingApprovalNotificationType object
-   * @throws WebdavException
    */
-  public AwaitingApprovalNotificationType parseAwaitingApproval(final Node nd) throws WebdavException {
+  public AwaitingApprovalNotificationType parseAwaitingApproval(final Node nd) {
     try {
       if (!XmlUtil.nodeMatches(nd, awaitingApprovalTag)) {
         throw new WebdavBadRequest("Expected " + awaitingApprovalTag);
@@ -238,9 +234,8 @@ public class AdminNoteParsers {
   /**
    * @param nd MUST be the cancelled xml element
    * @return populated ApprovalResponseNotificationType object
-   * @throws WebdavException
    */
-  public ApprovalResponseNotificationType parseApprovalResponse(final Node nd) throws WebdavException {
+  public ApprovalResponseNotificationType parseApprovalResponse(final Node nd) {
     try {
       if (!XmlUtil.nodeMatches(nd, approvalResponseTag)) {
         throw new WebdavBadRequest("Expected " + approvalResponseTag);
@@ -276,10 +271,9 @@ public class AdminNoteParsers {
    *
    * @param curnode MAY be one of the notification xml elements
    * @return true if absorbed
-   * @throws WebdavException
    */
   private boolean adminBaseNode(final AdminNotificationType base,
-                                   final Element curnode) throws WebdavException {
+                                   final Element curnode) {
     try {
       // Standard notification name element
       if (XmlUtil.nodeMatches(curnode, nameTag)) {

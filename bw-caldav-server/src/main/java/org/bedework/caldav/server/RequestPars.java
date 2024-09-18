@@ -62,11 +62,10 @@ public class RequestPars extends PostRequestPars {
    * @param req - the request
    * @param intf service interface
    * @param resourceUri the uri
-   * @throws WebdavException
    */
   public RequestPars(final HttpServletRequest req,
                      final CaldavBWIntf intf,
-                     final String resourceUri) throws WebdavException {
+                     final String resourceUri) {
     super(req, intf, resourceUri);
 
     final SysIntf sysi = intf.getSysi();

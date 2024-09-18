@@ -76,10 +76,9 @@ public class CaldavResourceNode extends CaldavBwNode {
    *
    * @param cdURI
    * @param sysi
-   * @throws WebdavException
    */
   public CaldavResourceNode(final CaldavURI cdURI,
-                             final SysIntf sysi) throws WebdavException {
+                             final SysIntf sysi) {
     super(cdURI, sysi);
 
     resource = cdURI.getResource();
@@ -103,10 +102,9 @@ public class CaldavResourceNode extends CaldavBwNode {
   /**
    * @param resource
    * @param sysi
-   * @throws WebdavException
    */
   public CaldavResourceNode(final CalDAVResource resource,
-                            final SysIntf sysi) throws WebdavException {
+                            final SysIntf sysi) {
     super(sysi, resource.getParentPath(), true, resource.getPath());
 
     allowsGet = false;
@@ -129,7 +127,7 @@ public class CaldavResourceNode extends CaldavBwNode {
   }
 
   @Override
-  public AccessPrincipal getOwner() throws WebdavException {
+  public AccessPrincipal getOwner() {
     if (owner == null) {
       if (resource == null) {
         return null;
@@ -143,7 +141,7 @@ public class CaldavResourceNode extends CaldavBwNode {
 
   @Override
   public boolean removeProperty(final Element val,
-                                final SetPropertyResult spr) throws WebdavException {
+                                final SetPropertyResult spr) {
     warn("Unimplemented - removeProperty");
 
     return false;
@@ -151,7 +149,7 @@ public class CaldavResourceNode extends CaldavBwNode {
 
   @Override
   public boolean setProperty(final Element val,
-                             final SetPropertyResult spr) throws WebdavException {
+                             final SetPropertyResult spr) {
     if (super.setProperty(val, spr)) {
       return true;
     }
@@ -160,7 +158,7 @@ public class CaldavResourceNode extends CaldavBwNode {
   }
 
   @Override
-  public void update() throws WebdavException {
+  public void update() {
     if (resource != null) {
       getSysi().updateFile(resource, true);
     }
@@ -195,7 +193,7 @@ public class CaldavResourceNode extends CaldavBwNode {
   @Override
   public boolean generatePropertyValue(final QName tag,
                                        final WebdavNsIntf intf,
-                                       final boolean allProp) throws WebdavException {
+                                       final boolean allProp) {
     XmlEmit xml = intf.getXmlEmit();
 
     try {
@@ -246,9 +244,8 @@ public class CaldavResourceNode extends CaldavBwNode {
   /** Returns the resource object
    *
    * @return CalDAVResource
-   * @throws WebdavException
    */
-  public CalDAVResource getResource() throws WebdavException {
+  public CalDAVResource getResource() {
     init(true);
 
     return resource;
@@ -259,7 +256,7 @@ public class CaldavResourceNode extends CaldavBwNode {
    * ==================================================================== */
 
   @Override
-  public CurrentAccess getCurrentAccess() throws WebdavException {
+  public CurrentAccess getCurrentAccess() {
     if (currentAccess != null) {
       return currentAccess;
     }
@@ -278,7 +275,7 @@ public class CaldavResourceNode extends CaldavBwNode {
   }
 
   @Override
-  public String getEtagValue(final boolean strong) throws WebdavException {
+  public String getEtagValue(final boolean strong) {
     init(true);
 
     if (resource == null) {
@@ -298,16 +295,15 @@ public class CaldavResourceNode extends CaldavBwNode {
    * @see org.bedework.caldav.server.CaldavBwNode#getEtokenValue()
    */
   @Override
-  public String getEtokenValue() throws WebdavException {
+  public String getEtokenValue() {
     return concatEtoken(getEtagValue(true), "");
   }
 
   /* *
    * @param strong
    * @return etag before changes
-   * @throws WebdavException
    * /
-  public String getPrevEtagValue(boolean strong) throws WebdavException {
+  public String getPrevEtagValue(boolean strong) {
     init(true);
 
     if (resource == null) {
@@ -338,33 +334,33 @@ public class CaldavResourceNode extends CaldavBwNode {
   @Override
   public String writeContent(final XmlEmit xml,
                              final Writer wtr,
-                             final String contentType) throws WebdavException {
+                             final String contentType) {
     return null;
   }
 
   @Override
-  public boolean getContentBinary() throws WebdavException {
+  public boolean getContentBinary() {
     return true;
   }
 
   @Override
-  public InputStream getContentStream() throws WebdavException {
+  public InputStream getContentStream() {
     return resource.getBinaryContent();
   }
 
   @Override
-  public String getContentString(String contentType) throws WebdavException {
+  public String getContentString(String contentType) {
     init(true);
     throw new WebdavException("binary content");
   }
 
   @Override
-  public String getContentLang() throws WebdavException {
+  public String getContentLang() {
     return "en";
   }
 
   @Override
-  public long getContentLen() throws WebdavException {
+  public long getContentLen() {
     init(true);
 
     if (resource == null) {
@@ -375,7 +371,7 @@ public class CaldavResourceNode extends CaldavBwNode {
   }
 
   @Override
-  public String getContentType() throws WebdavException {
+  public String getContentType() {
     if (resource == null) {
       return null;
     }
@@ -384,7 +380,7 @@ public class CaldavResourceNode extends CaldavBwNode {
   }
 
   @Override
-  public String getCreDate() throws WebdavException {
+  public String getCreDate() {
     init(false);
 
     if (resource == null) {
@@ -395,12 +391,12 @@ public class CaldavResourceNode extends CaldavBwNode {
   }
 
   @Override
-  public String getDisplayname() throws WebdavException {
+  public String getDisplayname() {
     return getEntityName();
   }
 
   @Override
-  public String getLastmodDate() throws WebdavException {
+  public String getLastmodDate() {
     init(false);
 
     if (resource == null) {
@@ -416,12 +412,12 @@ public class CaldavResourceNode extends CaldavBwNode {
   }
 
   @Override
-  public boolean allowsSyncReport() throws WebdavException {
+  public boolean allowsSyncReport() {
     return false;
   }
 
   @Override
-  public boolean getDeleted() throws WebdavException {
+  public boolean getDeleted() {
     if (resource == null) {
       return false;
     }

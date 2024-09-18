@@ -83,9 +83,8 @@ public class SuggestParsers {
   /**
    * @param val the XML
    * @return parsed Document
-   * @throws WebdavException
    */
-  public static Document parseXmlString(final String val) throws WebdavException {
+  public static Document parseXmlString(final String val) {
     if ((val == null) || (val.length() == 0)) {
       return null;
     }
@@ -96,7 +95,6 @@ public class SuggestParsers {
   /**
    * @param val a reader
    * @return parsed Document
-   * @throws WebdavException
    */
   public static Document parseXml(final Reader val) throws WebdavException{
     try {
@@ -165,7 +163,7 @@ public class SuggestParsers {
     }
 
     @Override
-    public BaseNotificationType parse(final Element nd) throws WebdavException {
+    public BaseNotificationType parse(final Element nd) {
       try {
         return getParser().parseSuggest(nd);
       } finally {
@@ -180,7 +178,7 @@ public class SuggestParsers {
     }
 
     @Override
-    public BaseNotificationType parse(final Element nd) throws WebdavException {
+    public BaseNotificationType parse(final Element nd) {
       try {
         return getParser().parseSuggestReply(nd);
       } finally {
@@ -192,9 +190,8 @@ public class SuggestParsers {
   /**
    * @param val XML representation
    * @return populated SuggestNotificationType object
-   * @throws WebdavException
    */
-  public SuggestNotificationType parseSuggest(final String val) throws WebdavException {
+  public SuggestNotificationType parseSuggest(final String val) {
     final Document d = parseXmlString(val);
 
     return parseSuggest(d.getDocumentElement());
@@ -203,9 +200,8 @@ public class SuggestParsers {
   /**
    * @param nd MUST be the invite xml element
    * @return populated SuggestNotificationType object
-   * @throws WebdavException
    */
-  public SuggestNotificationType parseSuggest(final Node nd) throws WebdavException {
+  public SuggestNotificationType parseSuggest(final Node nd) {
     try {
       if (!XmlUtil.nodeMatches(nd, suggestTag)) {
         throw new WebdavBadRequest("Expected " + suggestTag);
@@ -259,9 +255,8 @@ public class SuggestParsers {
   /**
    * @param nd MUST be the invite xml element
    * @return populated SuggestNotificationType object
-   * @throws WebdavException
    */
-  public SuggestResponseNotificationType parseSuggestReply(final Node nd) throws WebdavException {
+  public SuggestResponseNotificationType parseSuggestReply(final Node nd) {
     try {
       if (!XmlUtil.nodeMatches(nd, suggestReplyTag)) {
         throw new WebdavBadRequest("Expected " + suggestReplyTag);

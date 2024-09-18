@@ -45,8 +45,7 @@ public class EntityTypeFilter extends ObjectFilter<Integer> {
    */
   public static EntityTypeFilter makeIcalEntityTypeFilter(final String name,
                                                           final String val,
-                                                          final boolean not)
-          throws WebdavException {
+                                                          final boolean not) {
     return makeEntityTypeFilter(name, val, not, IcalDefs.entityTypeIcalNames);
   }
 
@@ -59,8 +58,7 @@ public class EntityTypeFilter extends ObjectFilter<Integer> {
    */
   public static EntityTypeFilter makeEntityTypeFilter(final String name,
                                                       final String val,
-                                                      final boolean not)
-          throws WebdavException {
+                                                      final boolean not) {
     return makeEntityTypeFilter(name, val, not, IcalDefs.entityTypeNames);
   }
 
@@ -73,8 +71,7 @@ public class EntityTypeFilter extends ObjectFilter<Integer> {
   public static EntityTypeFilter makeEntityTypeFilter(final String name,
                                                       final String val,
                                                       final boolean not,
-                                                      final String[] names)
-          throws WebdavException {
+                                                      final String[] names) {
     int type = -1;
 
     for (int i = 0; i < names.length; i++) {

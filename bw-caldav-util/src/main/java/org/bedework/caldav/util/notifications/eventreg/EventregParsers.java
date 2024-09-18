@@ -84,9 +84,8 @@ public class EventregParsers {
   /**
    * @param val the XML
    * @return parsed Document
-   * @throws WebdavException
    */
-  public static Document parseXmlString(final String val) throws WebdavException {
+  public static Document parseXmlString(final String val) {
     if ((val == null) || (val.length() == 0)) {
       return null;
     }
@@ -97,7 +96,6 @@ public class EventregParsers {
   /**
    * @param val a reader
    * @return parsed Document
-   * @throws WebdavException
    */
   public static Document parseXml(final Reader val) throws WebdavException{
     try {
@@ -167,7 +165,7 @@ public class EventregParsers {
     }
 
     @Override
-    public BaseNotificationType parse(final Element nd) throws WebdavException {
+    public BaseNotificationType parse(final Element nd) {
       try {
         return getParser().parseEventCancelled(nd);
       } finally {
@@ -182,7 +180,7 @@ public class EventregParsers {
     }
 
     @Override
-    public BaseNotificationType parse(final Element nd) throws WebdavException {
+    public BaseNotificationType parse(final Element nd) {
       try {
         return getParser().parseEventRegistered(nd);
       } finally {
@@ -194,9 +192,8 @@ public class EventregParsers {
   /**
    * @param val XML representation
    * @return populated EventregCancelledNotificationType object
-   * @throws WebdavException
    */
-  public EventregCancelledNotificationType parseEventCancelled(final String val) throws WebdavException {
+  public EventregCancelledNotificationType parseEventCancelled(final String val) {
     final Document d = parseXmlString(val);
 
     return parseEventCancelled(d.getDocumentElement());
@@ -205,9 +202,8 @@ public class EventregParsers {
   /**
    * @param nd MUST be the cancelled xml element
    * @return populated SuggestNotificationType object
-   * @throws WebdavException
    */
-  public EventregCancelledNotificationType parseEventCancelled(final Node nd) throws WebdavException {
+  public EventregCancelledNotificationType parseEventCancelled(final Node nd) {
     try {
       if (!XmlUtil.nodeMatches(nd, cancelledTag)) {
         throw new WebdavBadRequest("Expected " + cancelledTag);
@@ -235,9 +231,8 @@ public class EventregParsers {
   /**
    * @param nd MUST be the cancelled xml element
    * @return populated SuggestNotificationType object
-   * @throws WebdavException
    */
-  public EventregRegisteredNotificationType parseEventRegistered(final Node nd) throws WebdavException {
+  public EventregRegisteredNotificationType parseEventRegistered(final Node nd) {
     try {
       if (!XmlUtil.nodeMatches(nd, registeredTag)) {
         throw new WebdavBadRequest("Expected " + registeredTag);
@@ -279,10 +274,9 @@ public class EventregParsers {
    *
    * @param curnode MAY be one of the notification xml elements
    * @return true if absorbed
-   * @throws WebdavException
    */
   private boolean eventregBaseNode(final EventregBaseNotificationType base,
-                                   final Element curnode) throws WebdavException {
+                                   final Element curnode) {
     try {
       // Standard notification name element
       if (XmlUtil.nodeMatches(curnode, nameTag)) {
@@ -323,7 +317,7 @@ public class EventregParsers {
     }
   }
 
-  private static WebdavException parseException(final SAXException e) throws WebdavException {
+  private static WebdavException parseException(final SAXException e) {
     return new WebdavBadRequest(e.getMessage());
   }
 }

@@ -46,7 +46,7 @@ public class ServerInfoGetHandler extends GetHandler {
   @Override
   public void process(final HttpServletRequest req,
                       final HttpServletResponse resp,
-                      final RequestPars pars) throws WebdavException {
+                      final RequestPars pars) {
     try {
       final ServerInfo serverInfo = intf.getServerInfo();
 

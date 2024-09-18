@@ -40,60 +40,51 @@ public abstract class CalDAVResource <T> extends WdEntity<T> {
 
   /**
    * @return boolean true if this will be created as a result of a Put
-   * @throws WebdavException
    */
-  public abstract boolean isNew() throws WebdavException;
+  public abstract boolean isNew();
 
   /**
    * @return true if this represents a deleted resource.
-   * @throws WebdavException
    */
-  public abstract boolean getDeleted() throws WebdavException;
+  public abstract boolean getDeleted();
 
   /** Set the value
    *
    *  @param  val   InputStream
-   * @throws WebdavException
    */
-  public abstract void setBinaryContent(InputStream val) throws WebdavException;
+  public abstract void setBinaryContent(InputStream val);
 
   /** Return binary content
    *
    * @return InputStream       content.
-   * @throws WebdavException
    */
-  public abstract InputStream getBinaryContent() throws WebdavException;
+  public abstract InputStream getBinaryContent();
 
   /**
    * @return long content length
-   * @throws WebdavException
    */
-  public abstract long getContentLen() throws WebdavException;
+  public abstract long getContentLen();
 
   /** This can be different from the content length
    *
    * @return long quota size
-   * @throws WebdavException
    */
-  public abstract long getQuotaSize() throws WebdavException;
+  public abstract long getQuotaSize();
 
   /** Set the contentType - may be null for unknown
    *
    *  @param  val   String contentType
-   * @throws WebdavException
    */
-  public abstract void setContentType(String val) throws WebdavException;
+  public abstract void setContentType(String val);
 
   /** A content type of null implies no content (or we don't know)
    *
    * @return String content type
-   * @throws WebdavException
    */
-  public abstract String getContentType() throws WebdavException;
+  public abstract String getContentType();
 
   /**
    * @return null if this is not a notification
-   * @throws WebdavException
    */
-  public abstract NotificationInfo getNotificationType() throws WebdavException;
+  public abstract NotificationInfo getNotificationType();
 }

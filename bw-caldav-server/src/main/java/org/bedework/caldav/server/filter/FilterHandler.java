@@ -149,11 +149,10 @@ public class FilterHandler implements Logged {
    * @param retrieveList   If non-null limit required fields.
    * @param retrieveRecur  How we retrieve recurring events
    * @return Collection of event objects (null or empty for no result)
-   * @throws WebdavException on error
    */
   public Collection<CalDAVEvent<?>> query(final CaldavBwNode wdnode,
                                           final List<String> retrieveList,
-                                          final RetrievalMode retrieveRecur) throws WebdavException {
+                                          final RetrievalMode retrieveRecur) {
     try {
       eventq = Filters.getQuery(f);
 
@@ -195,10 +194,9 @@ public class FilterHandler implements Logged {
    *
    * @param nodes     Collection of initialised CaldavBwNode
    * @return Collection of filtered nodes (empty for no result)
-   * @throws WebdavException on error
    */
   public Collection<WebdavNsNode> postFilter(
-                   final Collection<WebdavNsNode> nodes) throws WebdavException {
+                   final Collection<WebdavNsNode> nodes) {
     if (!eventq.postFilter) {
       return nodes;
     }

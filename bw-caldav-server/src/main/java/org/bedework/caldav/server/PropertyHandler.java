@@ -68,9 +68,8 @@ public abstract class PropertyHandler implements Serializable {
    *
    * @param tag
    * @return boolean
-   * @throws WebdavException
    */
-  public boolean knownProperty(QName tag) throws WebdavException {
+  public boolean knownProperty(QName tag) {
     return getPropertyNames().get(tag) != null;
   }
 }

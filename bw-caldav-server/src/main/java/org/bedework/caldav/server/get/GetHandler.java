@@ -55,11 +55,10 @@ public abstract class GetHandler {
    * @param req
    * @param resp
    * @param pars
-   * @throws WebdavException
    */
   public abstract void process(final HttpServletRequest req,
                                final HttpServletResponse resp,
-                               final RequestPars pars) throws WebdavException;
+                               final RequestPars pars);
   /**
    * @return current account
    */
@@ -78,7 +77,7 @@ public abstract class GetHandler {
    *                   XmlUtil wrappers
    * ==================================================================== */
 
-  protected void startEmit(final HttpServletResponse resp) throws WebdavException {
+  protected void startEmit(final HttpServletResponse resp) {
     try {
       xml.startEmit(resp.getWriter());
     } catch (Throwable t) {
@@ -94,8 +93,7 @@ public abstract class GetHandler {
   */
  public Collection<WebdavNsNode> getChildren(
          final WebdavNsNode node,
-         final Supplier<Object> filterGetter)
-     throws WebdavException {
+         final Supplier<Object> filterGetter) {
     return intf.getChildren(node, filterGetter);
   }
 
@@ -110,12 +108,12 @@ public abstract class GetHandler {
   */
   public WebdavNsNode getNode(final String uri,
                               final int existance,
-                              final int nodeType) throws WebdavException {
+                              final int nodeType) {
     return intf.getNode(uri, existance, nodeType,
                         false);
   }
 
-  protected void openTag(final QName tag) throws WebdavException {
+  protected void openTag(final QName tag) {
     try {
       xml.openTag(tag);
     } catch (Throwable t) {
@@ -127,10 +125,9 @@ public abstract class GetHandler {
    * @param tag
    * @param attrName
    * @param attrVal
-   * @throws WebdavException
    */
   public void openTag(final QName tag,
-                      final String attrName, final String attrVal) throws WebdavException {
+                      final String attrName, final String attrVal) {
     try {
       xml.openTag(tag, attrName, attrVal);
     } catch (Throwable t) {
@@ -141,9 +138,8 @@ public abstract class GetHandler {
   /** Emit an empty tag
    *
    * @param tag
-   * @throws WebdavException
    */
-  public void emptyTag(final QName tag) throws WebdavException {
+  public void emptyTag(final QName tag) {
     try {
       xml.emptyTag(tag);
     } catch (Throwable t) {
@@ -155,9 +151,8 @@ public abstract class GetHandler {
    *
    * @param tag
    * @param val
-   * @throws WebdavException
    */
-  public void property(final QName tag, final String val) throws WebdavException {
+  public void property(final QName tag, final String val) {
     try {
       xml.property(tag, val);
     } catch (Throwable t) {
@@ -165,7 +160,7 @@ public abstract class GetHandler {
     }
   }
 
-  protected void closeTag(final QName tag) throws WebdavException {
+  protected void closeTag(final QName tag) {
     try {
       xml.closeTag(tag);
     } catch (Throwable t) {

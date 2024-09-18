@@ -194,9 +194,8 @@ public class Parser {
   /**
    * @param val
    * @return parsed Document
-   * @throws WebdavException
    */
-  public static Document parseXmlString(final String val) throws WebdavException {
+  public static Document parseXmlString(final String val) {
     if ((val == null) || (val.length() == 0)) {
       return null;
     }
@@ -207,7 +206,6 @@ public class Parser {
   /**
    * @param val
    * @return parsed Document
-   * @throws WebdavException
    */
   public static Document parseXml(final Reader val) throws WebdavException{
     try {
@@ -276,7 +274,7 @@ public class Parser {
     }
 
     @Override
-    public BaseNotificationType parse(final Element nd) throws WebdavException {
+    public BaseNotificationType parse(final Element nd) {
       try {
         return getParser().parseInviteNotification(nd);
       } finally {
@@ -291,7 +289,7 @@ public class Parser {
     }
 
     @Override
-    public BaseNotificationType parse(final Element nd) throws WebdavException {
+    public BaseNotificationType parse(final Element nd) {
       try {
         return getParser().parseInviteReply(nd);
       } finally {
@@ -303,9 +301,8 @@ public class Parser {
   /**
    * @param val XML representation
    * @return populated InviteType object
-   * @throws WebdavException
    */
-  public InviteType parseInvite(final String val) throws WebdavException {
+  public InviteType parseInvite(final String val) {
     Document d = parseXmlString(val);
 
     return parseInvite(d.getDocumentElement());
@@ -314,9 +311,8 @@ public class Parser {
   /**
    * @param nd MUST be the invite xml element
    * @return populated InviteType object
-   * @throws WebdavException
    */
-  public InviteType parseInvite(final Node nd) throws WebdavException {
+  public InviteType parseInvite(final Node nd) {
     try {
       if (!nodeMatches(nd, inviteTag)) {
         throw new WebdavBadRequest("Expected " + inviteTag);
@@ -352,9 +348,8 @@ public class Parser {
   /**
    * @param nd MUST be the share xml element
    * @return populated ShareType object
-   * @throws WebdavException
    */
-  public ShareType parseShare(final Node nd) throws WebdavException {
+  public ShareType parseShare(final Node nd) {
     try {
       if (!nodeMatches(nd, shareTag)) {
         throw new WebdavBadRequest("Expected " + shareTag);
@@ -387,7 +382,7 @@ public class Parser {
     }
   }
 
-  public InviteReplyType parseInviteReply(final String s) throws WebdavException {
+  public InviteReplyType parseInviteReply(final String s) {
     final Document d = parseXmlString(s);
     
     return parseInviteReply(d.getDocumentElement());
@@ -396,9 +391,8 @@ public class Parser {
   /**
    * @param nd MUST be the invite-reply xml element
    * @return populated InviteReplyType object
-   * @throws WebdavException on error
    */
-  public InviteReplyType parseInviteReply(final Element nd) throws WebdavException {
+  public InviteReplyType parseInviteReply(final Element nd) {
     try {
       if (!nodeMatches(nd, inviteReplyTag)) {
         throw new WebdavBadRequest("Expected " + inviteReplyTag);
@@ -507,9 +501,8 @@ public class Parser {
   /**
    * @param nd MUST be the invite-notification xml element
    * @return populated InviteNotificationType object
-   * @throws WebdavException
    */
-  public InviteNotificationType parseInviteNotification(final Element nd) throws WebdavException {
+  public InviteNotificationType parseInviteNotification(final Element nd) {
     try {
       if (!nodeMatches(nd, inviteNotificationTag)) {
         throw new WebdavBadRequest("Expected " + inviteNotificationTag);
@@ -631,9 +624,8 @@ public class Parser {
   /**
    * @param nd MUST be the user xml element
    * @return populated UserType object
-   * @throws WebdavException
    */
-  public UserType parseUser(final Node nd) throws WebdavException {
+  public UserType parseUser(final Node nd) {
     try {
       if (!nodeMatches(nd, userTag)) {
         throw new WebdavBadRequest("Expected " + userTag);
@@ -886,7 +878,7 @@ public class Parser {
     return o;
   }
 
-  private String parseHostUrl(final Node nd) throws WebdavException {
+  private String parseHostUrl(final Node nd) {
     try {
       if (!nodeMatches(nd, hosturlTag)) {
         throw new WebdavBadRequest("Expected " + hosturlTag);

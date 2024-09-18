@@ -107,8 +107,7 @@ public class CaldavBWServlet extends WebdavServlet implements
   }
 
   @Override
-  public WebdavNsIntf getNsIntf(final HttpServletRequest req)
-      throws WebdavException {
+  public WebdavNsIntf getNsIntf(final HttpServletRequest req) {
     final CaldavBWIntf wi = new CaldavBWIntf();
 
     wi.init(this, req, methods, dumpContent);

@@ -41,7 +41,6 @@ public interface BaseNotificationParser {
   /**
    * @param nd MUST be the notification xml element
    * @return populated ShareType object
-   * @throws WebdavException
    */
-  BaseNotificationType parse(final Element nd) throws WebdavException;
+  BaseNotificationType parse(final Element nd);
 }

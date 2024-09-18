@@ -61,13 +61,12 @@ public class CaldavPrincipalNode extends WebdavPrincipalNode {
    * @param sysi system interface
    * @param ui principal information
    * @param isUser true if this is a user
-   * @throws WebdavException
    */
   public CaldavPrincipalNode(final CaldavURI cdURI,
                              final SysIntf sysi,
                              final CalPrincipalInfo ui,
                              @SuppressWarnings(
-                                     "UnusedParameters") final boolean isUser) throws WebdavException {
+                                     "UnusedParameters") final boolean isUser) {
     super(sysi, sysi.getUrlHandler(), cdURI.getPath(),
           cdURI.getPrincipal(),
           cdURI.isCollection(), cdURI.getUri());
@@ -80,7 +79,7 @@ public class CaldavPrincipalNode extends WebdavPrincipalNode {
   }
 
   @Override
-  public String getDisplayname() throws WebdavException {
+  public String getDisplayname() {
     final String dn = ui.getDisplayname();
 
     if (dn == null) {
@@ -107,7 +106,7 @@ public class CaldavPrincipalNode extends WebdavPrincipalNode {
   @Override
   public boolean generatePropertyValue(final QName tag,
                                        final WebdavNsIntf intf,
-                                       final boolean allProp) throws WebdavException {
+                                       final boolean allProp) {
     final XmlEmit xml = intf.getXmlEmit();
 
     try {

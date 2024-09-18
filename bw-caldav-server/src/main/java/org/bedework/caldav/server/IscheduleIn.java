@@ -40,11 +40,10 @@ public class IscheduleIn extends IscheduleMessage {
    *
    * @param req
    * @param urlHandler
-   * @throws WebdavException
    */
   @SuppressWarnings("unchecked")
   public IscheduleIn(final HttpServletRequest req,
-                          final UrlHandler urlHandler) throws WebdavException {
+                          final UrlHandler urlHandler) {
     this.req = req;
 
     /* Expect originator and recipient headers */
@@ -128,7 +127,7 @@ public class IscheduleIn extends IscheduleMessage {
    * If we get an absolute principal - turn it into a relative
    */
   private String adjustPrincipal(final String val,
-                                 final UrlHandler urlHandler) throws WebdavException {
+                                 final UrlHandler urlHandler) {
     if (val == null) {
       return null;
     }
