@@ -66,7 +66,7 @@ public class AccessType {
    * @return true if read set and true, false otherwise
    */
   public boolean testRead() {
-    Boolean f = getRead();
+    final Boolean f = getRead();
     if (f == null) {
       return false;
     }
@@ -78,7 +78,7 @@ public class AccessType {
    * @return true if read-write set and true, false otherwise
    */
   public boolean testReadWrite() {
-    Boolean f = getReadWrite();
+    final Boolean f = getReadWrite();
     if (f == null) {
       return false;
     }
@@ -87,10 +87,9 @@ public class AccessType {
   }
 
   /**
-   * @param xml
-   * @throws Throwable
+   * @param xml emitter
    */
-  public void toXml(final XmlEmit xml) throws Throwable {
+  public void toXml(final XmlEmit xml) {
     xml.openTag(AppleServerTags.access);
     if (testRead()) {
       xml.emptyTag(AppleServerTags.read);
@@ -102,20 +101,20 @@ public class AccessType {
 
   /** Add our stuff to the StringBuffer
    *
-   * @param ts
+   * @param ts for output
    */
   protected void toStringSegment(final ToString ts) {
     ts.append("read", getRead());
     ts.append("readWrite", getReadWrite());
   }
 
-  /* ====================================================================
+  /* ==============================================================
    *                   Convenience methods
-   * ==================================================================== */
+   * ============================================================== */
 
   @Override
   public boolean equals(final Object o) {
-    AccessType that  = (AccessType)o;
+    final AccessType that  = (AccessType)o;
 
     return (testRead() == that.testRead()) ||
          (testReadWrite() == that.testReadWrite());
@@ -123,7 +122,7 @@ public class AccessType {
 
   @Override
   public String toString() {
-    ToString ts = new ToString(this);
+    final ToString ts = new ToString(this);
 
     toStringSegment(ts);
 

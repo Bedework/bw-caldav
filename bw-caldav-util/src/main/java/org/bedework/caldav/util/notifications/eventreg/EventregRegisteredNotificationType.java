@@ -66,7 +66,7 @@ public class EventregRegisteredNotificationType
     return numTickets;
   }
 
-  protected void bodyToXml(final XmlEmit xml) throws Throwable {
+  protected void bodyToXml(final XmlEmit xml) {
     /* base notification fields */
     super.bodyToXml(xml);
 
@@ -77,7 +77,7 @@ public class EventregRegisteredNotificationType
   }
 
   @Override
-  public void toXml(final XmlEmit xml) throws Throwable {
+  public void toXml(final XmlEmit xml) {
     xml.openTag(getElementName());
 
     bodyToXml(xml);

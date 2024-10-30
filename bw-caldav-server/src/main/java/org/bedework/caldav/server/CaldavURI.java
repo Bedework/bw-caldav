@@ -19,6 +19,7 @@
 package org.bedework.caldav.server;
 
 import org.bedework.access.AccessPrincipal;
+import org.bedework.util.misc.ToString;
 import org.bedework.util.misc.Util;
 
 /** We map uris onto an object which may be a calendar or an
@@ -211,19 +212,15 @@ public class CaldavURI {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder("CaldavURI{path=");
+    final var ts = new ToString(this);
 
     try {
-      sb.append(getPath());
-    } catch (Throwable t) {
-      sb.append("Exception: ");
-      sb.append(t.getMessage());
+      ts.append("path", getPath());
+    } catch (final Throwable t) {
+      ts.append(t);
     }
-    sb.append(", entityName=");
-    sb.append(entityName);
-    sb.append("}");
-
-    return sb.toString();
+    return ts.append("entityName", entityName)
+             .toString();
   }
 
   @Override
@@ -233,10 +230,10 @@ public class CaldavURI {
         return  principal.hashCode();
       }
 
-      int hc = entityName.hashCode();
+      final int hc = entityName.hashCode();
 
       return (hc * 3) + getPath().hashCode();
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new RuntimeException(t);
     }
   }
@@ -247,11 +244,9 @@ public class CaldavURI {
       return true;
     }
 
-    if (!(o instanceof CaldavURI)) {
+    if (!(o instanceof final CaldavURI that)) {
       return false;
     }
-
-    CaldavURI that = (CaldavURI)o;
 
     if (principal != null) {
       return  principal.equals(that.principal);

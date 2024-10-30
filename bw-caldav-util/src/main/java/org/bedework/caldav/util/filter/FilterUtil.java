@@ -35,7 +35,7 @@ import net.fortuna.ical4j.model.property.DateProperty;
 public class FilterUtil {
 
   /** Return true if the given component matches the property filter
-   *
+   * <br/>
    * NOTE *********** Not handling params yet
    *
    * @param pf - property filter

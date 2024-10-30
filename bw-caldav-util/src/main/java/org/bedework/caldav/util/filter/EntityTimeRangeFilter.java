@@ -27,7 +27,7 @@ import org.bedework.util.calendar.PropertyIndex.PropertyInfoIndex;
  * @version 1.0
  */
 public class EntityTimeRangeFilter extends ObjectFilter<TimeRange> {
-  private int entityType;
+  private final int entityType;
   
   /** Match the time range
    *

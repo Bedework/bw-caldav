@@ -303,8 +303,8 @@ public class BwNotifyHandler implements Logged {
   }
 
   private Integer mustInt(final Element el,
-                      final QName tag,
-                      final HttpServletResponse resp) {
+                          final QName tag,
+                          final HttpServletResponse resp) {
     final String val = must(el, tag, resp);
 
     if (val == null) {

@@ -52,7 +52,7 @@ public class IscheduleGetHandler extends GetHandler {
                       final HttpServletResponse resp,
                       final RequestPars pars) {
     try {
-      if (pars.getNoPrefixResourceUri().length() == 0) {
+      if (pars.getNoPrefixResourceUri().isEmpty()) {
         final String query = req.getParameter("action");
 
         if (Util.equalsString(query, "capabilities")) {
@@ -222,7 +222,8 @@ public class IscheduleGetHandler extends GetHandler {
     }
   }
 
-  private void attrTag(final QName tag, final String attrName,
+  private void attrTag(final QName tag,
+                       final String attrName,
                        final String attrVal) {
     try {
       xml.startTag(tag);
@@ -233,7 +234,8 @@ public class IscheduleGetHandler extends GetHandler {
     }
   }
 
-  private void attrTag(final QName tag, final String[] attrNames,
+  private void attrTag(final QName tag,
+                       final String[] attrNames,
                        final String[] attrVals) {
     try {
       xml.startTag(tag);

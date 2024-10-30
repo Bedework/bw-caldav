@@ -20,7 +20,6 @@ package org.bedework.caldav.server;
 
 import org.bedework.caldav.server.sysinterface.CalPrincipalInfo;
 import org.bedework.caldav.server.sysinterface.SysIntf;
-import org.bedework.webdav.servlet.shared.WebdavException;
 
 /** Class to represent a user in caldav.
  *
@@ -29,11 +28,12 @@ import org.bedework.webdav.servlet.shared.WebdavException;
  */
 public class CaldavUserNode extends CaldavPrincipalNode {
   /**
-   * @param cdURI
-   * @param sysi
+   * @param cdURI referencing resource
+   * @param sysi system interface
    * @param ui    User Info
    */
-  public CaldavUserNode(final CaldavURI cdURI, final SysIntf sysi,
+  public CaldavUserNode(final CaldavURI cdURI,
+                        final SysIntf sysi,
                         final CalPrincipalInfo ui) {
     super(cdURI, sysi, ui, true);
   }

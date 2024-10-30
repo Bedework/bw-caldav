@@ -44,17 +44,16 @@ public class ProcessorsType {
     return processor;
   }
 
-  /* ====================================================================
+  /* ==============================================================
    *                   Convenience methods
-   * ==================================================================== */
+   * ============================================================== */
 
   /**
-   * @param xml
-   * @throws Throwable
+   * @param xml emitter
    */
-  public void toXml(final XmlEmit xml) throws Throwable {
+  public void toXml(final XmlEmit xml) {
     xml.openTag(BedeworkServerTags.processors);
-    for (ProcessorType p: getProcessor()) {
+    for (final ProcessorType p: getProcessor()) {
       p.toXml(xml);
     }
     xml.closeTag(BedeworkServerTags.processors);

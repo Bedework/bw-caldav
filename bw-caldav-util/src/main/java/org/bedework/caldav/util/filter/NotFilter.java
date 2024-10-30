@@ -60,12 +60,12 @@ public class NotFilter extends FilterBase {
     super("NOT");
   }
 
-  /* ====================================================================
+  /* ==============================================================
    *                   Object methods
-   * ==================================================================== */
+   * ============================================================== */
 
   public String toString() {
-    ToString ts = new ToString(this);
+    final ToString ts = new ToString(this);
 
     super.toStringSegment(ts);
 

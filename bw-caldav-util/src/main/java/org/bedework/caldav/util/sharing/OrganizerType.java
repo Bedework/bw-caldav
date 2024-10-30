@@ -59,15 +59,14 @@ public class OrganizerType {
     return commonName;
   }
 
-  /* ====================================================================
+  /* ==============================================================
    *                   Convenience methods
-   * ==================================================================== */
+   * ============================================================== */
 
   /**
    * @param xml builder
-   * @throws Throwable on fatal error
    */
-  public void toXml(final XmlEmit xml) throws Throwable {
+  public void toXml(final XmlEmit xml) {
     xml.openTag(AppleServerTags.organizer);
     xml.property(WebdavTags.href, getHref());
     if (getCommonName() == null) {

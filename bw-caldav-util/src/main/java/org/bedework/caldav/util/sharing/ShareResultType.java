@@ -29,8 +29,8 @@ import java.util.List;
  * @author Mike Douglass douglm
  */
 public class ShareResultType {
-  private List<String> goodSharees = new ArrayList<String>();
-  private List<String> badSharees = new ArrayList<String>();
+  private List<String> goodSharees = new ArrayList<>();
+  private List<String> badSharees = new ArrayList<>();
 
   /**
    * @return list of goodSharees - never null
@@ -54,19 +54,19 @@ public class ShareResultType {
     return badSharees;
   }
 
-  /* ====================================================================
+  /* ==============================================================
    *                   Convenience methods
-   * ==================================================================== */
+   * ============================================================== */
 
   /**
-   * @param val
+   * @param val sharee
    */
   public void addGood(final String val) {
     getGoodSharees().add(val);
   }
 
   /**
-   * @param val
+   * @param val sharee
    */
   public void addBad(final String val) {
     getBadSharees().add(val);
@@ -74,7 +74,7 @@ public class ShareResultType {
 
   /** Add our stuff to the StringBuffer
    *
-   * @param ts
+   * @param ts for output
    */
   protected void toStringSegment(final ToString ts) {
     ts.append("good", getGoodSharees());
@@ -83,7 +83,7 @@ public class ShareResultType {
 
   @Override
   public String toString() {
-    ToString ts = new ToString(this);
+    final ToString ts = new ToString(this);
 
     toStringSegment(ts);
 

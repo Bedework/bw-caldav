@@ -31,10 +31,10 @@ import java.io.StringWriter;
  * @author Mike Douglass douglm
  */
 public class SharedAsType {
-  private String href;
+  private final String href;
 
   /**
-   * @param href
+   * @param href alias in the sharee home
    */
   public SharedAsType(final String href) {
     this.href = href;
@@ -47,17 +47,16 @@ public class SharedAsType {
     return href;
   }
 
-  /* ====================================================================
+  /* ==============================================================
    *                   Convenience methods
-   * ==================================================================== */
+   * ============================================================== */
 
   /**
    * @return XML version of notification
-   * @throws Throwable
    */
-  public String toXml() throws Throwable {
-    StringWriter str = new StringWriter();
-    XmlEmit xml = new XmlEmit();
+  public String toXml() {
+    final StringWriter str = new StringWriter();
+    final XmlEmit xml = new XmlEmit();
 
     xml.startEmit(str);
     toXml(xml);
@@ -66,10 +65,9 @@ public class SharedAsType {
   }
 
   /**
-   * @param xml
-   * @throws Throwable
+   * @param xml builder
    */
-  public void toXml(final XmlEmit xml) throws Throwable {
+  public void toXml(final XmlEmit xml) {
     xml.openTag(AppleServerTags.sharedAs);
     xml.property(WebdavTags.href, getHref());
     xml.closeTag(AppleServerTags.sharedAs);
@@ -77,7 +75,7 @@ public class SharedAsType {
 
   /** Add our stuff to the StringBuffer
    *
-   * @param ts
+   * @param ts for output
    */
   protected void toStringSegment(final ToString ts) {
     ts.append("href", getHref());
@@ -85,7 +83,7 @@ public class SharedAsType {
 
   @Override
   public String toString() {
-    ToString ts = new ToString(this);
+    final ToString ts = new ToString(this);
 
     toStringSegment(ts);
 

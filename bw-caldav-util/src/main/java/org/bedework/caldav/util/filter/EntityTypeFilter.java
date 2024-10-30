@@ -38,7 +38,7 @@ public class EntityTypeFilter extends ObjectFilter<Integer> {
 
   /** Use ical names
    *
-   * @param name
+   * @param name of filter
    * @param val - string val e.g. "VEVENT"
    * @param not true to test for inequality
    * @return a filter for events.
@@ -51,7 +51,7 @@ public class EntityTypeFilter extends ObjectFilter<Integer> {
 
   /** Use bedework names
    *
-   * @param name
+   * @param name of filter
    * @param val - string val e.g. "event"
    * @param not true to test for inequality
    * @return a filter for events.
@@ -63,7 +63,7 @@ public class EntityTypeFilter extends ObjectFilter<Integer> {
   }
 
   /**
-   * @param name
+   * @param name of filter
    * @param val - string val e.g. "event"
    * @param not true to test for inequality
    * @return a filter for events.
@@ -85,7 +85,7 @@ public class EntityTypeFilter extends ObjectFilter<Integer> {
       throw new WebdavException("Unknown entity type" + val);
     }
 
-    EntityTypeFilter f = new EntityTypeFilter(name);
+    final EntityTypeFilter f = new EntityTypeFilter(name);
     f.setEntity(type);
     f.setNot(not);
 
@@ -94,7 +94,7 @@ public class EntityTypeFilter extends ObjectFilter<Integer> {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder("(");
+    final StringBuilder sb = new StringBuilder("(");
 
     sb.append(getPropertyIndex());
     stringOper(sb);

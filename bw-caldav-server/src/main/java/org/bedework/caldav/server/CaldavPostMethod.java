@@ -74,10 +74,6 @@ import javax.xml.namespace.QName;
  */
 public class CaldavPostMethod extends PostMethod {
   @Override
-  public void init() {
-  }
-
-  @Override
   public void doMethod(final HttpServletRequest req,
                        final HttpServletResponse resp) {
     if (debug()) {
@@ -180,7 +176,8 @@ public class CaldavPostMethod extends PostMethod {
     }
 
     final CaldavCalNode calnode = (CaldavCalNode)node;
-    final CalDAVCollection col = (CalDAVCollection)calnode.getCollection(false);
+    final CalDAVCollection<?> col =
+            (CalDAVCollection<?>)calnode.getCollection(false);
 
     final Element root = pars.getXmlDoc().getDocumentElement();
 
@@ -327,7 +324,7 @@ public class CaldavPostMethod extends PostMethod {
       }
 
       /* Don't deref - this should be targetted at a real outbox */
-      pars.setCol((CalDAVCollection)node.getCollection(false));
+      pars.setCol((CalDAVCollection<?>)node.getCollection(false));
 
       if (pars.getCol().getCalType() != CalDAVCollection.calTypeOutbox) {
         if (debug()) {
@@ -353,7 +350,7 @@ public class CaldavPostMethod extends PostMethod {
       if (!pars.getIcalendar().validItipMethodType()) {
         if (debug()) {
           debug("Bad method: " +
-                           String.valueOf(pars.getIcalendar().getMethodType()));
+                        pars.getIcalendar().getMethodType());
         }
         throw new WebdavForbidden(CaldavTags.validCalendarData, "Bad METHOD");
       }
@@ -528,7 +525,7 @@ public class CaldavPostMethod extends PostMethod {
       if (!pars.getIcalendar().validItipMethodType()) {
         if (debug()) {
           debug("Bad method: " +
-                           String.valueOf(pars.getIcalendar().getMethodType()));
+                        pars.getIcalendar().getMethodType());
         }
         throw new WebdavForbidden(IscheduleTags.invalidCalendarData, "Bad METHOD");
       }
@@ -600,7 +597,7 @@ public class CaldavPostMethod extends PostMethod {
   private void handleEvent(final SysIntf intf,
                            final RequestPars pars,
                            final HttpServletResponse resp) {
-    final CalDAVEvent ev = pars.getIcalendar().getEvent();
+    final CalDAVEvent<?> ev = pars.getIcalendar().getEvent();
 
     if (pars.getIschedRequest().getRecipients() != null) {
       for (final String r: pars.getIschedRequest().getRecipients()) {
@@ -690,7 +687,7 @@ public class CaldavPostMethod extends PostMethod {
 
       setReqstat(srr.status, pars.isiSchedule());
 
-      final CalDAVEvent rfb = srr.freeBusy;
+      final CalDAVEvent<?> rfb = srr.freeBusy;
       if (rfb != null) {
         rfb.setOrganizer(pars.getIcalendar().getOrganizer());
 
@@ -732,7 +729,7 @@ public class CaldavPostMethod extends PostMethod {
    * @param ev object to be validated
    */
   private void validateOriginator(final RequestPars pars,
-                                  final CalDAVEvent ev) {
+                                  final CalDAVEvent<?> ev) {
     final int meth = ev.getScheduleMethod();
 
     if (meth == ScheduleMethods.methodTypePublish) {
@@ -772,7 +769,7 @@ public class CaldavPostMethod extends PostMethod {
       ev.setOriginator(origUrl);
 
       if (matchAttendee){
-        @SuppressWarnings("unchecked") final Set<String> attUris = ev.getAttendeeUris();
+        final Set<String> attUris = ev.getAttendeeUris();
 
         if (attUris.size() != 1) {
           throw new WebdavBadRequest(IscheduleTags.invalidCalendarData,

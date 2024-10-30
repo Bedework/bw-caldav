@@ -49,21 +49,20 @@ public class ChildCreatedType {
     return count;
   }
 
-  /* ====================================================================
+  /* ==============================================================
    *                   Convenience methods
-   * ==================================================================== */
+   * ============================================================== */
 
   /**
-   * @param xml
-   * @throws Throwable
+   * @param xml emitter
    */
-  public void toXml(final XmlEmit xml) throws Throwable {
+  public void toXml(final XmlEmit xml) {
     xml.property(AppleServerTags.childCreated, String.valueOf(getCount()));
   }
 
   /** Add our stuff to the StringBuffer
    *
-   * @param ts
+   * @param ts for output
    */
   protected void toStringSegment(final ToString ts) {
     ts.append("childCreated", getCount());
@@ -71,7 +70,7 @@ public class ChildCreatedType {
 
   @Override
   public String toString() {
-    ToString ts = new ToString(this);
+    final ToString ts = new ToString(this);
 
     toStringSegment(ts);
 

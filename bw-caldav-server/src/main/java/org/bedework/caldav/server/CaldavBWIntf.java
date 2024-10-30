@@ -155,9 +155,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
   private static ServerInfo serverInfo;
 
-  /* ====================================================================
+  /* ==============================================================
    *                     JMX configuration
-   * ==================================================================== */
+   * ============================================================== */
 
   /* Marks the bedework end of the synch service. This is a web
     service called by the synch engine to get information out of
@@ -302,18 +302,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
   }
 
-  /* ====================================================================
+  /* ==============================================================
    *                     Interface methods
-   * ==================================================================== */
+   * ============================================================== */
 
-  /** Called before any other method is called to allow initialization to
-   * take place at the first or subsequent requests
-   *
-   * @param servlet calling servlet
-   * @param req http request
-   * @param methods    HashMap   table of method info
-   * @param dumpContent true if we dump content
-   */
   @Override
   public void init(final WebdavServlet servlet,
                    final HttpServletRequest req,
@@ -344,7 +336,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
   }
 
-  public SynchConnectionsMBean getActiveConnections() throws Throwable {
+  public SynchConnectionsMBean getActiveConnections() {
     /*
     if (conns == null) {
       conns = (SynchConnectionsMBean)MBeanUtil.getMBean(
@@ -543,8 +535,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
   public boolean canPut(final WebdavNsNode node) {
     CalDAVEvent<?> ev = null;
 
-    if (node instanceof CaldavComponentNode) {
-      final CaldavComponentNode comp = (CaldavComponentNode)node;
+    if (node instanceof final CaldavComponentNode comp) {
       ev = comp.getEvent();
     } else if (!(node instanceof CaldavResourceNode)) {
       return false;
@@ -649,13 +640,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
   @Override
   public void delete(final WebdavNsNode node) {
     try {
-      if (node instanceof CaldavResourceNode) {
-        final CaldavResourceNode rnode = (CaldavResourceNode)node;
-
+      if (node instanceof final CaldavResourceNode rnode) {
         sysi.deleteFile(rnode.getResource());
-      } else if (node instanceof CaldavComponentNode) {
-        final CaldavComponentNode cnode = (CaldavComponentNode)node;
-
+      } else if (node instanceof final CaldavComponentNode cnode) {
         final CalDAVEvent<?> ev = cnode.getEvent();
 
         if (ev != null) {
@@ -687,11 +674,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
           }
         }
       } else {
-        if (!(node instanceof CaldavCalNode)) {
+        if (!(node instanceof final CaldavCalNode cnode)) {
           throw new WebdavUnauthorized();
         }
-
-        final CaldavCalNode cnode = (CaldavCalNode)node;
 
         final CalDAVCollection<?> col =
                 (CalDAVCollection<?>)cnode.getCollection(false); // Don't deref for delete
@@ -805,11 +790,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
       return true;
     }
 
-    if (!(node instanceof CaldavComponentNode)) {
+    if (!(node instanceof final CaldavComponentNode cnode)) {
       return true;
     }
-
-    final CaldavComponentNode cnode = (CaldavComponentNode)node;
 
     if (!cnode.getEvent().getOrganizerSchedulingObject() &&
         !cnode.getEvent().getAttendeeSchedulingObject()) {
@@ -887,11 +870,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
         return null;
       }
 
-      if ((ctype == null) ||
-          (!"text/calendar".equals(ctype) &&
-           !"application/calendar+json".equals(ctype) &&
-           !"application/jscalendar+json".equals(ctype) &&
-           !XcalTags.mimetype.equals(ctype))) {
+      if (!"text/calendar" .equals(ctype) &&
+              !"application/calendar+json" .equals(ctype) &&
+              !"application/jscalendar+json" .equals(ctype) &&
+              !XcalTags.mimetype.equals(ctype)) {
         ctype = sysi.getDefaultContentType();
       }
 
@@ -922,11 +904,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
         return null;
       }
 
-      if (!(node instanceof CaldavResourceNode)) {
+      if (!(node instanceof final CaldavResourceNode bwnode)) {
         throw new WebdavException("Unexpected node type");
       }
-
-      final CaldavResourceNode bwnode = (CaldavResourceNode)node;
 
       final Content c = new Content();
 
@@ -1026,11 +1006,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
       final PutContentResult pcr = new PutContentResult();
       pcr.node = node;
 
-      if (!(node instanceof CaldavResourceNode)) {
+      if (!(node instanceof final CaldavResourceNode bwnode)) {
         throw new WebdavException(HttpServletResponse.SC_PRECONDITION_FAILED);
       }
 
-      final CaldavResourceNode bwnode = (CaldavResourceNode)node;
       final CalDAVCollection<?> col =
               (CalDAVCollection<?>)node.getCollection(true);
 
@@ -1305,12 +1284,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
                              final HttpServletResponse resp,
                              final WebdavNsNode node) {
     try {
-      if (!(node instanceof CaldavCalNode)) {
+      if (!(node instanceof final CaldavCalNode bwnode)) {
         throw new WebdavBadRequest("Not a valid node object " +
                                    node.getClass().getName());
       }
-
-      final CaldavCalNode bwnode = (CaldavCalNode)node;
 
       /* The uri should have an entity name representing the new collection
        * and a collection object representing the parent.
@@ -1462,7 +1439,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
                                   final boolean copy,
                                   final boolean overwrite,
                                   final int depth) {
-    if (!(to instanceof CaldavCalNode)) {
+    if (!(to instanceof final CaldavCalNode toCalNode)) {
       throw new WebdavBadRequest();
     }
 
@@ -1470,8 +1447,6 @@ public class CaldavBWIntf extends WebdavNsIntf {
     if ((depth != Headers.depthNone) && (depth != Headers.depthInfinity)) {
       throw new WebdavBadRequest();
     }
-
-    final CaldavCalNode toCalNode = (CaldavCalNode)to;
 
     if (toCalNode.getExists() && !overwrite) {
       resp.setStatus(HttpServletResponse.SC_PRECONDITION_FAILED);
@@ -1508,11 +1483,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
                                  final WebdavNsNode to,
                                  final boolean copy,
                                  final boolean overwrite) {
-    if (!(to instanceof CaldavComponentNode)) {
+    if (!(to instanceof final CaldavComponentNode toNode)) {
       throw new WebdavBadRequest();
     }
-
-    final CaldavComponentNode toNode = (CaldavComponentNode)to;
 
     if (toNode.getExists() && !overwrite) {
       resp.setStatus(HttpServletResponse.SC_PRECONDITION_FAILED);
@@ -1539,11 +1512,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
                                final WebdavNsNode to,
                                final boolean copy,
                                final boolean overwrite) {
-    if (!(to instanceof CaldavResourceNode)) {
+    if (!(to instanceof final CaldavResourceNode toNode)) {
       throw new WebdavForbidden(CaldavTags.supportedCalendarData);
     }
-
-    final CaldavResourceNode toNode = (CaldavResourceNode)to;
 
     if (toNode.getExists() && !overwrite) {
       resp.setStatus(HttpServletResponse.SC_PRECONDITION_FAILED);
@@ -1600,7 +1571,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
     final WdSynchReport wsr = new WdSynchReport();
 
-    wsr.tokenValid = srd.tokenValid;;
+    wsr.tokenValid = srd.tokenValid;
 
     if (!srd.tokenValid) {
       return wsr;
@@ -1712,7 +1683,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
   public Collection<String> getPrincipalCollectionSet(final String resourceUri) {
     final ArrayList<String> al = new ArrayList<>();
 
-    for (String s: getSysi().getPrincipalCollectionSet(resourceUri)) {
+    for (final String s: getSysi().getPrincipalCollectionSet(resourceUri)) {
       al.add(sysi.getUrlHandler().prefix(s));
     }
 
@@ -1779,7 +1750,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
       if (node.isCollection()) {
         acl = node.getCurrentAccess().getAcl();
       } else if (node instanceof CaldavComponentNode) {
-        acl = ((CaldavComponentNode)node).getCurrentAccess().getAcl();
+        acl = node.getCurrentAccess().getAcl();
       }
 
       if (acl != null) {
@@ -1793,7 +1764,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
   @Override
   public Collection<String> getAclPrincipalInfo(final WebdavNsNode node) {
     try {
-      final TreeSet<String> hrefs = new TreeSet<String>();
+      final TreeSet<String> hrefs = new TreeSet<>();
 
       for (final Ace ace: node.getCurrentAccess().getAcl().getAces()) {
         final AceWho who = ace.getWho();
@@ -1814,15 +1785,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
   }
 
-  /* ====================================================================
+  /* ==============================================================
    *                Property value methods
-   * ==================================================================== */
+   * ============================================================== */
 
-  /** Override this to create namespace specific property objects.
-   *
-   * @param propnode
-   * @return WebdavProperty
-   */
   @Override
   public WebdavProperty makeProp(final Element propnode) {
     if (!XmlUtil.nodeMatches(propnode, CaldavTags.calendarData)) {
@@ -2043,8 +2009,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
    * information.
    *
    * @param cnode  CaldavCalNode
-   * @param freeBusy
-   * @param depth
+   * @param freeBusy query
+   * @param depth DAV depth
    */
   public void getFreeBusy(final CaldavCalNode cnode,
                           final FreeBusyQuery freeBusy,
@@ -2170,10 +2136,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
   /** Find the named item by following down the path from the root.
    * This requires the names at each level to be unique (and present)
-   *
+   * <p>
    * I don't think the name.now has to have an ics suffix. Draft 7 goes as
    * far as saying it may have ".ics" or ".ifb"
-   *
+   * <p>
    * For the moment enforce one or the other
    *
    * <p>Uri is at least /user/user-id or <br/>

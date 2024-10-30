@@ -18,6 +18,8 @@
 */
 package org.bedework.caldav.server;
 
+import org.bedework.util.misc.ToString;
+
 import java.io.Serializable;
 
 /**
@@ -27,27 +29,27 @@ import java.io.Serializable;
 public class Organizer implements Serializable {
   /* Params fields */
 
-  private String cn;
-  private String dir;
-  private String language;
-  private String sentBy;
+  private final String cn;
+  private final String dir;
+  private final String language;
+  private final String sentBy;
 
   /** The uri */
   private String organizerUri;
 
   /** Constructor
    *
-   * @param cn
-   * @param dir
-   * @param language
-   * @param sentBy
-   * @param organizerUri
+   * @param cn common name
+   * @param dir directory for lookup
+   * @param language code
+   * @param sentBy optional
+   * @param organizerUri required calendar address
    */
-  public Organizer(String cn,
-                   String dir,
-                   String language,
-                   String sentBy,
-                   String organizerUri) {
+  public Organizer(final String cn,
+                   final String dir,
+                   final String language,
+                   final String sentBy,
+                   final String organizerUri) {
     this.cn = cn;
     this.dir = dir;
     this.language = language;
@@ -91,7 +93,7 @@ public class Organizer implements Serializable {
    *
    *  @param  val   String organizerUri
    */
-  public void setOrganizerUri(String val) {
+  public void setOrganizerUri(final String val) {
     organizerUri = val;
   }
 
@@ -104,21 +106,13 @@ public class Organizer implements Serializable {
   }
 
   public String toString() {
-    StringBuilder sb = new StringBuilder("BwOrganizer(");
-
-    sb.append("cn=");
-    sb.append(getCn());
-    sb.append(", dir=");
-    sb.append(getDir());
-    sb.append(", language=");
-    sb.append(getLanguage());
-    sb.append(", sentBy=");
-    sb.append(getSentBy());
-    sb.append(", organizerUri=");
-    sb.append(getOrganizerUri());
-    sb.append("}");
-
-    return sb.toString();
+    return new ToString(this)
+            .append("cn", getCn())
+            .append("dir", getDir())
+            .append("language", getLanguage())
+            .append("sentBy", getSentBy())
+            .append("organizerUri", getOrganizerUri())
+            .toString();
   }
 
 }

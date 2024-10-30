@@ -26,7 +26,7 @@ import java.util.Collections;
 import java.util.List;
 
 /** Base filter class for properties.
- *
+ * <br/>
  * The name should be unique at least for a set of filters and unique for a
  * given owner if persisted.
  *
@@ -35,7 +35,7 @@ import java.util.List;
 public class PropertyFilter extends FilterBase {
   private PropertyInfoIndex parentPropertyIndex;
   private PropertyInfoIndex propertyIndex;
-  private List<PropertyInfoIndex> propertyIndexes;
+  private final List<PropertyInfoIndex> propertyIndexes;
   
   private String strKey; 
   private Integer intKey;
@@ -44,7 +44,8 @@ public class PropertyFilter extends FilterBase {
    * @param name - null one will be created
    * @param propertyIndex identifies property
    */
-  public PropertyFilter(String name, PropertyInfoIndex propertyIndex) {
+  public PropertyFilter(final String name,
+                        final PropertyInfoIndex propertyIndex) {
     this(name, propertyIndex, null, null);
   }
 
@@ -54,7 +55,8 @@ public class PropertyFilter extends FilterBase {
    * @param intKey non-null if property is indexed by the key
    * @param strKey non-null if ditto
    */
-  public PropertyFilter(String name, PropertyInfoIndex propertyIndex,
+  public PropertyFilter(String name,
+                        final PropertyInfoIndex propertyIndex,
                         final Integer intKey,
                         final String strKey) {
     super(name);
@@ -115,7 +117,7 @@ public class PropertyFilter extends FilterBase {
   /**
    * @param val the index
    */
-  protected void setPropertyIndex(PropertyInfoIndex val) {
+  protected void setPropertyIndex(final PropertyInfoIndex val) {
     propertyIndex = val;
   }
 
@@ -130,7 +132,7 @@ public class PropertyFilter extends FilterBase {
    *
    * @param val the index
    */
-  public void setParentPropertyIndex(PropertyInfoIndex val) {
+  public void setParentPropertyIndex(final PropertyInfoIndex val) {
     parentPropertyIndex = val;
   }
 
@@ -159,9 +161,9 @@ public class PropertyFilter extends FilterBase {
     return strKey;
   }
 
-  /* ====================================================================
+  /* ==============================================================
    *                   Convenience methods
-   * ==================================================================== */
+   * ============================================================== */
 
   /** Add our stuff to the StringBuffer
    *

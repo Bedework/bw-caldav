@@ -21,7 +21,6 @@ package org.bedework.caldav.server;
 import org.bedework.caldav.server.sysinterface.CalDAVSystemProperties;
 import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.webdav.servlet.common.PostRequestPars;
-import org.bedework.webdav.servlet.shared.WebdavException;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -38,7 +37,7 @@ public class RequestPars extends PostRequestPars {
 
   private SysiIcalendar ic;
 
-  private CalDAVCollection col;
+  private CalDAVCollection<?> col;
 
   private boolean share;
 
@@ -225,14 +224,14 @@ public class RequestPars extends PostRequestPars {
   /**
    * @param val a collection
    */
-  public void setCol(final CalDAVCollection val) {
+  public void setCol(final CalDAVCollection<?> val) {
     col = val;
   }
 
   /**
    * @return a collection
    */
-  public CalDAVCollection getCol() {
+  public CalDAVCollection<?> getCol() {
     return col;
   }
 

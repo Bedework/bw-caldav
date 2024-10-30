@@ -46,7 +46,7 @@ import java.util.Collection;
  */
 public class ReportBase extends CaldavReportMethod {
   /**
-   * @param nsIntf
+   * @param nsIntf interface to underlying system
    */
   public ReportBase(final WebdavNsIntf nsIntf) {
     super();
@@ -57,7 +57,7 @@ public class ReportBase extends CaldavReportMethod {
 
   /**
    * @param qstring - query string
-   * @param resourceUri
+   * @param resourceUri uri to resource
    * @return Document
    */
   public Document query(final String qstring,
@@ -65,42 +65,43 @@ public class ReportBase extends CaldavReportMethod {
     pm = new PropFindMethod();
     pm.init(getNsIntf(), true);
 
-    Document doc = parseContent(qstring.length(),
-                                new StringReader(qstring));
+    final Document doc = parseContent(qstring.length(),
+                                      new StringReader(qstring));
 
     processDoc(doc);
 
     try {
       // Set up XmlEmit so we can process the output.
-      StringWriter sw = new StringWriter();
+      final StringWriter sw = new StringWriter();
       xml.startEmit(sw);
       cqpars.depth = 1;
 
       process(cqpars, resourceUri);
 
-      String s = sw.toString();
+      final String s = sw.toString();
       return parseContent(s.length(),
                           new StringReader(s));
-    } catch (WebdavException we) {
+    } catch (final WebdavException we) {
       throw we;
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }
 
   /**
-   * @param resourceUri
-   * @param cq
+   * @param resourceUri uri to resource
+   * @param cq query
    * @return collection of nodes
    */
   public Collection<WebdavNsNode> query(final String resourceUri,
                                         final CalendarQueryType cq) {
-    WebdavNsNode node = getNsIntf().getNode(resourceUri,
-                                            WebdavNsIntf.existanceMust,
-                                            WebdavNsIntf.nodeTypeUnknown,
-                                            false);
+    final WebdavNsNode node =
+            getNsIntf().getNode(resourceUri,
+                                WebdavNsIntf.existanceMust,
+                                WebdavNsIntf.nodeTypeUnknown,
+                                false);
 
-    CalendarQueryPars cqp = new CalendarQueryPars();
+    final CalendarQueryPars cqp = new CalendarQueryPars();
 
     cqp.filter = convertFilter(cq.getFilter());
     cqp.depth = 1;
@@ -115,7 +116,7 @@ public class ReportBase extends CaldavReportMethod {
                       final String uid) {
     // Build a report query and execute it.
 
-    StringBuilder sb = new StringBuilder();
+    final StringBuilder sb = new StringBuilder();
 
     sb.append("<?xml version='1.0' encoding='utf-8' ?>");
     sb.append("<C:calendar-query xmlns:C='urn:ietf:params:xml:ns:caldav'>");
@@ -140,8 +141,8 @@ public class ReportBase extends CaldavReportMethod {
     pm = new PropFindMethod();
     pm.init(getNsIntf(), true);
 
-    Document doc = parseContent(sb.length(),
-                                new StringReader(sb.toString()));
+    final Document doc = parseContent(sb.length(),
+                                      new StringReader(sb.toString()));
 
     processDoc(doc);
 
@@ -163,7 +164,7 @@ public class ReportBase extends CaldavReportMethod {
       return null;
     }
 
-    ietf.params.xml.ns.caldav.FilterType filter =
+    final ietf.params.xml.ns.caldav.FilterType filter =
         new ietf.params.xml.ns.caldav.FilterType();
 
     filter.setCompFilter(convertCompFilter(val.getCompFilter()));
@@ -176,7 +177,7 @@ public class ReportBase extends CaldavReportMethod {
       return null;
     }
 
-    ietf.params.xml.ns.caldav.CompFilterType compFilter =
+    final ietf.params.xml.ns.caldav.CompFilterType compFilter =
         new ietf.params.xml.ns.caldav.CompFilterType();
 
     if (val.getIsNotDefined() != null) {
@@ -189,11 +190,11 @@ public class ReportBase extends CaldavReportMethod {
 
     compFilter.setTimeRange(convertTimeRange(val.getTimeRange()));
 
-    for (PropFilterType pf: val.getPropFilter()) {
+    for (final PropFilterType pf: val.getPropFilter()) {
       compFilter.getPropFilter().add(convertPropFilter(pf));
     }
 
-    for (CompFilterType cf: val.getCompFilter()) {
+    for (final CompFilterType cf: val.getCompFilter()) {
       compFilter.getCompFilter().add(convertCompFilter(cf));
     }
 
@@ -213,7 +214,7 @@ public class ReportBase extends CaldavReportMethod {
       return null;
     }
 
-    ietf.params.xml.ns.caldav.UTCTimeRangeType res =
+    final ietf.params.xml.ns.caldav.UTCTimeRangeType res =
         new ietf.params.xml.ns.caldav.UTCTimeRangeType();
 
     res.setStart(XcalUtil.getIcalFormatDateTime(val.getStart()));
@@ -227,7 +228,7 @@ public class ReportBase extends CaldavReportMethod {
       return null;
     }
 
-    ietf.params.xml.ns.caldav.ExpandType res =
+    final ietf.params.xml.ns.caldav.ExpandType res =
         new ietf.params.xml.ns.caldav.ExpandType();
 
     res.setStart(XcalUtil.getIcalFormatDateTime(val.getStart()));
@@ -241,7 +242,7 @@ public class ReportBase extends CaldavReportMethod {
       return null;
     }
 
-    ietf.params.xml.ns.caldav.LimitRecurrenceSetType res =
+    final ietf.params.xml.ns.caldav.LimitRecurrenceSetType res =
         new ietf.params.xml.ns.caldav.LimitRecurrenceSetType();
 
     res.setStart(XcalUtil.getIcalFormatDateTime(val.getStart()));
@@ -251,7 +252,7 @@ public class ReportBase extends CaldavReportMethod {
   }
 
   private ietf.params.xml.ns.caldav.PropFilterType convertPropFilter(final PropFilterType val) {
-    ietf.params.xml.ns.caldav.PropFilterType pf =
+    final ietf.params.xml.ns.caldav.PropFilterType pf =
         new ietf.params.xml.ns.caldav.PropFilterType();
 
     if (val.getIsNotDefined() != null) {
@@ -265,7 +266,7 @@ public class ReportBase extends CaldavReportMethod {
     pf.setTimeRange(convertTimeRange(val.getTimeRange()));
     pf.setTextMatch(convertTextMatch(val.getTextMatch()));
 
-    for (ParamFilterType parf: val.getParamFilter()) {
+    for (final ParamFilterType parf: val.getParamFilter()) {
       pf.getParamFilter().add(convertParamFilter(parf));
     }
 
@@ -275,7 +276,7 @@ public class ReportBase extends CaldavReportMethod {
   }
 
   private ietf.params.xml.ns.caldav.TextMatchType convertTextMatch(final TextMatchType val) {
-    ietf.params.xml.ns.caldav.TextMatchType tm =
+    final ietf.params.xml.ns.caldav.TextMatchType tm =
         new ietf.params.xml.ns.caldav.TextMatchType();
 
     tm.setValue(val.getValue());
@@ -291,7 +292,7 @@ public class ReportBase extends CaldavReportMethod {
   }
 
   private ietf.params.xml.ns.caldav.ParamFilterType convertParamFilter(final ParamFilterType val) {
-    ietf.params.xml.ns.caldav.ParamFilterType pf =
+    final ietf.params.xml.ns.caldav.ParamFilterType pf =
         new ietf.params.xml.ns.caldav.ParamFilterType();
 
     if (val.getIsNotDefined() != null) {

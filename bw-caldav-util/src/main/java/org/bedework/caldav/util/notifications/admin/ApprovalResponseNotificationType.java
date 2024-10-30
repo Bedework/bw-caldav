@@ -45,9 +45,9 @@ public class ApprovalResponseNotificationType
     return accepted;
   }
 
-  /* ====================================================================
+  /* ==============================================================
    *                   BaseNotificationType methods
-   * ==================================================================== */
+   * ============================================================== */
 
   @Override
   public QName getElementName() {
@@ -55,7 +55,7 @@ public class ApprovalResponseNotificationType
   }
 
   @Override
-  public void toXml(final XmlEmit xml) throws Throwable {
+  public void toXml(final XmlEmit xml) {
     xml.openTag(getElementName());
 
     bodyToXml(xml);

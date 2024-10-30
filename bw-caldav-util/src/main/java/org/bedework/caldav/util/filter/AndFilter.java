@@ -33,12 +33,12 @@ public class AndFilter extends FilterBase {
     super("AND");
   }
 
-  /* ====================================================================
+  /* ==============================================================
    *                   Object methods
-   * ==================================================================== */
+   * ============================================================== */
 
   public String toString() {
-    ToString ts = new ToString(this);
+    final ToString ts = new ToString(this);
 
     super.toStringSegment(ts);
 

@@ -184,7 +184,7 @@ public class Parser {
   }
 
   /**
-   * @param val
+   * @param val QName
    * @return String form
    */
   public static String getInviteStatusToStatus(final QName val) {
@@ -192,11 +192,11 @@ public class Parser {
   }
 
   /**
-   * @param val
+   * @param val xml
    * @return parsed Document
    */
   public static Document parseXmlString(final String val) {
-    if ((val == null) || (val.length() == 0)) {
+    if ((val == null) || (val.isEmpty())) {
       return null;
     }
 
@@ -204,20 +204,21 @@ public class Parser {
   }
 
   /**
-   * @param val
+   * @param val reader
    * @return parsed Document
    */
   public static Document parseXml(final Reader val) throws WebdavException{
     try {
-      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+      final DocumentBuilderFactory factory =
+              DocumentBuilderFactory.newInstance();
       factory.setNamespaceAware(true);
 
-      DocumentBuilder builder = factory.newDocumentBuilder();
+      final DocumentBuilder builder = factory.newDocumentBuilder();
 
       return builder.parse(new InputSource(val));
-    } catch (SAXException e) {
+    } catch (final SAXException e) {
       throw parseException(e);
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }
@@ -240,7 +241,7 @@ public class Parser {
       }
 
       synchronized (parsers) {
-        if (parsers.size() > 0) {
+        if (!parsers.isEmpty()) {
           parser = parsers.remove(0);
           return parser;
         }
@@ -303,7 +304,7 @@ public class Parser {
    * @return populated InviteType object
    */
   public InviteType parseInvite(final String val) {
-    Document d = parseXmlString(val);
+    final Document d = parseXmlString(val);
 
     return parseInvite(d.getDocumentElement());
   }
@@ -318,8 +319,8 @@ public class Parser {
         throw new WebdavBadRequest("Expected " + inviteTag);
       }
 
-      InviteType in = new InviteType();
-      Element[] shareEls = getElementsArray(nd);
+      final InviteType in = new InviteType();
+      final Element[] shareEls = getElementsArray(nd);
 
       for (final Element curnode: shareEls) {
         if (nodeMatches(curnode, organizerTag)) {
@@ -336,11 +337,9 @@ public class Parser {
       }
 
       return in;
-    } catch (SAXException e) {
-      throw parseException(e);
-    } catch (WebdavException wde) {
+    } catch (final WebdavException wde) {
       throw wde;
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }
@@ -355,10 +354,10 @@ public class Parser {
         throw new WebdavBadRequest("Expected " + shareTag);
       }
 
-      ShareType sh = new ShareType();
-      Element[] shareEls = getElementsArray(nd);
+      final ShareType sh = new ShareType();
+      final Element[] shareEls = getElementsArray(nd);
 
-      for (Element curnode: shareEls) {
+      for (final Element curnode: shareEls) {
         if (nodeMatches(curnode, setTag)) {
           sh.getSet().add(parseSet(curnode));
           continue;
@@ -373,11 +372,9 @@ public class Parser {
       }
 
       return sh;
-    } catch (SAXException e) {
-      throw parseException(e);
-    } catch (WebdavException wde) {
+    } catch (final WebdavException wde) {
       throw wde;
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }
@@ -491,9 +488,9 @@ public class Parser {
       }
 
       return ir;
-    } catch (WebdavException wde) {
+    } catch (final WebdavException wde) {
       throw wde;
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }
@@ -513,7 +510,7 @@ public class Parser {
 
       final Element[] els = getElementsArray(nd);
 
-      for (Element curnode: els) {
+      for (final Element curnode: els) {
         if (nodeMatches(curnode, bwnameTag)) {
           in.setName(getElementContent(curnode));
           continue;
@@ -612,11 +609,9 @@ public class Parser {
       }
 
       return in;
-    } catch (SAXException e) {
-      throw parseException(e);
-    } catch (WebdavException wde) {
+    } catch (final WebdavException wde) {
       throw wde;
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }
@@ -707,8 +702,6 @@ public class Parser {
       }
 
       return u;
-    } catch (final SAXException e) {
-      throw parseException(e);
     } catch (final WebdavException wde) {
       throw wde;
     } catch (final Throwable t) {
@@ -717,8 +710,8 @@ public class Parser {
   }
 
   private void parseSupportedComponents(final Node nd,
-                                        final List<String> comps) throws Throwable {
-    for (Element curnode: getElementsArray(nd)) {
+                                        final List<String> comps) {
+    for (final Element curnode: getElementsArray(nd)) {
       if (!nodeMatches(curnode, compTag)) {
         throw badComps();
       }
@@ -727,12 +720,12 @@ public class Parser {
     }
   }
 
-  private AccessType parseAccess(final Node nd) throws Throwable {
-    AccessType a = new AccessType();
+  private AccessType parseAccess(final Node nd) {
+    final AccessType a = new AccessType();
 
-    Element[] els = getElementsArray(nd);
+    final Element[] els = getElementsArray(nd);
 
-    for (Element curnode: els) {
+    for (final Element curnode: els) {
       if (nodeMatches(curnode, readTag) ||
           nodeMatches(curnode, readWriteTag)) {
         if ((a.getRead() != null) || (a.getReadWrite() != null)) {
@@ -758,12 +751,12 @@ public class Parser {
     return a;
   }
 
-  private SetType parseSet(final Node nd) throws Throwable {
-    SetType s = new SetType();
+  private SetType parseSet(final Node nd) {
+    final SetType s = new SetType();
 
-    Element[] els = getElementsArray(nd);
+    final Element[] els = getElementsArray(nd);
 
-    for (Element curnode: els) {
+    for (final Element curnode: els) {
       if (nodeMatches(curnode, hrefTag)) {
         if (s.getHref() != null) {
           throw badSet();
@@ -797,7 +790,7 @@ public class Parser {
           throw badSet();
         }
 
-        AccessType a = new AccessType();
+        final AccessType a = new AccessType();
 
         if (nodeMatches(curnode, readTag)) {
           a.setRead(true);
@@ -823,12 +816,12 @@ public class Parser {
     return s;
   }
 
-  private RemoveType parseRemove(final Node nd) throws Throwable {
-    RemoveType r = new RemoveType();
+  private RemoveType parseRemove(final Node nd) {
+    final RemoveType r = new RemoveType();
 
-    Element[] els = getElementsArray(nd);
+    final Element[] els = getElementsArray(nd);
 
-    for (Element curnode: els) {
+    for (final Element curnode: els) {
       if (nodeMatches(curnode, hrefTag)) {
         if (r.getHref() != null) {
           throw badRemove();
@@ -848,12 +841,12 @@ public class Parser {
     return r;
   }
 
-  private OrganizerType parseOrganizer(final Node nd) throws Throwable {
-    OrganizerType o = new OrganizerType();
+  private OrganizerType parseOrganizer(final Node nd) {
+    final OrganizerType o = new OrganizerType();
 
-    Element[] els = getElementsArray(nd);
+    final Element[] els = getElementsArray(nd);
 
-    for (Element curnode: els) {
+    for (final Element curnode: els) {
       if (nodeMatches(curnode, hrefTag)) {
         if (o.getHref() != null) {
           throw badOrganizer();
@@ -885,9 +878,9 @@ public class Parser {
       }
 
       String href = null;
-      Element[] els = getElementsArray(nd);
+      final Element[] els = getElementsArray(nd);
 
-      for (Element curnode: els) {
+      for (final Element curnode: els) {
         if (nodeMatches(curnode, hrefTag)) {
           if (href != null) {
             throw badHostUrl();
@@ -905,9 +898,9 @@ public class Parser {
       }
 
       return href;
-    } catch (WebdavException wde) {
+    } catch (final WebdavException wde) {
       throw wde;
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }

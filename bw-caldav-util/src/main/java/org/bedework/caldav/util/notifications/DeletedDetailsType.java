@@ -182,10 +182,9 @@ public class DeletedDetailsType {
    * ==================================================================== */
 
   /**
-   * @param xml
-   * @throws Throwable
+   * @param xml emitter
    */
-  public void toXml(final XmlEmit xml) throws Throwable {
+  public void toXml(final XmlEmit xml) {
     xml.openTag(AppleServerTags.deletedDetails);
 
     if (getDeletedDisplayname() != null) {
@@ -209,20 +208,20 @@ public class DeletedDetailsType {
     if (getDeletedHadMoreInstances()) {
       xml.emptyTag(AppleServerTags.deletedHadMoreInstances);
     }
-    for (ChangedPropertyType cp: getDeletedProps()) {
+    for (final ChangedPropertyType cp: getDeletedProps()) {
       cp.toXml(xml);
     }
 
     xml.closeTag(AppleServerTags.deletedDetails);
   }
 
-  /* ====================================================================
+  /* ==============================================================
    *                   Convenience methods
-   * ==================================================================== */
+   * ============================================================== */
 
   /** Add our stuff to the StringBuffer
    *
-   * @param ts
+   * @param ts for output
    */
   protected void toStringSegment(final ToString ts) {
     if (getDeletedDisplayname() != null) {
@@ -239,14 +238,14 @@ public class DeletedDetailsType {
     if (getDeletedHadMoreInstances()) {
       ts.append("deletedHadMoreInstances", getDeletedHadMoreInstances());
     }
-    for (ChangedPropertyType cp: getDeletedProps()) {
+    for (final ChangedPropertyType cp: getDeletedProps()) {
       ts.append("deletedProp", cp);
     }
   }
 
   @Override
   public String toString() {
-    ToString ts = new ToString(this);
+    final ToString ts = new ToString(this);
 
     toStringSegment(ts);
 

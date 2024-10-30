@@ -32,12 +32,12 @@ public class OrFilter extends FilterBase {
     super("OR");
   }
 
-  /* ====================================================================
+  /* ==============================================================
    *                   Object methods
-   * ==================================================================== */
+   * ============================================================== */
 
   public String toString() {
-    ToString ts = new ToString(this);
+    final ToString ts = new ToString(this);
 
     super.toStringSegment(ts);
 

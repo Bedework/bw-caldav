@@ -20,7 +20,6 @@ package org.bedework.caldav.server;
 
 import org.bedework.caldav.util.notifications.NotificationType.NotificationInfo;
 import org.bedework.webdav.servlet.shared.WdEntity;
-import org.bedework.webdav.servlet.shared.WebdavException;
 
 import java.io.InputStream;
 

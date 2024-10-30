@@ -94,15 +94,14 @@ public class ChangedPropertyType {
     return changedParameter;
   }
 
-  /* ====================================================================
+  /* ==============================================================
    *                   Convenience methods
-   * ==================================================================== */
+   * ============================================================== */
 
   /**
    * @param xml emitter
-   * @throws Throwable
    */
-  public void toXml(final XmlEmit xml) throws Throwable {
+  public void toXml(final XmlEmit xml) {
     xml.openTag(AppleServerTags.changedProperty, "name", getName());
     for (final ChangedParameterType cp: getChangedParameter()) {
       cp.toXml(xml);

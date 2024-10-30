@@ -39,23 +39,22 @@ public class ChangesType {
    */
   public List<ChangedPropertyType> getChangedProperty() {
     if (changedProperty == null) {
-      changedProperty = new ArrayList<ChangedPropertyType>();
+      changedProperty = new ArrayList<>();
     }
 
     return changedProperty;
   }
 
-  /* ====================================================================
+  /* ==============================================================
    *                   Convenience methods
-   * ==================================================================== */
+   * ============================================================== */
 
   /**
-   * @param xml
-   * @throws Throwable
+   * @param xml emitter
    */
-  public void toXml(final XmlEmit xml) throws Throwable {
+  public void toXml(final XmlEmit xml) {
     xml.openTag(AppleServerTags.changes);
-    for (ChangedPropertyType cp: getChangedProperty()) {
+    for (final ChangedPropertyType cp: getChangedProperty()) {
       cp.toXml(xml);
     }
     xml.closeTag(AppleServerTags.changes);
@@ -63,17 +62,17 @@ public class ChangesType {
 
   /** Add our stuff to the StringBuffer
    *
-   * @param ts
+   * @param ts emitter
    */
   protected void toStringSegment(final ToString ts) {
-    for (ChangedPropertyType cp: getChangedProperty()) {
+    for (final ChangedPropertyType cp: getChangedProperty()) {
       cp.toStringSegment(ts);
     }
   }
 
   @Override
   public String toString() {
-    ToString ts = new ToString(this);
+    final ToString ts = new ToString(this);
 
     toStringSegment(ts);
 

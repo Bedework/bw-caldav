@@ -24,7 +24,7 @@ import org.bedework.util.misc.ToString;
 import org.bedework.util.misc.Uid;
 
 /** Base filter class for parameters.
- *
+ * <br/>
  * The name should be unique at least for a set of filters and unique for a
  * given owner if persisted.
  *
@@ -36,9 +36,10 @@ public class ParameterFilter extends FilterBase {
 
   /**
    * @param name - null one will be created
-   * @param parameterIndex
+   * @param parameterIndex of parameter
    */
-  public ParameterFilter(String name, final ParameterInfoIndex parameterIndex) {
+  public ParameterFilter(String name,
+                         final ParameterInfoIndex parameterIndex) {
     super(name);
     if (name == null) {
       name = Uid.getUid();
@@ -48,7 +49,7 @@ public class ParameterFilter extends FilterBase {
   }
 
   /**
-   * @param val
+   * @param val index of parameter
    */
   public void setParameterIndex(final ParameterInfoIndex val) {
     parameterIndex = val;
@@ -63,7 +64,7 @@ public class ParameterFilter extends FilterBase {
 
   /** Parent property if this is a param
    *
-   * @param val
+   * @param val index of property
    */
   public void setParentPropertyIndex(final PropertyInfoIndex val) {
     parentPropertyIndex = val;
@@ -76,9 +77,9 @@ public class ParameterFilter extends FilterBase {
     return parentPropertyIndex;
   }
 
-  /* ====================================================================
+  /* ==============================================================
    *                   Convenience methods
-   * ==================================================================== */
+   * ============================================================== */
 
   /** Add our stuff to the ToString buffer
    *
@@ -92,7 +93,7 @@ public class ParameterFilter extends FilterBase {
 
   @Override
   public String toString() {
-    ToString ts = new ToString(this);
+    final ToString ts = new ToString(this);
 
     super.toStringSegment(ts);
 

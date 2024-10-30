@@ -97,9 +97,8 @@ public class UpdatedType extends BaseEntityChangeType {
 
   /**
    * @param xml builder
-   * @throws Throwable
    */
-  public void toXml(final XmlEmit xml) throws Throwable {
+  public void toXml(final XmlEmit xml) {
     xml.openTag(AppleServerTags.updated);
     toXmlSegment(xml);
 

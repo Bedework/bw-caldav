@@ -19,7 +19,6 @@
 package org.bedework.caldav.util.notifications.parse;
 
 import org.bedework.caldav.util.notifications.BaseNotificationType;
-import org.bedework.webdav.servlet.shared.WebdavException;
 
 import org.w3c.dom.Element;
 
@@ -42,5 +41,5 @@ public interface BaseNotificationParser {
    * @param nd MUST be the notification xml element
    * @return populated ShareType object
    */
-  BaseNotificationType parse(final Element nd);
+  BaseNotificationType parse(Element nd);
 }

@@ -115,22 +115,19 @@ public abstract class BaseNotificationType {
   /** Called before we send it out via caldav
    *
    * @param prefixer the prefixer
-   * @throws Throwable on error
    */
-  public abstract void prefixHrefs(UrlPrefixer prefixer) throws Throwable;
+  public abstract void prefixHrefs(UrlPrefixer prefixer);
 
   /** Called after we obtain it via caldav
    *
    * @param unprefixer the unprefixer
-   * @throws Throwable on error
    */
-  public abstract void unprefixHrefs(UrlUnprefixer unprefixer) throws Throwable;
+  public abstract void unprefixHrefs(UrlUnprefixer unprefixer) ;
 
   /**
    * @return XML version of notification
-   * @throws Throwable on error
    */
-  public String toXml() throws Throwable {
+  public String toXml() {
     final StringWriter str = new StringWriter();
     final XmlEmit xml = new XmlEmit();
 
@@ -148,9 +145,8 @@ public abstract class BaseNotificationType {
 
   /**
    * @param xml emitter
-   * @throws Throwable on error
    */
-  public void toXml(final XmlEmit xml) throws Throwable {
+  public void toXml(final XmlEmit xml) {
     if (Boolean.parseBoolean(xml.getProperty("withBedeworkElements")) &&
             (getName() != null)) {
       xml.property(BedeworkServerTags.name, getName());

@@ -115,7 +115,7 @@ public class Parser {
       }
 
       synchronized (parsers) {
-        if (parsers.size() > 0) {
+        if (!parsers.isEmpty()) {
           parser = parsers.remove(0);
           return parser;
         }
@@ -175,11 +175,12 @@ public class Parser {
   }
 
   /**
-   * @param val
+   * @param val xml
    * @return parsed notification or null
    */
   public static NotificationType fromXml(final String val) {
-    ByteArrayInputStream bais = new ByteArrayInputStream(val.getBytes());
+    final ByteArrayInputStream bais =
+            new ByteArrayInputStream(val.getBytes());
 
     return fromXml(bais);
   }
@@ -206,7 +207,7 @@ public class Parser {
   }
 
   /**
-   * @param is
+   * @param is input stream
    * @return parsed Document
    */
   public static Document parseXmlString(final InputStream is) throws WebdavException{
@@ -221,9 +222,9 @@ public class Parser {
       final DocumentBuilder builder = factory.newDocumentBuilder();
 
       return builder.parse(new InputSource(is));
-    } catch (SAXException e) {
+    } catch (final SAXException e) {
       throw new WebdavBadRequest();
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }
@@ -238,7 +239,7 @@ public class Parser {
         throw new WebdavBadRequest("Expected " + notificationTag);
       }
 
-      NotificationType n = new NotificationType();
+      final NotificationType n = new NotificationType();
       final Element[] els = XmlUtil.getElementsArray(nd);
 
       int pos = parseCommonElements(n, nd);
@@ -263,9 +264,6 @@ public class Parser {
       }
 
       return n;
-    } catch (final SAXException e) {
-      dumpXml(nd);
-      throw new WebdavBadRequest();
     } catch (final WebdavException wde) {
       throw wde;
     } catch (final Throwable t) {
@@ -280,7 +278,7 @@ public class Parser {
    * @return number of elements parsed
    */
   public int parseCommonElements(final NotificationType note,
-                                 final Node nd) throws Throwable {
+                                 final Node nd) {
     final Element[] els = XmlUtil.getElementsArray(nd);
 
     if (els.length == 0) {
@@ -296,7 +294,7 @@ public class Parser {
     return 1;
   }
 
-  ProcessorsType parseProcessors(final Element nd) throws Throwable {
+  ProcessorsType parseProcessors(final Element nd) {
     final ProcessorsType pt = new ProcessorsType();
 
     final Element[] els = XmlUtil.getElementsArray(nd);
@@ -335,7 +333,6 @@ public class Parser {
     if ((len > pos) &&
             XmlUtil.nodeMatches(els[pos], WebdavTags.status)) {
       pt.setStatus(XmlUtil.getElementContent(els[pos]));
-      pos++;
     }
 
     return pt;
@@ -351,9 +348,9 @@ public class Parser {
         throw new WebdavBadRequest("Expected " + AppleServerTags.resourceChange);
       }
 
-      ResourceChangeType rc = new ResourceChangeType();
+      final ResourceChangeType rc = new ResourceChangeType();
 
-      Element[] els = XmlUtil.getElementsArray(nd);
+      final Element[] els = XmlUtil.getElementsArray(nd);
 
       Object parsed = null;
 
@@ -368,7 +365,7 @@ public class Parser {
             throw badNotification(curnode);
           }
 
-          CreatedType c = parseCreated(curnode);
+          final var c = parseCreated(curnode);
           rc.setCreated(c);
           parsed = c;
           continue;
@@ -380,7 +377,7 @@ public class Parser {
             throw badNotification(curnode);
           }
 
-          UpdatedType u = parseUpdated(curnode);
+          final var u = parseUpdated(curnode);
           rc.addUpdate(u);
           parsed = u;
           continue;
@@ -391,7 +388,7 @@ public class Parser {
             throw badNotification(curnode);
           }
 
-          DeletedType d = parseDeleted(curnode);
+          final var d = parseDeleted(curnode);
           rc.setDeleted(d);
           parsed = d;
           continue;
@@ -402,7 +399,7 @@ public class Parser {
             throw badNotification(curnode);
           }
 
-          CollectionChangesType cc = parseCollectionChanges(curnode);
+          final var cc = parseCollectionChanges(curnode);
           rc.setCollectionChanges(cc);
           parsed = cc;
           continue;
@@ -412,19 +409,17 @@ public class Parser {
       }
 
       return rc;
-    } catch (SAXException e) {
-      throw parseException(e);
-    } catch (WebdavException wde) {
+    } catch (final WebdavException wde) {
       throw wde;
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }
 
-  private CreatedType parseCreated(final Element nd) throws Throwable {
-    CreatedType c = new CreatedType();
+  private CreatedType parseCreated(final Element nd) {
+    final CreatedType c = new CreatedType();
 
-    Element[] els = XmlUtil.getElementsArray(nd);
+    final Element[] els = XmlUtil.getElementsArray(nd);
 
     if (els.length < 1) {
       throw badNotification("No elements for create");
@@ -441,10 +436,10 @@ public class Parser {
     return c;
   }
 
-  private UpdatedType parseUpdated(final Element nd) throws Throwable {
-    UpdatedType u = new UpdatedType();
+  private UpdatedType parseUpdated(final Element nd) {
+    final UpdatedType u = new UpdatedType();
 
-    Element[] els = XmlUtil.getElementsArray(nd);
+    final Element[] els = XmlUtil.getElementsArray(nd);
 
     if (els.length < 1) {
       throw badNotification("No elements for update");
@@ -483,10 +478,10 @@ public class Parser {
     return u;
   }
 
-  private DeletedType parseDeleted(final Element nd) throws Throwable {
-    DeletedType d = new DeletedType();
+  private DeletedType parseDeleted(final Element nd) {
+    final DeletedType d = new DeletedType();
 
-    Element[] els = XmlUtil.getElementsArray(nd);
+    final Element[] els = XmlUtil.getElementsArray(nd);
 
     if (els.length < 1) {
       throw badNotification("No elements for delete");
@@ -510,10 +505,10 @@ public class Parser {
     return d;
   }
 
-  private CollectionChangesType parseCollectionChanges(final Element nd) throws Throwable {
-    CollectionChangesType cc = new CollectionChangesType();
+  private CollectionChangesType parseCollectionChanges(final Element nd) {
+    final CollectionChangesType cc = new CollectionChangesType();
 
-    Element[] els = XmlUtil.getElementsArray(nd);
+    final Element[] els = XmlUtil.getElementsArray(nd);
 
     if (els.length < 1) {
       throw badNotification("No elements for collection-changes");
@@ -539,7 +534,7 @@ public class Parser {
 
     if ((els.length > pos) &&
       XmlUtil.nodeMatches(els[pos], AppleServerTags.childCreated)) {
-      ChildCreatedType chc = new ChildCreatedType();
+      final ChildCreatedType chc = new ChildCreatedType();
       chc.setCount(getIntContent(els[pos]));
 
       cc.setChildCreated(chc);
@@ -548,7 +543,7 @@ public class Parser {
 
     if ((els.length > pos) &&
       XmlUtil.nodeMatches(els[pos], AppleServerTags.childUpdated)) {
-      ChildUpdatedType chu = new ChildUpdatedType();
+      final ChildUpdatedType chu = new ChildUpdatedType();
       chu.setCount(getIntContent(els[pos]));
 
       cc.setChildUpdated(chu);
@@ -557,7 +552,7 @@ public class Parser {
 
     if ((els.length > pos) &&
       XmlUtil.nodeMatches(els[pos], AppleServerTags.childDeleted)) {
-      ChildDeletedType chd = new ChildDeletedType();
+      final ChildDeletedType chd = new ChildDeletedType();
       chd.setCount(getIntContent(els[pos]));
 
       cc.setChildDeleted(chd);
@@ -572,15 +567,15 @@ public class Parser {
   }
 
   private int getIntContent(final Element nd) {
-    String val = XmlUtil.getElementContent(nd);
+    final String val = XmlUtil.getElementContent(nd);
 
     return Integer.parseInt(val);
   }
 
-  private DeletedDetailsType parseDeletedDetails(final Element nd) throws Throwable {
-    DeletedDetailsType dd = new DeletedDetailsType();
+  private DeletedDetailsType parseDeletedDetails(final Element nd) {
+    final DeletedDetailsType dd = new DeletedDetailsType();
 
-    Element[] els = XmlUtil.getElementsArray(nd);
+    final Element[] els = XmlUtil.getElementsArray(nd);
 
     if (els.length < 1) {
       throw badNotification("No elements for deleted-details");
@@ -635,19 +630,19 @@ public class Parser {
   }
 
   private PropType parseProps(final Element nd) {
-    PropType p = new PropType();
+    final PropType p = new PropType();
 
-    for (Element curnode: XmlUtil.getElementsArray(nd)) {
+    for (final Element curnode: XmlUtil.getElementsArray(nd)) {
       p.getQnames().add(XmlUtil.fromNode(curnode));
     }
 
     return p;
   }
 
-  private CalendarChangesType parseCalendarChange(final Element nd) throws Throwable {
-    CalendarChangesType cc = new CalendarChangesType();
+  private CalendarChangesType parseCalendarChange(final Element nd) {
+    final CalendarChangesType cc = new CalendarChangesType();
 
-    for (Element curnode: XmlUtil.getElementsArray(nd)) {
+    for (final Element curnode: XmlUtil.getElementsArray(nd)) {
       expect(curnode, AppleServerTags.recurrence);
 
       cc.getRecurrence().add(parseRecurrence(curnode));
@@ -656,9 +651,9 @@ public class Parser {
     return cc;
   }
 
-  private RecurrenceType parseRecurrence(final Element nd) throws Throwable {
-    RecurrenceType r = new RecurrenceType();
-    Element[] els = XmlUtil.getElementsArray(nd);
+  private RecurrenceType parseRecurrence(final Element nd) {
+    final RecurrenceType r = new RecurrenceType();
+    final Element[] els = XmlUtil.getElementsArray(nd);
 
     if (els.length < 1) {
       throw badNotification("No elements for recurrence");
@@ -696,10 +691,10 @@ public class Parser {
     return r;
   }
 
-  private ChangesType parseChanges(final Element nd) throws Throwable {
-    ChangesType c = new ChangesType();
+  private ChangesType parseChanges(final Element nd) {
+    final ChangesType c = new ChangesType();
 
-    for (Element curnode: XmlUtil.getElementsArray(nd)) {
+    for (final Element curnode: XmlUtil.getElementsArray(nd)) {
       expect(curnode, AppleServerTags.changedProperty);
 
       c.getChangedProperty().add(parseChangedProperty(curnode));
@@ -708,12 +703,12 @@ public class Parser {
     return c;
   }
 
-  private ChangedPropertyType parseChangedProperty(final Element nd) throws Throwable {
-    ChangedPropertyType cp = new ChangedPropertyType();
+  private ChangedPropertyType parseChangedProperty(final Element nd) {
+    final ChangedPropertyType cp = new ChangedPropertyType();
 
     cp.setName(XmlUtil.getAttrVal(nd, "name"));
 
-    Element[] els = XmlUtil.getElementsArray(nd);
+    final Element[] els = XmlUtil.getElementsArray(nd);
 
     int pos = 0;
 
@@ -742,12 +737,12 @@ public class Parser {
     return cp;
   }
 
-  private ChangedParameterType parseChangedParameter(final Element nd) throws Throwable {
-    ChangedParameterType cp = new ChangedParameterType();
+  private ChangedParameterType parseChangedParameter(final Element nd) {
+    final ChangedParameterType cp = new ChangedParameterType();
 
     cp.setName(XmlUtil.getAttrVal(nd, "name"));
 
-    Element[] els = XmlUtil.getElementsArray(nd);
+    final Element[] els = XmlUtil.getElementsArray(nd);
 
     int pos = 0;
 
@@ -770,10 +765,10 @@ public class Parser {
     return cp;
   }
 
-  private ChangedByType parseChangedBy(final Element nd) throws Throwable {
-    ChangedByType cb = new ChangedByType();
+  private ChangedByType parseChangedBy(final Element nd) {
+    final ChangedByType cb = new ChangedByType();
 
-    Element[] els = XmlUtil.getElementsArray(nd);
+    final Element[] els = XmlUtil.getElementsArray(nd);
 
     int pos;
 
@@ -801,7 +796,7 @@ public class Parser {
     return cb;
   }
 
-  private String parseHref(final Element nd) throws Throwable {
+  private String parseHref(final Element nd) {
     expect(nd, WebdavTags.href);
     return XmlUtil.getElementContent(nd);
   }
@@ -815,12 +810,12 @@ public class Parser {
     }
 
     try {
-      ByteArrayOutputStream out = new ByteArrayOutputStream();
+      final ByteArrayOutputStream out = new ByteArrayOutputStream();
 //      XMLWriter writer = new XMLWriter(out, format);
 
   //    writer.write(nd);
-      TransformerFactory tfactory = TransformerFactory.newInstance();
-      Transformer serializer;
+      final TransformerFactory tfactory = TransformerFactory.newInstance();
+      final Transformer serializer;
 
       serializer = tfactory.newTransformer();
       //Setup indenting to "pretty print"
@@ -830,13 +825,13 @@ public class Parser {
       serializer.transform(new DOMSource(nd), new StreamResult(out));
 
       logger.debug(out.toString());
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       logger.error("Unable to dump XML");
     }
   }
 
   private void expect(final Element nd,
-                      final QName expected) throws Throwable {
+                      final QName expected) {
     if (!XmlUtil.nodeMatches(nd, expected)) {
       throw badNotification(nd, expected);
     }

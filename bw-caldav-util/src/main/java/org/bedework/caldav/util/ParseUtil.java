@@ -36,6 +36,7 @@ import java.util.Calendar;
  */
 public class ParseUtil {
   /** The given node must be a time-range style element
+   * <pre>
    *  <!ELEMENT time-range EMPTY>
    *
    *  <!ATTLIST time-range start CDATA
@@ -45,8 +46,9 @@ public class ParseUtil {
    *
    * e.g.        <C:time-range start="20040902T000000Z"
    *                           end="20040902T235959Z"/>
+   * </pre>
    *
-   * @param nd
+   * @param nd document element
    * @param required - if true start and end MUST be present
    * @return TimeRange
    */
@@ -55,7 +57,7 @@ public class ParseUtil {
     DateTime start = null;
     DateTime end = null;
 
-    NamedNodeMap nnm = nd.getAttributes();
+    final NamedNodeMap nnm = nd.getAttributes();
 
     if (nnm == null) {
       // Infinite time-range?
@@ -74,7 +76,7 @@ public class ParseUtil {
 
       if (nmAttr != null) {
         attrCt--;
-        String dt = nmAttr.getNodeValue();
+        final String dt = nmAttr.getNodeValue();
         if (!checkUTC(dt)){
           throw new WebdavBadRequest(CaldavTags.validFilter, "Not UTC");
         }
@@ -88,7 +90,7 @@ public class ParseUtil {
 
       if (nmAttr != null) {
         attrCt--;
-        String dt = nmAttr.getNodeValue();
+        final String dt = nmAttr.getNodeValue();
         if (!checkUTC(dt)){
           throw new WebdavBadRequest(CaldavTags.validFilter, "Not UTC");
         }
@@ -97,10 +99,11 @@ public class ParseUtil {
       } else if (required) {
         throw new WebdavBadRequest(CaldavTags.validFilter, "Missing end");
       }
-    } catch (WebdavException wde) {
+    } catch (final WebdavException wde) {
       throw wde;
-    } catch (Throwable t) {
-      throw new WebdavBadRequest(CaldavTags.validFilter, "Invalid time-range");
+    } catch (final Throwable t) {
+      throw new WebdavBadRequest(CaldavTags.validFilter,
+                                 "Invalid time-range");
     }
 
     if (attrCt != 0) {
@@ -111,6 +114,7 @@ public class ParseUtil {
   }
 
   /** The given node must be a time-range style element
+   * <pre>
    *  <!ELEMENT time-range EMPTY>
    *
    *  <!ATTLIST time-range start CDATA
@@ -120,19 +124,19 @@ public class ParseUtil {
    *
    * e.g.        <C:time-range start="20040902T000000Z"
    *                           end="20040902T235959Z"/>
-   *
+   *</pre>
    * @param val - an object to populate or null for a new object
-   * @param nd
+   * @param nd node
    * @param required - if true start and end MUST be present
    * @return TimeRange
    */
   public static UTCTimeRangeType parseUTCTimeRange(final UTCTimeRangeType val,
                                                    final Node nd,
-                                                final boolean required) {
+                                                   final boolean required) {
     String st = null;
     String et = null;
 
-    NamedNodeMap nnm = nd.getAttributes();
+    final NamedNodeMap nnm = nd.getAttributes();
 
     if (nnm == null) {
       // Infinite time-range?
@@ -176,7 +180,7 @@ public class ParseUtil {
       }
 
       if (val == null) {
-        UTCTimeRangeType utr = new UTCTimeRangeType();
+        final UTCTimeRangeType utr = new UTCTimeRangeType();
 
         utr.setStart(st);
         utr.setEnd(et);
@@ -193,9 +197,9 @@ public class ParseUtil {
       }
 
       return val;
-    } catch (WebdavException wde) {
+    } catch (final WebdavException wde) {
       throw wde;
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavBadRequest(CaldavTags.validFilter, "Invalid time-range");
     }
   }
@@ -215,12 +219,12 @@ public class ParseUtil {
                                     final int defaultField, final int defaultVal,
                                     final int maxField,
                                     final int maxVal) {
-    Calendar startCal = Calendar.getInstance();
+    final Calendar startCal = Calendar.getInstance();
     startCal.set(Calendar.HOUR_OF_DAY, 0);
     startCal.set(Calendar.MINUTE, 0);
     startCal.set(Calendar.SECOND, 0);
 
-    Calendar endCal = Calendar.getInstance();
+    final Calendar endCal = Calendar.getInstance();
     endCal.set(Calendar.HOUR_OF_DAY, 0);
     endCal.set(Calendar.MINUTE, 0);
     endCal.set(Calendar.SECOND, 0);

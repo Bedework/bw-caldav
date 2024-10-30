@@ -18,7 +18,6 @@
 */
 package org.bedework.caldav.server;
 
-import org.bedework.webdav.servlet.shared.WebdavException;
 import org.bedework.webdav.servlet.shared.WebdavNsNode.PropertyTagEntry;
 
 import java.io.Serializable;
@@ -36,7 +35,7 @@ public abstract class PropertyHandler implements Serializable {
    *
    * @author douglm
    */
-  public static enum PropertyType {
+  public enum PropertyType {
     /** Property that can apply to anything */
     generalProperty,
 
@@ -64,12 +63,12 @@ public abstract class PropertyHandler implements Serializable {
    */
   public abstract Map<QName, PropertyTagEntry> getPropertyNames();
 
-  /** Return true if a call to generatePropertyValue will return a value.
+  /**
    *
-   * @param tag
-   * @return boolean
+   * @param tag QName
+   * @return boolean true if a call to generatePropertyValue will return a value.
    */
-  public boolean knownProperty(QName tag) {
+  public boolean knownProperty(final QName tag) {
     return getPropertyNames().get(tag) != null;
   }
 }

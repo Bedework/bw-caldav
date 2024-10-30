@@ -35,11 +35,11 @@ import ietf.params.xml.ns.caldav.UTCTimeRangeType;
  *   @author Mike Douglass   douglm  bedework.edu
  */
 public class DumpUtil {
-  private static BwLogger logger =
+  private static final BwLogger logger =
           new BwLogger().setLoggedClass(DumpUtil.class);
 
   /**
-   * @param cd
+   * @param cd calendar data
    */
   public static void dumpCalendarData(final CalendarDataType cd) {
     final StringBuilder sb = new StringBuilder("  <calendar-data");
@@ -75,12 +75,12 @@ public class DumpUtil {
   }
 
   /**
-   * @param comp
-   * @param indent
+   * @param comp component
+   * @param indent spaces
    */
   public static void dumpComp(final CompType comp,
                               final String indent) {
-    StringBuffer sb = new StringBuffer(indent);
+    final StringBuilder sb = new StringBuilder(indent);
 
     sb.append("<comp name=");
     sb.append(comp.getName());
@@ -90,7 +90,7 @@ public class DumpUtil {
     if (comp.getAllcomp() != null) {
       logger.debug(indent + "  <allcomp/>");
     } else {
-      for (CompType c: comp.getComp()) {
+      for (final CompType c: comp.getComp()) {
         dumpComp(c, indent + "  ");
       }
     }
@@ -98,7 +98,7 @@ public class DumpUtil {
     if (comp.getAllprop() != null) {
       logger.debug(indent + "  <allprop/>");
     } else {
-      for (PropType prop: comp.getProp()) {
+      for (final PropType prop: comp.getProp()) {
         dumpProp(prop, indent + "  ");
       }
     }
@@ -108,8 +108,8 @@ public class DumpUtil {
 
   /** Debugging
    *
-   * @param prop
-   * @param indent
+   * @param prop property
+   * @param indent spaces
    */
   public static void dumpProp(final PropType prop,
                               final String indent) {
@@ -125,14 +125,14 @@ public class DumpUtil {
   }
 
   /**
-   * @param tr
-   * @param name
-   * @param indent
+   * @param tr time range
+   * @param name of element
+   * @param indent spaces
    */
   public static void dumpUTCTimeRange(final UTCTimeRangeType tr,
                                       final String name,
                                       final String indent) {
-    StringBuilder sb = new StringBuilder(indent);
+    final StringBuilder sb = new StringBuilder(indent);
 
     sb.append("<");
     sb.append(name);
@@ -157,7 +157,7 @@ public class DumpUtil {
   }
 
   /**
-   * @param f
+   * @param f filter
    */
   public static void dumpFilter(final FilterType f) {
     logger.debug("<filter>");
@@ -168,8 +168,8 @@ public class DumpUtil {
 
   /** Debug
    *
-   * @param cf
-   * @param indent
+   * @param cf comp filter
+   * @param indent spaces
    */
   public static void dumpCompFilter(final CompFilterType cf,
                                     final String indent) {
@@ -188,13 +188,13 @@ public class DumpUtil {
     }
 
     if (cf.getCompFilter() != null) {
-      for (CompFilterType subcf: cf.getCompFilter()) {
+      for (final CompFilterType subcf: cf.getCompFilter()) {
         dumpCompFilter(subcf, indent + "  ");
       }
     }
 
     if (cf.getPropFilter() != null) {
-      for (PropFilterType pf: cf.getPropFilter()) {
+      for (final PropFilterType pf: cf.getPropFilter()) {
         dumpPropFilter(pf, indent + "  ");
       }
     }
@@ -204,8 +204,8 @@ public class DumpUtil {
 
   /** Debug
    *
-   * @param pf
-   * @param indent
+   * @param pf prop filter
+   * @param indent spaces
    */
   public static void dumpPropFilter(final PropFilterType pf,
                                     final String indent) {
@@ -226,7 +226,7 @@ public class DumpUtil {
     }
 
     if (pf.getParamFilter() != null) {
-      for (ParamFilterType parf: pf.getParamFilter()) {
+      for (final ParamFilterType parf: pf.getParamFilter()) {
         dumpParamFilter(parf, indent + "  ");
       }
     }
@@ -236,8 +236,8 @@ public class DumpUtil {
 
   /** Debug
    *
-   * @param pf
-   * @param indent
+   * @param pf param filter
+   * @param indent spaces
    */
   public static void dumpParamFilter(final ParamFilterType pf,
                                      final String indent) {
@@ -259,8 +259,8 @@ public class DumpUtil {
 
   /** Debug
    *
-   * @param tm
-   * @param indent
+   * @param tm text match
+   * @param indent spaces
    */
   public static void dumpTextMatch(final TextMatchType tm,
                                    final String indent) {

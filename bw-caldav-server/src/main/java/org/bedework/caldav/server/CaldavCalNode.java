@@ -27,6 +27,7 @@ import org.bedework.caldav.server.sysinterface.SysIntf.MethodEmitted;
 import org.bedework.caldav.util.filter.FilterBase;
 import org.bedework.caldav.util.sharing.InviteType;
 import org.bedework.util.calendar.XcalUtil;
+import org.bedework.util.misc.ToString;
 import org.bedework.util.misc.Util;
 import org.bedework.util.timezones.DateTimeUtil;
 import org.bedework.util.xml.XmlEmit;
@@ -86,20 +87,20 @@ import javax.xml.namespace.QName;
  *   @author Mike Douglass   douglm  rpi.edu
  */
 public class CaldavCalNode extends CaldavBwNode {
-  private CalDAVEvent ical;
+  private CalDAVEvent<?> ical;
 
   private AccessPrincipal owner;
 
   private CurrentAccess currentAccess;
 
   private final static HashMap<QName, PropertyTagEntry> propertyNames =
-    new HashMap<QName, PropertyTagEntry>();
+          new HashMap<>();
 
   private final static HashMap<String, PropertyTagXrdEntry> xrdNames =
-    new HashMap<String, PropertyTagXrdEntry>();
+          new HashMap<>();
 
   private final static HashMap<QName, PropertyTagEntry> calWSSoapNames =
-    new HashMap<QName, PropertyTagEntry>();
+          new HashMap<>();
 
   static {
     addPropEntry(propertyNames, CaldavTags.calendarDescription);
@@ -165,9 +166,9 @@ public class CaldavCalNode extends CaldavBwNode {
 
   /** Place holder for status
    *
-   * @param sysi
-   * @param status
-   * @param uri
+   * @param sysi system interface
+   * @param status from exception
+   * @param uri of resource
    */
   public CaldavCalNode(final SysIntf sysi,
                        final int status,
@@ -177,8 +178,8 @@ public class CaldavCalNode extends CaldavBwNode {
   }
 
   /**
-   * @param cdURI
-   * @param sysi
+   * @param cdURI referencing resource
+   * @param sysi system interface
    */
   public CaldavCalNode(final CaldavURI cdURI,
                        final SysIntf sysi) {
@@ -228,13 +229,14 @@ public class CaldavCalNode extends CaldavBwNode {
   @Override
   public String getEtagValue(final boolean strong) {
     /* We need the etag of the target if this is an alias */
-    CalDAVCollection<?> c = (CalDAVCollection<?>)getCollection(true); // deref
+    final CalDAVCollection<?> c =
+            (CalDAVCollection<?>)getCollection(true); // deref
 
     if (c == null) {
       return null;
     }
 
-    String val = c.getEtag();
+    final String val = c.getEtag();
 
     if (strong) {
       return val;
@@ -253,14 +255,14 @@ public class CaldavCalNode extends CaldavBwNode {
    */
   public boolean getSchedulingAllowed() {
     /* It's the alias target that matters */
-    CalDAVCollection<?> c =
+    final CalDAVCollection<?> c =
             (CalDAVCollection<?>)getCollection(true); // deref
 
     if (c == null) {
       return false;
     }
 
-    int type = c.getCalType();
+    final int type = c.getCalType();
     if (type == CalDAVCollection.calTypeInbox) {
       return true;
     }
@@ -292,7 +294,7 @@ public class CaldavCalNode extends CaldavBwNode {
       return;
     }
 
-    CalDAVCollection<?> c =
+    final CalDAVCollection<?> c =
             (CalDAVCollection<?>)getCollection(false); // Don't deref
 
     c.setCalType(CalDAVCollection.calTypeCalendarCollection);
@@ -352,14 +354,14 @@ public class CaldavCalNode extends CaldavBwNode {
   }
 
   /**
-   * @param fbcal
+   * @param fbcal freebusy resource
    */
   public void setFreeBusy(final CalDAVEvent<?> fbcal) {
     try {
       ical = fbcal;
 
       allowsGet = true;
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       if (debug()) {
         error(t);
       }
@@ -372,7 +374,7 @@ public class CaldavCalNode extends CaldavBwNode {
                              final Writer wtr,
                              final String contentType) {
     try {
-      Collection<CalDAVEvent<?>> evs = new ArrayList<>();
+      final Collection<CalDAVEvent<?>> evs = new ArrayList<>();
 
       evs.add(ical);
 
@@ -381,9 +383,9 @@ public class CaldavCalNode extends CaldavBwNode {
                                      xml,
                                      wtr,
                                      contentType);
-    } catch (WebdavException we) {
+    } catch (final WebdavException we) {
       throw we;
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }
@@ -407,9 +409,9 @@ public class CaldavCalNode extends CaldavBwNode {
     }
   }
 
-  /* ====================================================================
+  /* ==============================================================
    *                   Required webdav properties
-   * ==================================================================== */
+   * ============================================================== */
 
   @Override
   public String getContentLang() {
@@ -418,7 +420,7 @@ public class CaldavCalNode extends CaldavBwNode {
 
   @Override
   public long getContentLen() {
-    String s = getContentString(getContentType());
+    final String s = getContentString(getContentType());
 
     if (s == null) {
       return 0;
@@ -459,7 +461,7 @@ public class CaldavCalNode extends CaldavBwNode {
 
     try {
       return DateTimeUtil.fromISODateTimeUTCtoRfc822(col.getLastmod());
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }
@@ -479,9 +481,9 @@ public class CaldavCalNode extends CaldavBwNode {
     return getSysi().getSyncToken(col);
   }
 
-  /* ====================================================================
+  /* ==============================================================
    *                   Abstract methods
-   * ==================================================================== */
+   * ============================================================== */
 
   @Override
   public CurrentAccess getCurrentAccess() {
@@ -489,15 +491,18 @@ public class CaldavCalNode extends CaldavBwNode {
       return currentAccess;
     }
 
-    CalDAVCollection<?> c = (CalDAVCollection<?>)getCollection(true); // We want access of underlying object?
+    final CalDAVCollection<?> c =
+            (CalDAVCollection<?>)getCollection(true); // We want access of underlying object?
 
     if (c == null) {
       return null;
     }
 
     try {
-      currentAccess = getSysi().checkAccess(c, PrivilegeDefs.privAny, true);
-    } catch (Throwable t) {
+      currentAccess = getSysi().checkAccess(c,
+                                            PrivilegeDefs.privAny,
+                                            true);
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
 
@@ -509,9 +514,9 @@ public class CaldavCalNode extends CaldavBwNode {
     return true;
   }
 
-  /* ====================================================================
+  /* ==============================================================
    *                   Property methods
-   * ==================================================================== */
+   * ============================================================== */
 
   @Override
   public boolean removeProperty(final Element val,
@@ -545,7 +550,7 @@ public class CaldavCalNode extends CaldavBwNode {
       }
 
       return false;
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }
@@ -627,7 +632,7 @@ public class CaldavCalNode extends CaldavBwNode {
           throw new WebdavForbidden();
         }
 
-        List<String> comps = new ArrayList<>();
+        final List<String> comps = new ArrayList<>();
 
         for (final Element pval: XmlUtil.getElements(val)) {
           if (!XmlUtil.nodeMatches(pval, CaldavTags.comp)) {
@@ -643,7 +648,7 @@ public class CaldavCalNode extends CaldavBwNode {
       }
 
       if (XmlUtil.nodeMatches(val, CaldavTags.scheduleCalendarTransp)) {
-        Element cval = XmlUtil.getOnlyElement(val);
+        final Element cval = XmlUtil.getOnlyElement(val);
 
         if (XmlUtil.nodeMatches(cval, CaldavTags.opaque)) {
           col.setAffectsFreeBusy(true);
@@ -690,19 +695,20 @@ public class CaldavCalNode extends CaldavBwNode {
           XmlUtil.nodeMatches(val, CaldavTags.defaultAlarmVeventDatetime) ||
           XmlUtil.nodeMatches(val, CaldavTags.defaultAlarmVtodoDate) ||
           XmlUtil.nodeMatches(val, CaldavTags.defaultAlarmVtodoDatetime)) {
-        String al = XmlUtil.getElementContent(val, false);
+        final String al = XmlUtil.getElementContent(val, false);
 
         if (al == null) {
           return false;
         }
 
-        if (al.length() > 0) {
+        if (!al.isEmpty()) {
           if (!getSysi().validateAlarm(al)) {
             return false;
           }
         }
 
-        col.setProperty(new QName(val.getNamespaceURI(), val.getLocalName()),
+        col.setProperty(new QName(val.getNamespaceURI(),
+                                  val.getLocalName()),
                         al);
 
         return true;
@@ -727,9 +733,9 @@ public class CaldavCalNode extends CaldavBwNode {
       }
 
       return false;
-    } catch (WebdavException wde) {
+    } catch (final WebdavException wde) {
       throw wde;
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }
@@ -748,12 +754,13 @@ public class CaldavCalNode extends CaldavBwNode {
   public boolean generatePropertyValue(final QName tag,
                                        final WebdavNsIntf intf,
                                        final boolean allProp) {
-    XmlEmit xml = intf.getXmlEmit();
+    final XmlEmit xml = intf.getXmlEmit();
 
     try {
-      int calType;
-      CalDAVCollection<?> c = (CalDAVCollection<?>)getCollection(true); // deref this
-      CalDAVCollection<?> cundereffed =
+      final int calType;
+      CalDAVCollection<?> c =
+              (CalDAVCollection<?>)getCollection(true); // deref this
+      final CalDAVCollection<?> cundereffed =
           (CalDAVCollection<?>)getCollection(false); // don't deref this
       if (c == null) {
         // Probably no access -- fake it up as a collection
@@ -805,9 +812,9 @@ public class CaldavCalNode extends CaldavBwNode {
           xml.emptyTag(AppleServerTags.notification);
         }
 
-        String s = cundereffed.getProperty(AppleServerTags.shared);
-        if ((s != null) && Boolean.parseBoolean(s)) {
-          AccessPrincipal owner;
+        final String s = cundereffed.getProperty(AppleServerTags.shared);
+        if (Boolean.parseBoolean(s)) {
+          final AccessPrincipal owner;
           if (c == null) {
             // probably lost access to the target
             owner = cundereffed.getOwner();
@@ -857,7 +864,8 @@ public class CaldavCalNode extends CaldavBwNode {
           (calType == CalDAVCollection.calTypeInbox)) {
         xml.openTag(tag);
 
-        CalPrincipalInfo cinfo = getSysi().getCalPrincipalInfo(getOwner());
+        final CalPrincipalInfo cinfo =
+                getSysi().getCalPrincipalInfo(getOwner());
         if (cinfo.defaultCalendarPath != null) {
           generateHref(xml, cinfo.defaultCalendarPath);
         }
@@ -906,7 +914,7 @@ public class CaldavCalNode extends CaldavBwNode {
       }
 
       if (tag.equals(AppleIcalTags.calendarColor)) {
-       String val = col.getColor();
+       final String val = col.getColor();
 
         if (val == null) {
           return false;
@@ -934,9 +942,9 @@ public class CaldavCalNode extends CaldavBwNode {
           (tag.equals(CaldavTags.calendarFreeBusySet))) {
         xml.openTag(tag);
 
-        Collection<String> hrefs = getSysi().getFreebusySet();
+        final Collection<String> hrefs = getSysi().getFreebusySet();
 
-        for (String href: hrefs) {
+        for (final String href: hrefs) {
           xml.property(WebdavTags.href, href);
         }
         xml.closeTag(tag);
@@ -951,7 +959,8 @@ public class CaldavCalNode extends CaldavBwNode {
           return false;
         }
 
-        Integer val = getSysi().getAuthProperties().getMaxAttendeesPerInstance();
+        final Integer val = getSysi().getAuthProperties()
+                                     .getMaxAttendeesPerInstance();
 
         if (val == null) {
           return false;
@@ -969,7 +978,8 @@ public class CaldavCalNode extends CaldavBwNode {
           return false;
         }
 
-        Integer val = getSysi().getAuthProperties().getMaxAttendeesPerInstance();
+        final Integer val = getSysi().getAuthProperties()
+                                     .getMaxAttendeesPerInstance();
 
         if (val == null) {
           return false;
@@ -987,7 +997,8 @@ public class CaldavCalNode extends CaldavBwNode {
           return false;
         }
 
-        Integer val = getSysi().getAuthProperties().getMaxInstances();
+        final Integer val = getSysi().getAuthProperties()
+                                     .getMaxInstances();
 
         if (val == null) {
           return false;
@@ -1005,7 +1016,8 @@ public class CaldavCalNode extends CaldavBwNode {
           return false;
         }
 
-        Integer val = getSysi().getAuthProperties().getMaxUserEntitySize();
+        final Integer val = getSysi().getAuthProperties()
+                                     .getMaxUserEntitySize();
 
         if (val == null) {
           return false;
@@ -1023,7 +1035,8 @@ public class CaldavCalNode extends CaldavBwNode {
           return false;
         }
 
-        String val = getSysi().getAuthProperties().getMinDateTime();
+        final String val = getSysi().getAuthProperties()
+                                    .getMinDateTime();
 
         if (val == null) {
           return false;
@@ -1042,14 +1055,14 @@ public class CaldavCalNode extends CaldavBwNode {
          *            <C:comp name="VTODO"/>
          *         </C:supported-calendar-component-set>
          */
-        List<String> comps = c.getSupportedComponents();
+        final List<String> comps = c.getSupportedComponents();
 
         if (Util.isEmpty(comps)) {
           return false;
         }
 
         xml.openTag(tag);
-        for (String s: comps) {
+        for (final String s: comps) {
           xml.startTag(CaldavTags.comp);
           xml.attribute("name", s);
           xml.endEmptyTag();
@@ -1101,7 +1114,8 @@ public class CaldavCalNode extends CaldavBwNode {
       if (tag.equals(CaldavTags.timezoneServiceSet)) {
         xml.openTag(tag);
 
-        String href = getSysi().getSystemProperties().getTzServeruri();
+        final String href = getSysi().getSystemProperties()
+                                     .getTzServeruri();
         xml.property(WebdavTags.href, href);
         xml.newline();
         xml.closeTag(tag);
@@ -1109,13 +1123,13 @@ public class CaldavCalNode extends CaldavBwNode {
       }
 
       if (tag.equals(CaldavTags.calendarTimezone)) {
-        String tzid = col.getTimezone();
+        final String tzid = col.getTimezone();
 
         if (tzid == null) {
           return false;
         }
 
-        String val = getSysi().toStringTzCalendar(tzid);
+        final String val = getSysi().toStringTzCalendar(tzid);
 
         if (val == null) {
           return false;
@@ -1135,7 +1149,7 @@ public class CaldavCalNode extends CaldavBwNode {
           return false;
         }
 
-        String val =  cundereffed.getProperty(tag);
+        final String val =  cundereffed.getProperty(tag);
 
         if (val == null) {
           return false;
@@ -1153,7 +1167,7 @@ public class CaldavCalNode extends CaldavBwNode {
           return false;
         }
 
-        Integer val = getSysi().getSystemProperties().getVpollMaxActive();
+        final Integer val = getSysi().getSystemProperties().getVpollMaxActive();
 
         if (val == null) {
           return false;
@@ -1171,7 +1185,8 @@ public class CaldavCalNode extends CaldavBwNode {
           return false;
         }
 
-        Integer val = getSysi().getSystemProperties().getVpollMaxItems();
+        final Integer val = getSysi().getSystemProperties()
+                                     .getVpollMaxItems();
 
         if (val == null) {
           return false;
@@ -1189,7 +1204,8 @@ public class CaldavCalNode extends CaldavBwNode {
           return false;
         }
 
-        Integer val = getSysi().getSystemProperties().getVpollMaxVoters();
+        final Integer val = getSysi().getSystemProperties()
+                                     .getVpollMaxVoters();
 
         if (val == null) {
           return false;
@@ -1201,14 +1217,14 @@ public class CaldavCalNode extends CaldavBwNode {
       }
 
       if (tag.equals(CaldavTags.vpollSupportedComponentSet)) {
-        List<String> comps = c.getVpollSupportedComponents();
+        final List<String> comps = c.getVpollSupportedComponents();
 
         if (Util.isEmpty(comps)) {
           return false;
         }
 
         xml.openTag(tag);
-        for (String s: comps) {
+        for (final String s: comps) {
           xml.startTag(CaldavTags.comp);
           xml.attribute("name", s);
           xml.endEmptyTag();
@@ -1220,7 +1236,7 @@ public class CaldavCalNode extends CaldavBwNode {
       }
 
       if(tag.equals (BedeworkServerTags.aliasUri)) {
-        String alias = col.getAliasUri ();
+        final String alias = col.getAliasUri ();
         if(alias == null) {
           return false;
         }
@@ -1231,7 +1247,7 @@ public class CaldavCalNode extends CaldavBwNode {
       }
 
       if(tag.equals (BedeworkServerTags.remoteId)) {
-        String id = col.getRemoteId ();
+        final String id = col.getRemoteId ();
         if(id == null) {
           return false;
         }
@@ -1242,7 +1258,7 @@ public class CaldavCalNode extends CaldavBwNode {
       }
 
       if(tag.equals (BedeworkServerTags.remotePw)) {
-        String pw = col.getRemotePw ();
+        final String pw = col.getRemotePw ();
         if(pw == null) {
           return false;
         }
@@ -1260,18 +1276,19 @@ public class CaldavCalNode extends CaldavBwNode {
 
       // Not known - try higher
       return super.generatePropertyValue(tag, intf, allProp);
-    } catch (WebdavException wde) {
+    } catch (final WebdavException wde) {
       throw wde;
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }
 
   @Override
-  public boolean generateCalWsProperty(final List<GetPropertiesBasePropertyType> props,
-                                       final QName tag,
-                                       final WebdavNsIntf intf,
-                                       final boolean allProp) {
+  public boolean generateCalWsProperty(
+          final List<GetPropertiesBasePropertyType> props,
+          final QName tag,
+          final WebdavNsIntf intf,
+          final boolean allProp) {
     try {
       /*
 
@@ -1279,14 +1296,15 @@ public class CaldavCalNode extends CaldavBwNode {
        */
 
       if (tag.equals(CalWSSoapTags.childCollection)) {
-        for (WebdavNsNode child: intf.getChildren(this, null)) {
-          CaldavBwNode cn = (CaldavBwNode)child;
+        for (final WebdavNsNode child: intf.getChildren(this, null)) {
+          final CaldavBwNode cn = (CaldavBwNode)child;
 
-          ChildCollectionType cc = new ChildCollectionType();
+          final ChildCollectionType cc = new ChildCollectionType();
 
           cc.setHref(cn.getUrlValue());
 
-          List<Object> rtypes = cc.getCalendarCollectionOrCollection();
+          final List<Object> rtypes =
+                  cc.getCalendarCollectionOrCollection();
 
           if (!cn.isCollection()) {
             continue;
@@ -1305,12 +1323,13 @@ public class CaldavCalNode extends CaldavBwNode {
       }
 
       if (tag.equals(CalWSSoapTags.lastModifiedDateTime)) {
-        String val = col.getLastmod();
+        final String val = col.getLastmod();
         if (val == null) {
           return true;
         }
 
-        LastModifiedDateTimeType lmdt = new LastModifiedDateTimeType();
+        final LastModifiedDateTimeType lmdt =
+                new LastModifiedDateTimeType();
         lmdt.setDateTime(XcalUtil.fromDtval(val));
         props.add(lmdt);
         return true;
@@ -1321,7 +1340,8 @@ public class CaldavCalNode extends CaldavBwNode {
           return true;
         }
 
-        Integer val = getSysi().getAuthProperties().getMaxAttendeesPerInstance();
+        final Integer val = getSysi().getAuthProperties()
+                                     .getMaxAttendeesPerInstance();
 
         if (val != null) {
           props.add(intProp(new MaxAttendeesPerInstanceType(),
@@ -1357,7 +1377,8 @@ public class CaldavCalNode extends CaldavBwNode {
           return true;
         }
 
-        Integer val = getSysi().getAuthProperties().getMaxInstances();
+        final Integer val = getSysi().getAuthProperties()
+                                     .getMaxInstances();
 
         if (val != null) {
           props.add(intProp(new MaxInstancesType(),
@@ -1372,7 +1393,8 @@ public class CaldavCalNode extends CaldavBwNode {
           return true;
         }
 
-        Integer val = getSysi().getAuthProperties().getMaxUserEntitySize();
+        final Integer val = getSysi().getAuthProperties()
+                                     .getMaxUserEntitySize();
 
         if (val != null) {
           props.add(intProp(new MaxResourceSizeType(),
@@ -1409,8 +1431,8 @@ public class CaldavCalNode extends CaldavBwNode {
           return true;
         }
 
-        SysIntf si = getSysi();
-        CalPrincipalInfo cinfo = si.getCalPrincipalInfo(si.getPrincipal());
+        final SysIntf si = getSysi();
+        final CalPrincipalInfo cinfo = si.getCalPrincipalInfo(si.getPrincipal());
         if (cinfo.userHomePath != null) {
           props.add(strProp(new PrincipalHomeType(), cinfo.userHomePath));
         }
@@ -1419,7 +1441,7 @@ public class CaldavCalNode extends CaldavBwNode {
       }
 
       if (tag.equals(CalWSSoapTags.resourceDescription)) {
-        String s = col.getDescription();
+        final String s = col.getDescription();
 
         if (s != null) {
           props.add(strProp(new ResourceDescriptionType(), s));
@@ -1429,10 +1451,10 @@ public class CaldavCalNode extends CaldavBwNode {
       }
 
       if (tag.equals(CalWSSoapTags.resourceType)) {
-        ResourceTypeType rt = new ResourceTypeType();
+        final ResourceTypeType rt = new ResourceTypeType();
 
-        int calType;
-        CalDAVCollection<?> c =
+        final int calType;
+        final CalDAVCollection<?> c =
                 (CalDAVCollection<?>)getCollection(true); // deref this
         if (c == null) {
           // Probably no access -- fake it up as a collection
@@ -1441,7 +1463,8 @@ public class CaldavCalNode extends CaldavBwNode {
           calType = c.getCalType();
         }
 
-        List<Object> rtypes = rt.getCalendarCollectionOrCollectionOrInbox();
+        final List<Object> rtypes =
+                rt.getCalendarCollectionOrCollectionOrInbox();
 
         rtypes.add(new CollectionType());
 
@@ -1459,7 +1482,7 @@ public class CaldavCalNode extends CaldavBwNode {
       }
 
       if (tag.equals(CalWSSoapTags.resourceTimezoneId)) {
-        String tzid = col.getTimezone();
+        final String tzid = col.getTimezone();
 
         if (tzid != null) {
           props.add(strProp(new ResourceTimezoneIdType(), tzid));
@@ -1469,31 +1492,28 @@ public class CaldavCalNode extends CaldavBwNode {
       }
 
       if (tag.equals(CalWSSoapTags.supportedCalendarComponentSet)) {
-        SupportedCalendarComponentSetType sccs = new SupportedCalendarComponentSetType();
+        final SupportedCalendarComponentSetType sccs =
+                new SupportedCalendarComponentSetType();
 
-        CalDAVCollection<?> c =
+        final CalDAVCollection<?> c =
                 (CalDAVCollection<?>)getCollection(true); // deref this
-        List<String> comps = c.getSupportedComponents();
+        final List<String> comps = c.getSupportedComponents();
 
         if (Util.isEmpty(comps)) {
           return false;
         }
 
-        ObjectFactory of = new ObjectFactory();
+        final ObjectFactory of = new ObjectFactory();
 
-        for (String s: comps) {
-          JAXBElement<? extends BaseComponentType> el = null;
-          switch (s) {
-            case "VEVENT":
-              el = of.createVevent(new VeventType());
-              break;
-            case "VTODO":
-              el = of.createVtodo(new VtodoType());
-              break;
-            case "VAVAILABILITY":
-              el = of.createVavailability(new VavailabilityType());
-              break;
-          }
+        for (final String s: comps) {
+          final JAXBElement<? extends BaseComponentType> el =
+                  switch (s) {
+                    case "VEVENT" -> of.createVevent(new VeventType());
+                    case "VTODO" -> of.createVtodo(new VtodoType());
+                    case "VAVAILABILITY" ->
+                            of.createVavailability(new VavailabilityType());
+                    default -> null;
+                  };
 
           if (el != null) {
             sccs.getBaseComponent().add(el);
@@ -1507,9 +1527,9 @@ public class CaldavCalNode extends CaldavBwNode {
 
       // Not known - try higher
       return super.generateCalWsProperty(props, tag, intf, allProp);
-    } catch (WebdavException wde) {
+    } catch (final WebdavException wde) {
       throw wde;
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }
@@ -1532,8 +1552,8 @@ public class CaldavCalNode extends CaldavBwNode {
                                        final WebdavNsIntf intf,
                                        final boolean allProp) {
     try {
-      int calType;
-      CalDAVCollection<?> c =
+      final int calType;
+      final CalDAVCollection<?> c =
               (CalDAVCollection<?>)getCollection(true); // deref this
       if (c == null) {
         // Probably no access -- fake it up as a collection
@@ -1542,198 +1562,195 @@ public class CaldavCalNode extends CaldavBwNode {
         calType = c.getCalType();
       }
 
-      if (name.equals(CalWSXrdDefs.collection)) {
-        props.add(xrdEmptyProperty(name));
+      switch (name) {
+        case CalWSXrdDefs.collection -> {
+          props.add(xrdEmptyProperty(name));
 
-        //boolean isCollection = cal.getCalendarCollection();
+          //boolean isCollection = cal.getCalendarCollection();
 
-        if (calType == CalDAVCollection.calTypeInbox) {
-          props.add(xrdEmptyProperty(CalWSXrdDefs.inbox));
-        } else if (calType == CalDAVCollection.calTypeOutbox) {
-          props.add(xrdEmptyProperty(CalWSXrdDefs.outbox));
-        } else if (calType == CalDAVCollection.calTypeCalendarCollection) {
-          props.add(xrdEmptyProperty(CalWSXrdDefs.calendarCollection));
-        }
-
-        return true;
-      }
-
-      if (name.equals(CalWSXrdDefs.description)) {
-        String s = col.getDescription();
-
-        if (s == null) {
-          return true;
-        }
-
-        props.add(xrdProperty(name, s));
-
-        return true;
-      }
-
-      if (name.equals(CalWSXrdDefs.principalHome)) {
-        if (!rootNode || intf.getAnonymous()) {
-          return true;
-        }
-
-        SysIntf si = getSysi();
-        CalPrincipalInfo cinfo = si.getCalPrincipalInfo(si.getPrincipal());
-        if (cinfo.userHomePath == null) {
-          return true;
-        }
-
-        props.add(xrdProperty(name,
-                              getUrlValue(cinfo.userHomePath, true)));
-
-        return true;
-      }
-
-      if (name.equals(CalWSXrdDefs.maxAttendeesPerInstance)) {
-        if (!rootNode) {
-          return true;
-        }
-
-        Integer val = getSysi().getAuthProperties().getMaxAttendeesPerInstance();
-
-        if (val == null) {
-          return true;
-        }
-
-        props.add(xrdProperty(name,
-                                                            String.valueOf(val)));
-
-        return true;
-      }
-
-      if (name.equals(CalWSXrdDefs.maxDateTime)) {
-        if (!rootNode) {
-          return true;
-        }
-
-        Integer val = getSysi().getAuthProperties().getMaxAttendeesPerInstance();
-
-        if (val == null) {
-          return false;
-        }
-
-        props.add(xrdProperty(name,
-                                                            String.valueOf(val)));
-
-        return true;
-      }
-
-      if (name.equals(CalWSXrdDefs.maxInstances)) {
-        if (!rootNode) {
-          return true;
-        }
-
-        Integer val = getSysi().getAuthProperties().getMaxInstances();
-
-        if (val == null) {
-          return false;
-        }
-
-        props.add(xrdProperty(name,
-                                                            String.valueOf(val)));
-
-        return true;
-      }
-
-      if (name.equals(CalWSXrdDefs.maxResourceSize)) {
-        if (!rootNode) {
-          return true;
-        }
-
-        Integer val = getSysi().getAuthProperties().getMaxUserEntitySize();
-
-        if (val == null) {
-          return false;
-        }
-
-        props.add(xrdProperty(name,
-                                                            String.valueOf(val)));
-
-        return true;
-      }
-
-      if (name.equals(CalWSXrdDefs.minDateTime)) {
-        if (!rootNode) {
-          return true;
-        }
-
-        String val = getSysi().getAuthProperties().getMinDateTime();
-
-        if (val == null) {
-          return false;
-        }
-
-        props.add(xrdProperty(name, val));
-
-        return true;
-      }
-
-      if (name.equals(CalWSXrdDefs.timezone)) {
-        String tzid = col.getTimezone();
-
-        if (tzid == null) {
-          return false;
-        }
-
-        props.add(xrdProperty(name, tzid));
-
-        return true;
-      }
-
-      if (name.equals(CalWSXrdDefs.supportedCalendarComponentSet)) {
-        SupportedCalendarComponentSetType sccs = new SupportedCalendarComponentSetType();
-
-        List<String> comps = c.getSupportedComponents();
-
-        if (Util.isEmpty(comps)) {
-          return false;
-        }
-
-        ObjectFactory of = new ObjectFactory();
-
-        for (String s: comps) {
-          JAXBElement<? extends BaseComponentType> el = null;
-          switch (s) {
-            case "VEVENT":
-              el = of.createVevent(new VeventType());
-              break;
-            case "VTODO":
-              el = of.createVtodo(new VtodoType());
-              break;
-            case "VAVAILABILITY":
-              el = of.createVavailability(new VavailabilityType());
-              break;
+          if (calType == CalDAVCollection.calTypeInbox) {
+            props.add(xrdEmptyProperty(CalWSXrdDefs.inbox));
+          } else if (calType == CalDAVCollection.calTypeOutbox) {
+            props.add(xrdEmptyProperty(CalWSXrdDefs.outbox));
+          } else if (calType == CalDAVCollection.calTypeCalendarCollection) {
+            props.add(xrdEmptyProperty(
+                    CalWSXrdDefs.calendarCollection));
           }
 
-          if (el != null) {
-            sccs.getBaseComponent().add(el);
-          }
+          return true;
         }
+        case CalWSXrdDefs.description -> {
+          final String s = col.getDescription();
 
-        JAXBElement<SupportedCalendarComponentSetType> el =
-              new JAXBElement<>(CalWSSoapTags.supportedCalendarComponentSet,
-                                         SupportedCalendarComponentSetType.class,
-                                         sccs);
-        props.add(el);
+          if (s == null) {
+            return true;
+          }
 
-        return true;
+          props.add(xrdProperty(name, s));
+
+          return true;
+        }
+        case CalWSXrdDefs.principalHome -> {
+          if (!rootNode || intf.getAnonymous()) {
+            return true;
+          }
+
+          final SysIntf si = getSysi();
+          final CalPrincipalInfo cinfo = si.getCalPrincipalInfo(
+                  si.getPrincipal());
+          if (cinfo.userHomePath == null) {
+            return true;
+          }
+
+          props.add(xrdProperty(name,
+                                getUrlValue(cinfo.userHomePath,
+                                            true)));
+
+          return true;
+        }
+        case CalWSXrdDefs.maxAttendeesPerInstance -> {
+          if (!rootNode) {
+            return true;
+          }
+
+          final Integer val = getSysi().getAuthProperties()
+                                       .getMaxAttendeesPerInstance();
+
+          if (val == null) {
+            return true;
+          }
+
+          props.add(xrdProperty(name,
+                                String.valueOf(val)));
+
+          return true;
+        }
+        case CalWSXrdDefs.maxDateTime -> {
+          if (!rootNode) {
+            return true;
+          }
+
+          final Integer val = getSysi().getAuthProperties()
+                                       .getMaxAttendeesPerInstance();
+
+          if (val == null) {
+            return false;
+          }
+
+          props.add(xrdProperty(name,
+                                String.valueOf(val)));
+
+          return true;
+        }
+        case CalWSXrdDefs.maxInstances -> {
+          if (!rootNode) {
+            return true;
+          }
+
+          final Integer val = getSysi().getAuthProperties()
+                                       .getMaxInstances();
+
+          if (val == null) {
+            return false;
+          }
+
+          props.add(xrdProperty(name,
+                                String.valueOf(val)));
+
+          return true;
+        }
+        case CalWSXrdDefs.maxResourceSize -> {
+          if (!rootNode) {
+            return true;
+          }
+
+          final Integer val = getSysi().getAuthProperties()
+                                       .getMaxUserEntitySize();
+
+          if (val == null) {
+            return false;
+          }
+
+          props.add(xrdProperty(name,
+                                String.valueOf(val)));
+
+          return true;
+        }
+        case CalWSXrdDefs.minDateTime -> {
+          if (!rootNode) {
+            return true;
+          }
+
+          final String val = getSysi().getAuthProperties()
+                                      .getMinDateTime();
+
+          if (val == null) {
+            return false;
+          }
+
+          props.add(xrdProperty(name, val));
+
+          return true;
+        }
+        case CalWSXrdDefs.timezone -> {
+          final String tzid = col.getTimezone();
+
+          if (tzid == null) {
+            return false;
+          }
+
+          props.add(xrdProperty(name, tzid));
+
+          return true;
+        }
+        case CalWSXrdDefs.supportedCalendarComponentSet -> {
+          final SupportedCalendarComponentSetType sccs = new SupportedCalendarComponentSetType();
+
+          final List<String> comps = c.getSupportedComponents();
+
+          if (Util.isEmpty(comps)) {
+            return false;
+          }
+
+          final ObjectFactory of = new ObjectFactory();
+
+          for (final String s: comps) {
+            final JAXBElement<? extends BaseComponentType> el = switch (s) {
+              case "VEVENT" -> of.createVevent(new VeventType());
+              case "VTODO" -> of.createVtodo(new VtodoType());
+              case "VAVAILABILITY" ->
+                      of.createVavailability(new VavailabilityType());
+              default -> null;
+            };
+
+            if (el != null) {
+              sccs.getBaseComponent().add(el);
+            }
+          }
+
+          final JAXBElement<SupportedCalendarComponentSetType> el =
+                  new JAXBElement<>(
+                          CalWSSoapTags.supportedCalendarComponentSet,
+                          SupportedCalendarComponentSetType.class,
+                          sccs);
+          props.add(el);
+
+          return true;
+        }
       }
 
       // Not known - try higher
       return super.generateXrdProperties(props, name, intf, allProp);
-    } catch (WebdavException wde) {
+    } catch (final WebdavException wde) {
       throw wde;
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }
 
   @Override
   public Collection<PropertyTagEntry> getPropertyNames()throws WebdavException {
-    Collection<PropertyTagEntry> res = new ArrayList<>();
+    final Collection<PropertyTagEntry> res = new ArrayList<>();
 
     res.addAll(super.getPropertyNames());
     res.addAll(propertyNames.values());
@@ -1743,7 +1760,7 @@ public class CaldavCalNode extends CaldavBwNode {
 
   @Override
   public Collection<PropertyTagEntry> getCalWSSoapNames() {
-    Collection<PropertyTagEntry> res = new ArrayList<>();
+    final Collection<PropertyTagEntry> res = new ArrayList<>();
 
     res.addAll(super.getCalWSSoapNames());
     res.addAll(calWSSoapNames.values());
@@ -1753,7 +1770,7 @@ public class CaldavCalNode extends CaldavBwNode {
 
   @Override
   public Collection<PropertyTagXrdEntry> getXrdNames()throws WebdavException {
-    Collection<PropertyTagXrdEntry> res = new ArrayList<>();
+    final Collection<PropertyTagXrdEntry> res = new ArrayList<>();
 
     res.addAll(super.getXrdNames());
     res.addAll(xrdNames.values());
@@ -1763,8 +1780,8 @@ public class CaldavCalNode extends CaldavBwNode {
 
   @Override
   public Collection<QName> getSupportedReports() {
-    Collection<QName> res = new ArrayList<>();
-    CalDAVCollection<?> c =
+    final Collection<QName> res = new ArrayList<>();
+    final CalDAVCollection<?> c =
             (CalDAVCollection<?>)getCollection(true); // deref
 
     if (c == null) {
@@ -1781,31 +1798,27 @@ public class CaldavCalNode extends CaldavBwNode {
     return res;
   }
 
-  /* ====================================================================
+  /* ==============================================================
    *                   Object methods
-   * ==================================================================== */
+   * ============================================================== */
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
+    final ToString ts = new ToString(this);
 
-    sb.append("CaldavCalNode{cduri=");
-    sb.append("path=");
-    sb.append(getPath());
-    sb.append(", isCalendarCollection()=");
+    ts.append("path", getPath());
     try {
-      sb.append(isCalendarCollection());
-    } catch (Throwable t) {
-      sb.append("exception(").append(t.getMessage()).append(")");
+      ts.append("isCalendarCollection()", isCalendarCollection());
+    } catch (final Throwable t) {
+      ts.append(t);
     }
-    sb.append("}");
 
-    return sb.toString();
+    return ts.toString();
   }
 
-  /* ====================================================================
+  /* ==============================================================
    *                   Private methods
-   * ==================================================================== */
+   * ============================================================== */
 
   private boolean checkCalForSetProp(final SetPropertyResult spr) {
     if (col != null) {

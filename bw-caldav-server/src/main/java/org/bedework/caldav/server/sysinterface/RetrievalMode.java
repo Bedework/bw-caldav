@@ -18,6 +18,8 @@
 */
 package org.bedework.caldav.server.sysinterface;
 
+import org.bedework.util.misc.ToString;
+
 import ietf.params.xml.ns.caldav.ExpandType;
 import ietf.params.xml.ns.caldav.LimitFreebusySetType;
 import ietf.params.xml.ns.caldav.LimitRecurrenceSetType;
@@ -115,36 +117,27 @@ public class RetrievalMode implements Serializable {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder("RetrievalMode{");
-
     String start = null;
     String end = null;
     String name = null;
 
     if (expand != null) {
       name = "expand";
-      start = expand.getStart().toString();
-      end = expand.getEnd().toString();
+      start = expand.getStart();
+      end = expand.getEnd();
     } else if (limitFreebusySet != null) {
       name = "limit-freebusy-set";
-      start = limitFreebusySet.getStart().toString();
-      end = limitFreebusySet.getEnd().toString();
+      start = limitFreebusySet.getStart();
+      end = limitFreebusySet.getEnd();
     } else if (limitRecurrenceSet != null) {
       name = "limit-recurrence-set";
-      start = limitRecurrenceSet.getStart().toString();
-      end = limitRecurrenceSet.getEnd().toString();
+      start = limitRecurrenceSet.getStart();
+      end = limitRecurrenceSet.getEnd();
     }
 
-    sb.append(name);
-    sb.append(", ");
-
-    sb.append(", start=");
-    sb.append(start);
-
-    sb.append(", end=");
-    sb.append(end);
-
-    sb.append("}");
-    return sb.toString();
+    return new ToString(this).append(name)
+                             .append("start", start)
+                             .append("end", end)
+                             .toString();
   }
 }

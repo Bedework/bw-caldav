@@ -38,23 +38,22 @@ public class CalendarChangesType {
    */
   public List<RecurrenceType> getRecurrence() {
     if (recurrence == null) {
-      recurrence = new ArrayList<RecurrenceType>();
+      recurrence = new ArrayList<>();
     }
 
     return recurrence;
   }
 
-  /* ====================================================================
+  /* ==============================================================
    *                   Convenience methods
-   * ==================================================================== */
+   * ============================================================== */
 
   /**
-   * @param xml
-   * @throws Throwable
+   * @param xml emitter
    */
-  public void toXml(final XmlEmit xml) throws Throwable {
+  public void toXml(final XmlEmit xml) {
     xml.openTag(AppleServerTags.calendarChanges);
-    for (RecurrenceType r: getRecurrence()) {
+    for (final RecurrenceType r: getRecurrence()) {
       r.toXml(xml);
     }
     xml.closeTag(AppleServerTags.calendarChanges);
@@ -62,17 +61,17 @@ public class CalendarChangesType {
 
   /** Add our stuff to the StringBuffer
    *
-   * @param ts
+   * @param ts ToString
    */
   protected void toStringSegment(final ToString ts) {
-    for (RecurrenceType r: getRecurrence()) {
+    for (final RecurrenceType r: getRecurrence()) {
       r.toStringSegment(ts);
     }
   }
 
   @Override
   public String toString() {
-    ToString ts = new ToString(this);
+    final ToString ts = new ToString(this);
 
     toStringSegment(ts);
 

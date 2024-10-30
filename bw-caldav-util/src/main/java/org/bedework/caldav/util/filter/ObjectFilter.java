@@ -360,7 +360,8 @@ public class ObjectFilter<T> extends PropertyFilter {
    */
   public static ObjectFilter<String> makeFilter(final PropertyInfoIndex propertyIndex,
                                         final String val) {
-    ObjectFilter<String> of = new ObjectFilter<String>(null, propertyIndex, null, null);
+    final ObjectFilter<String> of =
+            new ObjectFilter<>(null, propertyIndex, null, null);
 
     of.setEntity(val);
 
@@ -376,12 +377,12 @@ public class ObjectFilter<T> extends PropertyFilter {
    * @param strKey non-null if ditto
    * @return BwObjectFilter
    */
-  public static ObjectFilter makeFilter(final String name,
-                                        final PropertyInfoIndex propertyIndex,
-                                        final TimeRange val,
-                                        final Integer intKey,
-                                        final String strKey) {
-    TimeRangeFilter trf = new TimeRangeFilter(name, propertyIndex, intKey, strKey);
+  public static ObjectFilter<?> makeFilter(final String name,
+                                           final PropertyInfoIndex propertyIndex,
+                                           final TimeRange val,
+                                           final Integer intKey,
+                                           final String strKey) {
+    final TimeRangeFilter trf = new TimeRangeFilter(name, propertyIndex, intKey, strKey);
 
     trf.setEntity(val);
 
@@ -397,11 +398,11 @@ public class ObjectFilter<T> extends PropertyFilter {
    * @param strKey non-null if ditto
    * @return BwObjectFilter
    */
-  public static ObjectFilter makeFilter(final String name,
-                                        final List<PropertyInfoIndex> propertyIndexes,
-                                        final TimeRange val,
-                                        final Integer intKey,
-                                        final String strKey) {
+  public static ObjectFilter<?> makeFilter(final String name,
+                                           final List<PropertyInfoIndex> propertyIndexes,
+                                           final TimeRange val,
+                                           final Integer intKey,
+                                           final String strKey) {
     if (propertyIndexes.size() == 1) {
       return makeFilter(name, propertyIndexes.get(0), val, intKey, strKey);
     }
@@ -410,7 +411,8 @@ public class ObjectFilter<T> extends PropertyFilter {
       throw new RuntimeException("Not implemented - subfield depth > 2");
     }
 
-    TimeRangeFilter trf = new TimeRangeFilter(name, propertyIndexes, intKey, strKey);
+    final TimeRangeFilter trf =
+            new TimeRangeFilter(name, propertyIndexes, intKey, strKey);
 
     trf.setParentPropertyIndex(propertyIndexes.get(0));
     trf.setEntity(val);
@@ -418,13 +420,13 @@ public class ObjectFilter<T> extends PropertyFilter {
     return trf;
   }
 
-  /* ====================================================================
+  /* ==============================================================
    *                   Object methods
-   * ==================================================================== */
+   * ============================================================== */
 
   @Override
   public String toString() {
-    ToString ts= new ToString(this);
+    final ToString ts= new ToString(this);
 
     ts.append(getEntity());
 

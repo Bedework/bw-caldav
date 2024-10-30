@@ -28,9 +28,9 @@ import org.bedework.util.xml.tagdefs.AppleServerTags;
  */
 public class CreatedType extends BaseEntityChangeType {
 
-  /* ====================================================================
+  /* ==============================================================
    *                   Convenience methods
-   * ==================================================================== */
+   * ============================================================== */
 
   public CreatedType copyForAlias(final String collectionHref) {
     final CreatedType copy = new CreatedType();
@@ -42,9 +42,8 @@ public class CreatedType extends BaseEntityChangeType {
 
   /**
    * @param xml builder
-   * @throws Throwable
    */
-  public void toXml(final XmlEmit xml) throws Throwable {
+  public void toXml(final XmlEmit xml) {
     xml.openTag(AppleServerTags.created);
     toXmlSegment(xml);
     xml.closeTag(AppleServerTags.created);

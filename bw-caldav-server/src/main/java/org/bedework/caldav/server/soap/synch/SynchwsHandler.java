@@ -73,7 +73,7 @@ public class SynchwsHandler extends CalwsHandler {
 
       Object body = ur.body;
       if (body instanceof JAXBElement) {
-        body = ((JAXBElement)body).getValue();
+        body = ((JAXBElement<?>)body).getValue();
       }
 
       if (body instanceof StartServiceNotificationType) {
@@ -234,7 +234,7 @@ public class SynchwsHandler extends CalwsHandler {
 
   private SynchConnectionsMBean conns;
 
-  private SynchConnectionsMBean getActiveConnections() throws Throwable {
+  private SynchConnectionsMBean getActiveConnections() {
     if (conns == null) {
       /*
       conns = (SynchConnectionsMBean)MBeanUtil.getMBean(SynchConnectionsMBean.class,
@@ -246,7 +246,7 @@ public class SynchwsHandler extends CalwsHandler {
     return conns;
   }
 
-  private void setActiveConnection(final SynchConnection val) throws Throwable {
+  private void setActiveConnection(final SynchConnection val) {
     getActiveConnections().setConnection(val);
   }
 

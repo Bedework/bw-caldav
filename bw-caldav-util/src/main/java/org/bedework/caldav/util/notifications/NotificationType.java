@@ -223,9 +223,8 @@ public class NotificationType {
 
   /**
    * @return XML version of notification without bedework elements
-   * @throws Throwable
    */
-  public String toXml() throws Throwable {
+  public String toXml() {
     return toXml(false);
   }
 
@@ -265,9 +264,8 @@ public class NotificationType {
 
   /**
    * @param xml emitter
-   * @throws Throwable
    */
-  public void toXml(final XmlEmit xml) throws Throwable {
+  public void toXml(final XmlEmit xml) {
     xml.openTag(AppleServerTags.notification);
 
     if (Boolean.parseBoolean(xml.getProperty("withBedeworkElements")) &&

@@ -245,9 +245,9 @@ public class ResourceChangeType extends BaseNotificationType {
     updated.clear();
   }
 
-  /* ====================================================================
+  /* ==============================================================
    *                   BaseNotificationType methods
-   * ==================================================================== */
+   * ============================================================== */
 
   @Override
   public QName getElementName() {
@@ -297,7 +297,7 @@ public class ResourceChangeType extends BaseNotificationType {
   }
 
   @Override
-  public void prefixHrefs(final UrlPrefixer prefixer) throws Throwable {
+  public void prefixHrefs(final UrlPrefixer prefixer) {
     if (getCreated() != null) {
       getCreated().prefixHrefs(prefixer);
       return;
@@ -319,7 +319,7 @@ public class ResourceChangeType extends BaseNotificationType {
   }
 
   @Override
-  public void unprefixHrefs(final UrlUnprefixer unprefixer) throws Throwable {
+  public void unprefixHrefs(final UrlUnprefixer unprefixer) {
     if (getCreated() != null) {
       getCreated().unprefixHrefs(unprefixer);
       return;
@@ -341,7 +341,7 @@ public class ResourceChangeType extends BaseNotificationType {
   }
 
   @Override
-  public void toXml(final XmlEmit xml) throws Throwable {
+  public void toXml(final XmlEmit xml) {
     xml.openTag(AppleServerTags.resourceChange);
 
     if (getCreated() != null) {

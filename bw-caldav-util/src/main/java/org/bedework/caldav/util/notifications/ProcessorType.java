@@ -76,15 +76,14 @@ public class ProcessorType {
     return status;
   }
 
-  /* ====================================================================
+  /* ==============================================================
    *                   Convenience methods
-   * ==================================================================== */
+   * ============================================================== */
 
   /**
    * @param xml emitter
-   * @throws Throwable
    */
-  public void toXml(final XmlEmit xml) throws Throwable {
+  public void toXml(final XmlEmit xml) {
     xml.openTag(BedeworkServerTags.processor);
     xml.property(BedeworkServerTags.type, getType());
 

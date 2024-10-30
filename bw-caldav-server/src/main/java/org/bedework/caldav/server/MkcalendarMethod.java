@@ -36,10 +36,6 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class MkcalendarMethod extends PropPatchMethod {
   @Override
-  public void init() {
-  }
-
-  @Override
   public void doMethod(final HttpServletRequest req,
                        final HttpServletResponse resp) {
     if (debug()) {

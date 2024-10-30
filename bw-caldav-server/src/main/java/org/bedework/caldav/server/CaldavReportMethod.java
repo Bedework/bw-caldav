@@ -151,7 +151,7 @@ public class CaldavReportMethod extends ReportMethod {
     } catch (final Throwable t) {
       System.err.println(t.getMessage());
       if (debug()) {
-        t.printStackTrace();
+        error(t);
       }
 
       throw new WebdavException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -330,7 +330,7 @@ public class CaldavReportMethod extends ReportMethod {
             href = decoded;
           }
 
-          if ((href == null) || (href.length() == 0)) {
+          if ((href == null) || (href.isEmpty())) {
             throw new WebdavBadRequest("Bad href");
           }
 
@@ -625,11 +625,9 @@ public class CaldavReportMethod extends ReportMethod {
       return nodes;
     }
 
-    if (!(node instanceof CaldavCalNode)) {
+    if (!(node instanceof final CaldavCalNode calnode)) {
       throw new WebdavBadRequest();
     }
-
-    final CaldavCalNode calnode = (CaldavCalNode)node;
 
     /* TODO - should we return info about the collection?
      * Probably if the filter allows it.
@@ -718,14 +716,13 @@ public class CaldavReportMethod extends ReportMethod {
                          WebdavNsIntf.nodeTypeCollection,
                          false);
 
-    if (!(node instanceof CaldavCalNode)) {
+    if (!(node instanceof final CaldavCalNode cnode)) {
       if (debug()) {
         debug("Expected CaldavCalNode - got " + node);
       }
       throw new WebdavBadRequest();
     }
 
-    final CaldavCalNode cnode = (CaldavCalNode)node;
     intf.getFreeBusy(cnode, freeBusy, defaultDepth(depth, 0));
     resp.setContentLength(-1);
 

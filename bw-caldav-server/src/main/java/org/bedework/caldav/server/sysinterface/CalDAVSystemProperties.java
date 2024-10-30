@@ -31,9 +31,9 @@ import java.io.Serializable;
 public interface CalDAVSystemProperties extends Serializable {
   /** Set the feature flags property
    *
-   * @param val
+   * @param val feature flags
    */
-  void setFeatureFlags(final String val);
+  void setFeatureFlags(String val);
 
   /** Get the feature flags property
    *
@@ -44,9 +44,9 @@ public interface CalDAVSystemProperties extends Serializable {
 
   /** Set the administrator contact property
    *
-   * @param val
+   * @param val administrator contact
    */
-  void setAdminContact(final String val);
+  void setAdminContact(String val);
 
   /** Get the administrator contact property
    *
@@ -83,7 +83,7 @@ public interface CalDAVSystemProperties extends Serializable {
    *
    * @param val    String
    */
-  void setIscheduleURI(final String val);
+  void setIscheduleURI(String val);
 
   /** get the ischedule service uri - null for no ischedule service
    *
@@ -96,7 +96,7 @@ public interface CalDAVSystemProperties extends Serializable {
    *
    * @param val    String
    */
-  void setFburlServiceURI(final String val);
+  void setFburlServiceURI(String val);
 
   /** get the Free busy service uri - null for no freebusy service
    *
@@ -109,7 +109,7 @@ public interface CalDAVSystemProperties extends Serializable {
    *
    * @param val    String
    */
-  void setWebcalServiceURI(final String val);
+  void setWebcalServiceURI(String val);
 
   /** get the web calendar service uri - null for no web calendar service
    *
@@ -122,7 +122,7 @@ public interface CalDAVSystemProperties extends Serializable {
    *
    * @param val    String
    */
-  void setCalSoapWsURI(final String val);
+  void setCalSoapWsURI(String val);
 
   /** Get the calws soap web service uri - null for no service
    *
@@ -135,7 +135,7 @@ public interface CalDAVSystemProperties extends Serializable {
    *
    * @param val    Integer max
    */
-  void setVpollMaxItems(final Integer val);
+  void setVpollMaxItems(Integer val);
 
   /**
    *
@@ -148,7 +148,7 @@ public interface CalDAVSystemProperties extends Serializable {
    *
    * @param val    Integer max
    */
-  void setVpollMaxActive(final Integer val);
+  void setVpollMaxActive(Integer val);
 
   /**
    *
@@ -161,7 +161,7 @@ public interface CalDAVSystemProperties extends Serializable {
    *
    * @param val    Integer max
    */
-  void setVpollMaxVoters(final Integer val);
+  void setVpollMaxVoters(Integer val);
 
   /**
    *

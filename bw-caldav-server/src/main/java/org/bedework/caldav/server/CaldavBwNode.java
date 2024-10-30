@@ -95,7 +95,8 @@ public abstract class CaldavBwNode extends WebdavNsNode {
      * @param inPropAll
      * @param inLink
      */
-    public PropertyTagXrdEntry(final QName tag, final String xrdName,
+    public PropertyTagXrdEntry(final QName tag,
+                               final String xrdName,
                                final boolean inPropAll,
                                final boolean inLink) {
       super(tag, inPropAll);
@@ -105,7 +106,7 @@ public abstract class CaldavBwNode extends WebdavNsNode {
   }
 
   private final static HashMap<String, PropertyTagXrdEntry> xrdNames =
-    new HashMap<String, PropertyTagXrdEntry>();
+          new HashMap<>();
 
   static {
     addXrdEntry(xrdNames, CalWSXrdDefs.created, true, false);
@@ -115,7 +116,7 @@ public abstract class CaldavBwNode extends WebdavNsNode {
   }
 
   /* for accessing calendars */
-  private SysIntf sysi;
+  private final SysIntf sysi;
 
   CaldavBwNode(final CaldavURI cdURI,
                final SysIntf sysi) {
@@ -339,44 +340,44 @@ public abstract class CaldavBwNode extends WebdavNsNode {
                                        final WebdavNsIntf intf,
                                        final boolean allProp) {
     try {
-      if (name.equals(CalWSXrdDefs.created)) {
-        final String val = getCreDate();
-        if (val == null) {
+      switch (name) {
+        case CalWSXrdDefs.created -> {
+          final String val = getCreDate();
+          if (val == null) {
+            return true;
+          }
+
+          props.add(xrdProperty(name, val));
           return true;
         }
+        case CalWSXrdDefs.displayname -> {
+          final String val = getDisplayname();
+          if (val == null) {
+            return true;
+          }
 
-        props.add(xrdProperty(name, val));
-        return true;
-      }
-
-      if (name.equals(CalWSXrdDefs.displayname)) {
-        final String val = getDisplayname();
-        if (val == null) {
+          props.add(xrdProperty(name, val));
           return true;
         }
+        case CalWSXrdDefs.lastModified -> {
+          final String val = getLastmodDate();
+          if (val == null) {
+            return true;
+          }
 
-        props.add(xrdProperty(name, val));
-        return true;
-      }
-
-      if (name.equals(CalWSXrdDefs.lastModified)) {
-        final String val = getLastmodDate();
-        if (val == null) {
+          props.add(xrdProperty(name, val));
           return true;
         }
+        case CalWSXrdDefs.owner -> {
+          String href = intf.makeUserHref(
+                  getOwner().getPrincipalRef());
+          if (!href.endsWith("/")) {
+            href += "/";
+          }
+          props.add(xrdProperty(name, href));
 
-        props.add(xrdProperty(name, val));
-        return true;
-      }
-
-      if (name.equals(CalWSXrdDefs.owner)) {
-        String href = intf.makeUserHref(getOwner().getPrincipalRef());
-        if (!href.endsWith("/")) {
-          href += "/";
+          return true;
         }
-        props.add(xrdProperty(name, href));
-
-        return true;
       }
 
       return false;
@@ -537,9 +538,9 @@ public abstract class CaldavBwNode extends WebdavNsNode {
     return val.split("\t");
   }
 
-  /* ====================================================================
+  /* ==============================================================
    *                   Object methods
-   * ==================================================================== */
+   * ============================================================== */
 
   @Override
   public String toString() {

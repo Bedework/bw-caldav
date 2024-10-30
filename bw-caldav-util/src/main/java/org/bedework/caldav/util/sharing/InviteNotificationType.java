@@ -191,9 +191,9 @@ public class InviteNotificationType extends BaseNotificationType {
     return previousStatus;
   }
 
-  /* ====================================================================
+  /* ==============================================================
    *                   BaseNotificationType methods
-   * ==================================================================== */
+   * ============================================================== */
 
   @Override
   public QName getElementName() {
@@ -234,17 +234,17 @@ public class InviteNotificationType extends BaseNotificationType {
   }
 
   @Override
-  public void prefixHrefs(final UrlPrefixer prefixer) throws Throwable {
+  public void prefixHrefs(final UrlPrefixer prefixer) {
     setHostUrl(prefixer.prefix(getHostUrl()));
   }
 
   @Override
-  public void unprefixHrefs(final UrlUnprefixer unprefixer) throws Throwable {
+  public void unprefixHrefs(final UrlUnprefixer unprefixer) {
     setHostUrl(unprefixer.unprefix(getHostUrl()));
   }
 
   @Override
-  public void toXml(final XmlEmit xml) throws Throwable {
+  public void toXml(final XmlEmit xml) {
     if (getSharedType() != null) {
       xml.openTag(AppleServerTags.inviteNotification,
                   "shared-type", getSharedType());
@@ -278,9 +278,9 @@ public class InviteNotificationType extends BaseNotificationType {
     xml.closeTag(AppleServerTags.inviteNotification);
   }
 
-  /* ====================================================================
+  /* ==============================================================
    *                   Convenience methods
-   * ==================================================================== */
+   * ============================================================== */
 
   /** Add our stuff to the StringBuffer
    *

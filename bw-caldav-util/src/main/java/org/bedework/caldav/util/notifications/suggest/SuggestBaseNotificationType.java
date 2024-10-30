@@ -151,20 +151,20 @@ public abstract class SuggestBaseNotificationType extends
   }
 
   @Override
-  public void prefixHrefs(final UrlPrefixer prefixer) throws Throwable {
+  public void prefixHrefs(final UrlPrefixer prefixer) {
     setHref(prefixer.prefix(getHref()));
     setSuggesterHref(prefixer.prefix(getSuggesterHref()));
     setSuggesteeHref(prefixer.prefix(getSuggesteeHref()));
   }
 
   @Override
-  public void unprefixHrefs(final UrlUnprefixer unprefixer) throws Throwable {
+  public void unprefixHrefs(final UrlUnprefixer unprefixer) {
     setHref(unprefixer.unprefix(getHref()));
     setSuggesterHref(unprefixer.unprefix(getSuggesterHref()));
     setSuggesteeHref(unprefixer.unprefix(getSuggesteeHref()));
   }
 
-  protected void bodyToXml(final XmlEmit xml) throws Throwable {
+  protected void bodyToXml(final XmlEmit xml) {
     /* base notification fields */
     super.toXml(xml);
 

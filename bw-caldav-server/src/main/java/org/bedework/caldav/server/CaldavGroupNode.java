@@ -20,7 +20,6 @@ package org.bedework.caldav.server;
 
 import org.bedework.caldav.server.sysinterface.CalPrincipalInfo;
 import org.bedework.caldav.server.sysinterface.SysIntf;
-import org.bedework.webdav.servlet.shared.WebdavException;
 
 /** Class to represent a group in caldav.
  *
@@ -29,8 +28,8 @@ import org.bedework.webdav.servlet.shared.WebdavException;
  */
 public class CaldavGroupNode extends CaldavPrincipalNode {
   /**
-   * @param cdURI
-   * @param sysi
+   * @param cdURI reference t resource
+   * @param sysi interface
    * @param ui    User Info
    */
   public CaldavGroupNode(final CaldavURI cdURI, final SysIntf sysi,

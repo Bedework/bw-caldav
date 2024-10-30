@@ -20,7 +20,6 @@ package org.bedework.caldav.server;
 
 import org.bedework.webdav.servlet.shared.UrlHandler;
 import org.bedework.webdav.servlet.shared.WebdavBadRequest;
-import org.bedework.webdav.servlet.shared.WebdavException;
 
 import org.apache.james.jdkim.tagvalue.SignatureRecordImpl;
 
@@ -34,12 +33,12 @@ import javax.servlet.http.HttpServletRequest;
  *
  */
 public class IscheduleIn extends IscheduleMessage {
-  private HttpServletRequest req;
+  private final HttpServletRequest req;
 
   /** Constructor
    *
-   * @param req
-   * @param urlHandler
+   * @param req http request
+   * @param urlHandler to manipulate urls
    */
   @SuppressWarnings("unchecked")
   public IscheduleIn(final HttpServletRequest req,
@@ -47,68 +46,61 @@ public class IscheduleIn extends IscheduleMessage {
     this.req = req;
 
     /* Expect originator and recipient headers */
-    for (Enumeration<String> e = req.getHeaderNames();
+    for (final Enumeration<String> e = req.getHeaderNames();
          e.hasMoreElements();) {
-      String name = e.nextElement();
-      String nameLc = name.toLowerCase();
+      final String name = e.nextElement();
+      final String nameLc = name.toLowerCase();
 
       addField(nameLc);
 
-      for (Enumeration<String> hvals = req.getHeaders(name);
+      for (final Enumeration<String> hvals = req.getHeaders(name);
            hvals.hasMoreElements();) {
-        String hval = hvals.nextElement();
+        final String hval = hvals.nextElement();
         addHeader(nameLc, hval);
 
-        if ("originator".equals(nameLc)) {
-          if (originator != null) {
-            throw new WebdavBadRequest("Multiple originator headers");
+        switch (nameLc) {
+          case "originator" -> {
+            if (originator != null) {
+              throw new WebdavBadRequest(
+                      "Multiple originator headers");
+            }
+
+            originator = adjustPrincipal(hval, urlHandler);
           }
+          case "recipient" -> {
+            final String[] rlist = hval.split(",");
 
-          originator = adjustPrincipal(hval, urlHandler);
-          continue;
-        }
-
-        if ("recipient".equals(nameLc)) {
-          String[] rlist = hval.split(",");
-
-          if (rlist != null) {
-            for (String r: rlist) {
+            for (final String r: rlist) {
               recipients.add(adjustPrincipal(r.trim(), urlHandler));
             }
           }
+          case "ischedule-version" -> {
+            if (iScheduleVersion != null) {
+              throw new WebdavBadRequest(
+                      "Multiple iSchedule-Version headers");
+            }
 
-          continue;
-        }
-
-        if ("ischedule-version".equals(nameLc)) {
-          if (iScheduleVersion != null) {
-            throw new WebdavBadRequest("Multiple iSchedule-Version headers");
+            iScheduleVersion = hval;
           }
+          case "ischedule-message-id" -> {
+            if (iScheduleMessageId != null) {
+              throw new WebdavBadRequest(
+                      "Multiple iSchedule-Message-Id headers");
+            }
 
-          iScheduleVersion = hval;
-
-          continue;
-        }
-
-        if ("ischedule-message-id".equals(nameLc)) {
-          if (iScheduleMessageId != null) {
-            throw new WebdavBadRequest("Multiple iSchedule-Message-Id headers");
+            iScheduleMessageId = hval;
           }
+          case "dkim-signature" -> {
+            if (dkimSignature != null) {
+              throw new WebdavBadRequest(
+                      "Multiple dkim-signature headers");
+            }
 
-          iScheduleMessageId = hval;
-
-          continue;
-        }
-
-        if ("dkim-signature".equals(nameLc)) {
-          if (dkimSignature != null) {
-            throw new WebdavBadRequest("Multiple dkim-signature headers");
+            dkimSignature = SignatureRecordImpl.forIschedule(hval);
+            //dkimSignature.validate();
           }
-
-          dkimSignature = SignatureRecordImpl.forIschedule(hval);
-          //dkimSignature.validate();
-          continue;
         }
+
       }
     }
   }

@@ -34,7 +34,7 @@ public class SysIntfReader extends Reader implements Logged {
   // separate out interleaved trace
   private volatile static int objnum;
 
-  private LineNumberReader lnr;
+  private final LineNumberReader lnr;
 
   private char[] curChars;
   private int len;

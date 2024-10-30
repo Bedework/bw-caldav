@@ -78,15 +78,14 @@ public class ChangedParameterType {
     return dataTo;
   }
 
-  /* ====================================================================
+  /* ==============================================================
    *                   Convenience methods
-   * ==================================================================== */
+   * ============================================================== */
 
   /**
-   * @param xml
-   * @throws Throwable
+   * @param xml emitter
    */
-  public void toXml(final XmlEmit xml) throws Throwable {
+  public void toXml(final XmlEmit xml) {
     if (Boolean.parseBoolean(xml.getProperty("withBedeworkElements"))) {
       xml.openTag(AppleServerTags.changedParameter, "name", getName());
 
@@ -105,7 +104,7 @@ public class ChangedParameterType {
 
   /** Add our stuff to the StringBuffer
    *
-   * @param ts
+   * @param ts for output
    */
   protected void toStringSegment(final ToString ts) {
     ts.append("ChangedParameter:name", getName());
@@ -119,7 +118,7 @@ public class ChangedParameterType {
 
   @Override
   public String toString() {
-    ToString ts = new ToString(this);
+    final ToString ts = new ToString(this);
 
     toStringSegment(ts);
 

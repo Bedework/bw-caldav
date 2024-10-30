@@ -99,9 +99,9 @@ public abstract class EventregBaseNotificationType extends
     return comment;
   }
 
-  /* ====================================================================
+  /* ==============================================================
    *                   BaseNotificationType methods
-   * ==================================================================== */
+   * ============================================================== */
 
   @Override
   public void setName(final String val) {
@@ -135,18 +135,18 @@ public abstract class EventregBaseNotificationType extends
   }
 
   @Override
-  public void prefixHrefs(final UrlPrefixer prefixer) throws Throwable {
+  public void prefixHrefs(final UrlPrefixer prefixer) {
     setHref(prefixer.prefix(getHref()));
     setPrincipalHref(prefixer.prefix(getPrincipalHref()));
   }
 
   @Override
-  public void unprefixHrefs(final UrlUnprefixer unprefixer) throws Throwable {
+  public void unprefixHrefs(final UrlUnprefixer unprefixer) {
     setHref(unprefixer.unprefix(getHref()));
     setPrincipalHref(unprefixer.unprefix(getPrincipalHref()));
   }
 
-  protected void bodyToXml(final XmlEmit xml) throws Throwable {
+  protected void bodyToXml(final XmlEmit xml) {
     /* base notification fields */
     super.toXml(xml);
 
@@ -158,9 +158,9 @@ public abstract class EventregBaseNotificationType extends
     xml.property(BedeworkServerTags.comment, getComment());
   }
 
-  /* ====================================================================
+  /* ==============================================================
    *                   Convenience methods
-   * ==================================================================== */
+   * ============================================================== */
 
   /** Add our stuff to the StringBuffer
    *

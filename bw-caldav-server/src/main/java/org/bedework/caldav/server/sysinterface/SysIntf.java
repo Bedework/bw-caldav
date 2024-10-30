@@ -35,12 +35,12 @@ import org.bedework.caldav.util.sharing.InviteType;
 import org.bedework.caldav.util.sharing.ShareResultType;
 import org.bedework.caldav.util.sharing.ShareType;
 import org.bedework.util.calendar.ScheduleStates;
+import org.bedework.util.misc.ToString;
 import org.bedework.util.xml.XmlEmit;
 import org.bedework.webdav.servlet.shared.PrincipalPropertySearch;
 import org.bedework.webdav.servlet.shared.UrlHandler;
 import org.bedework.webdav.servlet.shared.WdEntity;
 import org.bedework.webdav.servlet.shared.WdSysIntf;
-import org.bedework.webdav.servlet.shared.WebdavException;
 
 import ietf.params.xml.ns.icalendar_2.IcalendarType;
 import net.fortuna.ical4j.model.Calendar;
@@ -105,71 +105,71 @@ public interface SysIntf extends WdSysIntf {
    *
    * @return true for extensions enabled.
    */
-  public boolean bedeworkExtensionsEnabled();
+  boolean bedeworkExtensionsEnabled();
 
   /** Return CalDAV properties relevant to authentication state.
    *
    * @return CalDAVAuthProperties object - never null.
    */
-  public CalDAVAuthProperties getAuthProperties();
+  CalDAVAuthProperties getAuthProperties();
 
   /** Return CalDAV relevant properties about the system.
    *
    * @return CalDAVSystemProperties object - never null.
    */
-  public CalDAVSystemProperties getSystemProperties();
+  CalDAVSystemProperties getSystemProperties();
 
   /** Return the current principal
    *
    * @return String
    */
-  public AccessPrincipal getPrincipal();
+  AccessPrincipal getPrincipal();
 
   /** Get a property handler
    *
-   * @param ptype
+   * @param ptype type of property
    * @return PropertyHandler
    */
-  public PropertyHandler getPropertyHandler(PropertyType ptype);
+  PropertyHandler getPropertyHandler(PropertyType ptype);
 
   /**
    * @return UrlHandler object to manipulate urls.
    */
-  public UrlHandler getUrlHandler();
+  UrlHandler getUrlHandler();
 
   /* *
    * @return String url prefix derived from request.
    * /
-  public String getUrlPrefix();
+  String getUrlPrefix();
 
   /* *
    * @return boolean - true if using relative urls for broken clients
    * /
-  public boolean getRelativeUrls();*/
+  boolean getRelativeUrls();*/
 
   /** Does the value appear to represent a valid principal?
    *
-   * @param val
+   * @param val possible principal
    * @return true if it's a (possible) principal
    */
-  public boolean isPrincipal(String val);
+  boolean isPrincipal(String val);
 
   /** Return principal information for the given account.
    *
    *
-   * @param account
+   * @param account id
    * @return PrincipalInfo
    */
-  public AccessPrincipal getPrincipalForUser(String account);
+  AccessPrincipal getPrincipalForUser(String account);
 
   /** Return principal information for the given href. Also tests for a valid
    * principal.
    *
    *
-   * @param href
+   * @param href principal href
    * @return PrincipalInfo
    */
-  public AccessPrincipal getPrincipal(String href);
+  AccessPrincipal getPrincipal(String href);
 
   /** Returns a public key for the given domain and service - either or both of
    * which may be null.
@@ -190,15 +190,15 @@ public interface SysIntf extends WdSysIntf {
    * @param service
    * @return key, empty key object or null.
    */
-  public byte[] getPublicKey(String domain,
-                             String service);
+  byte[] getPublicKey(String domain,
+                      String service);
 
   /**
    * @param id
    * @param whoType - from WhoDefs
    * @return String href
    */
-  public String makeHref(String id, int whoType);
+  String makeHref(String id, int whoType);
 
   /** The urls should be principal urls. principalUrl can null for the current user.
    * The result is a collection of principal urls of which the given url is a
@@ -211,8 +211,8 @@ public interface SysIntf extends WdSysIntf {
    * @param principalUrl - url of principal or null for current user
    * @return Collection of urls - always non-null
    */
-  public Collection<String>getGroups(String rootUrl,
-                                     String principalUrl);
+  Collection<String>getGroups(String rootUrl,
+                              String principalUrl);
 
   /** Given a calendar address return the associated calendar account.
    * For example, we might have a calendar address<br/>
@@ -226,14 +226,14 @@ public interface SysIntf extends WdSysIntf {
    * @param caladdr      calendar address
    * @return AccessPrincipal or null if not caladdr for this system
    */
-  public AccessPrincipal caladdrToPrincipal(String caladdr);
+  AccessPrincipal caladdrToPrincipal(String caladdr);
 
   /** The inverse of caladdrToPrincipal
    *
-   * @param principal
+   * @param principal object
    * @return String calendar user address
    */
-  public String principalToCaladdr(AccessPrincipal principal);
+  String principalToCaladdr(AccessPrincipal principal);
 
   /** Given a valid AccessPrincipal return the associated calendar user information
    * needed for caldav interactions.
@@ -242,38 +242,35 @@ public interface SysIntf extends WdSysIntf {
    * @return CalUserInfo or null if not caladdr for this system
    * @throws RuntimeException  for errors
    */
-  public CalPrincipalInfo getCalPrincipalInfo(AccessPrincipal principal);
+  CalPrincipalInfo getCalPrincipalInfo(AccessPrincipal principal);
 
   /** Given a uri returns a Collection of uris that allow search operations on
    * principals for that resource.
    *
-   * @param resourceUri
+   * @param resourceUri reference to resource
    * @return Collection of String
    */
-  public Collection<String> getPrincipalCollectionSet(String resourceUri)
-         throws WebdavException;
+  Collection<String> getPrincipalCollectionSet(String resourceUri);
 
   /** Given a PrincipalPropertySearch returns a Collection of matching principals.
    *
-   * @param resourceUri
+   * @param resourceUri reference to resource
    * @param pps Collection of PrincipalPropertySearch
    * @return Collection of CalUserInfo
    */
-  public Collection<CalPrincipalInfo> getPrincipals(String resourceUri,
-                                  PrincipalPropertySearch pps)
-          throws WebdavException;
+  Collection<CalPrincipalInfo> getPrincipals(String resourceUri,
+                                             PrincipalPropertySearch pps);
 
   /** Is href a valid principal?
    *
-   * @param href
+   * @param href of possible principal
    * @return boolean true for a valid user
-   * @throws WebdavException  for errors
    */
-  public boolean validPrincipal(String href);
+  boolean validPrincipal(String href);
 
-  /* ====================================================================
+  /* ==============================================================
    *                   Notifications
-   * ==================================================================== */
+   * ============================================================== */
 
   /** Subscribe for email notifications to the notification engine for the
    * indicated calendar user.
@@ -290,8 +287,8 @@ public interface SysIntf extends WdSysIntf {
   /** Add the given notification to the notification collection for the
    * indicated calendar user.
    *
-   * @param href
-   * @param val
+   * @param href principal
+   * @param val notification
    * @return false for unknown CU
    */
   boolean sendNotification(String href,
@@ -300,32 +297,32 @@ public interface SysIntf extends WdSysIntf {
   /** Remove the given notification from the notification collection for the
    * indicated calendar user.
    *
-   * @param href
-   * @param val
+   * @param href principal
+   * @param val notification
    */
-  public void removeNotification(String href,
-                                 NotificationType val);
+  void removeNotification(String href,
+                          NotificationType val);
 
   /**
    * @return notifications for this user
    */
-  public List<NotificationType> getNotifications();
+  List<NotificationType> getNotifications();
 
   /**
    * @param href of principal
    * @param type of notification (null for all)
    * @return notifications for the given principal of the given type
    */
-  public List<NotificationType> getNotifications(String href,
-                                                 QName type);
+  List<NotificationType> getNotifications(String href,
+                                          QName type);
 
   /**
    * @param col MUST be a sharable collection
    * @param share is the request
    * @return list of ok and !ok sharees
    */
-  public ShareResultType share(final CalDAVCollection<?> col,
-                               final ShareType share);
+  ShareResultType share(CalDAVCollection<?> col,
+                        ShareType share);
 
   /** Handle a reply to a sharing notification.
    *
@@ -335,29 +332,28 @@ public interface SysIntf extends WdSysIntf {
    * @return null for unknown sharer or no invitation otherwise the path to the
    *                   new alias in the sharees calendar home.
    */
-  public String sharingReply(CalDAVCollection<?> col,
-                             InviteReplyType reply);
+  String sharingReply(CalDAVCollection<?> col,
+                      InviteReplyType reply);
 
   /**
-   * @param col
+   * @param col collection
    * @return current invitations
    */
-  InviteType getInviteStatus(final CalDAVCollection<?> col);
+  InviteType getInviteStatus(CalDAVCollection<?> col);
 
-  /* ====================================================================
+  /* ==============================================================
    *                   Scheduling
-   * ==================================================================== */
+   * ============================================================== */
 
   /** Return a set of hrefs for each resource affecting this users freebusy
    *
    * @return Collection of hrefs
-   * @throws WebdavException  for errors
    */
-  public Collection<String> getFreebusySet();
+  Collection<String> getFreebusySet();
 
   /** Result for a single recipient.
    */
-  public static class SchedRecipientResult implements ScheduleStates {
+  class SchedRecipientResult implements ScheduleStates {
     /** */
     public String recipient;
 
@@ -369,22 +365,9 @@ public interface SysIntf extends WdSysIntf {
 
     @Override
     public String toString() {
-      StringBuilder sb = new StringBuilder("ScheduleRecipientResult{");
-
-      tsseg(sb, "", "recipient", recipient);
-      tsseg(sb, ", ", "status", String.valueOf(status));
-
-      sb.append("}");
-
-      return sb.toString();
-    }
-
-    private static void tsseg(final StringBuilder sb, final String delim, final String name,
-                              final String val) {
-      sb.append(delim);
-      sb.append(name);
-      sb.append("=");
-      sb.append(val);
+      return new ToString(this).append("recipient", recipient)
+                               .append("status", String.valueOf(status))
+                               .toString();
     }
   }
 
@@ -403,12 +386,11 @@ public interface SysIntf extends WdSysIntf {
    * @param ev         Event object
    * @return ScheduleResult
    */
-  public Collection<SchedRecipientResult> schedule(CalDAVEvent<?> ev)
-                throws WebdavException;
+  Collection<SchedRecipientResult> schedule(CalDAVEvent<?> ev);
 
-  /* ====================================================================
+  /* ==============================================================
    *                   Events
-   * ==================================================================== */
+   * ============================================================== */
 
   /** Add an event/task/journal. If this is a scheduling event we are adding,
    * determined by examining the organizer and attendee properties, we will send
@@ -419,32 +401,32 @@ public interface SysIntf extends WdSysIntf {
    * @param rollbackOnError true if we rollback and throw an exception on error
    * @return Collection of overrides which did not match or null if all matched
    */
-  public Collection<CalDAVEvent<?>> addEvent(CalDAVEvent<?> ev,
-                                             boolean noInvites,
-                                             boolean rollbackOnError);
+  Collection<CalDAVEvent<?>> addEvent(CalDAVEvent<?> ev,
+                                      boolean noInvites,
+                                      boolean rollbackOnError);
 
   /** Reindex an event after an error that may be the result of an out
    * of date index.
    *
    * @param event  a CalDAVEvent object
    */
-  public void reindexEvent(CalDAVEvent<?> event);
+  void reindexEvent(CalDAVEvent<?> event);
 
   /** Update an event/todo/journal.
    *
    * @param event         updated CalDAVEvent object
    */
-  public void updateEvent(CalDAVEvent<?> event);
+  void updateEvent(CalDAVEvent<?> event);
 
   /** Show the outcome of an update
    * @author douglm
    */
-  public class UpdateResult {
+  class UpdateResult {
     private boolean ok;
 
     private String reason;
 
-    private static UpdateResult okResult = new UpdateResult();
+    private static final UpdateResult okResult = new UpdateResult();
 
     /**
      * @return result indicating OK.
@@ -487,8 +469,8 @@ public interface SysIntf extends WdSysIntf {
    * @param updates       set of updates to be applied
    * @return UpdateResult
    */
-  public UpdateResult updateEvent(CalDAVEvent<?> event,
-                                  List<ComponentSelectionType> updates);
+  UpdateResult updateEvent(CalDAVEvent<?> event,
+                           List<ComponentSelectionType> updates);
 
   /** Return the events for the current user in the given collection using the
    * supplied filter. Stored freebusy objects are returned as BwEvent
@@ -497,17 +479,16 @@ public interface SysIntf extends WdSysIntf {
    *
    * <p>We flag the desired entity types.
    *
-   * @param col
+   * @param col collection
    * @param filter - if non-null defines a search filter
    * @param retrieveList List of properties to retrieve or null for a full event.
    * @param recurRetrieval How recurring event is returned.
    * @return Collection  populated event value objects
    */
-  public Collection<CalDAVEvent<?>> getEvents(CalDAVCollection<?> col,
-                                              FilterBase filter,
-                                              List<String> retrieveList,
-                                              RetrievalMode recurRetrieval)
-          throws WebdavException;
+  Collection<CalDAVEvent<?>> getEvents(CalDAVCollection<?> col,
+                                       FilterBase filter,
+                                       List<String> retrieveList,
+                                       RetrievalMode recurRetrieval);
 
   /** Get events given the collection and String name. Return null for not
    * found. There should be only one event or none. For recurring, the
@@ -517,16 +498,15 @@ public interface SysIntf extends WdSysIntf {
    * @param val        String possible name
    * @return CalDAVEvent or null
    */
-  public CalDAVEvent<?> getEvent(CalDAVCollection<?> col,
-                              String val)
-          throws WebdavException;
+  CalDAVEvent<?> getEvent(CalDAVCollection<?> col,
+                          String val);
 
   /**
-   * @param ev
-   * @param scheduleReply - true if we want a schduling reply posted
+   * @param ev event
+   * @param scheduleReply - true if we want a scheduling reply posted
    */
-  public void deleteEvent(CalDAVEvent<?> ev,
-                          boolean scheduleReply);
+  void deleteEvent(CalDAVEvent<?> ev,
+                   boolean scheduleReply);
 
   /** Get the free busy for one or more principals based on the given VFREEBUSY
    * request.
@@ -536,56 +516,53 @@ public interface SysIntf extends WdSysIntf {
    * @param iSchedule true if this is from an ischedule request
    * @return ScheduleResult
    */
-  public Collection<SchedRecipientResult> requestFreeBusy(CalDAVEvent<?> val,
-                                                          boolean iSchedule)
-          throws WebdavException;
+  Collection<SchedRecipientResult> requestFreeBusy(CalDAVEvent<?> val,
+                                                   boolean iSchedule);
 
-  /** Handle the special freebusy resquests, i.e. non-CalDAV
+  /** Handle the special freebusy requests, i.e. non-CalDAV
    *
-   * @param cua
+   * @param cua calendar address
    * @param originator value of the Originator header
    * @param recipients values of Recipient headers
-   * @param tr
-   * @param wtr
+   * @param tr time range
+   * @param wtr writer for output
    */
-  public void getSpecialFreeBusy(String cua,
-                                 Set<String> recipients,
-                                 String originator,
-                                 TimeRange tr,
-                                 Writer wtr);
+  void getSpecialFreeBusy(String cua,
+                          Set<String> recipients,
+                          String originator,
+                          TimeRange tr,
+                          Writer wtr);
 
   /** Generate a free busy object for the given time period which reflects
    * the state of the given collection.
    *
-   * @param col
-   * @param depth
-   * @param timeRange
+   * @param col collection
+   * @param depth to traverse
+   * @param timeRange period
    * @return CalDAVEvent - as a freebusy entity
    */
-  public CalDAVEvent<?> getFreeBusy(final CalDAVCollection<?> col,
-                                    final int depth,
-                                    final TimeRange timeRange);
+  CalDAVEvent<?> getFreeBusy(CalDAVCollection<?> col,
+                             int depth,
+                             TimeRange timeRange);
 
   /** Check the access for the given entity. Returns the current access
    * or null or optionally throws a no access exception.
    *
-   * @param ent
-   * @param desiredAccess
-   * @param returnResult
+   * @param ent entity we want access to
+   * @param desiredAccess what access is needed
+   * @param returnResult throw exception if false and no access
    * @return CurrentAccess
-   * @throws WebdavException if returnResult false and no access
    */
-  public CurrentAccess checkAccess(WdEntity<?> ent,
-                                   int desiredAccess,
-                                   boolean returnResult)
-          throws WebdavException;
+  CurrentAccess checkAccess(WdEntity<?> ent,
+                            int desiredAccess,
+                            boolean returnResult);
 
   /**
-   * @param ev
-   * @param acl
+   * @param ev event
+   * @param acl new access
    */
-  public void updateAccess(CalDAVEvent<?> ev,
-                           Acl acl);
+  void updateAccess(CalDAVEvent<?> ev,
+                    Acl acl);
 
   /** Copy or move the given entity to the destination collection with the given name.
    * Status is set on return
@@ -597,11 +574,11 @@ public interface SysIntf extends WdSysIntf {
    * @param overwrite destination exists
    * @return true if destination created (i.e. not updated)
    */
-  public boolean copyMove(CalDAVEvent<?> from,
-                          CalDAVCollection<?> to,
-                          String name,
-                          boolean copy,
-                          boolean overwrite);
+  boolean copyMove(CalDAVEvent<?> from,
+                   CalDAVCollection<?> to,
+                   String name,
+                   boolean copy,
+                   boolean overwrite);
 
   /* ====================================================================
    *                   Collections
@@ -610,25 +587,25 @@ public interface SysIntf extends WdSysIntf {
   /** Return a new object representing the parameters. No collection is
    * created. makeCollection must be called subsequently with the object.
    *
-   * @param isCalendarCollection
-   * @param parentPath
+   * @param isCalendarCollection true for a calendar
+   * @param parentPath parent collection
    * @return CalDAVCollection
    */
-  public CalDAVCollection<?> newCollectionObject(boolean isCalendarCollection,
-                                                 String parentPath);
+  CalDAVCollection<?> newCollectionObject(boolean isCalendarCollection,
+                                          String parentPath);
 
   /**
-   * @param col
-   * @param acl
+   * @param col collection
+   * @param acl access
    */
-  public void updateAccess(CalDAVCollection<?> col,
-                           Acl acl);
+  void updateAccess(CalDAVCollection<?> col,
+                    Acl acl);
 
   /**
    * @param col   Initialised collection object
    * @return int status
    */
-  public int makeCollection(CalDAVCollection<?> col);
+  int makeCollection(CalDAVCollection<?> col);
 
   /** Copy or move the collection to another location.
    * Status is set on return
@@ -638,30 +615,30 @@ public interface SysIntf extends WdSysIntf {
    * @param copy      true for copying
    * @param overwrite destination exists
    */
-  public void copyMove(CalDAVCollection<?> from,
-                       CalDAVCollection<?> to,
-                       boolean copy,
-                       boolean overwrite);
+  void copyMove(CalDAVCollection<?> from,
+                CalDAVCollection<?> to,
+                boolean copy,
+                boolean overwrite);
 
   /** Get a collection given the path
    *
    * @param  path     String path of collection
    * @return CalDAVCollection null for unknown collection
    */
-  public CalDAVCollection<?> getCollection(String path);
+  CalDAVCollection<?> getCollection(String path);
 
   /** Update a collection.
    *
    * @param val           updated CalDAVCollection object
    */
-  public void updateCollection(CalDAVCollection<?> val);
+  void updateCollection(CalDAVCollection<?> val);
 
   /**
    * @param col to delete
    * @param sendSchedulingMessage  true if we should send cancels
    */
-  public void deleteCollection(CalDAVCollection<?> col,
-                               boolean sendSchedulingMessage);
+  void deleteCollection(CalDAVCollection<?> col,
+                        boolean sendSchedulingMessage);
 
   /** Returns children of the given collection to which the current user has
    * some access.
@@ -669,37 +646,36 @@ public interface SysIntf extends WdSysIntf {
    * @param  col          parent collection
    * @return Collection   of CalDAVCollection
    */
-  public Collection<CalDAVCollection<?>> getCollections(CalDAVCollection<?> col)
-          throws WebdavException;
+  Collection<CalDAVCollection<?>> getCollections(CalDAVCollection<?> col);
 
-  /* ====================================================================
+  /* ==============================================================
    *                   Files
-   * ==================================================================== */
+   * ============================================================== */
 
   /** Return a new object representing the parameters. No resource is
    * created. putFile must be called subsequently with the object.
    *
-   * @param parentPath
+   * @param parentPath parent collection
    * @return CalDAVResource
    */
-  public CalDAVResource<?> newResourceObject(String parentPath);
+  CalDAVResource<?> newResourceObject(String parentPath);
 
   /** PUT a file.
    *
    * @param coll         CalDAVCollection defining recipient collection
    * @param val          CalDAVResource
    */
-  public void putFile(CalDAVCollection<?> coll,
-                      CalDAVResource<?> val);
+  void putFile(CalDAVCollection<?> coll,
+               CalDAVResource<?> val);
 
   /** GET a file.
    *
    * @param coll         CalDAVCollection containing file
-   * @param name
+   * @param name of file
    * @return CalDAVResource
    */
-  public CalDAVResource<?> getFile(CalDAVCollection<?> coll,
-                                   String name);
+  CalDAVResource<?> getFile(CalDAVCollection<?> coll,
+                            String name);
 
   /** Get resource content given the resource. It will be set in the resource
    * object
@@ -707,28 +683,28 @@ public interface SysIntf extends WdSysIntf {
    * @param  val CalDAVResource
    * @throws RuntimeException on fatal error
    */
-  public void getFileContent(CalDAVResource<?> val);
+  void getFileContent(CalDAVResource<?> val);
 
   /** Get the files in a collection.
    *
    * @param coll         CalDAVCollection containing file
    * @return Collection of CalDAVResource
    */
-  public Collection<CalDAVResource<?>> getFiles(CalDAVCollection<?> coll);
+  Collection<CalDAVResource<?>> getFiles(CalDAVCollection<?> coll);
 
   /** Update a file.
    *
    * @param val          CalDAVResource
    * @param updateContent if true we also update the content
    */
-  public void updateFile(CalDAVResource<?> val,
-                         boolean updateContent);
+  void updateFile(CalDAVResource<?> val,
+                  boolean updateContent);
 
   /** Delete a file.
    *
    * @param val          CalDAVResource
    */
-  public void deleteFile(CalDAVResource<?> val);
+  void deleteFile(CalDAVResource<?> val);
 
   /** Copy or move the given file to the destination collection with the given name.
    * Status is set on return
@@ -740,11 +716,11 @@ public interface SysIntf extends WdSysIntf {
    * @param overwrite destination exists
    * @return true if destination created (i.e. not updated)
    */
-  public boolean copyMoveFile(CalDAVResource<?> from,
-                              String toPath,
-                              String name,
-                              boolean copy,
-                              boolean overwrite);
+  boolean copyMoveFile(CalDAVResource<?> from,
+                       String toPath,
+                       String name,
+                       boolean copy,
+                       boolean overwrite);
 
   /* ====================================================================
    *                   Synch Reports
@@ -754,7 +730,7 @@ public interface SysIntf extends WdSysIntf {
    *
    *   @author Mike Douglass   douglm   rpi.edu
    */
-  public static class SynchReportData {
+  class SynchReportData {
     /** The changed entity may be an event, a resource or a collection. If it is
      * deleted then it will be marked as tombstoned.
      *
@@ -766,7 +742,7 @@ public interface SysIntf extends WdSysIntf {
     public static class SynchReportDataItem implements Comparable<SynchReportDataItem> {
       /**
        */
-      private String token;
+      private final String token;
 
       /** Non-null if this is for a calendar entity */
       private CalDAVEvent<?> entity;
@@ -776,16 +752,16 @@ public interface SysIntf extends WdSysIntf {
 
       private CalDAVCollection<?> col;
 
-      private String vpath;
+      private final String vpath;
 
       /** true if we can provide sync info for this - usually false for aliases */
       private boolean canSync;
 
       /**
-       * @param vpath
-       * @param entity
-       * @param token
-           */
+       * @param vpath virtual path
+       * @param entity event
+       * @param token synch token
+       */
       public SynchReportDataItem(final String vpath,
                                  final CalDAVEvent<?> entity,
                                  final String token) {
@@ -795,10 +771,10 @@ public interface SysIntf extends WdSysIntf {
       }
 
       /**
-       * @param vpath
-       * @param resource
-       * @param token
-           */
+       * @param vpath virtual path
+       * @param resource entity
+       * @param token synch token
+       */
       public SynchReportDataItem(final String vpath,
                                  final CalDAVResource<?> resource,
                                  final String token) {
@@ -808,11 +784,11 @@ public interface SysIntf extends WdSysIntf {
       }
 
       /**
-       * @param vpath
-       * @param col
-       * @param token
+       * @param vpath virtual path
+       * @param col collection
+       * @param token synch token
        * @param canSync
-           */
+       */
       public SynchReportDataItem(final String vpath,
                                  final CalDAVCollection<?> col,
                                  final String token,
@@ -919,10 +895,10 @@ public interface SysIntf extends WdSysIntf {
   }
 
   /**
-   * @param col
+   * @param col collection
    * @return A sync-token which must be a URI.
    */
-  public String getSyncToken(CalDAVCollection<?> col);
+  String getSyncToken(CalDAVCollection<?> col);
 
   /**
    * @param path
@@ -931,14 +907,14 @@ public interface SysIntf extends WdSysIntf {
    * @param recurse
    * @return report
    */
-  public SynchReportData getSyncReport(String path,
-                                       String token,
-                                       int limit,
-                                       boolean recurse);
+  SynchReportData getSyncReport(String path,
+                                String token,
+                                int limit,
+                                boolean recurse);
 
-  /* ====================================================================
+  /* ==============================================================
    *                   Misc
-   * ==================================================================== */
+   * ============================================================== */
 
   /** Make an ical Calendar from an event.
    *
@@ -946,19 +922,19 @@ public interface SysIntf extends WdSysIntf {
    * @param incSchedMethod - true if we should emit the scheduling method
    * @return Calendar
    */
-  public Calendar toCalendar(CalDAVEvent<?> ev,
-                             boolean incSchedMethod);
+  Calendar toCalendar(CalDAVEvent<?> ev,
+                      boolean incSchedMethod);
 
   /** Make an XML IcalendarType from an event.
    *
-   * @param ev
+   * @param ev event
    * @param incSchedMethod - true if we should emit the scheduling method
    * @param pattern - non-null to restrict returned properties
    * @return IcalendarType
    */
-  public IcalendarType toIcalendar(CalDAVEvent<?> ev,
-                                   boolean incSchedMethod,
-                                   IcalendarType pattern);
+  IcalendarType toIcalendar(CalDAVEvent<?> ev,
+                            boolean incSchedMethod,
+                            IcalendarType pattern);
 
   /** Make a JSON jcal object from an event.
    *
@@ -966,20 +942,20 @@ public interface SysIntf extends WdSysIntf {
    * @param incSchedMethod - true if we should emit the scheduling method
    * @return String jcal representation
    */
-  public String toJcal(CalDAVEvent<?> ev,
-                       boolean incSchedMethod);
+  String toJcal(CalDAVEvent<?> ev,
+                boolean incSchedMethod);
 
-  /** Convert a Calendar to it's string form
+  /** Convert a Calendar to its string form
    *
    * @param cal Calendar to convert
    * @param contentType
    * @return String representation
    */
-  public String toIcalString(Calendar cal,
-                             String contentType);
+  String toIcalString(Calendar cal,
+                      String contentType);
 
   /** What method do we want emitted */
-  public static enum MethodEmitted {
+  enum MethodEmitted {
     /** No method for calendar */
     noMethod,
 
@@ -992,21 +968,21 @@ public interface SysIntf extends WdSysIntf {
 
   /** Write a collection of events as an ical calendar.
    *
-   * @param evs
+   * @param evs collection of events
    * @param method - what scheduling method?
    * @param xml - if this is embedded in an xml stream
    * @param wtr - if standalone output or no xml stream initialized.
    * @param contentType - requested type. null for default
    * @return actual contentType written
    */
-  public String writeCalendar(Collection<CalDAVEvent<?>> evs,
-                              MethodEmitted method,
-                              XmlEmit xml,
-                              Writer wtr,
-                              String contentType);
+  String writeCalendar(Collection<CalDAVEvent<?>> evs,
+                       MethodEmitted method,
+                       XmlEmit xml,
+                       Writer wtr,
+                       String contentType);
 
   /** Expected result type */
-  public enum IcalResultType {
+  enum IcalResultType {
     /** Expect one (non-timezone) component only */
     OneComponent,
 
@@ -1023,11 +999,11 @@ public interface SysIntf extends WdSysIntf {
    * @param mergeAttendees True if we should only update our own attendee.
    * @return SysiIcalendar
    */
-  public SysiIcalendar fromIcal(CalDAVCollection<?> col,
-                                Reader rdr,
-                                String contentType,
-                                IcalResultType rtype,
-                                boolean mergeAttendees);
+  SysiIcalendar fromIcal(CalDAVCollection<?> col,
+                         Reader rdr,
+                         String contentType,
+                         IcalResultType rtype,
+                         boolean mergeAttendees);
 
   /** Convert the Icalendar object to a Collection of Calendar objects
    *
@@ -1036,9 +1012,9 @@ public interface SysIntf extends WdSysIntf {
    * @param rtype
    * @return SysiIcalendar
    */
-  public SysiIcalendar fromIcal(CalDAVCollection<?> col,
-                                final IcalendarType ical,
-                                IcalResultType rtype);
+  SysiIcalendar fromIcal(CalDAVCollection<?> col,
+                         IcalendarType ical,
+                         IcalResultType rtype);
 
   /** Create a Calendar object from the named timezone and convert to
    * a String representation
@@ -1046,29 +1022,29 @@ public interface SysIntf extends WdSysIntf {
    * @param tzid       String timezone id
    * @return String
    */
-  public String toStringTzCalendar(String tzid);
+  String toStringTzCalendar(String tzid);
 
   /** Given a timezone spec return the tzid
    *
-   * @param val
+   * @param val timezone spec
    * @return String tzid or null for failure
    */
-  public String tzidFromTzdef(String val);
+  String tzidFromTzdef(String val);
 
   /** Validate an alarm component
    *
-   * @param val
+   * @param val an alarm component
    * @return boolean false for failure
    */
-  public boolean validateAlarm(String val);
+  boolean validateAlarm(String val);
 
   /** Called on the way out before close if there was an error.
    *
    */
-  public void rollback();
+  void rollback();
 
   /** End any transactions.
    *
    */
-  public void close();
+  void close();
 }

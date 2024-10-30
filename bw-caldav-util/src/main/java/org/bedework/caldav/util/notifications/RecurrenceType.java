@@ -102,21 +102,20 @@ public class RecurrenceType {
    */
   public List<ChangesType> getChanges() {
     if (changes == null) {
-      changes = new ArrayList<ChangesType>();
+      changes = new ArrayList<>();
     }
 
     return changes;
   }
 
-  /* ====================================================================
+  /* ==============================================================
    *                   Convenience methods
-   * ==================================================================== */
+   * ============================================================== */
 
   /**
-   * @param xml
-   * @throws Throwable
+   * @param xml emitter
    */
-  public void toXml(final XmlEmit xml) throws Throwable {
+  public void toXml(final XmlEmit xml) {
     xml.openTag(AppleServerTags.recurrence);
 
     if (getRecurrenceid() == null) {
@@ -130,7 +129,7 @@ public class RecurrenceType {
     } else if (getRemoved()) {
       xml.emptyTag(AppleServerTags.removed);
     } else {
-      for (ChangesType c: getChanges()) {
+      for (final ChangesType c: getChanges()) {
         c.toXml(xml);
       }
     }
@@ -140,7 +139,7 @@ public class RecurrenceType {
 
   /** Add our stuff to the StringBuffer
    *
-   * @param ts
+   * @param ts to string emitter
    */
   protected void toStringSegment(final ToString ts) {
     if (getRecurrenceid() == null) {
@@ -154,7 +153,7 @@ public class RecurrenceType {
     } else if (getRemoved()) {
       ts.append("removed");
     } else {
-      for (ChangesType c: getChanges()) {
+      for (final ChangesType c: getChanges()) {
         c.toStringSegment(ts);
       }
     }
@@ -162,7 +161,7 @@ public class RecurrenceType {
 
   @Override
   public String toString() {
-    ToString ts = new ToString(this);
+    final ToString ts = new ToString(this);
 
     toStringSegment(ts);
 

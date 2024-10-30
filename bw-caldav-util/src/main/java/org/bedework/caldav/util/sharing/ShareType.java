@@ -37,7 +37,7 @@ public class ShareType {
    */
   public List<SetType> getSet() {
     if (set == null) {
-      set = new ArrayList<SetType>();
+      set = new ArrayList<>();
     }
 
     return set;
@@ -48,19 +48,19 @@ public class ShareType {
    */
   public List<RemoveType> getRemove() {
     if (remove == null) {
-      remove = new ArrayList<RemoveType>();
+      remove = new ArrayList<>();
     }
 
     return remove;
   }
 
-  /* ====================================================================
+  /* ==============================================================
    *                   Convenience methods
-   * ==================================================================== */
+   * ============================================================== */
 
   /** Add our stuff to the StringBuffer
    *
-   * @param ts
+   * @param ts for output
    */
   protected void toStringSegment(final ToString ts) {
     ts.append("set", getSet());
@@ -69,7 +69,7 @@ public class ShareType {
 
   @Override
   public String toString() {
-    ToString ts = new ToString(this);
+    final ToString ts = new ToString(this);
 
     toStringSegment(ts);
 

@@ -33,7 +33,7 @@ public interface CalDAVAuthProperties extends Serializable {
    *
    * @param val    Integer max
    */
-  void setMaxUserEntitySize(final Integer val);
+  void setMaxUserEntitySize(Integer val);
 
   /**
    *
@@ -46,7 +46,7 @@ public interface CalDAVAuthProperties extends Serializable {
    *
    * @param val    Integer max
    */
-  void setMaxInstances(final Integer val);
+  void setMaxInstances(Integer val);
 
   /**
    *
@@ -59,7 +59,7 @@ public interface CalDAVAuthProperties extends Serializable {
    *
    * @param val    Integer max
    */
-  void setMaxAttendeesPerInstance(final Integer val);
+  void setMaxAttendeesPerInstance(Integer val);
 
   /**
    *
@@ -71,7 +71,7 @@ public interface CalDAVAuthProperties extends Serializable {
   /**
    * @param val    minimum date time allowed - null for no limit
    */
-  void setMinDateTime(final String val);
+  void setMinDateTime(String val);
 
   /**
    *
@@ -83,7 +83,7 @@ public interface CalDAVAuthProperties extends Serializable {
   /**
    * @param val    maximum date time allowed - null for no limit
    */
-  void setMaxDateTime(final String val);
+  void setMaxDateTime(String val);
 
   /**
    *
@@ -94,9 +94,9 @@ public interface CalDAVAuthProperties extends Serializable {
 
   /** Set the default freebusy fetch period - null if not specified
    *
-   * @param val
+   * @param val default freebusy fetch period - null if not specified
    */
-  void setDefaultFBPeriod(final Integer val);
+  void setDefaultFBPeriod(Integer val);
 
   /** get the default freebusy fetch period - null if not specified
    *
@@ -107,9 +107,9 @@ public interface CalDAVAuthProperties extends Serializable {
 
   /** Set the maximum freebusy fetch period
    *
-   * @param val
+   * @param val maximum freebusy fetch period
    */
-  void setMaxFBPeriod(final Integer val);
+  void setMaxFBPeriod(Integer val);
 
   /** get the maximum freebusy fetch period
    *
@@ -120,9 +120,9 @@ public interface CalDAVAuthProperties extends Serializable {
 
   /** Set the default webcal fetch period null if not specified
    *
-   * @param val
+   * @param val default webcal fetch period null if not specified
    */
-  void setDefaultWebCalPeriod(final Integer val);
+  void setDefaultWebCalPeriod(Integer val);
 
   /** Get the default webcal fetch period null if not specified
    *
@@ -133,9 +133,9 @@ public interface CalDAVAuthProperties extends Serializable {
 
   /** Set the maximum webcal fetch period
    *
-   * @param val
+   * @param val maximum webcal fetch period
    */
-  void setMaxWebCalPeriod(final Integer val);
+  void setMaxWebCalPeriod(Integer val);
 
   /** Set the maximum webcal fetch period
    *
@@ -148,7 +148,7 @@ public interface CalDAVAuthProperties extends Serializable {
    *
    * @param val    boolean directoryBrowsingDisallowed
    */
-  void setDirectoryBrowsingDisallowed(final boolean val);
+  void setDirectoryBrowsingDisallowed(boolean val);
 
   /**
    *

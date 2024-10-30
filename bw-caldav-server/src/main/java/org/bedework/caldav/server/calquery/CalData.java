@@ -43,17 +43,16 @@ import ietf.params.xml.ns.caldav.LimitFreebusySetType;
 import ietf.params.xml.ns.caldav.LimitRecurrenceSetType;
 import ietf.params.xml.ns.caldav.PropType;
 import net.fortuna.ical4j.model.Calendar;
-import net.fortuna.ical4j.model.Component;
 import net.fortuna.ical4j.model.ComponentList;
 import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.PropertyList;
+import net.fortuna.ical4j.model.component.CalendarComponent;
 import net.fortuna.ical4j.model.component.VEvent;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
 import java.util.Collection;
-import java.util.Iterator;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.namespace.QName;
@@ -263,11 +262,9 @@ public class CalData extends WebdavProperty implements Logged {
   public void process(final WebdavNsNode wdnode,
                       final XmlEmit xml,
                       final String contentType) {
-    if (!(wdnode instanceof CaldavComponentNode)) {
+    if (!(wdnode instanceof final CaldavComponentNode node)) {
       return;
     }
-
-    final CaldavComponentNode node = (CaldavComponentNode)wdnode;
 
     final CompType comp = getCalendarData().getComp();
 
@@ -336,38 +333,31 @@ public class CalData extends WebdavProperty implements Logged {
                                  final String contentType) {
     try {
       final Calendar nical = new Calendar();
-      final PropertyList pl = ical.getProperties();
-      final PropertyList npl = nical.getProperties();
+      final PropertyList<Property> pl = ical.getProperties();
+      final PropertyList<Property> npl = nical.getProperties();
 
       // Add all vcalendar properties to new cal
-      Iterator it = pl.iterator();
 
-      while (it.hasNext()) {
-        npl.add((Property)it.next());
-      }
+      npl.addAll(pl);
 
-      final ComponentList cl = ical.getComponents();
-      final ComponentList ncl = nical.getComponents();
+      final ComponentList<CalendarComponent> cl = ical.getComponents();
+      final ComponentList<CalendarComponent> ncl = nical.getComponents();
 
-      it = cl.iterator();
-
-      while (it.hasNext()) {
-        final Component c = (Component)it.next();
-
+      for (final CalendarComponent c: cl) {
         if (!(c instanceof VEvent)) {
           ncl.add(c);
         } else {
           final VEvent v = new VEvent();
-          
+
           // This adds a DTSTAMP
 
-          final PropertyList vpl = c.getProperties();
-          final PropertyList nvpl = v.getProperties();
+          final PropertyList<Property> vpl = c.getProperties();
+          final PropertyList<Property> nvpl = v.getProperties();
 
           nvpl.clear();
-          
+
           for (final PropType pr: props) {
-            final Property p = (Property)vpl.getProperty(pr.getName());
+            final Property p = vpl.getProperty(pr.getName());
 
             if (p != null) {
               nvpl.add(p);

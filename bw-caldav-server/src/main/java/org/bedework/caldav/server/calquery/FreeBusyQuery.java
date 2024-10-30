@@ -77,8 +77,8 @@ public class FreeBusyQuery implements Logged {
    * @param depth to go
    * @return BwEvent
    */
-  public CalDAVEvent getFreeBusy(final SysIntf sysi,
-                                 final CalDAVCollection col,
+  public CalDAVEvent<?> getFreeBusy(final SysIntf sysi,
+                                 final CalDAVCollection<?> col,
                                  final int depth) {
     try {
       return sysi.getFreeBusy(col, depth, timeRange);
@@ -118,7 +118,7 @@ public class FreeBusyQuery implements Logged {
    *                   Logged methods
    * ==================================================================== */
 
-  private BwLogger logger = new BwLogger();
+  private final BwLogger logger = new BwLogger();
 
   @Override
   public BwLogger getLogger() {

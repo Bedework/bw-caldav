@@ -60,7 +60,7 @@ public abstract class SoapHandler extends MethodBase {
   protected static final Object monitor = new Object();
 
   /**
-   * @param intf
+   * @param intf interface to underlying system
    * @throws WebdavException on soap error
    */
   public SoapHandler(final CaldavBWIntf intf) {
@@ -78,7 +78,7 @@ public abstract class SoapHandler extends MethodBase {
   //        debug("Created JAXBContext: " + jc);
     //    }
       }
-    } catch(Throwable t) {
+    } catch(final Throwable t) {
       throw new WebdavException(t);
     }
   }
@@ -115,15 +115,16 @@ public abstract class SoapHandler extends MethodBase {
 
   protected UnmarshalResult unmarshal(final HttpServletRequest req) {
     try {
-      UnmarshalResult res = new UnmarshalResult();
+      final UnmarshalResult res = new UnmarshalResult();
 
-      SOAPMessage msg = soapMsgFactory.createMessage(null, // headers
-                                                     req.getInputStream());
+      final SOAPMessage msg =
+              soapMsgFactory.createMessage(null,// headers
+                                           req.getInputStream());
 
-      SOAPBody body = msg.getSOAPBody();
-      SOAPHeader hdrMsg = msg.getSOAPHeader();
+      final SOAPBody body = msg.getSOAPBody();
+      final SOAPHeader hdrMsg = msg.getSOAPHeader();
 
-      Unmarshaller u = jc.createUnmarshaller();
+      final Unmarshaller u = jc.createUnmarshaller();
 
       // Only expect one header at most.
       if ((hdrMsg != null) && hdrMsg.hasChildNodes()) {
@@ -134,7 +135,7 @@ public abstract class SoapHandler extends MethodBase {
       res.body = u.unmarshal(body.getFirstChild());
 
       return res;
-    } catch(Throwable t) {
+    } catch(final Throwable t) {
       throw new WebdavException(t);
     }
   }
@@ -160,12 +161,14 @@ public abstract class SoapHandler extends MethodBase {
   protected Document makeDoc(final QName name,
                              final Object o) {
     try {
-      Marshaller marshaller = jc.createMarshaller();
-      marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+      final Marshaller marshaller = jc.createMarshaller();
+      marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT,
+                             Boolean.TRUE);
 
-      DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+      final DocumentBuilderFactory dbf =
+              DocumentBuilderFactory.newInstance();
       dbf.setNamespaceAware(true);
-      Document doc = dbf.newDocumentBuilder().newDocument();
+      final Document doc = dbf.newDocumentBuilder().newDocument();
 
 //      marshaller.marshal(o, doc);
 
@@ -174,7 +177,7 @@ public abstract class SoapHandler extends MethodBase {
                          doc);
 
       return doc;
-    } catch(Throwable t) {
+    } catch(final Throwable t) {
       throw new WebdavException(t);
     }
   }
@@ -182,44 +185,46 @@ public abstract class SoapHandler extends MethodBase {
   protected void marshal(final Object o,
                          final OutputStream out) {
     try {
-      Marshaller marshaller = jc.createMarshaller();
-      marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+      final Marshaller marshaller = jc.createMarshaller();
+      marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT,
+                             Boolean.TRUE);
 
-      DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+      final DocumentBuilderFactory dbf =
+              DocumentBuilderFactory.newInstance();
       dbf.setNamespaceAware(true);
-      Document doc = dbf.newDocumentBuilder().newDocument();
+      final Document doc = dbf.newDocumentBuilder().newDocument();
 
-      SOAPMessage msg = soapMsgFactory.createMessage();
+      final SOAPMessage msg = soapMsgFactory.createMessage();
       msg.getSOAPBody().addDocument(doc);
 
       marshaller.marshal(o,
                          msg.getSOAPBody());
 
       msg.writeTo(out);
-    } catch(Throwable t) {
+    } catch(final Throwable t) {
       throw new WebdavException(t);
     }
   }
 
   @SuppressWarnings("unchecked")
-  protected JAXBElement makeJAXBElement(final QName name,
-                                        final Class cl,
-                                        final Object o) {
+  protected JAXBElement<?> makeJAXBElement(final QName name,
+                                           final Class<?> cl,
+                                           final Object o) {
     return new JAXBElement(name, cl, o);
   }
 
   protected void removeNode(final Node nd) {
-    Node parent = nd.getParentNode();
+    final Node parent = nd.getParentNode();
 
     parent.removeChild(nd);
   }
 
   protected String findTzid(final BasePropertyType bp) {
-    ArrayOfParameters aop = bp.getParameters();
+    final ArrayOfParameters aop = bp.getParameters();
 
-    for (JAXBElement<? extends BaseParameterType> el: aop.getBaseParameter()) {
+    for (final JAXBElement<? extends BaseParameterType> el: aop.getBaseParameter()) {
       if (el.getName().equals(XcalTags.tzid)) {
-        TzidParamType tzid = (TzidParamType)el.getValue();
+        final TzidParamType tzid = (TzidParamType)el.getValue();
         return tzid.getText();
       }
     }
@@ -236,7 +241,7 @@ public abstract class SoapHandler extends MethodBase {
       return null;
     }
 
-    DateDatetimePropertyType d = (DateDatetimePropertyType)bp;
+    final DateDatetimePropertyType d = (DateDatetimePropertyType)bp;
 
     if (d.getDate() != null) {
       return null;
@@ -246,7 +251,7 @@ public abstract class SoapHandler extends MethodBase {
       return null;
     }
 
-    String dt = XcalUtil.getIcalFormatDateTime(
+    final String dt = XcalUtil.getIcalFormatDateTime(
             d.getDateTime().toString());
 
     if ((dt.length() == 18) && (dt.charAt(17) == 'Z')) {

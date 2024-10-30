@@ -60,7 +60,7 @@ public abstract class CalDAVCollection <T extends CalDAVCollection<?>>
    * ==================================================================== */
 
   @Override
-  public abstract T resolveAlias(final boolean resolveSubAlias);
+  public abstract T resolveAlias(boolean resolveSubAlias);
 
   /**
    *  @param val type
@@ -175,7 +175,7 @@ public abstract class CalDAVCollection <T extends CalDAVCollection<?>>
    *
    * @param val true if we suppress deletions during synch
    */
-  public abstract void setSynchDeleteSuppressed(final boolean val)
+  public abstract void setSynchDeleteSuppressed(boolean val)
          ;
 
   /** Get the deletions suppressed flag for synch

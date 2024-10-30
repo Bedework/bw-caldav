@@ -35,8 +35,8 @@ import java.util.Iterator;
  * @version 1.0
  */
 public abstract class SysiIcalendar implements ScheduleMethods,
-                                               Iterator<WdEntity>,
-                                               Iterable<WdEntity>, Serializable {
+                                               Iterator<WdEntity<?>>,
+                                               Iterable<WdEntity<?>>, Serializable {
   /**
    * @return String
    */
@@ -84,7 +84,7 @@ public abstract class SysiIcalendar implements ScheduleMethods,
   public abstract int getMethodType(String val);
 
   /**
-   * @param mt
+   * @param mt method index
    * @return A string value for the method
    */
   public abstract String getMethodName(int mt);
@@ -104,7 +104,7 @@ public abstract class SysiIcalendar implements ScheduleMethods,
   /**
    * @return Iterator
    */
-  public abstract Iterator<WdEntity> iterator();
+  public abstract Iterator<WdEntity<?>> iterator();
 
   /**
    * @return int
@@ -145,7 +145,7 @@ public abstract class SysiIcalendar implements ScheduleMethods,
 
   /** True for valid itip method
    *
-   * @param val
+   * @param val method index
    * @return boolean
    */
   public abstract boolean validItipMethodType(int val);

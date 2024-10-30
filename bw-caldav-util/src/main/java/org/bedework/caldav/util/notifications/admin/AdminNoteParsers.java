@@ -88,7 +88,7 @@ public class AdminNoteParsers {
    * @return parsed Document
    */
   public static Document parseXmlString(final String val) {
-    if ((val == null) || (val.length() == 0)) {
+    if ((val == null) || (val.isEmpty())) {
       return null;
     }
 
@@ -133,7 +133,7 @@ public class AdminNoteParsers {
       }
 
       synchronized (parsers) {
-        if (parsers.size() > 0) {
+        if (!parsers.isEmpty()) {
           parser = parsers.remove(0);
           return parser;
         }

@@ -43,7 +43,7 @@ public abstract class GetHandler {
   protected XmlEmit xml;
 
   /**
-   * @param intf
+   * @param intf server interface
    */
   public GetHandler(final CaldavBWIntf intf) {
     this.intf = intf;
@@ -52,13 +52,13 @@ public abstract class GetHandler {
   }
 
   /**
-   * @param req
-   * @param resp
+   * @param req http request
+   * @param resp http response
    * @param pars
    */
-  public abstract void process(final HttpServletRequest req,
-                               final HttpServletResponse resp,
-                               final RequestPars pars);
+  public abstract void process(HttpServletRequest req,
+                               HttpServletResponse resp,
+                               RequestPars pars);
   /**
    * @return current account
    */
@@ -73,14 +73,14 @@ public abstract class GetHandler {
     return intf.getSysi();
   }
 
-  /* ====================================================================
+  /* ==============================================================
    *                   XmlUtil wrappers
-   * ==================================================================== */
+   * ============================================================== */
 
   protected void startEmit(final HttpServletResponse resp) {
     try {
       xml.startEmit(resp.getWriter());
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }
@@ -89,7 +89,6 @@ public abstract class GetHandler {
   *
   * @param node             node in question
   * @return Collection      of WebdavNsNode children
-  * @throws WebdavException
   */
  public Collection<WebdavNsNode> getChildren(
          final WebdavNsNode node,
@@ -104,7 +103,6 @@ public abstract class GetHandler {
   * @param nodeType         Say's something about the type of node
   * @return WebdavNsNode    node specified by the URI or the node aliased by
   *                         the node at the URI.
-  * @throws WebdavException
   */
   public WebdavNsNode getNode(final String uri,
                               final int existance,
@@ -116,46 +114,47 @@ public abstract class GetHandler {
   protected void openTag(final QName tag) {
     try {
       xml.openTag(tag);
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }
 
   /** open with attribute
-   * @param tag
-   * @param attrName
-   * @param attrVal
+   * @param tag QName
+   * @param attrName attrbute name
+   * @param attrVal and value
    */
   public void openTag(final QName tag,
-                      final String attrName, final String attrVal) {
+                      final String attrName,
+                      final String attrVal) {
     try {
       xml.openTag(tag, attrName, attrVal);
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }
 
   /** Emit an empty tag
    *
-   * @param tag
+   * @param tag QName
    */
   public void emptyTag(final QName tag) {
     try {
       xml.emptyTag(tag);
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }
 
   /** Emit a property
    *
-   * @param tag
-   * @param val
+   * @param tag QName
+   * @param val element value
    */
   public void property(final QName tag, final String val) {
     try {
       xml.property(tag, val);
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }
@@ -163,7 +162,7 @@ public abstract class GetHandler {
   protected void closeTag(final QName tag) {
     try {
       xml.closeTag(tag);
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }

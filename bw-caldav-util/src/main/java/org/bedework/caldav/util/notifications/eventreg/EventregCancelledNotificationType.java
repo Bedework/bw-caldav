@@ -35,7 +35,7 @@ public class EventregCancelledNotificationType
   }
 
   @Override
-  public void toXml(final XmlEmit xml) throws Throwable {
+  public void toXml(final XmlEmit xml) {
     xml.openTag(getElementName());
 
     bodyToXml(xml);

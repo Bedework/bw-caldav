@@ -116,15 +116,14 @@ public class ChangedByType {
     return href;
   }
 
-  /* ====================================================================
+  /* ==============================================================
    *                   Convenience methods
-   * ==================================================================== */
+   * ============================================================== */
 
   /**
-   * @param xml
-   * @throws Throwable
+   * @param xml emitter
    */
-  public void toXml(final XmlEmit xml) throws Throwable {
+  public void toXml(final XmlEmit xml) {
     xml.openTag(AppleServerTags.changedBy);
 
     if (getCommonName() != null) {
@@ -142,7 +141,7 @@ public class ChangedByType {
 
   /** Add our stuff to the StringBuffer
    *
-   * @param ts
+   * @param ts to string emitter
    */
   protected void toStringSegment(final ToString ts) {
     if (getCommonName() != null) {
@@ -157,7 +156,7 @@ public class ChangedByType {
 
   @Override
   public String toString() {
-    ToString ts = new ToString(this);
+    final ToString ts = new ToString(this);
 
     toStringSegment(ts);
 

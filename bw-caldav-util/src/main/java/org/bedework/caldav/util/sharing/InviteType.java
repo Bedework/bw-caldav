@@ -57,15 +57,15 @@ public class InviteType {
    */
   public List<UserType> getUsers() {
     if (users == null) {
-      users = new ArrayList<UserType>();
+      users = new ArrayList<>();
     }
 
     return users;
   }
 
-  /* ====================================================================
+  /* ==============================================================
    *                   Convenience methods
-   * ==================================================================== */
+   * ============================================================== */
 
   /**
    * @param href of user

@@ -27,7 +27,6 @@ import org.bedework.webdav.servlet.common.OptionsMethod;
 import org.bedework.webdav.servlet.common.PropFindMethod;
 import org.bedework.webdav.servlet.common.PutMethod;
 import org.bedework.webdav.servlet.common.WebdavServlet;
-import org.bedework.webdav.servlet.shared.WebdavException;
 import org.bedework.webdav.servlet.shared.WebdavNsIntf;
 
 import javax.servlet.ServletConfig;
@@ -119,7 +118,7 @@ public class CaldavBWServlet extends WebdavServlet implements
     try {
       CaldavBWIntf.contextInitialized(sce);
     } catch (final Throwable t) {
-      t.printStackTrace();
+      error(t);
     }
   }
 
@@ -128,7 +127,7 @@ public class CaldavBWServlet extends WebdavServlet implements
     try {
       CaldavBWIntf.contextDestroyed(sce);
     } catch (final Throwable t) {
-      t.printStackTrace();
+      error(t);
     }
   }
 

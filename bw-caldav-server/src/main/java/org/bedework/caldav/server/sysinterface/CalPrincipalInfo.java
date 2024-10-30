@@ -19,7 +19,6 @@
 package org.bedework.caldav.server.sysinterface;
 
 import org.bedework.access.AccessPrincipal;
-import org.bedework.webdav.servlet.shared.WebdavException;
 
 import net.fortuna.ical4j.vcard.Property;
 import net.fortuna.ical4j.vcard.Property.Id;
@@ -41,7 +40,7 @@ public class CalPrincipalInfo implements Serializable {
    */
   public VCard card;
 
-  private String cardStr;
+  private final String cardStr;
 
   /** Path to user home
    */
@@ -64,7 +63,7 @@ public class CalPrincipalInfo implements Serializable {
    */
   public String notificationsPath;
 
-  private long quota;
+  private final long quota;
 
   /**
    * @param principal this represents

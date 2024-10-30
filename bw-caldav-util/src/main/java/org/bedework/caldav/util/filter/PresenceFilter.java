@@ -24,14 +24,14 @@ import org.bedework.util.misc.ToString;
 import java.util.List;
 
 /** A filter that filters for property presence.
- *
+ * <br/>
  * The name should be unique at least for a set of filters and unique for a
  * given owner if persisted.
  *
  * @author Mike Douglass douglm
  */
 public class PresenceFilter extends PropertyFilter {
-  private boolean testPresent;
+  private final boolean testPresent;
 
   /** Match on any of the entities.
    *

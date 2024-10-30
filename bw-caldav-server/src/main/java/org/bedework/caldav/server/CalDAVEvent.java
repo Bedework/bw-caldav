@@ -20,7 +20,6 @@ package org.bedework.caldav.server;
 
 import org.bedework.util.xml.XmlEmit;
 import org.bedework.webdav.servlet.shared.WdEntity;
-import org.bedework.webdav.servlet.shared.WebdavException;
 
 import java.util.Set;
 
@@ -100,7 +99,7 @@ public abstract class CalDAVEvent <T> extends WdEntity<T> {
   public abstract void setOriginator(String val);
 
   /**
-   * @param val
+   * @param val set of recipients
    */
   public abstract void setRecipients(Set<String> val);
 
@@ -110,7 +109,7 @@ public abstract class CalDAVEvent <T> extends WdEntity<T> {
   public abstract Set<String> getRecipients();
 
   /**
-   * @param val
+   * @param val a recipient
    */
   public abstract void addRecipient(String val);
 
@@ -139,8 +138,8 @@ public abstract class CalDAVEvent <T> extends WdEntity<T> {
   public abstract String getUid();
 
   /**
-   * @param tag
-   * @param xml
+   * @param tag QName of property
+   * @param xml emitter
    * @return boolean true if value emitted.
    */
   public abstract boolean generatePropertyValue(QName tag,
@@ -148,7 +147,7 @@ public abstract class CalDAVEvent <T> extends WdEntity<T> {
 
   /** Return a complete representation of the event
    *
-   * @param methodType
+   * @param methodType iTip method indicator
    * @return String ical representation
    */
   public abstract String toIcalString(int methodType,

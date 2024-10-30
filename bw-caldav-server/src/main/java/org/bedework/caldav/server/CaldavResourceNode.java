@@ -24,6 +24,7 @@ import org.bedework.access.PrivilegeDefs;
 import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.caldav.util.notifications.BaseNotificationType.AttributeType;
 import org.bedework.caldav.util.notifications.NotificationType.NotificationInfo;
+import org.bedework.util.misc.ToString;
 import org.bedework.util.misc.Util;
 import org.bedework.util.timezones.DateTimeUtil;
 import org.bedework.util.xml.XmlEmit;
@@ -44,7 +45,7 @@ import javax.xml.namespace.QName;
  *   @author Mike Douglass   douglm rpi.edu
  */
 public class CaldavResourceNode extends CaldavBwNode {
-  private CalDAVResource resource;
+  private CalDAVResource<?> resource;
 
   private AccessPrincipal owner;
 
@@ -53,7 +54,7 @@ public class CaldavResourceNode extends CaldavBwNode {
   private CurrentAccess currentAccess;
 
   private final static HashMap<QName, PropertyTagEntry> propertyNames =
-      new HashMap<QName, PropertyTagEntry>();
+          new HashMap<>();
 
   static {
     addPropEntry(propertyNames, AppleServerTags.notificationtype);
@@ -61,9 +62,9 @@ public class CaldavResourceNode extends CaldavBwNode {
 
   /** Place holder for status
    *
-   * @param sysi
-   * @param status
-   * @param uri
+   * @param sysi system interface
+   * @param status from exception
+   * @param uri of resource
    */
   public CaldavResourceNode(final SysIntf sysi,
                             final int status,
@@ -74,8 +75,8 @@ public class CaldavResourceNode extends CaldavBwNode {
 
   /** Constructor
    *
-   * @param cdURI
-   * @param sysi
+   * @param cdURI referencing resource
+   * @param sysi system interface
    */
   public CaldavResourceNode(final CaldavURI cdURI,
                              final SysIntf sysi) {
@@ -100,10 +101,10 @@ public class CaldavResourceNode extends CaldavBwNode {
   }
 
   /**
-   * @param resource
-   * @param sysi
+   * @param resource we represent
+   * @param sysi system interface
    */
-  public CaldavResourceNode(final CalDAVResource resource,
+  public CaldavResourceNode(final CalDAVResource<?> resource,
                             final SysIntf sysi) {
     super(sysi, resource.getParentPath(), true, resource.getPath());
 
@@ -194,7 +195,7 @@ public class CaldavResourceNode extends CaldavBwNode {
   public boolean generatePropertyValue(final QName tag,
                                        final WebdavNsIntf intf,
                                        final boolean allProp) {
-    XmlEmit xml = intf.getXmlEmit();
+    final XmlEmit xml = intf.getXmlEmit();
 
     try {
 
@@ -203,7 +204,7 @@ public class CaldavResourceNode extends CaldavBwNode {
           return false;
         }
 
-        NotificationInfo ni = resource.getNotificationType();
+        final NotificationInfo ni = resource.getNotificationType();
         if (ni == null) {
           return false;
         }
@@ -213,7 +214,7 @@ public class CaldavResourceNode extends CaldavBwNode {
         xml.startTag(ni.type);
 
         if (!Util.isEmpty(ni.attrs)) {
-          for (AttributeType at: ni.attrs) {
+          for (final AttributeType at: ni.attrs) {
             xml.attribute(at.getName(), at.getValue());
           }
         }
@@ -227,17 +228,17 @@ public class CaldavResourceNode extends CaldavBwNode {
 
       // Not known - try higher
       return super.generatePropertyValue(tag, intf, allProp);
-    } catch (WebdavException wde) {
+    } catch (final WebdavException wde) {
       throw wde;
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }
 
   /**
-   * @param val
+   * @param val the resource
    */
-  public void setResource(final CalDAVResource val) {
+  public void setResource(final CalDAVResource<?> val) {
     resource = val;
   }
 
@@ -245,7 +246,7 @@ public class CaldavResourceNode extends CaldavBwNode {
    *
    * @return CalDAVResource
    */
-  public CalDAVResource getResource() {
+  public CalDAVResource<?> getResource() {
     init(true);
 
     return resource;
@@ -267,7 +268,7 @@ public class CaldavResourceNode extends CaldavBwNode {
 
     try {
       currentAccess = getSysi().checkAccess(resource, PrivilegeDefs.privAny, true);
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
 
@@ -282,7 +283,7 @@ public class CaldavResourceNode extends CaldavBwNode {
       return null;
     }
 
-    String val = resource.getEtag();
+    final String val = resource.getEtag();
 
     if (strong) {
       return val;
@@ -315,21 +316,15 @@ public class CaldavResourceNode extends CaldavBwNode {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-
-    sb.append("CaldavResourceNode{");
-    sb.append("path=");
-    sb.append(getPath());
-    sb.append(", entityName=");
-    sb.append(String.valueOf(entityName));
-    sb.append("}");
-
-    return sb.toString();
+    return new ToString(this)
+            .append("path", getPath())
+            .append("entityName", String.valueOf(entityName))
+            .toString();
   }
 
-  /* ====================================================================
+  /* ==============================================================
    *                   Required webdav properties
-   * ==================================================================== */
+   * ============================================================== */
 
   @Override
   public String writeContent(final XmlEmit xml,
@@ -349,7 +344,7 @@ public class CaldavResourceNode extends CaldavBwNode {
   }
 
   @Override
-  public String getContentString(String contentType) {
+  public String getContentString(final String contentType) {
     init(true);
     throw new WebdavException("binary content");
   }
@@ -406,7 +401,7 @@ public class CaldavResourceNode extends CaldavBwNode {
     try {
       return DateTimeUtil.fromISODateTimeUTCtoRfc822(
               resource.getLastmod());
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }

@@ -78,26 +78,23 @@ public class BaseEntityChangeType {
   /** Called before we send it out via caldav
    *
    * @param prefixer processor
-   * @throws Throwable
    */
-  public void prefixHrefs(final UrlPrefixer prefixer) throws Throwable {
+  public void prefixHrefs(final UrlPrefixer prefixer) {
     setHref(prefixer.prefix(getHref()));
   }
 
   /** Called after we obtain it via caldav
    *
    * @param unprefixer processor
-   * @throws Throwable
    */
-  public void unprefixHrefs(final UrlUnprefixer unprefixer) throws Throwable {
+  public void unprefixHrefs(final UrlUnprefixer unprefixer) {
     setHref(unprefixer.unprefix(getHref()));
   }
 
   /**
    * @param xml builder
-   * @throws Throwable
    */
-  public void toXmlSegment(final XmlEmit xml) throws Throwable {
+  public void toXmlSegment(final XmlEmit xml) {
     xml.property(WebdavTags.href, getHref());
     if (getChangedBy() != null) {
       getChangedBy().toXml(xml);

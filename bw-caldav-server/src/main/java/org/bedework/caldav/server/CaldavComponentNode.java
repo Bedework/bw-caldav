@@ -133,9 +133,9 @@ public class CaldavComponentNode extends CaldavBwNode {
 
   /** Place holder for status
    *
-   * @param sysi
-   * @param status
-   * @param uri
+   * @param sysi system interface
+   * @param status from exception
+   * @param uri of resource
    */
   public CaldavComponentNode(final SysIntf sysi,
                              final int status,
@@ -146,8 +146,8 @@ public class CaldavComponentNode extends CaldavBwNode {
 
   /** Constructor
    *
-   * @param cdURI
-   * @param sysi
+   * @param cdURI referencing rsource
+   * @param sysi system interface
    */
   public CaldavComponentNode(final CaldavURI cdURI,
                              final SysIntf sysi) {
@@ -163,8 +163,8 @@ public class CaldavComponentNode extends CaldavBwNode {
 
   /** Constructor
    *
-   * @param event
-   * @param sysi
+   * @param event component
+   * @param sysi system interface
    */
   public CaldavComponentNode(final CalDAVEvent<?> event,
                              final SysIntf sysi) {
@@ -284,9 +284,9 @@ public class CaldavComponentNode extends CaldavBwNode {
     return false;
   }
 
-  /* ====================================================================
+  /* ==============================================================
    *                   Property methods
-   * ==================================================================== */
+   * ============================================================== */
 
   @Override
   public boolean knownProperty(final QName tag) {
@@ -324,7 +324,7 @@ public class CaldavComponentNode extends CaldavBwNode {
 
   @Override
   public Collection<PropertyTagEntry> getPropertyNames() {
-    Collection<PropertyTagEntry> res = new ArrayList<PropertyTagEntry>();
+    final Collection<PropertyTagEntry> res = new ArrayList<>();
 
     res.addAll(super.getPropertyNames());
     res.addAll(propertyNames.values());
@@ -333,7 +333,7 @@ public class CaldavComponentNode extends CaldavBwNode {
   }
 
   /**
-   * @param val
+   * @param val event
    */
   public void setEvent(final CalDAVEvent<?> val) {
     event = val;
@@ -361,7 +361,7 @@ public class CaldavComponentNode extends CaldavBwNode {
                                     (col.getCalType() == CalDAVCollection.calTypeInbox) ||
                                     (col.getCalType() == CalDAVCollection.calTypeOutbox));
       }
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
 
@@ -412,11 +412,11 @@ public class CaldavComponentNode extends CaldavBwNode {
                              final Writer wtr,
                              final String contentType) {
     try {
-      Collection<CalDAVEvent<?>> evs = new ArrayList<>();
+      final Collection<CalDAVEvent<?>> evs = new ArrayList<>();
 
       evs.add(event);
 
-      MethodEmitted method;
+      final MethodEmitted method;
 
       if ((col.getCalType() == CalDAVCollection.calTypeInbox) ||
       (col.getCalType() == CalDAVCollection.calTypeOutbox)) {
@@ -430,21 +430,21 @@ public class CaldavComponentNode extends CaldavBwNode {
                                      xml,
                                      wtr,
                                      contentType);
-    } catch (WebdavException we) {
+    } catch (final WebdavException we) {
       throw we;
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }
 
   @Override
-  public String getContentString(String contentType) {
+  public String getContentString(final String contentType) {
     return getCompString(contentType);
   }
 
-  /* ====================================================================
+  /* ==============================================================
    *                   Overridden property methods
-   * ==================================================================== */
+   * ============================================================== */
 
   @Override
   public CurrentAccess getCurrentAccess() {
@@ -458,7 +458,7 @@ public class CaldavComponentNode extends CaldavBwNode {
 
     try {
       currentAccess = getSysi().checkAccess(event, PrivilegeDefs.privAny, true);
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
 
@@ -471,7 +471,7 @@ public class CaldavComponentNode extends CaldavBwNode {
   public String getStagValue() {
     init(true);
 
-    CalDAVEvent<?> ev = getEvent();
+    final CalDAVEvent<?> ev = getEvent();
     if (ev == null) {
       return null;
     }
@@ -512,7 +512,7 @@ public class CaldavComponentNode extends CaldavBwNode {
   }
 
   /**
-   * @param strong
+   * @param strong true for strong etag
    * @return etag before changes
    */
   public String getPrevEtagValue(final boolean strong) {
@@ -532,9 +532,6 @@ public class CaldavComponentNode extends CaldavBwNode {
     return "W/" + val;
   }
 
-  /* (non-Javadoc)
-   * @see org.bedework.caldav.server.CaldavBwNode#getEtokenValue()
-   */
   @Override
   public String getEtokenValue() {
     return concatEtoken(getEtagValue(true), getStagValue());
@@ -550,9 +547,9 @@ public class CaldavComponentNode extends CaldavBwNode {
     return ts.toString();
   }
 
-  /* ====================================================================
+  /* ==============================================================
    *                   Required webdav properties
-   * ==================================================================== */
+   * ============================================================== */
 
   @Override
   public String getContentLang() {
@@ -572,7 +569,7 @@ public class CaldavComponentNode extends CaldavBwNode {
   @Override
   public String getCreDate() {
     init(false);
-    CalDAVEvent<?> ev = getEvent();
+    final CalDAVEvent<?> ev = getEvent();
     if (ev == null) {
       return null;
     }
@@ -588,14 +585,14 @@ public class CaldavComponentNode extends CaldavBwNode {
   @Override
   public String getLastmodDate() {
     init(false);
-    CalDAVEvent<?> ev = getEvent();
+    final CalDAVEvent<?> ev = getEvent();
     if (ev == null) {
       return null;
     }
 
     try {
       return DateTimeUtil.fromISODateTimeUTCtoRfc822(ev.getLastmod());
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }
@@ -664,7 +661,7 @@ public class CaldavComponentNode extends CaldavBwNode {
   }
 
   private CalDAVEvent<?> checkEv(final PropVal pv) {
-    CalDAVEvent<?> ev = getEvent();
+    final CalDAVEvent<?> ev = getEvent();
 
     if (ev == null) {
       pv.notFound = true;

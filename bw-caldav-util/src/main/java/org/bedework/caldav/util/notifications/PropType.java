@@ -41,23 +41,22 @@ public class PropType {
    */
   public List<QName> getQnames() {
     if (qnames == null) {
-      qnames = new ArrayList<QName>();
+      qnames = new ArrayList<>();
     }
 
     return qnames;
   }
 
-  /* ====================================================================
+  /* ==============================================================
    *                   Convenience methods
-   * ==================================================================== */
+   * ============================================================== */
 
   /**
-   * @param xml
-   * @throws Throwable
+   * @param xml emitter
    */
-  public void toXml(final XmlEmit xml) throws Throwable {
+  public void toXml(final XmlEmit xml) {
     xml.openTag(WebdavTags.prop);
-    for (QName qn: getQnames()) {
+    for (final QName qn: getQnames()) {
       xml.emptyTag(qn);
     }
     xml.closeTag(WebdavTags.prop);
@@ -65,17 +64,17 @@ public class PropType {
 
   /** Add our stuff to the StringBuffer
    *
-   * @param ts
+   * @param ts for output
    */
   protected void toStringSegment(final ToString ts) {
-    for (QName qn: getQnames()) {
+    for (final QName qn: getQnames()) {
       ts.append(qn);
     }
   }
 
   @Override
   public String toString() {
-    ToString ts = new ToString(this);
+    final ToString ts = new ToString(this);
 
     toStringSegment(ts);
 

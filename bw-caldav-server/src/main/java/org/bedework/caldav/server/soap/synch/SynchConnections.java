@@ -59,13 +59,13 @@ public class SynchConnections extends ConfBase
     return "No config to load";
   }
 
-  /* ========================================================================
+  /* ==============================================================
    * Attributes
-   * ======================================================================== */
+   * ============================================================== */
 
-  /* ========================================================================
+  /* ==============================================================
    * Operations
-   * ======================================================================== */
+   * ============================================================== */
 
   @Override
   public void setConnection(final SynchConnection val) {
@@ -85,16 +85,16 @@ public class SynchConnections extends ConfBase
 
   @Override
   public String[] activeConnectionInfo() {
-    Collection<SynchConnection> conns = activeConnections.values();
+    final Collection<SynchConnection> conns = activeConnections.values();
 
     if (Util.isEmpty(conns)) {
       return new String[0];
     }
 
-    String[] res = new String[conns.size()];
+    final String[] res = new String[conns.size()];
 
     int i = 0;
-    for (SynchConnection sc: conns) {
+    for (final SynchConnection sc: conns) {
       res[i] = sc.shortToString();
       i++;
     }

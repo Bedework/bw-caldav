@@ -143,20 +143,20 @@ public abstract class AdminNotificationType extends BaseNotificationType {
   }
 
   @Override
-  public void prefixHrefs(final UrlPrefixer prefixer) throws Throwable {
+  public void prefixHrefs(final UrlPrefixer prefixer) {
     setHref(prefixer.prefix(getHref()));
     setPrincipalHref(prefixer.prefix(getPrincipalHref()));
     setCalsuiteHref(prefixer.prefix(getCalsuiteHref()));
   }
 
   @Override
-  public void unprefixHrefs(final UrlUnprefixer unprefixer) throws Throwable {
+  public void unprefixHrefs(final UrlUnprefixer unprefixer) {
     setHref(unprefixer.unprefix(getHref()));
     setPrincipalHref(unprefixer.unprefix(getPrincipalHref()));
     setCalsuiteHref(unprefixer.unprefix(getCalsuiteHref()));
   }
 
-  protected void bodyToXml(final XmlEmit xml) throws Throwable {
+  protected void bodyToXml(final XmlEmit xml) {
     /* base notification fields */
     super.toXml(xml);
 

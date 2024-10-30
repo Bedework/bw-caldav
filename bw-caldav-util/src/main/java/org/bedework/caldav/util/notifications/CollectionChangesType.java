@@ -132,9 +132,8 @@ public class CollectionChangesType extends BaseEntityChangeType {
 
   /**
    * @param xml builder
-   * @throws Throwable
    */
-  public void toXml(final XmlEmit xml) throws Throwable {
+  public void toXml(final XmlEmit xml) {
     xml.openTag(AppleServerTags.collectionChanges);
     toXmlSegment(xml);
 

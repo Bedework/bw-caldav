@@ -26,7 +26,7 @@ import org.bedework.webdav.servlet.shared.WebdavNsIntf;
  */
 public class Report extends ReportBase {
   /**
-   * @param nsIntf
+   * @param nsIntf interface to underlying system
    */
   public Report(final WebdavNsIntf nsIntf) {
     super(nsIntf);

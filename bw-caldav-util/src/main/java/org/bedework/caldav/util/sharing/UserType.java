@@ -168,9 +168,9 @@ public class UserType {
     return ts.toString();
   }
 
-  /* ====================================================================
+  /* ==============================================================
    *                   Object methods
-   * ==================================================================== */
+   * ============================================================== */
 
   @Override
   public int hashCode() {
@@ -179,11 +179,9 @@ public class UserType {
 
   @Override
   public boolean equals(final Object o) {
-    if (!(o instanceof UserType)) {
+    if (!(o instanceof final UserType that)) {
       return false;
     }
-
-    final UserType that = (UserType)o;
 
     return this.getHref().equals(that.getHref());
   }

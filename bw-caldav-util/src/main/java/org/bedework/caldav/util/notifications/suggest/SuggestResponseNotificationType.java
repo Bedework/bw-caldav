@@ -55,7 +55,7 @@ public class SuggestResponseNotificationType extends SuggestBaseNotificationType
   }
 
   @Override
-  public void toXml(final XmlEmit xml) throws Throwable {
+  public void toXml(final XmlEmit xml) {
     xml.openTag(getElementName());
 
     bodyToXml(xml);
@@ -65,9 +65,9 @@ public class SuggestResponseNotificationType extends SuggestBaseNotificationType
     xml.closeTag(getElementName());
   }
 
-  /* ====================================================================
+  /* ==============================================================
    *                   Convenience methods
-   * ==================================================================== */
+   * ============================================================== */
 
   /** Add our stuff to the ToString
    *

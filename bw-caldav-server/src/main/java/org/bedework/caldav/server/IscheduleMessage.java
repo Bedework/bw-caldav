@@ -37,14 +37,14 @@ import java.util.TreeSet;
  *
  */
 public class IscheduleMessage implements Headers, Serializable {
-  private Map<String, List<String>> headers = new HashMap<String, List<String>>();
-  private List<String> fields = new ArrayList<String>();
+  private final Map<String, List<String>> headers = new HashMap<>();
+  private final List<String> fields = new ArrayList<>();
 
   /** value of the Originator header */
   protected String originator;
 
   /** values of Recipient headers */
-  protected Set<String> recipients = new TreeSet<String>();
+  protected Set<String> recipients = new TreeSet<>();
 
   protected String iScheduleVersion;
   protected String iScheduleMessageId;
@@ -58,7 +58,7 @@ public class IscheduleMessage implements Headers, Serializable {
 
   /** Add a field
    *
-   * @param nameLc
+   * @param nameLc lower cased name
    */
   public void addField(final String nameLc) {
     fields.add(nameLc);
@@ -66,16 +66,13 @@ public class IscheduleMessage implements Headers, Serializable {
 
   /** Update the headers
    *
-   * @param name
-   * @param val
+   * @param name of header field
+   * @param val its value
    */
   public void addHeader(final String name, final String val) {
-    String nameLc = name.toLowerCase();
-    List<String> vals = headers.get(nameLc);
-    if (vals == null) {
-      vals = new ArrayList<String>();
-        headers.put(nameLc, vals);
-    }
+    final String nameLc = name.toLowerCase();
+    final List<String> vals = headers.computeIfAbsent(nameLc,
+                                                k -> new ArrayList<>());
 
     if (!fields.contains(nameLc)) {
       addField(nameLc);
@@ -136,29 +133,29 @@ public class IscheduleMessage implements Headers, Serializable {
      *
      * For Ischedule - we concatenate all the headers to produce a single value.
      */
-    List<String> l = headers.get(val.toLowerCase());
-    if ((l == null) || (l.size() == 0)) {
+    final List<String> l = headers.get(val.toLowerCase());
+    if ((l == null) || (l.isEmpty())) {
       return l;
     }
 
-    StringBuilder sb = new StringBuilder();
+    final StringBuilder sb = new StringBuilder();
     String delim = "";
 
-    for (String s: l) {
+    for (final String s: l) {
       sb.append(delim);
       delim = ",";
       sb.append(s);
     }
 
-    List<String> namedL = new ArrayList<String>();
+    final List<String> namedL = new ArrayList<>();
 
-    namedL.add(val + ":" + sb.toString());
+    namedL.add(val + ":" + sb);
 
     return namedL;
   }
 
   /**
-   * @param val
+   * @param val header name
    * @return header values without the name: part
    */
   public List<String> getFieldVals(final String val) {
@@ -167,10 +164,8 @@ public class IscheduleMessage implements Headers, Serializable {
 
   @Override
   public String toString() {
-    ToString ts = new ToString(this);
-
-    ts.append("originator", getOriginator());
-
-    return ts.toString();
+    return new ToString(this)
+            .append("originator", getOriginator())
+            .toString();
   }
 }

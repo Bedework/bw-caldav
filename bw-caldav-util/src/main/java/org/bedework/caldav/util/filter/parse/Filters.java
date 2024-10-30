@@ -90,17 +90,19 @@ public class Filters {
    */
   public static FilterType parse(final String xmlStr) {
     try {
-      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+      final DocumentBuilderFactory factory =
+              DocumentBuilderFactory.newInstance();
       factory.setNamespaceAware(true);
 
-      DocumentBuilder builder = factory.newDocumentBuilder();
+      final DocumentBuilder builder = factory.newDocumentBuilder();
 
-      Document doc = builder.parse(new InputSource(new StringReader(xmlStr)));
+      final Document doc =
+              builder.parse(new InputSource(new StringReader(xmlStr)));
 
       return parse(doc.getDocumentElement());
-    } catch (WebdavException cfe) {
+    } catch (final WebdavException cfe) {
       throw cfe;
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }
@@ -112,16 +114,16 @@ public class Filters {
    */
   public static FilterType parse(final Node nd) {
     try {
-      JAXBContext jc = JAXBContext.newInstance("ietf.params.xml.ns.caldav");
-      Unmarshaller u = jc.createUnmarshaller();
+      final JAXBContext jc = JAXBContext.newInstance("ietf.params.xml.ns.caldav");
+      final Unmarshaller u = jc.createUnmarshaller();
 
-      JAXBElement<?> jel = (JAXBElement<?>)u.unmarshal(nd);
+      final JAXBElement<?> jel = (JAXBElement<?>)u.unmarshal(nd);
       if (jel == null) {
         return null;
       }
 
       return (FilterType)jel.getValue();
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       throw new WebdavException(t);
     }
   }
@@ -222,9 +224,9 @@ public class Filters {
 
     if (!Util.isEmpty(cf.getCompFilter())) {
       FilterBase cfilters = null;
-      for (CompFilterType subcf: cf.getCompFilter()) {
-        FilterBase subqf = getQueryFilter(subcf,
-                                          eq, exprDepth + 1);
+      for (final CompFilterType subcf: cf.getCompFilter()) {
+        final FilterBase subqf = getQueryFilter(subcf,
+                                                eq, exprDepth + 1);
         if (andThem) {
           cfilters = FilterBase.addAndChild(cfilters, subqf);
         } else {
@@ -283,25 +285,30 @@ public class Filters {
     }
 
     FilterBase pfilters = null;
-    boolean andThem = "allof".equals(cf.getTest());
+    final boolean andThem = "allof" .equals(cf.getTest());
 
-    for (PropFilterType pf: cf.getPropFilter()) {
-      String pname = pf.getName();
+    for (final PropFilterType pf: cf.getPropFilter()) {
+      final String pname = pf.getName();
 
-      UTCTimeRangeType utr = pf.getTimeRange();
-      TextMatchType tm = pf.getTextMatch();
-      boolean isNotDefined = pf.getIsNotDefined() != null;
-      boolean testPresent = !isNotDefined && (utr == null) && (tm == null) &&
-                            (Util.isEmpty(pf.getParamFilter()));
+      final UTCTimeRangeType utr = pf.getTimeRange();
+      final TextMatchType tm = pf.getTextMatch();
+      final boolean isNotDefined = pf.getIsNotDefined() != null;
+      final boolean testPresent =
+              !isNotDefined && (utr == null) && (tm == null) &&
+                      (Util.isEmpty(pf.getParamFilter()));
       TimeRange tr = null;
       if (utr != null) {
         tr = makeTimeRange(utr);
       }
-      boolean andParams = "allof".equals(pf.getTest());
+      final boolean andParams = "allof" .equals(pf.getTest());
 
-      FilterBase filter = makeFilter(pname, -1, isNotDefined, testPresent,
-                                 tr,
-                                 tm, andParams, pf.getParamFilter());
+      final FilterBase filter = makeFilter(pname,
+                                           -1,
+                                           isNotDefined,
+                                           testPresent,
+                                           tr,
+                                           tm, andParams,
+                                           pf.getParamFilter());
 
       if (filter != null) {
         if (andThem) {
@@ -342,7 +349,7 @@ public class Filters {
                             final Collection<ParamFilterType> paramFilters) {
     FilterBase filter = null;
 
-    PropertyInfoIndex pi = PropertyInfoIndex.fromName(pname);
+    final PropertyInfoIndex pi = PropertyInfoIndex.fromName(pname);
 
     if (pi == null) {
       // Unknown property
@@ -394,10 +401,10 @@ public class Filters {
                                      final Collection<ParamFilterType> paramFilters) {
     FilterBase parfilters = null;
 
-    for (ParamFilterType pf: paramFilters) {
-      TextMatchType tm = pf.getTextMatch();
-      boolean isNotDefined = pf.getIsNotDefined() != null;
-      boolean testPresent = isNotDefined && (tm == null);
+    for (final ParamFilterType pf: paramFilters) {
+      final TextMatchType tm = pf.getTextMatch();
+      final boolean isNotDefined = pf.getIsNotDefined() != null;
+      final boolean testPresent = isNotDefined && (tm == null);
 
       final PropertyFilter filter = 
               (PropertyFilter)makeFilter(pf.getName(),
