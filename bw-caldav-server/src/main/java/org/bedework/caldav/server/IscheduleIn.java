@@ -40,9 +40,8 @@ public class IscheduleIn extends IscheduleMessage {
    * @param req http request
    * @param urlHandler to manipulate urls
    */
-  @SuppressWarnings("unchecked")
   public IscheduleIn(final HttpServletRequest req,
-                          final UrlHandler urlHandler) {
+                     final UrlHandler urlHandler) {
     this.req = req;
 
     /* Expect originator and recipient headers */

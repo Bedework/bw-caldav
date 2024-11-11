@@ -107,7 +107,7 @@ public class SynchConnection {
    * @return short string for display
    */
   public String shortToString() {
-    StringBuilder sb = new StringBuilder();
+    final StringBuilder sb = new StringBuilder();
 
     sb.append("{");
 
@@ -122,7 +122,7 @@ public class SynchConnection {
 
     if (getLastPing() != 0) {
       sb.append("\", ping: ");
-      sb.append(new Date(getLastPing()).toString());
+      sb.append(new Date(getLastPing()));
     }
 
     sb.append("}");

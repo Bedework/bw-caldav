@@ -250,7 +250,7 @@ public class SynchwsHandler extends CalwsHandler {
     getActiveConnections().setConnection(val);
   }
 
-  private SynchConnection getActiveConnection(final String url) throws Throwable {
+  private SynchConnection getActiveConnection(final String url) {
     return getActiveConnections().getConnection(url);
   }
 }

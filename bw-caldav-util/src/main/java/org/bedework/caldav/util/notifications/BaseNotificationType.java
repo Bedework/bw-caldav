@@ -77,35 +77,33 @@ public abstract class BaseNotificationType {
   public abstract String getEncoding();
 
   /**
+   *
    */
-  public static class AttributeType {
-    private final String name;
-    private final String value;
-
+    public record AttributeType(String name,
+                                String value) {
     /**
-     * @param name attrname
+     * @param name  attrname
      * @param value attrvalue
      */
-    public AttributeType(final String name,
-                         final String value) {
-      this.name = name;
-      this.value = value;
+    public AttributeType {
     }
 
-    /**
-     * @return the name
-     */
-    public String getName() {
-      return name;
-    }
+      /**
+       * @return the name
+       */
+      @Override
+      public String name() {
+        return name;
+      }
 
-    /**
-     * @return the value
-     */
-    public String getValue() {
-      return value;
+      /**
+       * @return the value
+       */
+      @Override
+      public String value() {
+        return value;
+      }
     }
-  }
 
   /**
    * @return null or a list of attributes attached to the base notification.

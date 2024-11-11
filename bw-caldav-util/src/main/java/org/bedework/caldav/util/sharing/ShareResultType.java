@@ -37,7 +37,7 @@ public class ShareResultType {
    */
   public List<String> getGoodSharees() {
     if (goodSharees == null) {
-      goodSharees = new ArrayList<String>();
+      goodSharees = new ArrayList<>();
     }
 
     return goodSharees;
@@ -48,7 +48,7 @@ public class ShareResultType {
    */
   public List<String> getBadSharees() {
     if (badSharees == null) {
-      badSharees = new ArrayList<String>();
+      badSharees = new ArrayList<>();
     }
 
     return badSharees;

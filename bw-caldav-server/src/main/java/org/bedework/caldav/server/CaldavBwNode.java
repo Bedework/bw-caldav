@@ -84,10 +84,10 @@ public abstract class CaldavBwNode extends WebdavNsNode {
    */
   public static final class PropertyTagXrdEntry extends PropertyTagEntry {
     /** */
-    public String xrdName;
+    public final String xrdName;
 
     /** */
-    public boolean inLink;
+    public final boolean inLink;
 
     /**
      * @param tag

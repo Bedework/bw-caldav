@@ -274,10 +274,11 @@ public class CaldavPostMethod extends PostMethod {
                          final HttpServletResponse resp) {
     final SysIntf sysi = intf.getSysi();
 
-    final WebdavNsNode node = intf.getNode(pars.getResourceUri(),
-                                           WebdavNsIntf.existanceMust,
-                                           WebdavNsIntf.nodeTypeCollection,
-                                           false);
+    final WebdavNsNode node =
+            intf.getNode(pars.getResourceUri(),
+                         WebdavNsIntf.existanceMust,
+                         WebdavNsIntf.nodeTypeCollection,
+                         false);
 
     if (node == null) {
       resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -328,10 +329,10 @@ public class CaldavPostMethod extends PostMethod {
 
       if (pars.getCol().getCalType() != CalDAVCollection.calTypeOutbox) {
         if (debug()) {
-          debug("Not targetted at Outbox");
+          debug("Not targeted at Outbox");
         }
         throw new WebdavException(HttpServletResponse.SC_METHOD_NOT_ALLOWED,
-        "Not targetted at Outbox");
+        "Not targeted at Outbox");
       }
 
       /* (CALDAV:valid-calendar-data) -- later */
@@ -339,13 +340,15 @@ public class CaldavPostMethod extends PostMethod {
 
       /* (CALDAV:organizer-allowed) -- later */
 
-      pars.setIcalendar(intf.getSysi().fromIcal(pars.getCol(),
-                                                pars.getReader(),
-                                                pars.getContentTypePars()[0],
-                                                IcalResultType.OneComponent,
-                                                false));
+      pars.setIcalendar(
+              intf.getSysi()
+                  .fromIcal(pars.getCol(),
+                            pars.getReader(),
+                            pars.getContentTypePars()[0],
+                            IcalResultType.OneComponent,
+                            false));
 
-      /* (CALDAV:valid-calendar-data) -- checjed in fromIcal */
+      /* (CALDAV:valid-calendar-data) -- checked in fromIcal */
 
       if (!pars.getIcalendar().validItipMethodType()) {
         if (debug()) {

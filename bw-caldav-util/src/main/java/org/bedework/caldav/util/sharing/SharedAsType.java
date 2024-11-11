@@ -25,25 +25,24 @@ import org.bedework.util.xml.tagdefs.WebdavTags;
 
 import java.io.StringWriter;
 
-/** Class to represent a response to a sharing invite. The href is the href
- * of the new alias in the sharee home
+/**
+ * Class to represent a response to a sharing invite. The href is the
+ * href of the new alias in the sharee home
  *
  * @author Mike Douglass douglm
  */
-public class SharedAsType {
-  private final String href;
-
+public record SharedAsType(String href) {
   /**
    * @param href alias in the sharee home
    */
-  public SharedAsType(final String href) {
-    this.href = href;
+  public SharedAsType {
   }
 
   /**
    * @return the href
    */
-  public String getHref() {
+  @Override
+  public String href() {
     return href;
   }
 
@@ -69,24 +68,23 @@ public class SharedAsType {
    */
   public void toXml(final XmlEmit xml) {
     xml.openTag(AppleServerTags.sharedAs);
-    xml.property(WebdavTags.href, getHref());
+    xml.property(WebdavTags.href, href());
     xml.closeTag(AppleServerTags.sharedAs);
   }
 
-  /** Add our stuff to the StringBuffer
+  /**
+   * Add our stuff to the StringBuffer
    *
    * @param ts for output
    */
-  protected void toStringSegment(final ToString ts) {
-    ts.append("href", getHref());
+  public ToString toStringSegment(final ToString ts) {
+    ts.append("href", href());
+
+    return ts;
   }
 
   @Override
   public String toString() {
-    final ToString ts = new ToString(this);
-
-    toStringSegment(ts);
-
-    return ts.toString();
+    return toStringSegment(new ToString(this)).toString();
   }
 }

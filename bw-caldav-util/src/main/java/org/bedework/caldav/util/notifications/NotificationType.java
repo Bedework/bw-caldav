@@ -154,9 +154,9 @@ public class NotificationType {
     if (!Util.isEmpty(attrs)) {
       for (final AttributeType attr: attrs) {
         sb.append(";noteattr_");
-        sb.append(attr.getName());
+        sb.append(attr.name());
         sb.append("=");
-        sb.append(attr.getValue());
+        sb.append(attr.value());
       }
     }
 

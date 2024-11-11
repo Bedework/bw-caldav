@@ -26,9 +26,9 @@ import org.bedework.util.jmx.MBeanInfo;
  * @author douglm
  */
 public interface SynchConnectionsMBean extends ConfBaseMBean {
-  static final String configName = "SynchConnections";
+  String configName = "SynchConnections";
 
-  static final String serviceName =
+  String serviceName =
           "org.bedework.caldav:service=" + configName;
 
   /* ==============================================================

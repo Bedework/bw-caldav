@@ -52,6 +52,12 @@ public abstract class SysiIcalendar implements ScheduleMethods,
    */
   public abstract String getCalscale();
 
+  /** Ensure no method supplied. Throws exception if non-null
+   *
+   * @param operation HTTP operation - PUT etc
+   */
+  public abstract void assertNoMethod(String operation);
+
   /**
    * @return String
    */
@@ -100,6 +106,11 @@ public abstract class SysiIcalendar implements ScheduleMethods,
    * @return CalDAVEvent
    */
   public abstract CalDAVEvent<?> getEvent();
+
+  /**
+   * @return CalDAVEvent - must be only one
+   */
+  public abstract CalDAVEvent<?> getOnlyEvent();
 
   /**
    * @return Iterator
@@ -152,17 +163,13 @@ public abstract class SysiIcalendar implements ScheduleMethods,
 
   @Override
   public String toString() {
-    final ToString ts = new ToString(this);
-    ts.append("prodid", getProdid());
-    ts.append("version", getVersion());
-
-    ts.newLine();
-    ts.append("method", String.valueOf(getMethod()));
-    ts.append("methodType", getMethodType());
-    ts.append("componentType", getComponentType());
-
-    ts.append("}");
-
-    return ts.toString();
+    return new ToString(this)
+            .append("prodid", getProdid())
+            .append("version", getVersion())
+            .newLine()
+            .append("method", String.valueOf(getMethod()))
+            .append("methodType", getMethodType())
+            .append("componentType", getComponentType())
+            .toString();
   }
 }

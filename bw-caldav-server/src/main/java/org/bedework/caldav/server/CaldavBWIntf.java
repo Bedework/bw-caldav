@@ -1062,8 +1062,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
                            final Reader contentRdr,
                            final String contentType,
                            final IfHeaders ifHeaders) {
-    final String ifStag = Headers.ifScheduleTagMatch(req);
-    final boolean noInvites = req.getHeader("Bw-NoInvites") != null; // based on header?
+    final var ifStag = Headers.ifScheduleTagMatch(req);
+    final var noInvites = req.getHeader("Bw-NoInvites") != null; // based on header?
+    final var ifEtag = ifHeaders.ifEtag;
+    final var create = ifHeaders.create;
 
     //BwEvent ev = evinfo.getEvent();
     String entityName = bwnode.getEntityName();
@@ -1076,14 +1078,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
             sysi.fromIcal(col, contentRdr, contentType,
                           IcalResultType.OneComponent,
                           true); // mergeAttendees
-    if (cal.getMethod() != null) {
-      throw new WebdavForbidden(CaldavTags.validCalendarObjectResource,
-                                "No method on PUT");
-    }
+    cal.assertNoMethod("PUT");
 
-    final CalDAVEvent<?> ev = (CalDAVEvent<?>)cal.iterator().next();
-
-    ev.setParentPath(col.getPath());
+    final var ev = cal.getOnlyEvent();
 
     if (entityName == null) {
       entityName = ev.getUid() + ".ics";
@@ -1091,9 +1088,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
 
     if (debug()) {
-      debug("putContent: intf has event with name " + entityName +
-               " and summary " + ev.getSummary() +
-               " new event = " + ev.isNew());
+      debug("putContent: intf has event with name " + entityName);
     }
 
     if (ev.isNew()) {
@@ -1102,9 +1097,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       /* Collection<BwEventProxy>failedOverrides = */
       sysi.addEvent(ev, noInvites, true);
-
-      bwnode.setEvent(ev);
-    } else if (ifHeaders.create) {
+    } else if (create) {
       /* Resource already exists */
 
       throw new WebdavException(HttpServletResponse.SC_PRECONDITION_FAILED);
@@ -1114,8 +1107,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
         throw new WebdavForbidden(CaldavTags.noUidConflict);
       }
 
-      if ((ifHeaders.ifEtag != null) &&
-          (!ifHeaders.ifEtag.equals(bwnode.getPrevEtagValue(true)))) {
+      if ((ifEtag != null) &&
+          (!ifEtag.equals(bwnode.getPrevEtagValue(true)))) {
         if (debug()) {
           debug("putContent: etag mismatch if=" + ifHeaders.ifEtag +
                    "prev=" + bwnode.getPrevEtagValue(true));
@@ -1138,9 +1131,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
         debug("putContent: update event " + ev);
       }
       sysi.updateEvent(ev);
-
-      bwnode.setEvent(ev);
     }
+
+    bwnode.setEvent(ev);
 
     if (ev.getOrganizerSchedulingObject() ||
         ev.getAttendeeSchedulingObject()) {
@@ -1175,14 +1168,9 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
     final SysiIcalendar cal = sysi.fromIcal(col, ical,
                                             IcalResultType.OneComponent);
-    if (cal.getMethod() != null) {
-      throw new WebdavForbidden(CaldavTags.validCalendarObjectResource,
-                                "No method on PUT");
-    }
+    cal.assertNoMethod("PUT");
 
-    final CalDAVEvent<?> ev = (CalDAVEvent<?>)cal.iterator().next();
-
-    ev.setParentPath(col.getPath());
+    final var ev = cal.getOnlyEvent();
 
     if (entityName == null) {
       entityName = ev.getUid() + ".ics";
@@ -1190,9 +1178,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
 
     if (debug()) {
-      debug("putContent: intf has event with name " + entityName +
-               " and summary " + ev.getSummary() +
-               " new event = " + ev.isNew());
+      debug("putContent: intf has event with name " + entityName);
     }
 
     if (ev.isNew()) {
@@ -2341,8 +2327,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
   }
 
   private static class SplitResult extends Response {
-    String path;
-    String name;
+    final String path;
+    final String name;
 
     SplitResult(final String path, final String name) {
       this.path = path;

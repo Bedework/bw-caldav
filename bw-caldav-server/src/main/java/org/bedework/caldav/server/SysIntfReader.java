@@ -92,7 +92,7 @@ public class SysIntfReader extends Reader implements Logged {
 
     if (doneLf) {
       // Get new line
-      String ln = lnr.readLine();
+      final String ln = lnr.readLine();
 
       if (ln == null) {
         eof = true;
@@ -135,7 +135,7 @@ public class SysIntfReader extends Reader implements Logged {
    *                   Logged methods
    * ==================================================================== */
 
-  private BwLogger logger = new BwLogger();
+  private final BwLogger logger = new BwLogger();
 
   @Override
   public BwLogger getLogger() {

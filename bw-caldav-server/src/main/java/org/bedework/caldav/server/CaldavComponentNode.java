@@ -161,21 +161,6 @@ public class CaldavComponentNode extends CaldavBwNode {
     event = cdURI.getEntity();
   }
 
-  /** Constructor
-   *
-   * @param event component
-   * @param sysi system interface
-   */
-  public CaldavComponentNode(final CalDAVEvent<?> event,
-                             final SysIntf sysi) {
-    super(sysi, event.getParentPath(), false, event.getPath());
-
-    allowsGet = true;
-    entityName = event.getName();
-
-    this.event = event;
-  }
-
   @Override
   public void init(final boolean content) {
     if (!content) {
@@ -261,11 +246,10 @@ public class CaldavComponentNode extends CaldavBwNode {
 
   /**
    * @param val String name
-   * @throws RuntimeException on fatal error
    */
   public void setEntityName(final String val) {
     if (entityName != null) {
-      throw new RuntimeException("Cannot change entity name");
+      throw new WebdavException("Cannot change entity name");
     }
 
     entityName = val;

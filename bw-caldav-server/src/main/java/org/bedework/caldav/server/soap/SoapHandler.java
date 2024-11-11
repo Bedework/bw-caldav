@@ -237,11 +237,9 @@ public abstract class SoapHandler extends MethodBase {
       return null;
     }
 
-    if (!(bp instanceof DateDatetimePropertyType)) {
+    if (!(bp instanceof final DateDatetimePropertyType d)) {
       return null;
     }
-
-    final DateDatetimePropertyType d = (DateDatetimePropertyType)bp;
 
     if (d.getDate() != null) {
       return null;

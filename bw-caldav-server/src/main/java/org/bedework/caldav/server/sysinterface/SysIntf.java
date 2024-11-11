@@ -858,9 +858,6 @@ public interface SysIntf extends WdSysIntf {
         return canSync;
       }
 
-      /* (non-Javadoc)
-       * @see java.lang.Comparable#compareTo(java.lang.Object)
-       */
       @Override
       public int compareTo(final SynchReportDataItem that) {
         return token.compareTo(that.token);
@@ -873,7 +870,10 @@ public interface SysIntf extends WdSysIntf {
 
       @Override
       public boolean equals(final Object o) {
-        return compareTo((SynchReportDataItem)o) == 0;
+        if (!(o instanceof final SynchReportDataItem srdi)) {
+          return false;
+        }
+        return compareTo(srdi) == 0;
       }
     }
 
@@ -901,8 +901,8 @@ public interface SysIntf extends WdSysIntf {
   String getSyncToken(CalDAVCollection<?> col);
 
   /**
-   * @param path
-   * @param token
+   * @param path of resource(s)
+   * @param token synch token
    * @param limit - negative for no limit on result set size
    * @param recurse
    * @return report
@@ -918,7 +918,7 @@ public interface SysIntf extends WdSysIntf {
 
   /** Make an ical Calendar from an event.
    *
-   * @param ev
+   * @param ev event
    * @param incSchedMethod - true if we should emit the scheduling method
    * @return Calendar
    */
@@ -993,9 +993,9 @@ public interface SysIntf extends WdSysIntf {
   /** Convert the Icalendar reader to a Collection of Calendar objects
    *
    * @param col       collection in which to place entities
-   * @param rdr
+   * @param rdr for content
    * @param contentType  null for ICalendar or valid calendar mime type
-   * @param rtype
+   * @param rtype expected component type
    * @param mergeAttendees True if we should only update our own attendee.
    * @return SysiIcalendar
    */
@@ -1009,7 +1009,7 @@ public interface SysIntf extends WdSysIntf {
    *
    * @param col       collection in which to place entities
    * @param ical
-   * @param rtype
+   * @param rtype expected component type
    * @return SysiIcalendar
    */
   SysiIcalendar fromIcal(CalDAVCollection<?> col,

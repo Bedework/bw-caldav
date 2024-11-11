@@ -215,7 +215,7 @@ public class CaldavResourceNode extends CaldavBwNode {
 
         if (!Util.isEmpty(ni.attrs)) {
           for (final AttributeType at: ni.attrs) {
-            xml.attribute(at.getName(), at.getValue());
+            xml.attribute(at.name(), at.value());
           }
         }
         xml.endEmptyTag();
