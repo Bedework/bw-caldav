@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.bedework</groupId>
     <artifactId>bedework-parent</artifactId>
-    <version>72</version>
+    <version>75</version>
   </parent>
 
   <artifactId>bw-caldav</artifactId>
