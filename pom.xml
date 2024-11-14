@@ -8,7 +8,7 @@
   </parent>
 
   <artifactId>bw-caldav</artifactId>
-  <version>5.0.7-SNAPSHOT</version>
+  <version>5.0.7</version>
   <name>Bedework: CalDAV generic server</name>
   <packaging>pom</packaging>
   <description>A generic CalDAV server - used by bedework</description>
