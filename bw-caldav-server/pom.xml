@@ -78,7 +78,7 @@
 
     <dependency>
       <groupId>org.bedework</groupId>
-      <artifactId>apache-jdkim-library</artifactId>
+      <artifactId>apache-jdkim-api</artifactId>
     </dependency>
 
 		<!-- Third Party Dependencies -->

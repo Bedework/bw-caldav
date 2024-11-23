@@ -22,7 +22,6 @@ import org.bedework.util.misc.ToString;
 
 import org.apache.james.jdkim.api.Headers;
 import org.apache.james.jdkim.api.SignatureRecord;
-import org.apache.james.jdkim.tagvalue.SignatureRecordImpl;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -49,7 +48,7 @@ public class IscheduleMessage implements Headers, Serializable {
   protected String iScheduleVersion;
   protected String iScheduleMessageId;
 
-  protected SignatureRecordImpl dkimSignature;
+  protected SignatureRecord dkimSignature;
 
   /** Constructor
    */

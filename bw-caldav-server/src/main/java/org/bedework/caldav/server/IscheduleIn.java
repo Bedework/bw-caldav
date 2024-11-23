@@ -18,10 +18,9 @@
 */
 package org.bedework.caldav.server;
 
+import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.webdav.servlet.shared.UrlHandler;
 import org.bedework.webdav.servlet.shared.WebdavBadRequest;
-
-import org.apache.james.jdkim.tagvalue.SignatureRecordImpl;
 
 import java.util.Enumeration;
 
@@ -35,14 +34,19 @@ import javax.servlet.http.HttpServletRequest;
 public class IscheduleIn extends IscheduleMessage {
   private final HttpServletRequest req;
 
+  private final SysIntf sysi;
+
   /** Constructor
    *
    * @param req http request
-   * @param urlHandler to manipulate urls
+   * @param sysi to get url handler and jdkim
    */
   public IscheduleIn(final HttpServletRequest req,
-                     final UrlHandler urlHandler) {
+                     final SysIntf sysi) {
     this.req = req;
+    this.sysi = sysi;
+
+    final UrlHandler urlHandler = sysi.getUrlHandler();
 
     /* Expect originator and recipient headers */
     for (final Enumeration<String> e = req.getHeaderNames();
@@ -95,7 +99,8 @@ public class IscheduleIn extends IscheduleMessage {
                       "Multiple dkim-signature headers");
             }
 
-            dkimSignature = SignatureRecordImpl.forIschedule(hval);
+            dkimSignature = sysi.getJDKIM()
+                                .getSignatureRecordForIschedule(hval);
             //dkimSignature.validate();
           }
         }

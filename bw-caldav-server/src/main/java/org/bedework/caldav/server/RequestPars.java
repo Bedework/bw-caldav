@@ -86,7 +86,7 @@ public class RequestPars extends PostRequestPars {
       iSchedule = checkUri(sp.getIscheduleURI());
 
       if (iSchedule) {
-        ischedRequest = new IscheduleIn(req, sysi.getUrlHandler());
+        ischedRequest = new IscheduleIn(req, sysi);
 
         getTheReader = false;
         break testRequest;

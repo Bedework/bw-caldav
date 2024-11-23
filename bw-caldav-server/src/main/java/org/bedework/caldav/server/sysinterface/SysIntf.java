@@ -44,6 +44,7 @@ import org.bedework.webdav.servlet.shared.WdSysIntf;
 
 import ietf.params.xml.ns.icalendar_2.IcalendarType;
 import net.fortuna.ical4j.model.Calendar;
+import org.apache.james.jdkim.api.JDKIM;
 import org.oasis_open.docs.ws_calendar.ns.soap.ComponentSelectionType;
 
 import java.io.Reader;
@@ -118,6 +119,12 @@ public interface SysIntf extends WdSysIntf {
    * @return CalDAVSystemProperties object - never null.
    */
   CalDAVSystemProperties getSystemProperties();
+
+  /**
+   *
+   * @return a JDKIM implementation.
+   */
+  JDKIM getJDKIM();
 
   /** Return the current principal
    *

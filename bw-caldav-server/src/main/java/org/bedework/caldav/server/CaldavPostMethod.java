@@ -48,9 +48,8 @@ import org.bedework.webdav.servlet.shared.WebdavNsIntf;
 import org.bedework.webdav.servlet.shared.WebdavNsNode;
 import org.bedework.webdav.servlet.shared.WebdavStatusCode;
 
-import org.apache.james.jdkim.DKIMVerifier;
-import org.apache.james.jdkim.IscheduleDKIMVerifier;
 import org.apache.james.jdkim.api.BodyHasher;
+import org.apache.james.jdkim.api.DKIMVerifier;
 import org.apache.james.jdkim.api.SignatureRecord;
 import org.apache.james.jdkim.exceptions.FailException;
 import org.w3c.dom.Element;
@@ -572,7 +571,12 @@ public class CaldavPostMethod extends PostMethod {
 
     try {
       /* Do DKIM validation */
-      final DKIMVerifier verifier = new IscheduleDKIMVerifier();
+      final CaldavBWIntf intf = (CaldavBWIntf)getNsIntf();
+
+      final DKIMVerifier verifier =
+              intf.getSysi()
+                  .getJDKIM()
+                  .getIscheduleDKIMVerifier();
       final BodyHasher bh = verifier.newBodyHasher(isi);
 
       if (bh != null) {
