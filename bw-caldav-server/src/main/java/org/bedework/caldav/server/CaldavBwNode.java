@@ -20,7 +20,7 @@ package org.bedework.caldav.server;
 
 import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.util.calendar.XcalUtil;
-import org.bedework.util.misc.ToString;
+import org.bedework.base.ToString;
 import org.bedework.util.xml.tagdefs.CalWSSoapTags;
 import org.bedework.util.xml.tagdefs.CalWSXrdDefs;
 import org.bedework.util.xml.tagdefs.CaldavTags;

@@ -18,7 +18,7 @@
 */
 package org.bedework.caldav.util.sharing;
 
-import org.bedework.util.misc.ToString;
+import org.bedework.base.ToString;
 
 /** Class to represent removal of access rights in a sharing request.
  *

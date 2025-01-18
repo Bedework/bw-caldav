@@ -18,7 +18,7 @@
 */
 package org.bedework.caldav.server.sysinterface;
 
-import org.bedework.util.misc.ToString;
+import org.bedework.base.ToString;
 
 import ietf.params.xml.ns.caldav.ExpandType;
 import ietf.params.xml.ns.caldav.LimitFreebusySetType;

@@ -27,7 +27,7 @@ import org.bedework.caldav.server.sysinterface.SysIntf.MethodEmitted;
 import org.bedework.caldav.util.filter.FilterBase;
 import org.bedework.caldav.util.sharing.InviteType;
 import org.bedework.util.calendar.XcalUtil;
-import org.bedework.util.misc.ToString;
+import org.bedework.base.ToString;
 import org.bedework.util.misc.Util;
 import org.bedework.util.timezones.DateTimeUtil;
 import org.bedework.util.xml.XmlEmit;

@@ -26,7 +26,7 @@ import org.bedework.caldav.util.DumpUtil;
 import org.bedework.caldav.util.filter.parse.EventQuery;
 import org.bedework.caldav.util.filter.parse.Filters;
 import org.bedework.util.misc.Util;
-import org.bedework.util.misc.response.GetEntityResponse;
+import org.bedework.base.response.GetEntityResponse;
 import org.bedework.util.timezones.Timezones;
 import org.bedework.util.xml.XmlUtil;
 import org.bedework.util.xml.tagdefs.CaldavTags;

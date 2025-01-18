@@ -35,7 +35,7 @@ import org.bedework.caldav.util.sharing.InviteType;
 import org.bedework.caldav.util.sharing.ShareResultType;
 import org.bedework.caldav.util.sharing.ShareType;
 import org.bedework.util.calendar.ScheduleStates;
-import org.bedework.util.misc.ToString;
+import org.bedework.base.ToString;
 import org.bedework.util.xml.XmlEmit;
 import org.bedework.webdav.servlet.shared.PrincipalPropertySearch;
 import org.bedework.webdav.servlet.shared.UrlHandler;

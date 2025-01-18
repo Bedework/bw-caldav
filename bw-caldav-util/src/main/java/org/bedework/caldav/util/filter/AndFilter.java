@@ -18,7 +18,7 @@
 */
 package org.bedework.caldav.util.filter;
 
-import org.bedework.util.misc.ToString;
+import org.bedework.base.ToString;
 
 /**
  * A filter that is composed of a boolean AND of zero or more filters

@@ -46,8 +46,8 @@ import org.bedework.caldav.server.sysinterface.SysIntf.SynchReportData.SynchRepo
 import org.bedework.util.jmx.AnnotatedMBean;
 import org.bedework.util.jmx.ManagementContext;
 import org.bedework.util.misc.Util;
-import org.bedework.util.misc.response.GetEntityResponse;
-import org.bedework.util.misc.response.Response;
+import org.bedework.base.response.GetEntityResponse;
+import org.bedework.base.response.Response;
 import org.bedework.util.xml.XmlEmit;
 import org.bedework.util.xml.XmlEmit.NameSpace;
 import org.bedework.util.xml.XmlUtil;
@@ -118,8 +118,8 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
 
-import static org.bedework.util.misc.response.Response.Status.forbidden;
-import static org.bedework.util.misc.response.Response.Status.notFound;
+import static org.bedework.base.response.Response.Status.forbidden;
+import static org.bedework.base.response.Response.Status.notFound;
 
 /** This class implements a namespace interface for the webdav abstract
  * servlet. One of these interfaces is associated with each current session.

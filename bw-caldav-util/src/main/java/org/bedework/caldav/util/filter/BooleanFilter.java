@@ -46,7 +46,7 @@
  */
 package org.bedework.caldav.util.filter;
 
-import org.bedework.util.misc.ToString;
+import org.bedework.base.ToString;
 
 /** A filter that allows us to indicate true/false.
  *

@@ -36,7 +36,12 @@
 		</dependency>
 
 		<!-- Bedework Project Dependencies -->
-		<dependency>
+    <dependency>
+      <groupId>org.bedework</groupId>
+      <artifactId>bw-base</artifactId>
+    </dependency>
+
+    <dependency>
 			<groupId>org.bedework</groupId>
 			<artifactId>bw-access</artifactId>
 		</dependency>

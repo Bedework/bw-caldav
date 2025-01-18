@@ -20,7 +20,7 @@ package org.bedework.caldav.util;
 
 import org.bedework.util.logging.BwLogger;
 import org.bedework.util.logging.Logged;
-import org.bedework.util.misc.ToString;
+import org.bedework.base.ToString;
 
 import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.Dur;

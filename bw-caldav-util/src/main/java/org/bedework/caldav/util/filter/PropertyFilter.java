@@ -19,7 +19,7 @@
 package org.bedework.caldav.util.filter;
 
 import org.bedework.util.calendar.PropertyIndex.PropertyInfoIndex;
-import org.bedework.util.misc.ToString;
+import org.bedework.base.ToString;
 import org.bedework.util.misc.Uid;
 
 import java.util.Collections;

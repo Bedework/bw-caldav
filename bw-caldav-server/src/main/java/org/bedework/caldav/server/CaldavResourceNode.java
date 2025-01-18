@@ -24,7 +24,7 @@ import org.bedework.access.PrivilegeDefs;
 import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.caldav.util.notifications.BaseNotificationType.AttributeType;
 import org.bedework.caldav.util.notifications.NotificationType.NotificationInfo;
-import org.bedework.util.misc.ToString;
+import org.bedework.base.ToString;
 import org.bedework.util.misc.Util;
 import org.bedework.util.timezones.DateTimeUtil;
 import org.bedework.util.xml.XmlEmit;

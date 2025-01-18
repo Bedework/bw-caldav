@@ -18,7 +18,7 @@
 */
 package org.bedework.caldav.util.notifications.suggest;
 
-import org.bedework.util.misc.ToString;
+import org.bedework.base.ToString;
 import org.bedework.util.xml.XmlEmit;
 import org.bedework.util.xml.tagdefs.BedeworkServerTags;
 

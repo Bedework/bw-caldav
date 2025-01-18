@@ -46,7 +46,7 @@
  */
 package org.bedework.caldav.util.filter;
 
-import org.bedework.util.misc.ToString;
+import org.bedework.base.ToString;
 
 /** A filter that negates the sense of the single child.
  *
