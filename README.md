@@ -84,4 +84,24 @@ For full details, see [Sonatype's documentation for using Maven to publish relea
 * Release 5.0.2 failed because of missing name. Redo.
 
 #### 5.0.4
+* Upgrade library versions
 * Updated version of bw-calws-soap    
+
+#### 5.0.5
+* Upgrade library versions
+* Make webdavexception subclass of runtimeexception and tidy up a bit. Should be no noticable changes.
+
+#### 5.0.6
+* Upgrade library versions
+
+#### 5.0.7
+* Upgrade library versions
+
+#### 5.0.8
+* Upgrade library versions
+* Split jdkim into api and library. Use api only as a dependency. Obtain library by dynamic loading.
+
+#### 5.0.9
+* Upgrade library versions
+* Move response classes and ToString into bw-base module.
+* Pre-jakarta
