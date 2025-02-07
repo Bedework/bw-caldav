@@ -78,8 +78,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.function.Supplier;
 
-import javax.servlet.http.HttpServletResponse;
-import javax.xml.bind.JAXBElement;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 
 /** Class to represent a calendar in caldav.

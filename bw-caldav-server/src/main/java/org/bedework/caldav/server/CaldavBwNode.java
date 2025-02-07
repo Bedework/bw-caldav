@@ -46,7 +46,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.function.Supplier;
 
-import javax.xml.bind.JAXBElement;
+import jakarta.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 
 /** Class to represent a caldav node.

@@ -18,7 +18,7 @@
 */
 package org.bedework.caldav.server;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /** Retrieve and process CalDAV header values
  *

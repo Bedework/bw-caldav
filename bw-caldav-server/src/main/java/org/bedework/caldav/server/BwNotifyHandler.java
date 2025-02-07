@@ -36,7 +36,7 @@ import org.w3c.dom.Node;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import javax.xml.namespace.QName;
 
 /** Class called to handle incoming notify service requests.

@@ -24,7 +24,7 @@ import org.bedework.webdav.servlet.shared.WebdavBadRequest;
 
 import java.util.Enumeration;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /** An incoming iSchedule message
  *

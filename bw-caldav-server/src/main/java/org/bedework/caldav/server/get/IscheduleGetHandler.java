@@ -28,8 +28,8 @@ import org.bedework.webdav.servlet.shared.WebdavException;
 import java.io.Writer;
 import java.util.Base64;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import javax.xml.namespace.QName;
 
 /** Handle ischedule GET requests.

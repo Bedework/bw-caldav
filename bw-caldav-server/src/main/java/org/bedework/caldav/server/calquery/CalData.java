@@ -54,7 +54,7 @@ import org.w3c.dom.Node;
 
 import java.util.Collection;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import javax.xml.namespace.QName;
 
 /** Class to represent a calendar-query calendar-data element

@@ -34,9 +34,9 @@ import org.oasis_open.docs.ws_calendar.ns.soap.StatusType;
 
 import java.util.UUID;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.xml.bind.JAXBElement;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.xml.bind.JAXBElement;
 
 /** Class extended by classes which handle special GET requests, e.g. the
  * freebusy service, web calendars, ischedule etc.
