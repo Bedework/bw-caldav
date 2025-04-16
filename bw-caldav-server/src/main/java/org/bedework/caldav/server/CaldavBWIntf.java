@@ -26,6 +26,8 @@ import org.bedework.access.AceWho;
 import org.bedework.access.Acl;
 import org.bedework.access.PrivilegeDefs;
 import org.bedework.access.WhoDefs;
+import org.bedework.base.response.GetEntityResponse;
+import org.bedework.base.response.Response;
 import org.bedework.caldav.server.CaldavBwNode.PropertyTagXrdEntry;
 import org.bedework.caldav.server.calquery.CalData;
 import org.bedework.caldav.server.calquery.FreeBusyQuery;
@@ -46,8 +48,6 @@ import org.bedework.caldav.server.sysinterface.SysIntf.SynchReportData.SynchRepo
 import org.bedework.util.jmx.AnnotatedMBean;
 import org.bedework.util.jmx.ManagementContext;
 import org.bedework.util.misc.Util;
-import org.bedework.base.response.GetEntityResponse;
-import org.bedework.base.response.Response;
 import org.bedework.util.xml.XmlEmit;
 import org.bedework.util.xml.XmlEmit.NameSpace;
 import org.bedework.util.xml.XmlUtil;
@@ -89,6 +89,12 @@ import org.bedework.webdav.servlet.shared.serverInfo.ServerInfo;
 
 import ietf.params.xml.ns.caldav.FilterType;
 import ietf.params.xml.ns.icalendar_2.IcalendarType;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.Marshaller;
 import org.oasis_open.docs.ns.xri.xrd_1.AnyURI;
 import org.oasis_open.docs.ns.xri.xrd_1.LinkType;
 import org.oasis_open.docs.ns.xri.xrd_1.XRDType;
@@ -110,12 +116,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.Supplier;
 
 import javax.management.ObjectName;
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.ServletContextEvent;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.xml.bind.JAXBContext;
-import jakarta.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
 
 import static org.bedework.base.response.Response.Status.forbidden;
@@ -737,25 +737,29 @@ public class CaldavBWIntf extends WebdavNsIntf {
         final String name = wde.getName();
         final int nodeType;
 
-        if (wde instanceof CalDAVCollection) {
-          col = (CalDAVCollection<?>)wde;
+        switch (wde) {
+          case CalDAVCollection calDAVCollection -> {
+            col = calDAVCollection;
 
-          nodeType = WebdavNsIntf.nodeTypeCollection;
-          if (debug()) {
-            debug("Found child " + col);
+            nodeType = WebdavNsIntf.nodeTypeCollection;
+            if (debug()) {
+              debug("Found child " + col);
+            }
           }
-        } else if (wde instanceof CalDAVResource) {
-          col = parent;
-          r = (CalDAVResource<?>)wde;
+          case CalDAVResource calDAVResource -> {
+            col = parent;
+            r = calDAVResource;
 
-          nodeType = WebdavNsIntf.nodeTypeEntity;
-        } else if (wde instanceof CalDAVEvent) {
-          col = parent;
-          ev = (CalDAVEvent<?>)wde;
+            nodeType = WebdavNsIntf.nodeTypeEntity;
+          }
+          case CalDAVEvent calDAVEvent -> {
+            col = parent;
+            ev = calDAVEvent;
 
-          nodeType = WebdavNsIntf.nodeTypeEntity;
-        } else {
-          throw new WebdavException("Unexpected return type");
+            nodeType = WebdavNsIntf.nodeTypeEntity;
+          }
+          default ->
+                  throw new WebdavException("Unexpected return type");
         }
 
         al.add(getNodeInt(Util.buildPath(false, uri, "/", name),
@@ -2159,20 +2163,20 @@ public class CaldavBWIntf extends WebdavNsIntf {
       uri = normalizeUri(uri);
 
       if (!uri.startsWith("/")) {
-        return Response.invalid(resp, "Invalid URI - must start with \"/\"");
+        return resp.invalid("Invalid URI - must start with \"/\"");
       }
 
       final boolean isPrincipal = sysi.isPrincipal(uri);
 
       if ((nodeType == WebdavNsIntf.nodeTypePrincipal) && !isPrincipal) {
-        return Response.notFound(resp, uri);
+        return resp.notFound(uri);
       }
 
       if (isPrincipal) {
         final AccessPrincipal p = getSysi().getPrincipal(uri);
 
         if (p == null) {
-          return Response.notFound(resp, uri);
+          return resp.notFound(uri);
         }
 
         resp.setEntity(new CaldavURI(p));
@@ -2209,7 +2213,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
               (existance != WebdavNsIntf.existanceNot) &&
               (existance != WebdavNsIntf.existanceMay)) {
             /* We asked for a collection and it doesn't exist */
-            return Response.notFound(resp, uri);
+            return resp.notFound(uri);
           }
 
           // We'll try as an entity for unknown
@@ -2220,8 +2224,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
                             col.getPath() + "\"");
             }
 
-            return Response.notOk(resp, forbidden,
-                                  WebdavTags.resourceMustBeNull);
+            return resp.notOk(forbidden,
+                              WebdavTags.resourceMustBeNull);
           }
 
           if (debug()) {
@@ -2233,8 +2237,8 @@ public class CaldavBWIntf extends WebdavNsIntf {
           return resp;
         }
       } else if (col != null) {
-        return Response.notOk(resp, forbidden,
-                              WebdavTags.resourceMustBeNull);
+        return resp.notOk(forbidden,
+                          WebdavTags.resourceMustBeNull);
       }
 
       // Entity or unknown
@@ -2242,12 +2246,12 @@ public class CaldavBWIntf extends WebdavNsIntf {
       /* Split name into parent path and entity name part */
       final SplitResult split = splitUri(uri);
       if (!split.isOk()) {
-        return Response.fromResponse(resp, split);
+        return resp.fromResponse(split);
       }
 
       if (split.name == null) {
         // No name part
-        return Response.notFound(resp, uri);
+        return resp.notFound(uri);
       }
 
       final String parentPath = split.path;
@@ -2259,11 +2263,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
       if (col == null) {
         if (nodeType == WebdavNsIntf.nodeTypeCollection) {
           // Trying to create calendar/collection with no parent
-          return Response.notOk(resp, forbidden,
-                                "No parent");
+          return resp.notOk(forbidden, "No parent");
         }
 
-        return Response.notFound(resp, uri);
+        return resp.notFound(uri);
       }
 
       if (nodeType == WebdavNsIntf.nodeTypeCollection) {
@@ -2290,7 +2293,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
         ev = sysi.getEvent(col, entityName);
 
         if ((existance == existanceMust) && (ev == null)) {
-          return Response.notFound(resp, uri);
+          return resp.notFound(uri);
         }
 
         resp.setEntity(new CaldavURI(col, ev, entityName, ev != null,
@@ -2305,7 +2308,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
         rsrc = sysi.getFile(col, entityName);
 
         if ((existance == existanceMust) && (rsrc == null)) {
-          return Response.notFound(resp, uri);
+          return resp.notFound(uri);
         }
 
         final boolean exists = rsrc != null;
@@ -2322,11 +2325,12 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       return resp;
     } catch (final Throwable t) {
-      return Response.error(resp, t);
+      return resp.error(t);
     }
   }
 
-  private static class SplitResult extends Response {
+  private static class SplitResult
+          extends Response<SplitResult> {
     final String path;
     final String name;
 
@@ -2344,8 +2348,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
     final int pos = uri.lastIndexOf("/");
     if (pos < 0) {
       // bad uri
-      return Response.invalid(new SplitResult(null, null),
-                              "Invalid uri: " + uri);
+      return new SplitResult(null, null).invalid("Invalid uri: " + uri);
     }
 
     if (pos == 0) {
