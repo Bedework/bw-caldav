@@ -738,7 +738,7 @@ public class CaldavBWIntf extends WebdavNsIntf {
         final int nodeType;
 
         switch (wde) {
-          case CalDAVCollection calDAVCollection -> {
+          case final CalDAVCollection<?> calDAVCollection -> {
             col = calDAVCollection;
 
             nodeType = WebdavNsIntf.nodeTypeCollection;
@@ -746,13 +746,13 @@ public class CaldavBWIntf extends WebdavNsIntf {
               debug("Found child " + col);
             }
           }
-          case CalDAVResource calDAVResource -> {
+          case final CalDAVResource<?> calDAVResource -> {
             col = parent;
             r = calDAVResource;
 
             nodeType = WebdavNsIntf.nodeTypeEntity;
           }
-          case CalDAVEvent calDAVEvent -> {
+          case final CalDAVEvent<?> calDAVEvent -> {
             col = parent;
             ev = calDAVEvent;
 
@@ -1290,6 +1290,10 @@ public class CaldavBWIntf extends WebdavNsIntf {
 
       final CalDAVCollection<?> parent =
               getSysi().getCollection(newCol.getParentPath());
+      if (parent == null) {
+        throw new RuntimeException("No parent collection");
+      }
+
       if (parent.getCalType() == CalDAVCollection.calTypeCalendarCollection) {
         throw new WebdavForbidden(CaldavTags.calendarCollectionLocationOk);
       }
@@ -1963,10 +1967,13 @@ public class CaldavBWIntf extends WebdavNsIntf {
     }
 
     try {
-      for (final CalDAVEvent<?> ev: events) {
-        final CalDAVCollection<?> col =
+      for (final var ev: events) {
+        final var col =
                 getSysi().getCollection(ev.getParentPath());
-        final String uri = col.getPath();
+        if (col == null) {
+          throw new RuntimeException("No parent collection");
+        }
+        final var uri = col.getPath();
 
         /* If no name was assigned use the guid */
         String evName = ev.getName();
@@ -1974,14 +1981,14 @@ public class CaldavBWIntf extends WebdavNsIntf {
           evName = ev.getUid() + ".ics";
         }
 
-        final String evuri = Util.buildPath(false, uri, "/", evName);
+        final var evuri = Util.buildPath(false, uri, "/", evName);
 
-        final CaldavComponentNode evnode =
-                (CaldavComponentNode)getNodeInt(evuri,
-                                                WebdavNsIntf.existanceDoesExist,
-                                                WebdavNsIntf.nodeTypeEntity,
-                                                false,
-                                                col, ev, null);
+        final var evnode = (CaldavComponentNode)getNodeInt(
+                evuri,
+                WebdavNsIntf.existanceDoesExist,
+                WebdavNsIntf.nodeTypeEntity,
+                false,
+                col, ev, null);
 
         evnodes.add(evnode);
       }
