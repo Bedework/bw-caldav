@@ -7,9 +7,20 @@ resources. Provides a CalDAV server for
 A functioning CalDAV server can be built by fully implementing the abstract
 SysIntf class.
 
+Supports most of the CalDAV and related RFCs:
+
+* RFC4791 - CalDAV access
+* RFC 5397 - WebDAV Current Principal Extension
+* RFC 5689 - Extended MKCOL for Web Distributed Authoring and Versioning (WebDAV)
+* RFC 5995 - Using POST to Add Members to Web Distributed Authoring and Versioning (WebDAV) Collections
+* RFC 6638 - Scheduling Extensions to CalDAV
+* RFC 7809 - Calendaring Extensions to WebDAV (CalDAV): Time Zones by Reference
+
+Additionally, supports calendar sharing as implemented by other services.
+
 ## Requirements
 
-1. JDK 17
+1. JDK 21
 2. Maven 3
 
 ## Building Locally
