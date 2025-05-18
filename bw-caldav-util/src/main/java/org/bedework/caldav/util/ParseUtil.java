@@ -29,6 +29,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
 import java.util.Calendar;
+import java.util.Objects;
 
 /** Some utilities for parsing caldav
  *
@@ -207,18 +208,22 @@ public class ParseUtil {
   /** Get a date/time range given by the rfc formatted parameters and limited to
    * the given max range
    *
-   * @param start
-   * @param end
+   * @param start string start date or null
+   * @param end String end date or null
    * @param defaultField
    * @param defaultVal
    * @param maxField
    * @param maxVal - 0 for no max
    * @return TimeRange or null for bad request
    */
-  public static TimeRange getPeriod(final String start, final String end,
-                                    final int defaultField, final int defaultVal,
+  public static TimeRange getPeriod(final String start,
+                                    final String end,
+                                    final int defaultField,
+                                    final Integer defaultVal,
                                     final int maxField,
-                                    final int maxVal) {
+                                    final Integer maxVal) {
+    final int defVal = Objects.requireNonNullElse(defaultVal, 31);
+
     final Calendar startCal = Calendar.getInstance();
     startCal.set(Calendar.HOUR_OF_DAY, 0);
     startCal.set(Calendar.MINUTE, 0);
@@ -235,17 +240,17 @@ public class ParseUtil {
       }
 
       if (end == null) {
-        endCal.add(defaultField, defaultVal);
+        endCal.add(defaultField, defVal);
       } else {
         endCal.setTime(DateTimeUtil.fromDate(end));
       }
-    } catch (DateTimeUtil.BadDateException bde) {
+    } catch (final DateTimeUtil.BadDateException bde) {
       throw new WebdavBadRequest();
     }
 
     // Don't allow more than the max
-    if (maxVal > 0) {
-      Calendar check = Calendar.getInstance();
+    if (maxVal != null) {
+      final Calendar check = Calendar.getInstance();
       check.setTime(startCal.getTime());
       check.add(maxField, maxVal);
 
@@ -263,7 +268,7 @@ public class ParseUtil {
       return false;
     }
 
-    byte[] b = val.getBytes();
+    final byte[] b = val.getBytes();
 
     if (b[8] != 'T') {
       return false;

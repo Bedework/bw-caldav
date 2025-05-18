@@ -35,12 +35,12 @@ import org.bedework.webdav.servlet.shared.WebdavNsNode;
 
 import org.apache.commons.text.StringEscapeUtils;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.function.Supplier;
-
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 /** Handle web calendar GET requests.
  *
@@ -64,12 +64,13 @@ public class WebcalGetHandler extends GetHandler {
     try {
       final CalDAVAuthProperties authp = getSysi().getAuthProperties();
 
-      final TimeRange tr = ParseUtil.getPeriod(req.getParameter("start"),
-                                               req.getParameter("end"),
-                                               java.util.Calendar.DATE,
-                                               authp.getDefaultWebCalPeriod(),
-                                               java.util.Calendar.DATE,
-                                               authp.getMaxWebCalPeriod());
+      final TimeRange tr = ParseUtil.getPeriod(
+              req.getParameter("start"),
+              req.getParameter("end"),
+              java.util.Calendar.DATE,
+              authp.getDefaultWebCalPeriod(),
+              java.util.Calendar.DATE,
+              authp.getMaxWebCalPeriod());
 
       if (tr == null) {
         resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Date/times");
