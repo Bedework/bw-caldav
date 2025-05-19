@@ -85,7 +85,7 @@ jobs:
     - if: matrix.build-mode == 'manual'
       shell: bash
       run: |
-        mvn -Pbedework-dev compile
+        mvn -Pbedework-dev --settings ./.github/workflows/settings.xml compile
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
