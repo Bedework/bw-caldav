@@ -5,7 +5,7 @@ resources. Provides a CalDAV server for
 [Bedework](https://www.apereo.org/projects/bedework).
 
 A functioning CalDAV server can be built by fully implementing the abstract
-SysIntf class.
+org.bedework.caldav.server.sysinterface.SysIntf class.
 
 Supports most of the CalDAV and related RFCs:
 
