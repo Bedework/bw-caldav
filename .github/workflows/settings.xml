@@ -20,7 +20,7 @@
             <enabled>false</enabled>
             <updatePolicy>never</updatePolicy>
           </snapshots>
-          <id>central</id>
+          <id>central-releases</id>
           <name>Central Repository</name>
           <url>https://central.sonatype.com/repository/</url>
           <layout>default</layout>
@@ -35,7 +35,7 @@
             <enabled>true</enabled>
             <updatePolicy>never</updatePolicy>
           </snapshots>
-          <id>central-snapshots</id>
+          <id>central</id>
           <name>Central Repository</name>
           <url>https://central.sonatype.com/repository/maven-snapshots/</url>
           <layout>default</layout>
