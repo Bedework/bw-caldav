@@ -77,3 +77,5 @@ When prompted, indicate all updates are committed
 
 For full details, see [Sonatype's documentation for using Maven to publish releases](http://central.sonatype.org/pages/apache-maven.html).
 
+## Security - Vulnerability reporting
+See [SECURITY.md](SECURITY.md).
