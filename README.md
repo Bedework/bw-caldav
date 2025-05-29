@@ -4,9 +4,6 @@ A generic CalDAV server which interacts with a back end to access the
 resources. Provides a CalDAV server for
 [Bedework](https://www.apereo.org/projects/bedework).
 
-A functioning CalDAV server can be built by fully implementing the abstract
-org.bedework.caldav.server.sysinterface.SysIntf class.
-
 Supports most of the CalDAV and related RFCs:
 
 * RFC4791 - CalDAV access
@@ -43,6 +40,9 @@ Add the artifact(s) as a dependency to your project:
         <version>${bw-caldav.version}</version>
       </dependency>
 ```
+
+Fully implement the abstract
+org.bedework.caldav.server.sysinterface.SysIntf class. Note that a subset of CalDAV - e.g. read-only, will only require a subset of the implemented methods to be functional. 
 
 ## Reporting Issues
 Please report issues via the github issues tab at 
