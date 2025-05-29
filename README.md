@@ -49,9 +49,7 @@ Please report issues via the github issues tab at
 > https://github.com/Bedework/bw-caldav/issues 
 
 ## Contributing
-Contributions may take the form of suggested updates, bug fixes or documentation or just discussion. Pull requests may be submitted via github.
-
-Please try to follow the coding conventions used in the source. Perhaps the main difference from many is the 2 space indents. No tab characters, please.
+See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Building Locally
 
