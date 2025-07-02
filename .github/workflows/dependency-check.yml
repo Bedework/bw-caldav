@@ -1,0 +1,78 @@
+name: dependency-check
+
+on:
+  push:
+    branches: [ "master" ]
+    paths-ignore:
+      - '.gitignore'
+      - '*.md'
+      - 'docs/**'
+      - '**/*.adoc'
+  pull_request:
+    branches: [ "master" ]
+    paths-ignore:
+      - '.gitignore'
+      - '*.md'
+      - 'docs/**'
+      - '**/*.adoc'
+  schedule:
+    - cron: '40 1 * * 1'
+
+jobs:
+  depcheck:
+    runs-on: ubuntu-latest
+    name: depcheck
+    permissions:
+      # Give the default GITHUB_TOKEN write permission to commit and push the
+      # added or changed files to the repository.
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: corretto
+          java-version: 21
+          cache: maven
+
+      - name: Get Date
+        id: get-date
+        run: |
+          echo "datetime=$(/bin/date -u "+%Y%m%d%H")" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Restore cached Maven dependencies
+        uses: actions/cache/restore@v3
+        with:
+          path: ~/.m2/repository
+          # Using datetime in cache key as OWASP database may change, without the pom changing
+          key: ${{ runner.os }}-maven-${{ steps.get-date.outputs.datetime }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-${{ steps.get-date.outputs.datetime }}
+            ${{ runner.os }}-maven-
+
+      - name: Build & scan
+        id: scan
+        run: |
+          mvn -Pbedework-dev --settings ./.github/workflows/settings.xml \
+            --no-transfer-progress clean install -DskipTests \
+            -DnvdApiKey=${{secrets.nvdApiKey}} -DskipITs -Dmax.cvss.score=8 \
+            org.owasp:dependency-check-maven:aggregate 
+          #  -l ${{github.workspace}}/mvn-output.txt
+          #env:
+          #  MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME}}
+          #  MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD}}
+
+      - name: Copy to docs and push changes
+        id: deploy
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git pull
+          cp -r ./target/reports docs/
+          cp -r ./target/reports bw-caldav-asciidocs/src/main/asciidoc/
+          git add .
+          git commit -m "deploy generated dependency check report"
+          git push

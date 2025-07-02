@@ -2,7 +2,9 @@
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased (6.0.0-SNAPSHOT)
+## Unreleased (6.1.0-SNAPSHOT)
+
+## [6.0.0-SNAPSHOT] - 2025-07-01
 * First jakarta release
 * Use a more fluent approach for responses
 * Fix for possible NPE for missing config values.

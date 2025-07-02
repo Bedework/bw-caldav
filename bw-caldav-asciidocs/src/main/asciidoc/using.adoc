@@ -1,0 +1,29 @@
+=== Using this project
+Add the artifact(s) as a dependency to your project:
+
+[source]
+----
+      <dependency>
+        <groupId>org.bedework</groupId>
+        <artifactId>bw-caldav-server</artifactId>
+        <version>${bw-caldav.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.bedework</groupId>
+        <artifactId>bw-caldav-util</artifactId>
+        <version>${bw-caldav.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.bedework</groupId>
+        <artifactId>bw-caldav-xml</artifactId>
+        <version>${bw-caldav.version}</version>
+      </dependency>
+----
+
+Fully implement the abstract
+----
+org.bedework.caldav.server.sysinterface.SysIntf
+----
+class. Note that a subset of CalDAV - e.g. read-only, will only require a subset of the implemented methods to be functional.

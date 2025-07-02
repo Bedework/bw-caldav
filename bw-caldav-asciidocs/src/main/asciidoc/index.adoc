@@ -1,0 +1,25 @@
+= Bedework CalDAV modules.
+:title: The Bedework CalDAV modules.
+:safe-mode-unsafe:
+:docinfo: shared
+:docinfodir: ./docinfo
+:docinfo2:
+:scriptsdir: ./tocbot-3.0.2
+:imagesdir: ./resources/
+:toc: left
+:toclevels: 4
+:sectnumlevels: 4
+//
+:reports-dir: reports/
+//
+:sectnums!:
+
+include::introduction.adoc[]
+
+:sectnums:
+
+include::using.adoc[]
+
+[[reports]]
+== Reports
+link:reports/dependency-check-report.html[Dependency check]

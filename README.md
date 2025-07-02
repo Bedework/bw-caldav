@@ -20,29 +20,7 @@ Additionally, supports calendar sharing as implemented by other services.
 2. Maven 3
 
 ## Using this project
-Add the artifact(s) as a dependency to your project:
-```
-      <dependency>
-        <groupId>org.bedework</groupId>
-        <artifactId>bw-caldav-server</artifactId>
-        <version>${bw-caldav.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.bedework</groupId>
-        <artifactId>bw-caldav-util</artifactId>
-        <version>${bw-caldav.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.bedework</groupId>
-        <artifactId>bw-caldav-xml</artifactId>
-        <version>${bw-caldav.version}</version>
-      </dependency>
-```
-
-Fully implement the abstract
-org.bedework.caldav.server.sysinterface.SysIntf class. Note that a subset of CalDAV - e.g. read-only, will only require a subset of the implemented methods to be functional. 
+See documentation at [github pages for this project](https://bedework.github.io/bw-caldav/)
 
 ## Reporting Issues
 Please report issues via the github issues tab at 

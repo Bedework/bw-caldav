@@ -14,26 +14,23 @@
         <repository>
           <releases>
             <enabled>true</enabled>
-            <updatePolicy>never</updatePolicy>
           </releases>
           <snapshots>
             <enabled>false</enabled>
-            <updatePolicy>never</updatePolicy>
           </snapshots>
-          <id>central-releases</id>
-          <name>Central Repository</name>
-          <url>https://central.sonatype.com/repository/</url>
+          <id>maven-central</id>
+          <name>Maven Central Repository</name>
+          <url>https://repo1.maven.org/maven2/</url>
           <layout>default</layout>
         </repository>
 
         <repository>
           <releases>
             <enabled>false</enabled>
-            <updatePolicy>never</updatePolicy>
           </releases>
           <snapshots>
             <enabled>true</enabled>
-            <updatePolicy>never</updatePolicy>
+            <updatePolicy>always</updatePolicy>
           </snapshots>
           <id>central</id>
           <name>Central Repository</name>
