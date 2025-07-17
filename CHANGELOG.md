@@ -4,6 +4,9 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## Unreleased (6.1.0-SNAPSHOT)
 
+## [6.0.1] - 2025-07-17
+* Update commons-lang3 - CVE-2025-48924
+
 ## [6.0.0-SNAPSHOT] - 2025-07-01
 * First jakarta release
 * Use a more fluent approach for responses
