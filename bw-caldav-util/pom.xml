@@ -35,7 +35,7 @@
 
 		<dependency>
 			<groupId>org.bedework</groupId>
-			<artifactId>bw-access</artifactId>
+			<artifactId>bw-dav-access</artifactId>
 		</dependency>
 
 		<dependency>

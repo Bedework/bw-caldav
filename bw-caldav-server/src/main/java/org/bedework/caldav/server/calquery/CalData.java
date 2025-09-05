@@ -52,9 +52,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
+import jakarta.servlet.http.HttpServletResponse;
+
 import java.util.Collection;
 
-import jakarta.servlet.http.HttpServletResponse;
 import javax.xml.namespace.QName;
 
 /** Class to represent a calendar-query calendar-data element
@@ -386,13 +387,9 @@ public class CalData extends WebdavProperty implements Logged {
     /* Either allcomp + (either allprop or 0 or more prop) or
               0 or more comp + (either allprop or 0 or more prop)
      */
-    final String name = getOnlyAttrVal(nd, "name");
-    if (name == null) {
-      throw new WebdavBadRequest();
-    }
 
     final CompType c = new CompType();
-    c.setName(name);
+    c.setName(getOnlyAttrVal(nd, "name"));
 
     final Element[] children = getChildren(nd);
 
@@ -482,7 +479,7 @@ public class CalData extends WebdavProperty implements Logged {
     }
   }
 
-  /** Fetch required attribute. Return null for error
+  /** Fetch required attribute. Throw WebdavBadRequest for error
    *
    * @param nd XML node
    * @param name of attribute

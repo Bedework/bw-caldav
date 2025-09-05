@@ -25,11 +25,12 @@ import org.bedework.util.misc.Util;
 import org.bedework.util.xml.tagdefs.IscheduleTags;
 import org.bedework.webdav.servlet.shared.WebdavException;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.Writer;
 import java.util.Base64;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import javax.xml.namespace.QName;
 
 /** Handle ischedule GET requests.
@@ -44,9 +45,6 @@ public class IscheduleGetHandler extends GetHandler {
     super(intf);
   }
 
-  /* (non-Javadoc)
-   * @see org.bedework.caldav.server.get.GetHandler#process(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, org.bedework.caldav.server.PostMethod.RequestPars)
-   */
   @Override
   public void process(final HttpServletRequest req,
                       final HttpServletResponse resp,

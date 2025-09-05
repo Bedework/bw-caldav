@@ -54,9 +54,6 @@ public class WebcalGetHandler extends GetHandler {
     super(intf);
   }
 
-  /* (non-Javadoc)
-   * @see org.bedework.caldav.server.get.GetHandler#process(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, org.bedework.caldav.server.PostMethod.RequestPars)
-   */
   @Override
   public void process(final HttpServletRequest req,
                       final HttpServletResponse resp,

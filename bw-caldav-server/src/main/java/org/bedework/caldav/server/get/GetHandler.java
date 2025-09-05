@@ -25,11 +25,12 @@ import org.bedework.util.xml.XmlEmit;
 import org.bedework.webdav.servlet.shared.WebdavException;
 import org.bedework.webdav.servlet.shared.WebdavNsNode;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 import java.util.Collection;
 import java.util.function.Supplier;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import javax.xml.namespace.QName;
 
 /** Class extended by classes which handle special GET requests, e.g. the
@@ -54,7 +55,7 @@ public abstract class GetHandler {
   /**
    * @param req http request
    * @param resp http response
-   * @param pars
+   * @param pars http request parameters
    */
   public abstract void process(HttpServletRequest req,
                                HttpServletResponse resp,
