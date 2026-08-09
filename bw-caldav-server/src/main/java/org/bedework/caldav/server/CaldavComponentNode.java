@@ -21,10 +21,9 @@ package org.bedework.caldav.server;
 import org.bedework.access.AccessPrincipal;
 import org.bedework.access.CurrentAccess;
 import org.bedework.access.PrivilegeDefs;
+import org.bedework.base.ToString;
 import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.caldav.server.sysinterface.SysIntf.MethodEmitted;
-import org.bedework.base.ToString;
-import org.bedework.util.timezones.DateTimeUtil;
 import org.bedework.util.xml.XmlEmit;
 import org.bedework.util.xml.tagdefs.AppleServerTags;
 import org.bedework.util.xml.tagdefs.CaldavTags;
@@ -42,6 +41,8 @@ import java.util.Collection;
 import java.util.HashMap;
 
 import javax.xml.namespace.QName;
+
+import static org.bedework.util.dates.DateFormatter.fromICalDateTimeUTCtoHttp;
 
 /** Class to represent an entity such as events in caldav.
  *
@@ -575,7 +576,7 @@ public class CaldavComponentNode extends CaldavBwNode {
     }
 
     try {
-      return DateTimeUtil.fromISODateTimeUTCtoRfc822(ev.getLastmod());
+      return fromICalDateTimeUTCtoHttp(ev.getLastmod());
     } catch (final Throwable t) {
       throw new WebdavException(t);
     }

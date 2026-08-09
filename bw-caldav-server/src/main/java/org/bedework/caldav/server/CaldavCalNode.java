@@ -21,15 +21,14 @@ package org.bedework.caldav.server;
 import org.bedework.access.AccessPrincipal;
 import org.bedework.access.CurrentAccess;
 import org.bedework.access.PrivilegeDefs;
+import org.bedework.base.ToString;
 import org.bedework.caldav.server.sysinterface.CalPrincipalInfo;
 import org.bedework.caldav.server.sysinterface.SysIntf;
 import org.bedework.caldav.server.sysinterface.SysIntf.MethodEmitted;
 import org.bedework.caldav.util.filter.FilterBase;
 import org.bedework.caldav.util.sharing.InviteType;
 import org.bedework.util.calendar.XcalUtil;
-import org.bedework.base.ToString;
 import org.bedework.util.misc.Util;
-import org.bedework.util.timezones.DateTimeUtil;
 import org.bedework.util.xml.XmlEmit;
 import org.bedework.util.xml.XmlUtil;
 import org.bedework.util.xml.tagdefs.AppleIcalTags;
@@ -70,6 +69,9 @@ import org.oasis_open.docs.ws_calendar.ns.soap.StringPropertyType;
 import org.oasis_open.docs.ws_calendar.ns.soap.SupportedCalendarComponentSetType;
 import org.w3c.dom.Element;
 
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.xml.bind.JAXBElement;
+
 import java.io.Writer;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -78,9 +80,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.function.Supplier;
 
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
+
+import static org.bedework.util.dates.DateFormatter.fromICalDateTimeUTCtoHttp;
 
 /** Class to represent a calendar in caldav.
  *
@@ -460,7 +462,7 @@ public class CaldavCalNode extends CaldavBwNode {
     }
 
     try {
-      return DateTimeUtil.fromISODateTimeUTCtoRfc822(col.getLastmod());
+      return fromICalDateTimeUTCtoHttp(col.getLastmod());
     } catch (final Throwable t) {
       throw new WebdavException(t);
     }

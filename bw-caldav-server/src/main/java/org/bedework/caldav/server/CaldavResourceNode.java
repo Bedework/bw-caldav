@@ -26,7 +26,6 @@ import org.bedework.caldav.util.notifications.BaseNotificationType.AttributeType
 import org.bedework.caldav.util.notifications.NotificationType.NotificationInfo;
 import org.bedework.base.ToString;
 import org.bedework.util.misc.Util;
-import org.bedework.util.timezones.DateTimeUtil;
 import org.bedework.util.xml.XmlEmit;
 import org.bedework.util.xml.tagdefs.AppleServerTags;
 import org.bedework.webdav.servlet.shared.WebdavException;
@@ -39,6 +38,8 @@ import java.io.Writer;
 import java.util.HashMap;
 
 import javax.xml.namespace.QName;
+
+import static org.bedework.util.dates.DateFormatter.fromICalDateTimeUTCtoHttp;
 
 /** Class to represent a resource such as a file.
  *
@@ -399,8 +400,7 @@ public class CaldavResourceNode extends CaldavBwNode {
     }
 
     try {
-      return DateTimeUtil.fromISODateTimeUTCtoRfc822(
-              resource.getLastmod());
+      return fromICalDateTimeUTCtoHttp(resource.getLastmod());
     } catch (final Throwable t) {
       throw new WebdavException(t);
     }

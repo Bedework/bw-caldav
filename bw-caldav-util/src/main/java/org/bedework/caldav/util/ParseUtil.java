@@ -18,7 +18,7 @@
 */
 package org.bedework.caldav.util;
 
-import org.bedework.util.timezones.DateTimeUtil;
+import org.bedework.base.exc.BedeworkBadDateException;
 import org.bedework.util.xml.tagdefs.CaldavTags;
 import org.bedework.webdav.servlet.shared.WebdavBadRequest;
 import org.bedework.webdav.servlet.shared.WebdavException;
@@ -30,6 +30,8 @@ import org.w3c.dom.Node;
 
 import java.util.Calendar;
 import java.util.Objects;
+
+import static org.bedework.util.dates.DateFormatter.parseDate;
 
 /** Some utilities for parsing caldav
  *
@@ -236,15 +238,15 @@ public class ParseUtil {
 
     try {
       if (start != null) {
-        startCal.setTime(DateTimeUtil.fromDate(start));
+        startCal.setTime(parseDate(start));
       }
 
       if (end == null) {
         endCal.add(defaultField, defVal);
       } else {
-        endCal.setTime(DateTimeUtil.fromDate(end));
+        endCal.setTime(parseDate(end));
       }
-    } catch (final DateTimeUtil.BadDateException bde) {
+    } catch (final BedeworkBadDateException bde) {
       throw new WebdavBadRequest();
     }
 
